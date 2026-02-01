@@ -1030,6 +1030,23 @@ async def seed_data():
             pet_obj = Pet(**pet, owner_id="system")
             await db.pets.insert_one(pet_obj.dict())
     
+    # Seed Map Locations
+    map_locations_data = [
+        {"name": "Damascus Pet Care Center", "type": "vet", "address": "Mezzeh, Damascus", "city": "Damascus", "latitude": 33.5138, "longitude": 36.2765, "phone": "+963912345678", "rating": 4.8, "is_open_now": True, "hours": "9:00 AM - 9:00 PM"},
+        {"name": "Feline Friends Clinic", "type": "clinic", "address": "Malki, Damascus", "city": "Damascus", "latitude": 33.5200, "longitude": 36.2900, "phone": "+963923456789", "rating": 4.9, "is_open_now": True, "hours": "10:00 AM - 8:00 PM"},
+        {"name": "Happy Paws Pet Shop", "type": "pet_shop", "address": "Abu Rummaneh, Damascus", "city": "Damascus", "latitude": 33.5180, "longitude": 36.2850, "phone": "+963955555555", "rating": 4.5, "is_open_now": True, "hours": "10:00 AM - 10:00 PM"},
+        {"name": "Syria Animal Shelter", "type": "shelter", "address": "Daraya Road, Damascus", "city": "Damascus", "latitude": 33.4800, "longitude": 36.2400, "phone": "+963922222222", "rating": 4.7, "is_open_now": False, "hours": "9:00 AM - 5:00 PM"},
+        {"name": "Pet Paradise Store", "type": "pet_shop", "address": "Sha'lan, Damascus", "city": "Damascus", "latitude": 33.5120, "longitude": 36.2920, "phone": "+963966666666", "rating": 4.3, "is_open_now": True, "hours": "11:00 AM - 11:00 PM"},
+        {"name": "Al-Jahez Park", "type": "park", "address": "Al-Jahez St, Damascus", "city": "Damascus", "latitude": 33.5050, "longitude": 36.3000, "rating": 4.6, "is_open_now": True, "hours": "6:00 AM - 10:00 PM"},
+        {"name": "Aleppo Vet Hospital", "type": "vet", "address": "City Center, Aleppo", "city": "Aleppo", "latitude": 36.2021, "longitude": 37.1343, "phone": "+963934567890", "rating": 4.7, "is_open_now": True, "hours": "24/7"},
+        {"name": "Homs Pet Clinic", "type": "clinic", "address": "Central Homs", "city": "Homs", "latitude": 34.7324, "longitude": 36.7137, "phone": "+963945678901", "rating": 4.4, "is_open_now": True, "hours": "8:00 AM - 6:00 PM"},
+    ]
+    
+    for loc in map_locations_data:
+        existing = await db.map_locations.find_one({"name": loc["name"]})
+        if not existing:
+            await db.map_locations.insert_one(MapLocation(**loc).dict())
+    
     return {"message": "Seed data created successfully"}
 
 # ========================= MAIN ROUTES =========================
