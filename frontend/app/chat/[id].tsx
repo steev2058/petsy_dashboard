@@ -62,8 +62,14 @@ export default function ChatScreen() {
   const loadMessages = async () => {
     try {
       const response = await conversationsAPI.getMessages(id as string);
-      setMessages(response.data.messages || []);
-      setConversation(response.data.conversation || { id: id as string });
+      // API returns array directly or object with messages
+      const messagesData = Array.isArray(response.data) ? response.data : (response.data.messages || []);
+      setMessages(messagesData);
+      if (!Array.isArray(response.data) && response.data.conversation) {
+        setConversation(response.data.conversation);
+      } else {
+        setConversation({ id: id as string });
+      }
     } catch (error) {
       console.error('Error loading messages:', error);
     } finally {
@@ -74,14 +80,33 @@ export default function ChatScreen() {
   const sendMessage = async () => {
     if (!inputText.trim() || sending) return;
 
+    const messageContent = inputText.trim();
     setSending(true);
+    
+    // Optimistically add the message to the UI
+    const optimisticMessage: ChatMessage = {
+      id: `temp-${Date.now()}`,
+      conversation_id: id as string,
+      sender_id: user?.id || '',
+      content: messageContent,
+      created_at: new Date().toISOString(),
+      is_read: false,
+    };
+    setMessages(prev => [...prev, optimisticMessage]);
+    setInputText('');
+    
     try {
-      await conversationsAPI.sendMessage(id as string, inputText.trim());
-      setInputText('');
+      await conversationsAPI.sendMessage(id as string, messageContent);
+      // Reload to get the real message with correct ID
       await loadMessages();
-      flatListRef.current?.scrollToEnd({ animated: true });
+      setTimeout(() => {
+        flatListRef.current?.scrollToEnd({ animated: true });
+      }, 100);
     } catch (error) {
       console.error('Error sending message:', error);
+      // Remove optimistic message on error
+      setMessages(prev => prev.filter(m => m.id !== optimisticMessage.id));
+      setInputText(messageContent);
     } finally {
       setSending(false);
     }
