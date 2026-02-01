@@ -359,6 +359,64 @@ const styles = StyleSheet.create({
   editButton: {
     marginTop: Spacing.md,
   },
+  loyaltyCard: {
+    marginHorizontal: Spacing.md,
+    marginTop: Spacing.md,
+    borderRadius: BorderRadius.xl,
+    overflow: 'hidden',
+  },
+  loyaltyGradient: {
+    padding: Spacing.lg,
+  },
+  loyaltyHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: Spacing.md,
+  },
+  tierBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    backgroundColor: 'rgba(255,255,255,0.2)',
+    paddingHorizontal: Spacing.sm,
+    paddingVertical: 4,
+    borderRadius: BorderRadius.sm,
+  },
+  tierText: {
+    fontSize: FontSize.xs,
+    fontWeight: '700',
+    color: Colors.white,
+  },
+  loyaltyTitle: {
+    fontSize: FontSize.sm,
+    color: 'rgba(255,255,255,0.8)',
+    fontWeight: '600',
+  },
+  loyaltyContent: {
+    alignItems: 'center',
+    marginBottom: Spacing.md,
+  },
+  pointsValue: {
+    fontSize: 36,
+    fontWeight: '800',
+    color: Colors.white,
+  },
+  pointsLabel: {
+    fontSize: FontSize.md,
+    color: 'rgba(255,255,255,0.9)',
+    marginTop: Spacing.xs,
+  },
+  loyaltyFooter: {
+    borderTopWidth: 1,
+    borderTopColor: 'rgba(255,255,255,0.2)',
+    paddingTop: Spacing.sm,
+    alignItems: 'center',
+  },
+  loyaltyFooterText: {
+    fontSize: FontSize.xs,
+    color: 'rgba(255,255,255,0.8)',
+  },
   section: {
     marginTop: Spacing.md,
   },
