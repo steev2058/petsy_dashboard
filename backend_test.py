@@ -1,30 +1,29 @@
 #!/usr/bin/env python3
 """
-Backend API Testing for Petsy App - Sponsorship and Conversations APIs
-Testing the following endpoints:
-1. Sponsorship API (HIGH PRIORITY)
-2. Conversations/Messages API
+Backend API Testing for Petsy Admin Dashboard
+Tests admin access control and admin endpoints functionality
 """
 
 import requests
 import json
-import time
-import random
-import string
 import sys
 from datetime import datetime
 
-# Backend URL from frontend/.env
+# Backend URL from frontend .env
 BACKEND_URL = "https://petadopt-8.preview.emergentagent.com/api"
 
-class PetsyAPITester:
+# Admin credentials
+ADMIN_EMAIL = "admin@petsy.com"
+ADMIN_PASSWORD = "admin123"
+
+# Test user credentials (for non-admin testing)
+TEST_USER_EMAIL = "testuser@petsy.com"
+TEST_USER_PASSWORD = "testpass123"
+
+class AdminEndpointTester:
     def __init__(self):
-        self.base_url = BACKEND_URL
-        self.auth_token = None
-        self.user_id = None
-        self.test_pet_id = None
-        self.test_owner_id = None
-        self.conversation_id = None
+        self.admin_token = None
+        self.user_token = None
         self.test_results = []
         
     def log_result(self, test_name, success, message, details=None):
@@ -41,289 +40,306 @@ class PetsyAPITester:
         print(f"{status}: {test_name} - {message}")
         if details and not success:
             print(f"   Details: {details}")
-        
-    def generate_test_email(self):
-        """Generate unique test email"""
-        random_str = ''.join(random.choices(string.ascii_lowercase + string.digits, k=8))
-        return f"testuser_{random_str}@petsy.com"
-        
-    def make_request(self, method, endpoint, data=None, headers=None, auth_required=True):
-        """Make HTTP request with proper error handling"""
-        url = f"{self.base_url}{endpoint}"
-        
-        if headers is None:
-            headers = {"Content-Type": "application/json"}
-            
-        if auth_required and self.auth_token:
-            headers["Authorization"] = f"Bearer {self.auth_token}"
-            
+    
+    def setup_admin_auth(self):
+        """Login with admin user and get token"""
         try:
-            if method.upper() == "GET":
-                response = requests.get(url, headers=headers, timeout=30)
-            elif method.upper() == "POST":
-                response = requests.post(url, json=data, headers=headers, timeout=30)
-            elif method.upper() == "PUT":
-                response = requests.put(url, json=data, headers=headers, timeout=30)
-            elif method.upper() == "DELETE":
-                response = requests.delete(url, headers=headers, timeout=30)
+            # First ensure seed data exists (admin user)
+            seed_response = requests.post(f"{BACKEND_URL}/seed")
+            print(f"Seed data response: {seed_response.status_code}")
+            
+            # Login as admin
+            login_data = {
+                "email": ADMIN_EMAIL,
+                "password": ADMIN_PASSWORD
+            }
+            
+            response = requests.post(f"{BACKEND_URL}/auth/login", json=login_data)
+            
+            if response.status_code == 200:
+                data = response.json()
+                self.admin_token = data["access_token"]
+                user_info = data["user"]
+                
+                # Verify admin privileges
+                if user_info.get("is_admin") and user_info.get("role") == "admin":
+                    self.log_result("Admin Login", True, f"Successfully logged in as admin: {user_info['name']}")
+                    return True
+                else:
+                    self.log_result("Admin Login", False, f"User logged in but lacks admin privileges: is_admin={user_info.get('is_admin')}, role={user_info.get('role')}")
+                    return False
             else:
-                raise ValueError(f"Unsupported method: {method}")
-                
-            return response
-        except requests.exceptions.RequestException as e:
-            self.log_result(f"{method} {endpoint}", False, f"Request failed: {e}")
-            return None
-    
-    def test_seed_data(self):
-        """Test seed data endpoint"""
-        print("🌱 Testing seed data creation...")
-        response = self.make_request("POST", "/seed", auth_required=False)
-        
-        if response and response.status_code == 200:
-            self.log_result("Seed Data", True, "Seed data created successfully")
-            return True
-        else:
-            self.log_result("Seed Data", False, f"Seed data failed: {response.status_code if response else 'No response'}")
-            return False
-            
-    def test_user_signup_and_verify(self):
-        """Test user signup and verification"""
-        print("👤 Testing user signup and verification...")
-        
-        # Generate test user data
-        test_email = self.generate_test_email()
-        user_data = {
-            "email": test_email,
-            "name": "Test User Sponsorship",
-            "password": "testpass123",
-            "phone": "+963987654321"
-        }
-        
-        # Signup
-        response = self.make_request("POST", "/auth/signup", user_data, auth_required=False)
-        if not response or response.status_code != 200:
-            self.log_result("User Signup", False, f"Signup failed: {response.status_code if response else 'No response'}")
-            return False
-            
-        signup_data = response.json()
-        self.user_id = signup_data.get("user_id")
-        verification_code = signup_data.get("verification_code")
-        
-        self.log_result("User Signup", True, f"User signed up: {test_email}")
-        
-        # Verify account
-        verify_response = self.make_request("POST", f"/auth/verify?user_id={self.user_id}&code={verification_code}", auth_required=False)
-        if not verify_response or verify_response.status_code != 200:
-            self.log_result("User Verification", False, f"Verification failed: {verify_response.status_code if verify_response else 'No response'}")
-            return False
-            
-        verify_data = verify_response.json()
-        self.auth_token = verify_data.get("access_token")
-        
-        self.log_result("User Verification", True, "User verified and authenticated")
-        return True
-        
-    def test_get_pets(self):
-        """Get pets for testing sponsorship"""
-        print("🐕 Getting pets for testing...")
-        
-        response = self.make_request("GET", "/pets", auth_required=False)
-        if not response or response.status_code != 200:
-            self.log_result("Get Pets", False, f"Failed to get pets: {response.status_code if response else 'No response'}")
-            return False
-            
-        pets = response.json()
-        if not pets:
-            self.log_result("Get Pets", False, "No pets found in database")
-            return False
-            
-        # Use first pet for testing
-        self.test_pet_id = pets[0]["id"]
-        self.test_owner_id = pets[0]["owner_id"]
-        
-        self.log_result("Get Pets", True, f"Found test pet: {pets[0]['name']} (ID: {self.test_pet_id})")
-        return True
-        
-    def test_sponsorship_api(self):
-        """Test all sponsorship endpoints"""
-        print("💰 Testing Sponsorship API...")
-        
-        if not self.test_pet_id:
-            self.log_result("Sponsorship API", False, "No test pet available for sponsorship")
-            return False
-            
-        # Test 1: Create sponsorship
-        print("Testing POST /api/sponsorships...")
-        sponsorship_data = {
-            "pet_id": self.test_pet_id,
-            "amount": 25.00,
-            "message": "Good luck!",
-            "is_anonymous": False
-        }
-        
-        response = self.make_request("POST", "/sponsorships", sponsorship_data)
-        if not response or response.status_code != 200:
-            self.log_result("POST /api/sponsorships", False, f"Create sponsorship failed: {response.status_code if response else 'No response'}")
-            if response:
-                print(f"Response: {response.text}")
-            return False
-            
-        sponsorship = response.json()
-        self.log_result("POST /api/sponsorships", True, f"Sponsorship created: ${sponsorship['amount']} for pet {sponsorship['pet_id']}")
-        
-        # Test 2: Get user's sponsorships
-        print("Testing GET /api/sponsorships/my...")
-        response = self.make_request("GET", "/sponsorships/my")
-        if not response or response.status_code != 200:
-            self.log_result("GET /api/sponsorships/my", False, f"Get my sponsorships failed: {response.status_code if response else 'No response'}")
-            return False
-            
-        my_sponsorships = response.json()
-        self.log_result("GET /api/sponsorships/my", True, f"Retrieved {len(my_sponsorships)} user sponsorships")
-        
-        # Test 3: Get sponsorships for a pet
-        print(f"Testing GET /api/sponsorships/pet/{self.test_pet_id}...")
-        response = self.make_request("GET", f"/sponsorships/pet/{self.test_pet_id}", auth_required=False)
-        if not response or response.status_code != 200:
-            self.log_result("GET /api/sponsorships/pet/{pet_id}", False, f"Get pet sponsorships failed: {response.status_code if response else 'No response'}")
-            return False
-            
-        pet_sponsorships = response.json()
-        self.log_result("GET /api/sponsorships/pet/{pet_id}", True, f"Retrieved {len(pet_sponsorships)} sponsorships for pet")
-        
-        return True
-        
-    def test_conversations_api(self):
-        """Test conversations and messages API"""
-        print("💬 Testing Conversations/Messages API...")
-        
-        if not self.test_owner_id:
-            self.log_result("Conversations API", False, "No test owner available for conversation")
-            return False
-            
-        # Test 1: Create/get conversation
-        print("Testing POST /api/conversations...")
-        conversation_data = {
-            "other_user_id": self.test_owner_id,
-            "pet_id": self.test_pet_id,
-            "initial_message": "Hi! I'm interested in this pet."
-        }
-        
-        response = self.make_request("POST", "/conversations", conversation_data)
-        if not response or response.status_code != 200:
-            self.log_result("POST /api/conversations", False, f"Create conversation failed: {response.status_code if response else 'No response'}")
-            if response:
-                print(f"Response: {response.text}")
-            return False
-            
-        conv_result = response.json()
-        self.conversation_id = conv_result.get("conversation_id")
-        self.log_result("POST /api/conversations", True, f"Conversation created/found: {self.conversation_id}")
-        
-        # Test 2: List user's conversations
-        print("Testing GET /api/conversations...")
-        response = self.make_request("GET", "/conversations")
-        if not response or response.status_code != 200:
-            self.log_result("GET /api/conversations", False, f"Get conversations failed: {response.status_code if response else 'No response'}")
-            return False
-            
-        conversations = response.json()
-        self.log_result("GET /api/conversations", True, f"Retrieved {len(conversations)} conversations")
-        
-        # Test 3: Get messages for conversation
-        if self.conversation_id:
-            print(f"Testing GET /api/conversations/{self.conversation_id}/messages...")
-            response = self.make_request("GET", f"/conversations/{self.conversation_id}/messages")
-            if not response or response.status_code != 200:
-                self.log_result("GET /api/conversations/{id}/messages", False, f"Get messages failed: {response.status_code if response else 'No response'}")
+                self.log_result("Admin Login", False, f"Login failed with status {response.status_code}", response.text)
                 return False
                 
-            messages = response.json()
-            self.log_result("GET /api/conversations/{id}/messages", True, f"Retrieved {len(messages)} messages")
+        except Exception as e:
+            self.log_result("Admin Login", False, f"Exception during admin login: {str(e)}")
+            return False
+    
+    def setup_regular_user_auth(self):
+        """Create and login with regular user for non-admin testing"""
+        try:
+            # Create test user
+            signup_data = {
+                "email": TEST_USER_EMAIL,
+                "name": "Test User",
+                "password": TEST_USER_PASSWORD,
+                "phone": "+963900000001"
+            }
             
-            # Test 4: Send a message
-            print(f"Testing POST /api/conversations/{self.conversation_id}/messages...")
+            signup_response = requests.post(f"{BACKEND_URL}/auth/signup", json=signup_data)
             
-            # Note: The endpoint expects content as a query parameter, not JSON body
-            response = self.make_request("POST", f"/conversations/{self.conversation_id}/messages?content=Thank you for the information!")
-            if not response or response.status_code != 200:
-                self.log_result("POST /api/conversations/{id}/messages", False, f"Send message failed: {response.status_code if response else 'No response'}")
-                if response:
-                    print(f"Response: {response.text}")
+            if signup_response.status_code == 200:
+                signup_result = signup_response.json()
+                user_id = signup_result["user_id"]
+                verification_code = signup_result["verification_code"]
+                
+                # Verify account
+                verify_response = requests.post(f"{BACKEND_URL}/auth/verify", params={
+                    "user_id": user_id,
+                    "code": verification_code
+                })
+                
+                if verify_response.status_code == 200:
+                    verify_data = verify_response.json()
+                    self.user_token = verify_data["access_token"]
+                    self.log_result("Regular User Setup", True, "Created and verified test user")
+                    return True
+                else:
+                    self.log_result("Regular User Setup", False, f"Verification failed: {verify_response.status_code}")
+                    return False
+            else:
+                # User might already exist, try to login
+                login_data = {
+                    "email": TEST_USER_EMAIL,
+                    "password": TEST_USER_PASSWORD
+                }
+                
+                login_response = requests.post(f"{BACKEND_URL}/auth/login", json=login_data)
+                
+                if login_response.status_code == 200:
+                    login_result = login_response.json()
+                    self.user_token = login_result["access_token"]
+                    self.log_result("Regular User Setup", True, "Logged in with existing test user")
+                    return True
+                else:
+                    self.log_result("Regular User Setup", False, f"Login failed: {login_response.status_code}")
+                    return False
+                    
+        except Exception as e:
+            self.log_result("Regular User Setup", False, f"Exception during user setup: {str(e)}")
+            return False
+    
+    def test_admin_stats_endpoint(self):
+        """Test GET /api/admin/stats endpoint"""
+        try:
+            headers = {"Authorization": f"Bearer {self.admin_token}"}
+            response = requests.get(f"{BACKEND_URL}/admin/stats", headers=headers)
+            
+            if response.status_code == 200:
+                data = response.json()
+                
+                # Verify expected fields in stats
+                expected_fields = ["users_count", "pets_count", "revenue", "monthly_stats"]
+                missing_fields = [field for field in expected_fields if field not in data]
+                
+                if not missing_fields:
+                    self.log_result("Admin Stats Endpoint", True, f"Stats returned successfully with all expected fields: {list(data.keys())}")
+                    return True
+                else:
+                    self.log_result("Admin Stats Endpoint", False, f"Missing expected fields: {missing_fields}", data)
+                    return False
+            else:
+                self.log_result("Admin Stats Endpoint", False, f"Request failed with status {response.status_code}", response.text)
                 return False
                 
-            new_message = response.json()
-            self.log_result("POST /api/conversations/{id}/messages", True, f"Message sent: {new_message.get('content', 'N/A')}")
-        
-        return True
+        except Exception as e:
+            self.log_result("Admin Stats Endpoint", False, f"Exception: {str(e)}")
+            return False
     
-    def run_all_tests(self):
-        """Run all tests in sequence"""
-        print("=" * 60)
-        print("PETSY BACKEND API TESTING - SPONSORSHIP & CONVERSATIONS")
-        print("=" * 60)
-        print(f"Backend URL: {self.base_url}")
-        print("=" * 60)
+    def test_admin_users_endpoint(self):
+        """Test GET /api/admin/users endpoint"""
+        try:
+            headers = {"Authorization": f"Bearer {self.admin_token}"}
+            response = requests.get(f"{BACKEND_URL}/admin/users", headers=headers)
+            
+            if response.status_code == 200:
+                data = response.json()
+                
+                if isinstance(data, list) and len(data) > 0:
+                    # Check if users have is_admin field
+                    first_user = data[0]
+                    if "is_admin" in first_user:
+                        admin_users = [u for u in data if u.get("is_admin")]
+                        self.log_result("Admin Users Endpoint", True, f"Retrieved {len(data)} users, {len(admin_users)} admin users")
+                        return True
+                    else:
+                        self.log_result("Admin Users Endpoint", False, "Users missing is_admin field", first_user)
+                        return False
+                else:
+                    self.log_result("Admin Users Endpoint", False, "No users returned or invalid format", data)
+                    return False
+            else:
+                self.log_result("Admin Users Endpoint", False, f"Request failed with status {response.status_code}", response.text)
+                return False
+                
+        except Exception as e:
+            self.log_result("Admin Users Endpoint", False, f"Exception: {str(e)}")
+            return False
+    
+    def test_admin_orders_endpoint(self):
+        """Test GET /api/admin/orders endpoint"""
+        try:
+            headers = {"Authorization": f"Bearer {self.admin_token}"}
+            response = requests.get(f"{BACKEND_URL}/admin/orders", headers=headers)
+            
+            if response.status_code == 200:
+                data = response.json()
+                
+                if isinstance(data, list):
+                    self.log_result("Admin Orders Endpoint", True, f"Retrieved {len(data)} orders")
+                    return True
+                else:
+                    self.log_result("Admin Orders Endpoint", False, "Invalid response format", data)
+                    return False
+            else:
+                self.log_result("Admin Orders Endpoint", False, f"Request failed with status {response.status_code}", response.text)
+                return False
+                
+        except Exception as e:
+            self.log_result("Admin Orders Endpoint", False, f"Exception: {str(e)}")
+            return False
+    
+    def test_admin_products_endpoint(self):
+        """Test GET /api/admin/products endpoint"""
+        try:
+            headers = {"Authorization": f"Bearer {self.admin_token}"}
+            response = requests.get(f"{BACKEND_URL}/admin/products", headers=headers)
+            
+            if response.status_code == 200:
+                data = response.json()
+                
+                if isinstance(data, list):
+                    self.log_result("Admin Products Endpoint", True, f"Retrieved {len(data)} products")
+                    return True
+                else:
+                    self.log_result("Admin Products Endpoint", False, "Invalid response format", data)
+                    return False
+            else:
+                self.log_result("Admin Products Endpoint", False, f"Request failed with status {response.status_code}", response.text)
+                return False
+                
+        except Exception as e:
+            self.log_result("Admin Products Endpoint", False, f"Exception: {str(e)}")
+            return False
+    
+    def test_non_admin_access_control(self):
+        """Test that non-admin users get 403 Forbidden on admin endpoints"""
+        if not self.user_token:
+            self.log_result("Non-Admin Access Control", False, "No regular user token available")
+            return False
         
-        tests = [
-            ("Seed Data", self.test_seed_data),
-            ("User Signup & Verify", self.test_user_signup_and_verify),
-            ("Get Pets", self.test_get_pets),
-            ("Sponsorship API", self.test_sponsorship_api),
-            ("Conversations API", self.test_conversations_api)
+        admin_endpoints = [
+            "/admin/stats",
+            "/admin/users", 
+            "/admin/orders",
+            "/admin/products"
         ]
         
-        results = {}
+        headers = {"Authorization": f"Bearer {self.user_token}"}
+        forbidden_count = 0
         
-        for test_name, test_func in tests:
-            print(f"\n{'='*50}")
-            print(f"Running: {test_name}")
-            print(f"{'='*50}")
-            
+        for endpoint in admin_endpoints:
             try:
-                result = test_func()
-                results[test_name] = result
+                response = requests.get(f"{BACKEND_URL}{endpoint}", headers=headers)
                 
-                if result:
-                    print(f"✅ {test_name} - PASSED")
+                if response.status_code == 403:
+                    forbidden_count += 1
+                    print(f"   ✅ {endpoint}: Correctly returned 403 Forbidden")
                 else:
-                    print(f"❌ {test_name} - FAILED")
+                    print(f"   ❌ {endpoint}: Expected 403, got {response.status_code}")
                     
             except Exception as e:
-                print(f"❌ {test_name} - ERROR: {e}")
-                results[test_name] = False
-                
-            time.sleep(1)  # Brief pause between tests
-            
-        # Summary
-        print(f"\n{'='*60}")
-        print("TEST SUMMARY")
-        print(f"{'='*60}")
+                print(f"   ❌ {endpoint}: Exception - {str(e)}")
         
-        passed = sum(1 for result in results.values() if result)
-        total = len(results)
+        if forbidden_count == len(admin_endpoints):
+            self.log_result("Non-Admin Access Control", True, f"All {len(admin_endpoints)} admin endpoints correctly returned 403 for non-admin user")
+            return True
+        else:
+            self.log_result("Non-Admin Access Control", False, f"Only {forbidden_count}/{len(admin_endpoints)} endpoints returned 403")
+            return False
+    
+    def run_all_tests(self):
+        """Run all admin endpoint tests"""
+        print("🚀 Starting Admin Dashboard Backend Testing...")
+        print(f"Backend URL: {BACKEND_URL}")
+        print("=" * 60)
         
-        for test_name, result in results.items():
-            status = "✅ PASSED" if result else "❌ FAILED"
-            print(f"{test_name}: {status}")
-            
-        print(f"\nOverall: {passed}/{total} tests passed")
+        # Setup authentication
+        if not self.setup_admin_auth():
+            print("❌ Cannot proceed without admin authentication")
+            return False
+        
+        if not self.setup_regular_user_auth():
+            print("⚠️  Cannot test access control without regular user")
+        
+        # Run admin endpoint tests
+        tests = [
+            self.test_admin_stats_endpoint,
+            self.test_admin_users_endpoint,
+            self.test_admin_orders_endpoint,
+            self.test_admin_products_endpoint,
+            self.test_non_admin_access_control
+        ]
+        
+        passed = 0
+        total = len(tests)
+        
+        for test in tests:
+            if test():
+                passed += 1
+        
+        print("=" * 60)
+        print(f"📊 Test Results: {passed}/{total} tests passed")
         
         if passed == total:
-            print("🎉 All tests passed!")
+            print("🎉 All admin endpoint tests PASSED!")
+            return True
         else:
-            print("⚠️  Some tests failed - check logs above")
-            
-        return results
+            print(f"⚠️  {total - passed} tests FAILED")
+            return False
+    
+    def print_summary(self):
+        """Print detailed test summary"""
+        print("\n" + "=" * 60)
+        print("📋 DETAILED TEST SUMMARY")
+        print("=" * 60)
+        
+        for result in self.test_results:
+            status = "✅ PASS" if result["success"] else "❌ FAIL"
+            print(f"{status}: {result['test']}")
+            print(f"   Message: {result['message']}")
+            if result["details"] and not result["success"]:
+                print(f"   Details: {result['details']}")
+            print()
+
+def main():
+    """Main test execution"""
+    tester = AdminEndpointTester()
+    
+    try:
+        success = tester.run_all_tests()
+        tester.print_summary()
+        
+        # Exit with appropriate code
+        sys.exit(0 if success else 1)
+        
+    except KeyboardInterrupt:
+        print("\n⚠️  Tests interrupted by user")
+        sys.exit(1)
+    except Exception as e:
+        print(f"\n💥 Unexpected error: {str(e)}")
+        sys.exit(1)
 
 if __name__ == "__main__":
-    tester = PetsyAPITester()
-    results = tester.run_all_tests()
-    
-    # Exit with appropriate code
-    if all(results.values()):
-        print("\n🎉 ALL TESTS PASSED!")
-        sys.exit(0)
-    else:
-        print("\n💥 SOME TESTS FAILED!")
-        sys.exit(1)
+    main()
