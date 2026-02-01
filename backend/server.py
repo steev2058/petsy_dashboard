@@ -988,6 +988,316 @@ async def like_community_post(post_id: str, current_user: dict = Depends(get_cur
     await db.community.update_one({"id": post_id}, {"$inc": {"likes": 1}})
     return {"message": "Liked"}
 
+# ========================= COMMUNITY COMMENTS =========================
+
+class CommentCreate(BaseModel):
+    content: str
+
+class Comment(BaseModel):
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    post_id: str
+    user_id: str
+    user_name: str
+    user_avatar: Optional[str] = None
+    content: str
+    created_at: datetime = Field(default_factory=datetime.utcnow)
+
+@api_router.post("/community/{post_id}/comments")
+async def create_comment(post_id: str, comment: CommentCreate, current_user: dict = Depends(get_current_user)):
+    new_comment = Comment(
+        post_id=post_id,
+        user_id=current_user["id"],
+        user_name=current_user["name"],
+        user_avatar=current_user.get("avatar"),
+        content=comment.content
+    )
+    await db.comments.insert_one(new_comment.dict())
+    await db.community.update_one({"id": post_id}, {"$inc": {"comments": 1}})
+    return new_comment
+
+@api_router.get("/community/{post_id}/comments")
+async def get_comments(post_id: str):
+    comments = await db.comments.find({"post_id": post_id}).sort("created_at", -1).to_list(100)
+    return comments
+
+# ========================= HEALTH RECORDS =========================
+
+class HealthRecordCreate(BaseModel):
+    pet_id: str
+    record_type: str  # vaccination, vet_visit, medication, weight, other
+    title: str
+    description: Optional[str] = None
+    date: str
+    vet_name: Optional[str] = None
+    clinic_name: Optional[str] = None
+    next_due_date: Optional[str] = None
+    notes: Optional[str] = None
+    attachments: Optional[List[str]] = []
+
+class HealthRecord(BaseModel):
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    pet_id: str
+    user_id: str
+    record_type: str
+    title: str
+    description: Optional[str] = None
+    date: str
+    vet_name: Optional[str] = None
+    clinic_name: Optional[str] = None
+    next_due_date: Optional[str] = None
+    notes: Optional[str] = None
+    attachments: List[str] = []
+    created_at: datetime = Field(default_factory=datetime.utcnow)
+
+@api_router.post("/health-records")
+async def create_health_record(record: HealthRecordCreate, current_user: dict = Depends(get_current_user)):
+    # Verify pet belongs to user
+    pet = await db.pets.find_one({"id": record.pet_id, "owner_id": current_user["id"]})
+    if not pet:
+        raise HTTPException(status_code=404, detail="Pet not found")
+    
+    new_record = HealthRecord(**record.dict(), user_id=current_user["id"])
+    await db.health_records.insert_one(new_record.dict())
+    return new_record
+
+@api_router.get("/health-records/{pet_id}")
+async def get_health_records(pet_id: str, current_user: dict = Depends(get_current_user)):
+    records = await db.health_records.find({"pet_id": pet_id}).sort("date", -1).to_list(100)
+    return records
+
+@api_router.delete("/health-records/{record_id}")
+async def delete_health_record(record_id: str, current_user: dict = Depends(get_current_user)):
+    result = await db.health_records.delete_one({"id": record_id, "user_id": current_user["id"]})
+    if result.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="Record not found")
+    return {"message": "Record deleted"}
+
+# ========================= FAVORITES =========================
+
+@api_router.post("/favorites/{item_type}/{item_id}")
+async def add_favorite(item_type: str, item_id: str, current_user: dict = Depends(get_current_user)):
+    """Add pet or product to favorites. item_type: 'pet' or 'product'"""
+    favorite = {
+        "id": str(uuid.uuid4()),
+        "user_id": current_user["id"],
+        "item_type": item_type,
+        "item_id": item_id,
+        "created_at": datetime.utcnow()
+    }
+    # Check if already favorited
+    existing = await db.favorites.find_one({
+        "user_id": current_user["id"],
+        "item_type": item_type,
+        "item_id": item_id
+    })
+    if existing:
+        return {"message": "Already in favorites", "is_favorite": True}
+    
+    await db.favorites.insert_one(favorite)
+    return {"message": "Added to favorites", "is_favorite": True}
+
+@api_router.delete("/favorites/{item_type}/{item_id}")
+async def remove_favorite(item_type: str, item_id: str, current_user: dict = Depends(get_current_user)):
+    await db.favorites.delete_one({
+        "user_id": current_user["id"],
+        "item_type": item_type,
+        "item_id": item_id
+    })
+    return {"message": "Removed from favorites", "is_favorite": False}
+
+@api_router.get("/favorites")
+async def get_favorites(item_type: Optional[str] = None, current_user: dict = Depends(get_current_user)):
+    query = {"user_id": current_user["id"]}
+    if item_type:
+        query["item_type"] = item_type
+    favorites = await db.favorites.find(query).sort("created_at", -1).to_list(100)
+    
+    # Populate with actual items
+    result = []
+    for fav in favorites:
+        if fav["item_type"] == "pet":
+            item = await db.pets.find_one({"id": fav["item_id"]})
+        else:
+            item = await db.products.find_one({"id": fav["item_id"]})
+        if item:
+            result.append({**fav, "item": item})
+    return result
+
+# ========================= SPONSORSHIP =========================
+
+class SponsorshipCreate(BaseModel):
+    pet_id: str
+    amount: float
+    message: Optional[str] = None
+    is_anonymous: bool = False
+    is_recurring: bool = False
+
+class Sponsorship(BaseModel):
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    pet_id: str
+    user_id: str
+    user_name: Optional[str] = None
+    amount: float
+    message: Optional[str] = None
+    is_anonymous: bool = False
+    is_recurring: bool = False
+    status: str = "pending"  # pending, completed, cancelled
+    created_at: datetime = Field(default_factory=datetime.utcnow)
+
+@api_router.post("/sponsorships")
+async def create_sponsorship(sponsorship: SponsorshipCreate, current_user: dict = Depends(get_current_user)):
+    new_sponsorship = Sponsorship(
+        **sponsorship.dict(),
+        user_id=current_user["id"],
+        user_name=None if sponsorship.is_anonymous else current_user["name"]
+    )
+    await db.sponsorships.insert_one(new_sponsorship.dict())
+    
+    # Update pet's sponsorship total
+    await db.pets.update_one(
+        {"id": sponsorship.pet_id},
+        {"$inc": {"total_sponsorship": sponsorship.amount}}
+    )
+    return new_sponsorship
+
+@api_router.get("/sponsorships/pet/{pet_id}")
+async def get_pet_sponsorships(pet_id: str):
+    sponsorships = await db.sponsorships.find({"pet_id": pet_id, "status": "completed"}).sort("created_at", -1).to_list(50)
+    return sponsorships
+
+@api_router.get("/sponsorships/my")
+async def get_my_sponsorships(current_user: dict = Depends(get_current_user)):
+    sponsorships = await db.sponsorships.find({"user_id": current_user["id"]}).sort("created_at", -1).to_list(100)
+    return sponsorships
+
+# ========================= PET TRACKING (PETSY TAG) =========================
+
+class PetTagCreate(BaseModel):
+    pet_id: str
+    tag_code: str
+
+class PetTag(BaseModel):
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    tag_code: str
+    pet_id: str
+    owner_id: str
+    is_active: bool = True
+    last_scanned: Optional[datetime] = None
+    last_location: Optional[str] = None
+    scan_count: int = 0
+    created_at: datetime = Field(default_factory=datetime.utcnow)
+
+class TagScan(BaseModel):
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    tag_code: str
+    pet_id: str
+    scanner_name: Optional[str] = None
+    scanner_phone: Optional[str] = None
+    location: Optional[str] = None
+    latitude: Optional[float] = None
+    longitude: Optional[float] = None
+    message: Optional[str] = None
+    created_at: datetime = Field(default_factory=datetime.utcnow)
+
+@api_router.post("/pet-tags")
+async def register_pet_tag(tag: PetTagCreate, current_user: dict = Depends(get_current_user)):
+    # Verify pet belongs to user
+    pet = await db.pets.find_one({"id": tag.pet_id, "owner_id": current_user["id"]})
+    if not pet:
+        raise HTTPException(status_code=404, detail="Pet not found")
+    
+    # Check if tag code already exists
+    existing = await db.pet_tags.find_one({"tag_code": tag.tag_code})
+    if existing:
+        raise HTTPException(status_code=400, detail="Tag code already registered")
+    
+    new_tag = PetTag(
+        tag_code=tag.tag_code,
+        pet_id=tag.pet_id,
+        owner_id=current_user["id"]
+    )
+    await db.pet_tags.insert_one(new_tag.dict())
+    return new_tag
+
+@api_router.get("/pet-tags/{pet_id}")
+async def get_pet_tag(pet_id: str, current_user: dict = Depends(get_current_user)):
+    tag = await db.pet_tags.find_one({"pet_id": pet_id, "owner_id": current_user["id"]})
+    if not tag:
+        return None
+    return tag
+
+@api_router.get("/pet-tags/scan/{tag_code}")
+async def scan_pet_tag(tag_code: str):
+    """Public endpoint - anyone can scan a tag"""
+    tag = await db.pet_tags.find_one({"tag_code": tag_code, "is_active": True})
+    if not tag:
+        raise HTTPException(status_code=404, detail="Tag not found or inactive")
+    
+    pet = await db.pets.find_one({"id": tag["pet_id"]})
+    owner = await db.users.find_one({"id": tag["owner_id"]})
+    
+    # Increment scan count
+    await db.pet_tags.update_one(
+        {"tag_code": tag_code},
+        {"$inc": {"scan_count": 1}, "$set": {"last_scanned": datetime.utcnow()}}
+    )
+    
+    return {
+        "pet": {
+            "name": pet["name"] if pet else "Unknown",
+            "species": pet.get("species"),
+            "breed": pet.get("breed"),
+            "image": pet.get("image"),
+            "description": pet.get("description"),
+        },
+        "owner": {
+            "name": owner["name"] if owner else "Unknown",
+            "phone": owner.get("phone"),
+            "city": owner.get("city"),
+        },
+        "tag": tag
+    }
+
+@api_router.post("/pet-tags/scan/{tag_code}/report")
+async def report_tag_scan(tag_code: str, location: Optional[str] = None, 
+                          scanner_name: Optional[str] = None, scanner_phone: Optional[str] = None,
+                          message: Optional[str] = None, latitude: Optional[float] = None,
+                          longitude: Optional[float] = None):
+    """Report a found pet via tag scan"""
+    tag = await db.pet_tags.find_one({"tag_code": tag_code})
+    if not tag:
+        raise HTTPException(status_code=404, detail="Tag not found")
+    
+    scan = TagScan(
+        tag_code=tag_code,
+        pet_id=tag["pet_id"],
+        scanner_name=scanner_name,
+        scanner_phone=scanner_phone,
+        location=location,
+        latitude=latitude,
+        longitude=longitude,
+        message=message
+    )
+    await db.tag_scans.insert_one(scan.dict())
+    
+    # Update tag with last location
+    await db.pet_tags.update_one(
+        {"tag_code": tag_code},
+        {"$set": {"last_location": location, "last_scanned": datetime.utcnow()}}
+    )
+    
+    return {"message": "Scan reported successfully", "scan_id": scan.id}
+
+@api_router.get("/pet-tags/{pet_id}/scans")
+async def get_tag_scans(pet_id: str, current_user: dict = Depends(get_current_user)):
+    """Get scan history for a pet's tag"""
+    tag = await db.pet_tags.find_one({"pet_id": pet_id, "owner_id": current_user["id"]})
+    if not tag:
+        raise HTTPException(status_code=404, detail="Tag not found")
+    
+    scans = await db.tag_scans.find({"pet_id": pet_id}).sort("created_at", -1).to_list(50)
+    return scans
+
 # ========================= AI ASSISTANT =========================
 
 @api_router.post("/ai/assistant")
