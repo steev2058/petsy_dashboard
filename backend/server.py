@@ -2000,19 +2000,19 @@ async def get_all_payments_admin(admin_user: dict = Depends(get_admin_user)):
     return payments
 
 @api_router.get("/admin/sponsorships")
-async def get_all_sponsorships_admin(current_user: dict = Depends(get_current_user)):
+async def get_all_sponsorships_admin(admin_user: dict = Depends(get_admin_user)):
     """Get all sponsorships for admin"""
     sponsorships = await db.sponsorships.find({}).sort("created_at", -1).to_list(1000)
     return sponsorships
 
 @api_router.get("/admin/locations")
-async def get_all_locations_admin(current_user: dict = Depends(get_current_user)):
+async def get_all_locations_admin(admin_user: dict = Depends(get_admin_user)):
     """Get all map locations for admin"""
     locations = await db.map_locations.find({}).to_list(1000)
     return locations
 
 @api_router.post("/admin/locations")
-async def create_location_admin(data: dict, current_user: dict = Depends(get_current_user)):
+async def create_location_admin(data: dict, admin_user: dict = Depends(get_admin_user)):
     """Create map location (admin)"""
     location = {
         "id": str(uuid.uuid4()),
@@ -2022,13 +2022,13 @@ async def create_location_admin(data: dict, current_user: dict = Depends(get_cur
     return location
 
 @api_router.put("/admin/locations/{location_id}")
-async def update_location_admin(location_id: str, data: dict, current_user: dict = Depends(get_current_user)):
+async def update_location_admin(location_id: str, data: dict, admin_user: dict = Depends(get_admin_user)):
     """Update map location (admin)"""
     await db.map_locations.update_one({"id": location_id}, {"$set": data})
     return {"success": True}
 
 @api_router.delete("/admin/locations/{location_id}")
-async def delete_location_admin(location_id: str, current_user: dict = Depends(get_current_user)):
+async def delete_location_admin(location_id: str, admin_user: dict = Depends(get_admin_user)):
     """Delete map location (admin)"""
     await db.map_locations.delete_one({"id": location_id})
     return {"success": True}
