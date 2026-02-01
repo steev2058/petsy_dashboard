@@ -1773,7 +1773,7 @@ async def award_bonus_points(
 # ========================= ADMIN ENDPOINTS =========================
 
 @api_router.get("/admin/stats")
-async def get_admin_stats(current_user: dict = Depends(get_current_user)):
+async def get_admin_stats(admin_user: dict = Depends(get_admin_user)):
     """Get dashboard statistics"""
     try:
         users_count = await db.users.count_documents({})
@@ -1789,6 +1789,30 @@ async def get_admin_stats(current_user: dict = Depends(get_current_user)):
         
         pending_orders = await db.orders.count_documents({"status": "pending"})
         
+        # Recent activity
+        recent_orders = await db.orders.find({}).sort("created_at", -1).limit(5).to_list(5)
+        recent_users = await db.users.find({}).sort("created_at", -1).limit(5).to_list(5)
+        
+        # Monthly stats for charts
+        from datetime import datetime, timedelta
+        now = datetime.utcnow()
+        monthly_stats = []
+        for i in range(6):
+            month_start = (now - timedelta(days=30*i)).replace(day=1, hour=0, minute=0, second=0, microsecond=0)
+            month_end = (month_start + timedelta(days=32)).replace(day=1)
+            month_orders = await db.orders.count_documents({
+                "created_at": {"$gte": month_start, "$lt": month_end}
+            })
+            month_revenue_data = await db.orders.find({
+                "created_at": {"$gte": month_start, "$lt": month_end}
+            }).to_list(1000)
+            month_revenue = sum(o.get("total", 0) for o in month_revenue_data)
+            monthly_stats.append({
+                "month": month_start.strftime("%b"),
+                "orders": month_orders,
+                "revenue": month_revenue
+            })
+        
         return {
             "users": users_count,
             "pets": pets_count,
@@ -1798,16 +1822,20 @@ async def get_admin_stats(current_user: dict = Depends(get_current_user)):
             "vets": vets_count,
             "revenue": revenue,
             "pendingOrders": pending_orders,
+            "monthlyStats": list(reversed(monthly_stats)),
+            "recentOrders": [{"id": o.get("id"), "total": o.get("total", 0), "status": o.get("status")} for o in recent_orders],
+            "recentUsers": [{"id": u.get("id"), "name": u.get("name"), "email": u.get("email")} for u in recent_users],
         }
     except Exception as e:
         logger.error(f"Admin stats error: {str(e)}")
         return {
             "users": 0, "pets": 0, "orders": 0, "appointments": 0,
             "products": 0, "vets": 0, "revenue": 0, "pendingOrders": 0,
+            "monthlyStats": [], "recentOrders": [], "recentUsers": [],
         }
 
 @api_router.get("/admin/users")
-async def get_all_users(current_user: dict = Depends(get_current_user)):
+async def get_all_users(admin_user: dict = Depends(get_admin_user)):
     """Get all users for admin"""
     users = await db.users.find({}).to_list(1000)
     return [
@@ -1818,6 +1846,7 @@ async def get_all_users(current_user: dict = Depends(get_current_user)):
             "phone": u.get("phone"),
             "city": u.get("city"),
             "is_verified": u.get("is_verified", False),
+            "is_admin": u.get("is_admin", False),
             "role": u.get("role", "user"),
             "created_at": u.get("created_at"),
             "loyalty_points": u.get("loyalty_points", 0),
@@ -1826,19 +1855,31 @@ async def get_all_users(current_user: dict = Depends(get_current_user)):
     ]
 
 @api_router.put("/admin/users/{user_id}")
-async def update_user_admin(user_id: str, data: dict, current_user: dict = Depends(get_current_user)):
+async def update_user_admin(user_id: str, data: dict, admin_user: dict = Depends(get_admin_user)):
     """Update user (admin)"""
     await db.users.update_one({"id": user_id}, {"$set": data})
     return {"success": True}
 
 @api_router.delete("/admin/users/{user_id}")
-async def delete_user_admin(user_id: str, current_user: dict = Depends(get_current_user)):
+async def delete_user_admin(user_id: str, admin_user: dict = Depends(get_admin_user)):
     """Delete user (admin)"""
     await db.users.delete_one({"id": user_id})
     return {"success": True}
 
+@api_router.post("/admin/users/{user_id}/make-admin")
+async def make_user_admin(user_id: str, admin_user: dict = Depends(get_admin_user)):
+    """Promote user to admin"""
+    await db.users.update_one({"id": user_id}, {"$set": {"is_admin": True, "role": "admin"}})
+    return {"success": True}
+
+@api_router.post("/admin/users/{user_id}/remove-admin")
+async def remove_user_admin(user_id: str, admin_user: dict = Depends(get_admin_user)):
+    """Remove admin privileges from user"""
+    await db.users.update_one({"id": user_id}, {"$set": {"is_admin": False, "role": "user"}})
+    return {"success": True}
+
 @api_router.get("/admin/orders")
-async def get_all_orders_admin(current_user: dict = Depends(get_current_user)):
+async def get_all_orders_admin(admin_user: dict = Depends(get_admin_user)):
     """Get all orders for admin"""
     orders = await db.orders.find({}).sort("created_at", -1).to_list(1000)
     result = []
@@ -1859,7 +1900,7 @@ async def get_all_orders_admin(current_user: dict = Depends(get_current_user)):
     return result
 
 @api_router.put("/admin/orders/{order_id}")
-async def update_order_admin(order_id: str, data: dict, current_user: dict = Depends(get_current_user)):
+async def update_order_admin(order_id: str, data: dict, admin_user: dict = Depends(get_admin_user)):
     """Update order status (admin)"""
     await db.orders.update_one({"id": order_id}, {"$set": data})
     return {"success": True}
