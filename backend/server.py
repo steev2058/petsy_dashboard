@@ -1172,7 +1172,7 @@ async def get_pet_sponsorships(pet_id: str):
 @api_router.get("/sponsorships/my")
 async def get_my_sponsorships(current_user: dict = Depends(get_current_user)):
     sponsorships = await db.sponsorships.find({"user_id": current_user["id"]}).sort("created_at", -1).to_list(100)
-    return sponsorships
+    return [Sponsorship(**s) for s in sponsorships]
 
 # ========================= PET TRACKING (PETSY TAG) =========================
 
