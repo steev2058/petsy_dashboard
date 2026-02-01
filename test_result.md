@@ -237,6 +237,66 @@ backend:
         agent: "main"
         comment: "Tested - seed data creates vets, products, emergency contacts, sample pets"
 
+  - task: "Cart API (add/update/remove items)"
+    implemented: true
+    working: "NA"
+    file: "server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Implemented cart endpoints: POST /api/cart/add, PUT /api/cart/update, DELETE /api/cart/remove, GET /api/cart"
+
+  - task: "Orders API (create/list orders)"
+    implemented: true
+    working: "NA"
+    file: "server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Implemented orders endpoints: POST /api/orders, GET /api/orders, GET /api/orders/{id}"
+
+  - task: "Map Locations API"
+    implemented: true
+    working: "NA"
+    file: "server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Implemented map locations endpoint: GET /api/map-locations with type filter. Returns 8 seeded locations (vets, clinics, shops, shelters, parks)"
+
+  - task: "Conversations/Messages API"
+    implemented: true
+    working: "NA"
+    file: "server.py"
+    stuck_count: 0
+    priority: "medium"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Implemented messaging endpoints: GET /api/conversations, POST /api/conversations, GET /api/conversations/{id}/messages, POST /api/conversations/{id}/messages"
+
+  - task: "Appointments API"
+    implemented: true
+    working: "NA"
+    file: "server.py"
+    stuck_count: 0
+    priority: "medium"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Implemented appointments endpoints: POST /api/appointments, GET /api/appointments, GET /api/appointments/{id}, PUT /api/appointments/{id}/cancel"
+
 frontend:
   - task: "Auth Screens (Login, Signup, Verify)"
     implemented: true
