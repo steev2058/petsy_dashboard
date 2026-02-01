@@ -498,6 +498,30 @@ const styles = StyleSheet.create({
     fontSize: FontSize.lg,
     color: Colors.text,
   },
+  adminMenuItem: {
+    backgroundColor: Colors.primary + '10',
+    borderLeftWidth: 4,
+    borderLeftColor: Colors.primary,
+  },
+  adminMenuIcon: {
+    backgroundColor: Colors.primary,
+  },
+  adminMenuLabel: {
+    fontWeight: '600',
+    color: Colors.primary,
+  },
+  adminBadge: {
+    backgroundColor: Colors.primary,
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+    borderRadius: 4,
+    marginLeft: Spacing.sm,
+  },
+  adminBadgeText: {
+    fontSize: 9,
+    fontWeight: '700',
+    color: Colors.white,
+  },
   logoutButton: {
     flexDirection: 'row',
     alignItems: 'center',
