@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
-Petsy Backend API Testing Suite
-Tests all backend endpoints according to test_result.md requirements
+Petsy Backend API Testing Suite - Phase 2 APIs
+Tests Phase 2 backend endpoints: Map Locations, Orders, Appointments, Conversations/Messages, Cart
 """
 
 import requests
@@ -10,6 +10,7 @@ import uuid
 from datetime import datetime
 import sys
 import os
+import time
 
 # Backend URL from frontend/.env
 BACKEND_URL = "https://petsy-adoption.preview.emergentagent.com/api"
