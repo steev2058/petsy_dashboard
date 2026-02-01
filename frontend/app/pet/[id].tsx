@@ -29,6 +29,7 @@ export default function PetDetailScreen() {
   const router = useRouter();
   const { id } = useLocalSearchParams<{ id: string }>();
   const { t } = useTranslation();
+  const { isAuthenticated, user } = useStore();
   
   const [pet, setPet] = useState<any>(null);
   const [loading, setLoading] = useState(true);
