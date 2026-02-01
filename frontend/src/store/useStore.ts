@@ -37,6 +37,14 @@ interface Pet {
   views: number;
 }
 
+interface CartItem {
+  product_id: string;
+  name: string;
+  price: number;
+  quantity: number;
+  image?: string;
+}
+
 interface AppState {
   // Auth
   user: User | null;
@@ -54,6 +62,10 @@ interface AppState {
   myPets: Pet[];
   selectedPet: Pet | null;
   
+  // Cart
+  cart: CartItem[];
+  cartTotal: number;
+  
   // Actions
   setUser: (user: User | null) => void;
   setToken: (token: string | null) => void;
@@ -63,6 +75,12 @@ interface AppState {
   setSelectedPet: (pet: Pet | null) => void;
   logout: () => void;
   loadStoredAuth: () => Promise<void>;
+  
+  // Cart Actions
+  addToCart: (item: Omit<CartItem, 'quantity'>) => void;
+  removeFromCart: (productId: string) => void;
+  updateCartQuantity: (productId: string, quantity: number) => void;
+  clearCart: () => void;
 }
 
 export const useStore = create<AppState>((set, get) => ({
@@ -75,6 +93,8 @@ export const useStore = create<AppState>((set, get) => ({
   isDrawerOpen: false,
   myPets: [],
   selectedPet: null,
+  cart: [],
+  cartTotal: 0,
   
   // Actions
   setUser: (user) => set({ user, isAuthenticated: !!user }),
@@ -101,22 +121,66 @@ export const useStore = create<AppState>((set, get) => ({
   
   logout: async () => {
     await AsyncStorage.removeItem('auth_token');
-    set({ user: null, token: null, isAuthenticated: false, myPets: [] });
+    set({ user: null, token: null, isAuthenticated: false, myPets: [], cart: [], cartTotal: 0 });
   },
   
   loadStoredAuth: async () => {
     try {
       const token = await AsyncStorage.getItem('auth_token');
       const language = (await AsyncStorage.getItem('language')) as Language || 'en';
+      const cartData = await AsyncStorage.getItem('cart');
+      const cart = cartData ? JSON.parse(cartData) : [];
+      const cartTotal = cart.reduce((sum: number, item: CartItem) => sum + item.price * item.quantity, 0);
       
       if (token) {
-        set({ token, language, isLoading: false });
+        set({ token, language, isLoading: false, cart, cartTotal });
       } else {
-        set({ language, isLoading: false });
+        set({ language, isLoading: false, cart, cartTotal });
       }
     } catch (error) {
       console.error('Error loading stored auth:', error);
       set({ isLoading: false });
     }
+  },
+  
+  // Cart Actions
+  addToCart: async (item) => {
+    const { cart } = get();
+    const existingIndex = cart.findIndex((i) => i.product_id === item.product_id);
+    
+    let newCart;
+    if (existingIndex >= 0) {
+      newCart = [...cart];
+      newCart[existingIndex].quantity += 1;
+    } else {
+      newCart = [...cart, { ...item, quantity: 1 }];
+    }
+    
+    const cartTotal = newCart.reduce((sum, i) => sum + i.price * i.quantity, 0);
+    await AsyncStorage.setItem('cart', JSON.stringify(newCart));
+    set({ cart: newCart, cartTotal });
+  },
+  
+  removeFromCart: async (productId) => {
+    const { cart } = get();
+    const newCart = cart.filter((i) => i.product_id !== productId);
+    const cartTotal = newCart.reduce((sum, i) => sum + i.price * i.quantity, 0);
+    await AsyncStorage.setItem('cart', JSON.stringify(newCart));
+    set({ cart: newCart, cartTotal });
+  },
+  
+  updateCartQuantity: async (productId, quantity) => {
+    const { cart } = get();
+    const newCart = cart.map((i) =>
+      i.product_id === productId ? { ...i, quantity: Math.max(0, quantity) } : i
+    ).filter((i) => i.quantity > 0);
+    const cartTotal = newCart.reduce((sum, i) => sum + i.price * i.quantity, 0);
+    await AsyncStorage.setItem('cart', JSON.stringify(newCart));
+    set({ cart: newCart, cartTotal });
+  },
+  
+  clearCart: async () => {
+    await AsyncStorage.removeItem('cart');
+    set({ cart: [], cartTotal: 0 });
   },
 }));
