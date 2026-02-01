@@ -169,15 +169,4 @@ export const mapAPI = {
     api.get('/map-locations', { params }),
 };
 
-// Updated Appointments API
-export const appointmentsAPI = {
-  create: (data: any) => api.post('/appointments', data),
-  
-  getAll: () => api.get('/appointments'),
-  
-  getById: (id: string) => api.get(`/appointments/${id}`),
-  
-  cancel: (id: string) => api.put(`/appointments/${id}/cancel`),
-};
-
 export default api;
