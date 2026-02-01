@@ -117,7 +117,11 @@ export default function ProfileScreen() {
     );
   }
 
+  const isAdmin = user?.is_admin || user?.role === 'admin';
+
   const menuItems = [
+    // Admin Dashboard (only for admins)
+    ...(isAdmin ? [{ icon: 'shield-checkmark', label: 'Admin Dashboard', onPress: () => router.push('/admin'), isAdmin: true }] : []),
     { icon: 'paw', label: t('my_pets'), onPress: () => router.push('/add-pet') },
     { icon: 'bag-handle', label: 'Order History', onPress: () => router.push('/order-history') },
     { icon: 'heart', label: t('favorites'), onPress: () => router.push('/favorites') },
