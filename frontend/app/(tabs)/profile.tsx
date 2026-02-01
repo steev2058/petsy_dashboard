@@ -39,12 +39,6 @@ export default function ProfileScreen() {
   });
   const [isDarkMode, setIsDarkMode] = useState(false);
 
-export default function ProfileScreen() {
-  const router = useRouter();
-  const { t } = useTranslation();
-  const { user, logout, isAuthenticated, language, setLanguage } = useStore();
-  const [myPets, setMyPets] = useState<any[]>([]);
-
   const toggleLanguage = () => {
     const newLang = language === 'en' ? 'ar' : 'en';
     setLanguage(newLang);
@@ -58,6 +52,8 @@ export default function ProfileScreen() {
     if (isAuthenticated) {
       loadMyPets();
       loadLoyaltyPoints();
+    }
+  }, [isAuthenticated]);
     }
   }, [isAuthenticated]);
 
