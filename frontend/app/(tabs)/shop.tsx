@@ -8,13 +8,16 @@ import {
   RefreshControl,
   ActivityIndicator,
   ScrollView,
+  Alert,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { SearchBar, ProductCard, CategoryList, SHOP_CATEGORIES } from '../../src/components';
 import { Colors, FontSize, Spacing, BorderRadius } from '../../src/constants/theme';
 import { productsAPI } from '../../src/services/api';
 import { useTranslation } from '../../src/hooks/useTranslation';
+import { useStore } from '../../src/store/useStore';
 
 const PET_TYPE_FILTERS = [
   { id: 'all', label: 'All', icon: 'paw' },
