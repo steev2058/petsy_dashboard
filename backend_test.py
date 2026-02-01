@@ -260,87 +260,68 @@ class PetsyAPITester:
     def run_all_tests(self):
         """Run all tests in sequence"""
         print("=" * 60)
-        print("PETSY BACKEND API TESTING - APPOINTMENTS & VETS")
+        print("PETSY BACKEND API TESTING - SPONSORSHIP & CONVERSATIONS")
         print("=" * 60)
         print(f"Backend URL: {self.base_url}")
-        print(f"Test User: {TEST_USER_EMAIL}")
         print("=" * 60)
         
-        # Step 1: User Authentication
-        print("\n🔐 AUTHENTICATION TESTS")
-        print("-" * 30)
+        tests = [
+            ("Seed Data", self.test_seed_data),
+            ("User Signup & Verify", self.test_user_signup_and_verify),
+            ("Get Pets", self.test_get_pets),
+            ("Sponsorship API", self.test_sponsorship_api),
+            ("Conversations API", self.test_conversations_api)
+        ]
         
-        verification_code = self.test_user_signup()
-        if verification_code and verification_code != "existing_user":
-            auth_success = self.test_user_verification(verification_code)
-        else:
-            auth_success = self.test_user_login()
+        results = {}
         
-        if not auth_success:
-            print("\n❌ CRITICAL: Authentication failed. Cannot proceed with protected endpoints.")
-            return False
-        
-        # Step 2: Vets API Tests
-        print("\n🏥 VETS API TESTS")
-        print("-" * 20)
-        
-        vets = self.test_get_vets()
-        if vets and len(vets) > 0:
-            # Test getting a specific vet
-            first_vet = vets[0]
-            vet_id = first_vet.get("id")
-            if vet_id:
-                self.test_get_vet_by_id(vet_id)
-        
-        # Step 3: Appointments API Tests
-        print("\n📅 APPOINTMENTS API TESTS")
-        print("-" * 25)
-        
-        # Create appointment (need a vet_id)
-        if vets and len(vets) > 0:
-            vet_id = vets[0].get("id")
-            appointment = self.test_create_appointment(vet_id)
+        for test_name, test_func in tests:
+            print(f"\n{'='*50}")
+            print(f"Running: {test_name}")
+            print(f"{'='*50}")
             
-            # List appointments
-            appointments = self.test_get_appointments()
+            try:
+                result = test_func()
+                results[test_name] = result
+                
+                if result:
+                    print(f"✅ {test_name} - PASSED")
+                else:
+                    print(f"❌ {test_name} - FAILED")
+                    
+            except Exception as e:
+                print(f"❌ {test_name} - ERROR: {e}")
+                results[test_name] = False
+                
+            time.sleep(1)  # Brief pause between tests
             
-            # Get specific appointment
-            if appointment:
-                appointment_id = appointment.get("id")
-                if appointment_id:
-                    self.test_get_appointment_by_id(appointment_id)
-                    # Cancel appointment
-                    self.test_cancel_appointment(appointment_id)
-        else:
-            print("❌ Cannot test appointments - no vets available")
-        
         # Summary
-        print("\n" + "=" * 60)
+        print(f"\n{'='*60}")
         print("TEST SUMMARY")
-        print("=" * 60)
+        print(f"{'='*60}")
         
-        total_tests = len(self.test_results)
-        passed_tests = len([r for r in self.test_results if r["success"]])
-        failed_tests = total_tests - passed_tests
+        passed = sum(1 for result in results.values() if result)
+        total = len(results)
         
-        print(f"Total Tests: {total_tests}")
-        print(f"Passed: {passed_tests}")
-        print(f"Failed: {failed_tests}")
-        print(f"Success Rate: {(passed_tests/total_tests)*100:.1f}%")
+        for test_name, result in results.items():
+            status = "✅ PASSED" if result else "❌ FAILED"
+            print(f"{test_name}: {status}")
+            
+        print(f"\nOverall: {passed}/{total} tests passed")
         
-        if failed_tests > 0:
-            print("\n❌ FAILED TESTS:")
-            for result in self.test_results:
-                if not result["success"]:
-                    print(f"   - {result['test']}: {result['message']}")
-        
-        return failed_tests == 0
+        if passed == total:
+            print("🎉 All tests passed!")
+        else:
+            print("⚠️  Some tests failed - check logs above")
+            
+        return results
 
 if __name__ == "__main__":
     tester = PetsyAPITester()
-    success = tester.run_all_tests()
+    results = tester.run_all_tests()
     
-    if success:
+    # Exit with appropriate code
+    if all(results.values()):
         print("\n🎉 ALL TESTS PASSED!")
         sys.exit(0)
     else:
