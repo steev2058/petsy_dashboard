@@ -192,4 +192,35 @@ export const mapAPI = {
     api.get('/map-locations', { params }),
 };
 
+// Payment API
+export const paymentAPI = {
+  getConfig: () => api.get('/payments/config'),
+  
+  processPayment: (data: {
+    amount: number;
+    payment_method: string;
+    card_number?: string;
+    card_expiry?: string;
+    card_cvc?: string;
+    order_id?: string;
+    appointment_id?: string;
+    sponsorship_id?: string;
+    points_to_use?: number;
+  }) => api.post('/payments/process', data),
+  
+  confirmPayment: (paymentId: string) => api.post(`/payments/confirm/${paymentId}`),
+  
+  getHistory: () => api.get('/payments/history'),
+};
+
+// Loyalty Points API
+export const loyaltyAPI = {
+  getPoints: () => api.get('/loyalty/points'),
+  
+  getTransactions: () => api.get('/loyalty/transactions'),
+  
+  awardBonus: (points: number, description: string) =>
+    api.post('/loyalty/bonus', null, { params: { points, description } }),
+};
+
 export default api;
