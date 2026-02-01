@@ -298,6 +298,19 @@ export default function PetDetailScreen() {
             color={liked ? Colors.error : Colors.text}
           />
         </TouchableOpacity>
+        
+        {/* Sponsor Button - Only for adoption pets */}
+        {pet.status === 'for_adoption' && (
+          <TouchableOpacity style={styles.sponsorButton} onPress={handleSponsor}>
+            <LinearGradient
+              colors={['#E91E63', '#C2185B']}
+              style={styles.sponsorGradient}
+            >
+              <Ionicons name="heart" size={18} color={Colors.white} />
+            </LinearGradient>
+          </TouchableOpacity>
+        )}
+        
         <Button
           title={pet.status === 'for_adoption' ? t('adopt_now') : t('contact_owner')}
           onPress={handleContact}
