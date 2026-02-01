@@ -383,35 +383,78 @@ export default function CheckoutScreen() {
           <View style={{ height: 140 }} />
         </ScrollView>
 
-        {/* Place Order Button */}
+        {/* Navigation Buttons */}
         <View style={[styles.bottomSection, Shadow.large]}>
-          <View style={styles.finalSummary}>
-            <View>
-              <Text style={styles.finalLabel}>Total Amount</Text>
-              <Text style={styles.finalValue}>${totalWithShipping.toFixed(2)}</Text>
-            </View>
-            <TouchableOpacity
-              style={styles.placeOrderButton}
-              onPress={handlePlaceOrder}
-              disabled={loading}
-            >
-              <LinearGradient
-                colors={loading ? [Colors.textLight, Colors.textLight] : [Colors.primary, Colors.primaryDark]}
-                style={styles.placeOrderGradient}
-                start={{ x: 0, y: 0 }}
-                end={{ x: 1, y: 0 }}
+          {step < 3 ? (
+            <View style={styles.navigationButtons}>
+              {step > 1 && (
+                <TouchableOpacity
+                  style={styles.backButton}
+                  onPress={() => setStep(step - 1)}
+                >
+                  <View style={styles.backButtonContent}>
+                    <Ionicons name="arrow-back" size={20} color={Colors.primary} />
+                    <Text style={styles.backButtonText}>Back</Text>
+                  </View>
+                </TouchableOpacity>
+              )}
+              <TouchableOpacity
+                style={[styles.nextButton, step === 1 && { flex: 1 }]}
+                onPress={() => setStep(step + 1)}
               >
-                {loading ? (
-                  <Text style={styles.placeOrderText}>Processing...</Text>
-                ) : (
-                  <>
-                    <Ionicons name="checkmark-circle" size={20} color={Colors.white} />
-                    <Text style={styles.placeOrderText}>Place Order</Text>
-                  </>
-                )}
-              </LinearGradient>
-            </TouchableOpacity>
-          </View>
+                <LinearGradient
+                  colors={[Colors.primary, Colors.primaryDark]}
+                  style={styles.nextButtonGradient}
+                  start={{ x: 0, y: 0 }}
+                  end={{ x: 1, y: 0 }}
+                >
+                  <Text style={styles.nextButtonText}>
+                    {step === 1 ? 'Continue to Shipping' : 'Continue to Payment'}
+                  </Text>
+                  <Ionicons name="arrow-forward" size={20} color={Colors.white} />
+                </LinearGradient>
+              </TouchableOpacity>
+            </View>
+          ) : (
+            <View style={styles.finalSummary}>
+              <View>
+                <Text style={styles.finalLabel}>Total Amount</Text>
+                <Text style={styles.finalValue}>${totalWithShipping.toFixed(2)}</Text>
+              </View>
+              <View style={styles.finalButtons}>
+                <TouchableOpacity
+                  style={styles.backButton}
+                  onPress={() => setStep(step - 1)}
+                >
+                  <View style={styles.backButtonContent}>
+                    <Ionicons name="arrow-back" size={20} color={Colors.primary} />
+                    <Text style={styles.backButtonText}>Back</Text>
+                  </View>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={styles.placeOrderButton}
+                  onPress={handlePlaceOrder}
+                  disabled={loading}
+                >
+                  <LinearGradient
+                    colors={loading ? [Colors.textLight, Colors.textLight] : [Colors.primary, Colors.primaryDark]}
+                    style={styles.placeOrderGradient}
+                    start={{ x: 0, y: 0 }}
+                    end={{ x: 1, y: 0 }}
+                  >
+                    {loading ? (
+                      <Text style={styles.placeOrderText}>Processing...</Text>
+                    ) : (
+                      <>
+                        <Ionicons name="checkmark-circle" size={20} color={Colors.white} />
+                        <Text style={styles.placeOrderText}>Place Order</Text>
+                      </>
+                    )}
+                  </LinearGradient>
+                </TouchableOpacity>
+              </View>
+            </View>
+          )}
         </View>
       </KeyboardAvoidingView>
     </SafeAreaView>
