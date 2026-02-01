@@ -16,10 +16,10 @@ import { useRouter, useLocalSearchParams } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import Animated, { FadeIn, SlideInUp } from 'react-native-reanimated';
 import { Button } from '../../src/components';
-import { Colors, FontSize, Spacing, BorderRadius, Shadow } from '../src/constants/theme';
-import { PetImages } from '../src/constants/images';
-import { petsAPI } from '../src/services/api';
-import { useTranslation } from '../src/hooks/useTranslation';
+import { Colors, FontSize, Spacing, BorderRadius, Shadow } from '../../src/constants/theme';
+import { PetImages } from '../../src/constants/images';
+import { petsAPI } from '../../src/services/api';
+import { useTranslation } from '../../src/hooks/useTranslation';
 
 const { width, height } = Dimensions.get('window');
 
