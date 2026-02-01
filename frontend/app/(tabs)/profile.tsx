@@ -54,8 +54,6 @@ export default function ProfileScreen() {
       loadLoyaltyPoints();
     }
   }, [isAuthenticated]);
-    }
-  }, [isAuthenticated]);
 
   const loadMyPets = async () => {
     try {
