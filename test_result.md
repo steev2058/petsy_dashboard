@@ -546,10 +546,10 @@ metadata:
 
 test_plan:
   current_focus:
-    - "Vet Booking Flow - Full end-to-end"
-    - "Community Comments & Sharing"
-    - "RTL Layout for Arabic"
-    - "Health Records, Favorites, Pet Tracking screens"
+    - "Full authentication flow testing"
+    - "End-to-end vet booking with real credentials"
+    - "Community post creation and interaction"
+    - "Profile screen feature navigation"
   stuck_tasks: []
   test_all: false
   test_priority: "high_first"
