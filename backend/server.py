@@ -1906,7 +1906,7 @@ async def update_order_admin(order_id: str, data: dict, admin_user: dict = Depen
     return {"success": True}
 
 @api_router.get("/admin/products")
-async def get_all_products_admin(current_user: dict = Depends(get_current_user)):
+async def get_all_products_admin(admin_user: dict = Depends(get_admin_user)):
     """Get all products for admin"""
     products = await db.products.find({}).to_list(1000)
     return [
@@ -1924,7 +1924,7 @@ async def get_all_products_admin(current_user: dict = Depends(get_current_user))
     ]
 
 @api_router.post("/admin/products")
-async def create_product_admin(data: dict, current_user: dict = Depends(get_current_user)):
+async def create_product_admin(data: dict, admin_user: dict = Depends(get_admin_user)):
     """Create new product (admin)"""
     product = {
         "id": str(uuid.uuid4()),
@@ -1935,31 +1935,31 @@ async def create_product_admin(data: dict, current_user: dict = Depends(get_curr
     return product
 
 @api_router.put("/admin/products/{product_id}")
-async def update_product_admin(product_id: str, data: dict, current_user: dict = Depends(get_current_user)):
+async def update_product_admin(product_id: str, data: dict, admin_user: dict = Depends(get_admin_user)):
     """Update product (admin)"""
     await db.products.update_one({"id": product_id}, {"$set": data})
     return {"success": True}
 
 @api_router.delete("/admin/products/{product_id}")
-async def delete_product_admin(product_id: str, current_user: dict = Depends(get_current_user)):
+async def delete_product_admin(product_id: str, admin_user: dict = Depends(get_admin_user)):
     """Delete product (admin)"""
     await db.products.delete_one({"id": product_id})
     return {"success": True}
 
 @api_router.get("/admin/appointments")
-async def get_all_appointments_admin(current_user: dict = Depends(get_current_user)):
+async def get_all_appointments_admin(admin_user: dict = Depends(get_admin_user)):
     """Get all appointments for admin"""
     appointments = await db.appointments.find({}).sort("date", -1).to_list(1000)
     return appointments
 
 @api_router.get("/admin/vets")
-async def get_all_vets_admin(current_user: dict = Depends(get_current_user)):
+async def get_all_vets_admin(admin_user: dict = Depends(get_admin_user)):
     """Get all vets for admin"""
     vets = await db.vets.find({}).to_list(100)
     return vets
 
 @api_router.post("/admin/vets")
-async def create_vet_admin(data: dict, current_user: dict = Depends(get_current_user)):
+async def create_vet_admin(data: dict, admin_user: dict = Depends(get_admin_user)):
     """Create new vet (admin)"""
     vet = {
         "id": str(uuid.uuid4()),
@@ -1970,31 +1970,31 @@ async def create_vet_admin(data: dict, current_user: dict = Depends(get_current_
     return vet
 
 @api_router.put("/admin/vets/{vet_id}")
-async def update_vet_admin(vet_id: str, data: dict, current_user: dict = Depends(get_current_user)):
+async def update_vet_admin(vet_id: str, data: dict, admin_user: dict = Depends(get_admin_user)):
     """Update vet (admin)"""
     await db.vets.update_one({"id": vet_id}, {"$set": data})
     return {"success": True}
 
 @api_router.delete("/admin/vets/{vet_id}")
-async def delete_vet_admin(vet_id: str, current_user: dict = Depends(get_current_user)):
+async def delete_vet_admin(vet_id: str, admin_user: dict = Depends(get_admin_user)):
     """Delete vet (admin)"""
     await db.vets.delete_one({"id": vet_id})
     return {"success": True}
 
 @api_router.get("/admin/community")
-async def get_all_posts_admin(current_user: dict = Depends(get_current_user)):
+async def get_all_posts_admin(admin_user: dict = Depends(get_admin_user)):
     """Get all community posts for admin"""
     posts = await db.community_posts.find({}).sort("created_at", -1).to_list(1000)
     return posts
 
 @api_router.delete("/admin/community/{post_id}")
-async def delete_post_admin(post_id: str, current_user: dict = Depends(get_current_user)):
+async def delete_post_admin(post_id: str, admin_user: dict = Depends(get_admin_user)):
     """Delete community post (admin)"""
     await db.community_posts.delete_one({"id": post_id})
     return {"success": True}
 
 @api_router.get("/admin/payments")
-async def get_all_payments_admin(current_user: dict = Depends(get_current_user)):
+async def get_all_payments_admin(admin_user: dict = Depends(get_admin_user)):
     """Get all payments for admin"""
     payments = await db.payments.find({}).sort("created_at", -1).to_list(1000)
     return payments
