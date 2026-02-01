@@ -238,8 +238,8 @@ backend:
         comment: "Tested - seed data creates vets, products, emergency contacts, sample pets"
 
   - task: "Cart API (add/update/remove items)"
-    implemented: false
-    working: false
+    implemented: true
+    working: true
     file: "server.py"
     stuck_count: 0
     priority: "high"
@@ -251,6 +251,9 @@ backend:
       - working: false
         agent: "testing"
         comment: "❌ TESTED: Cart API endpoints NOT IMPLEMENTED in server.py. All cart endpoints (GET /api/cart, POST /api/cart/add, PUT /api/cart/update, DELETE /api/cart/remove) return 404 Not Found. Backend logs confirm 404 responses. Cart functionality is missing from backend implementation."
+      - working: true
+        agent: "main"
+        comment: "Implemented Cart API: GET /api/cart, POST /api/cart/add, PUT /api/cart/update/{product_id}, DELETE /api/cart/remove/{product_id}, DELETE /api/cart/clear. All endpoints tested manually and working correctly."
 
   - task: "Orders API (create/list orders)"
     implemented: true
