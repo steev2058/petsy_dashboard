@@ -293,6 +293,81 @@ class Favorite(BaseModel):
     pet_id: str
     created_at: datetime = Field(default_factory=datetime.utcnow)
 
+# Cart Item
+class CartItem(BaseModel):
+    product_id: str
+    quantity: int = 1
+    name: str
+    price: float
+    image: Optional[str] = None
+
+# Order Models
+class OrderItem(BaseModel):
+    product_id: str
+    name: str
+    price: float
+    quantity: int
+    image: Optional[str] = None
+
+class Order(BaseModel):
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    user_id: str
+    items: List[OrderItem]
+    total: float
+    status: str = "pending"  # pending, confirmed, shipped, delivered, cancelled
+    shipping_address: str
+    shipping_city: str
+    shipping_phone: str
+    payment_method: str = "cash_on_delivery"
+    notes: Optional[str] = None
+    created_at: datetime = Field(default_factory=datetime.utcnow)
+
+class OrderCreate(BaseModel):
+    items: List[OrderItem]
+    total: float
+    shipping_address: str
+    shipping_city: str
+    shipping_phone: str
+    payment_method: str = "cash_on_delivery"
+    notes: Optional[str] = None
+
+# Conversation & Chat
+class ChatMessage(BaseModel):
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    conversation_id: str
+    sender_id: str
+    content: str
+    created_at: datetime = Field(default_factory=datetime.utcnow)
+    is_read: bool = False
+
+class Conversation(BaseModel):
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    participants: List[str]  # user IDs
+    pet_id: Optional[str] = None
+    last_message: Optional[str] = None
+    last_message_time: Optional[datetime] = None
+    created_at: datetime = Field(default_factory=datetime.utcnow)
+
+class ConversationCreate(BaseModel):
+    other_user_id: str
+    pet_id: Optional[str] = None
+    initial_message: str
+
+# Map Location
+class MapLocation(BaseModel):
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    name: str
+    type: str  # vet, clinic, shelter, pet_shop, park
+    address: str
+    city: str
+    latitude: float
+    longitude: float
+    phone: Optional[str] = None
+    rating: float = 0.0
+    is_open_now: bool = False
+    hours: Optional[str] = None
+    image: Optional[str] = None
+
 # Token Response
 class TokenResponse(BaseModel):
     access_token: str
