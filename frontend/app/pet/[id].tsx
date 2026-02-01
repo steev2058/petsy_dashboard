@@ -548,6 +548,16 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
+  sponsorButton: {
+    borderRadius: 28,
+    overflow: 'hidden',
+  },
+  sponsorGradient: {
+    width: 56,
+    height: 56,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
   contactButton: {
     flex: 1,
   },
