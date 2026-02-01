@@ -162,7 +162,7 @@ export default function CheckoutScreen() {
       <SafeAreaView style={styles.container} edges={['top']}>
         <View style={styles.header}>
           <TouchableOpacity onPress={() => router.back()} style={styles.headerBackButton}>
-            <View style={styles.headerBackButtonInner}>
+            <View style={styles.backButtonInner}>
               <Ionicons name="arrow-back" size={22} color={Colors.text} />
             </View>
           </TouchableOpacity>
@@ -200,7 +200,7 @@ export default function CheckoutScreen() {
         {/* Header */}
         <View style={styles.header}>
           <TouchableOpacity onPress={() => router.back()} style={styles.headerBackButton}>
-            <View style={styles.headerBackButtonInner}>
+            <View style={styles.backButtonInner}>
               <Ionicons name="arrow-back" size={22} color={Colors.text} />
             </View>
           </TouchableOpacity>
