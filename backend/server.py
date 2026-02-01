@@ -67,6 +67,8 @@ class User(UserBase):
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
     created_at: datetime = Field(default_factory=datetime.utcnow)
     is_verified: bool = False
+    is_admin: bool = False
+    role: str = "user"  # user, admin
     verification_code: Optional[str] = None
 
 class UserResponse(BaseModel):
