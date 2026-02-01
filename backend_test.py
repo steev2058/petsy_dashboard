@@ -1,564 +1,424 @@
 #!/usr/bin/env python3
 """
-Petsy Backend API Testing Suite - Phase 2 APIs
-Tests Phase 2 backend endpoints: Map Locations, Orders, Appointments, Conversations/Messages, Cart
+Petsy Backend API Testing Suite
+Tests the Appointments and Vets APIs as requested
 """
 
 import requests
 import json
-import uuid
-from datetime import datetime
 import sys
-import os
-import time
+from datetime import datetime, timedelta
+import uuid
 
-# Backend URL from frontend/.env
+# Configuration
 BACKEND_URL = "https://petsy-marketplace-1.preview.emergentagent.com/api"
+TEST_USER_EMAIL = "testuser@petsy.com"
+TEST_USER_NAME = "Test User"
+TEST_USER_PASSWORD = "testpass123"
+TEST_USER_PHONE = "+963912345678"
 
 class PetsyAPITester:
     def __init__(self):
         self.base_url = BACKEND_URL
-        self.session = requests.Session()
-        self.session.headers.update({
-            'Content-Type': 'application/json',
-            'Accept': 'application/json'
-        })
-        self.access_token = None
+        self.auth_token = None
         self.user_id = None
         self.test_results = []
         
-    def log_result(self, test_name, success, message, response_data=None):
-        """Log test results"""
+    def log_result(self, test_name, success, message, details=None):
+        """Log test result"""
+        result = {
+            "test": test_name,
+            "success": success,
+            "message": message,
+            "details": details,
+            "timestamp": datetime.now().isoformat()
+        }
+        self.test_results.append(result)
         status = "✅ PASS" if success else "❌ FAIL"
-        print(f"{status} {test_name}: {message}")
-        self.test_results.append({
-            'test': test_name,
-            'success': success,
-            'message': message,
-            'response_data': response_data
-        })
-        
-    def make_request(self, method, endpoint, data=None, auth_required=False):
+        print(f"{status}: {test_name} - {message}")
+        if details and not success:
+            print(f"   Details: {details}")
+    
+    def make_request(self, method, endpoint, data=None, headers=None, auth_required=True):
         """Make HTTP request with proper headers"""
         url = f"{self.base_url}{endpoint}"
-        headers = {}
         
-        if auth_required and self.access_token:
-            headers['Authorization'] = f'Bearer {self.access_token}'
-            
+        request_headers = {"Content-Type": "application/json"}
+        if auth_required and self.auth_token:
+            request_headers["Authorization"] = f"Bearer {self.auth_token}"
+        if headers:
+            request_headers.update(headers)
+        
         try:
-            if method.upper() == 'GET':
-                response = self.session.get(url, headers=headers)
-            elif method.upper() == 'POST':
-                response = self.session.post(url, json=data, headers=headers)
-            elif method.upper() == 'PUT':
-                response = self.session.put(url, json=data, headers=headers)
-            elif method.upper() == 'DELETE':
-                response = self.session.delete(url, headers=headers)
+            if method.upper() == "GET":
+                response = requests.get(url, headers=request_headers, timeout=30)
+            elif method.upper() == "POST":
+                response = requests.post(url, json=data, headers=request_headers, timeout=30)
+            elif method.upper() == "PUT":
+                response = requests.put(url, json=data, headers=request_headers, timeout=30)
+            elif method.upper() == "DELETE":
+                response = requests.delete(url, headers=request_headers, timeout=30)
             else:
                 raise ValueError(f"Unsupported method: {method}")
-                
+            
             return response
-        except Exception as e:
-            print(f"Request failed: {e}")
-            return None
-
-    def test_seed_data(self):
-        """Test seed data endpoint first"""
-        print("\n=== Testing Seed Data ===")
-        response = self.make_request('POST', '/seed')
-        
-        if response and response.status_code == 200:
-            data = response.json()
-            self.log_result("Seed Data", True, "Seed data created successfully")
-            return True
-        else:
-            error_msg = f"Seed failed with status {response.status_code if response else 'No response'}"
-            if response:
-                try:
-                    error_detail = response.json().get('detail', 'Unknown error')
-                    error_msg += f": {error_detail}"
-                except:
-                    error_msg += f": {response.text}"
-            self.log_result("Seed Data", False, error_msg)
-            return False
-
-    def setup_authentication(self):
-        """Setup authentication for testing authenticated endpoints"""
-        print("\n=== Setting Up Authentication ===")
-        
-        # Generate unique test user data
-        timestamp = int(time.time())
-        test_email = f"testuser_{timestamp}@petsy.com"
-        test_name = f"Test User {timestamp}"
-        test_password = "SecurePass123!"
-        test_phone = "+963987654321"
-        
-        # 1. Signup
-        signup_data = {
-            "email": test_email,
-            "name": test_name,
-            "password": test_password,
-            "phone": test_phone
+        except requests.exceptions.RequestException as e:
+            return None, str(e)
+    
+    def test_user_signup(self):
+        """Test user signup"""
+        data = {
+            "email": TEST_USER_EMAIL,
+            "name": TEST_USER_NAME,
+            "password": TEST_USER_PASSWORD,
+            "phone": TEST_USER_PHONE
         }
         
-        response = self.make_request('POST', '/auth/signup', signup_data)
-        if not response or response.status_code != 200:
-            error_msg = f"Signup failed with status {response.status_code if response else 'No response'}"
-            if response:
-                try:
-                    error_detail = response.json().get('detail', 'Unknown error')
-                    error_msg += f": {error_detail}"
-                except:
-                    error_msg += f": {response.text}"
-            self.log_result("Auth Setup - Signup", False, error_msg)
-            return False
-            
-        signup_result = response.json()
-        if 'user_id' not in signup_result or 'verification_code' not in signup_result:
-            self.log_result("Auth Setup - Signup", False, f"Missing user_id or verification_code: {signup_result}")
-            return False
-            
-        self.user_id = signup_result['user_id']
-        verification_code = signup_result['verification_code']
-        self.log_result("Auth Setup - Signup", True, f"User created with ID: {self.user_id}")
+        response = self.make_request("POST", "/auth/signup", data, auth_required=False)
         
-        # 2. Verify
-        response = self.make_request('POST', f'/auth/verify?user_id={self.user_id}&code={verification_code}')
-        if not response or response.status_code != 200:
-            error_msg = f"Verification failed with status {response.status_code if response else 'No response'}"
-            if response:
-                try:
-                    error_detail = response.json().get('detail', 'Unknown error')
-                    error_msg += f": {error_detail}"
-                except:
-                    error_msg += f": {response.text}"
-            self.log_result("Auth Setup - Verify", False, error_msg)
+        if response is None:
+            self.log_result("User Signup", False, "Request failed - connection error")
             return False
-            
-        verify_result = response.json()
-        if 'access_token' not in verify_result:
-            self.log_result("Auth Setup - Verify", False, f"Missing access_token: {verify_result}")
-            return False
-            
-        self.access_token = verify_result['access_token']
-        self.log_result("Auth Setup - Verify", True, "Account verified and token received")
-        return True
-
-    def test_map_locations_api(self):
-        """Test Map Locations API (High Priority)"""
-        print("\n=== Testing Map Locations API ===")
         
-        # Test 1: Get all map locations
-        response = self.make_request('GET', '/map-locations')
-        if not response or response.status_code != 200:
-            error_msg = f"Get map locations failed with status {response.status_code if response else 'No response'}"
-            if response:
-                try:
-                    error_detail = response.json().get('detail', 'Unknown error')
-                    error_msg += f": {error_detail}"
-                except:
-                    error_msg += f": {response.text}"
-            self.log_result("Map Locations - Get All", False, error_msg)
-            return False
-        else:
-            locations = response.json()
-            if isinstance(locations, list) and len(locations) > 0:
-                self.log_result("Map Locations - Get All", True, f"Retrieved {len(locations)} locations")
-            else:
-                self.log_result("Map Locations - Get All", False, f"No locations returned: {locations}")
+        if response.status_code == 201 or response.status_code == 200:
+            try:
+                result = response.json()
+                self.user_id = result.get("user_id")
+                verification_code = result.get("verification_code")
+                self.log_result("User Signup", True, f"User created successfully with ID: {self.user_id}")
+                return verification_code
+            except:
+                self.log_result("User Signup", False, "Invalid JSON response")
                 return False
-        
-        # Test 2: Filter by type (vet)
-        response = self.make_request('GET', '/map-locations?type=vet')
-        if response and response.status_code == 200:
-            vet_locations = response.json()
-            if isinstance(vet_locations, list):
-                vet_count = len([loc for loc in vet_locations if loc.get('type') == 'vet'])
-                self.log_result("Map Locations - Filter by Vet", True, f"Retrieved {vet_count} vet locations")
-            else:
-                self.log_result("Map Locations - Filter by Vet", False, f"Invalid response format: {vet_locations}")
+        elif response.status_code == 400:
+            # User might already exist, try to continue with login
+            self.log_result("User Signup", True, "User already exists (continuing with existing user)")
+            return "existing_user"
         else:
-            error_msg = f"Filter by vet failed with status {response.status_code if response else 'No response'}"
-            self.log_result("Map Locations - Filter by Vet", False, error_msg)
-        
-        # Test 3: Filter by city
-        response = self.make_request('GET', '/map-locations?city=Damascus')
-        if response and response.status_code == 200:
-            damascus_locations = response.json()
-            if isinstance(damascus_locations, list):
-                self.log_result("Map Locations - Filter by City", True, f"Retrieved {len(damascus_locations)} Damascus locations")
-            else:
-                self.log_result("Map Locations - Filter by City", False, f"Invalid response format: {damascus_locations}")
-        else:
-            error_msg = f"Filter by city failed with status {response.status_code if response else 'No response'}"
-            self.log_result("Map Locations - Filter by City", False, error_msg)
-        
-        return True
-
-    def test_orders_api(self):
-        """Test Orders API (High Priority, requires authentication)"""
-        print("\n=== Testing Orders API ===")
-        
-        if not self.access_token:
-            self.log_result("Orders API", False, "No authentication token available")
+            self.log_result("User Signup", False, f"Signup failed with status {response.status_code}: {response.text}")
             return False
-            
-        # Test 1: Create an order
-        order_data = {
-            "items": [
-                {
-                    "product_id": str(uuid.uuid4()),
-                    "name": "Premium Dog Food",
-                    "price": 25.99,
-                    "quantity": 2,
-                    "image": "dog_food.jpg"
-                },
-                {
-                    "product_id": str(uuid.uuid4()),
-                    "name": "Cat Scratching Post",
-                    "price": 29.99,
-                    "quantity": 1,
-                    "image": "cat_post.jpg"
-                }
-            ],
-            "total": 81.97,
-            "shipping_address": "123 Pet Lover Street, Mezzeh",
-            "shipping_city": "Damascus",
-            "shipping_phone": "+963912345678",
-            "payment_method": "cash_on_delivery",
-            "notes": "Please call before delivery"
+    
+    def test_user_verification(self, verification_code):
+        """Test user verification"""
+        if verification_code == "existing_user":
+            return True
+        
+        if not self.user_id or not verification_code:
+            self.log_result("User Verification", False, "Missing user_id or verification_code")
+            return False
+        
+        response = self.make_request("POST", f"/auth/verify?user_id={self.user_id}&code={verification_code}", auth_required=False)
+        
+        if response is None:
+            self.log_result("User Verification", False, "Request failed - connection error")
+            return False
+        
+        if response.status_code == 200:
+            try:
+                result = response.json()
+                self.auth_token = result.get("access_token")
+                self.log_result("User Verification", True, "User verified and token received")
+                return True
+            except:
+                self.log_result("User Verification", False, "Invalid JSON response")
+                return False
+        else:
+            self.log_result("User Verification", False, f"Verification failed with status {response.status_code}: {response.text}")
+            return False
+    
+    def test_user_login(self):
+        """Test user login (fallback if verification fails)"""
+        data = {
+            "email": TEST_USER_EMAIL,
+            "password": TEST_USER_PASSWORD
         }
         
-        response = self.make_request('POST', '/orders', order_data, auth_required=True)
-        if not response or response.status_code != 200:
-            error_msg = f"Create order failed with status {response.status_code if response else 'No response'}"
-            if response:
-                try:
-                    error_detail = response.json().get('detail', 'Unknown error')
-                    error_msg += f": {error_detail}"
-                except:
-                    error_msg += f": {response.text}"
-            self.log_result("Orders - Create Order", False, error_msg)
-            return False
-            
-        order_result = response.json()
-        order_id = order_result.get("id")
-        if not order_id:
-            self.log_result("Orders - Create Order", False, f"Missing order ID: {order_result}")
-            return False
-            
-        self.log_result("Orders - Create Order", True, f"Order created with ID: {order_id}")
+        response = self.make_request("POST", "/auth/login", data, auth_required=False)
         
-        # Test 2: Get user's orders
-        response = self.make_request('GET', '/orders', auth_required=True)
-        if not response or response.status_code != 200:
-            error_msg = f"Get orders failed with status {response.status_code if response else 'No response'}"
-            self.log_result("Orders - Get User Orders", False, error_msg)
+        if response is None:
+            self.log_result("User Login", False, "Request failed - connection error")
+            return False
+        
+        if response.status_code == 200:
+            try:
+                result = response.json()
+                self.auth_token = result.get("access_token")
+                user_data = result.get("user", {})
+                self.user_id = user_data.get("id")
+                self.log_result("User Login", True, f"Login successful, token received for user: {user_data.get('name')}")
+                return True
+            except:
+                self.log_result("User Login", False, "Invalid JSON response")
+                return False
         else:
-            orders = response.json()
-            if isinstance(orders, list) and len(orders) > 0:
-                self.log_result("Orders - Get User Orders", True, f"Retrieved {len(orders)} orders")
-            else:
-                self.log_result("Orders - Get User Orders", False, f"No orders returned: {orders}")
-                
-        # Test 3: Get specific order
-        response = self.make_request('GET', f'/orders/{order_id}', auth_required=True)
-        if not response or response.status_code != 200:
-            error_msg = f"Get specific order failed with status {response.status_code if response else 'No response'}"
-            self.log_result("Orders - Get Specific Order", False, error_msg)
+            self.log_result("User Login", False, f"Login failed with status {response.status_code}: {response.text}")
+            return False
+    
+    def test_get_vets(self):
+        """Test GET /api/vets - Should return seeded vets"""
+        response = self.make_request("GET", "/vets", auth_required=False)
+        
+        if response is None:
+            self.log_result("GET /api/vets", False, "Request failed - connection error")
+            return False
+        
+        if response.status_code == 200:
+            try:
+                vets = response.json()
+                if isinstance(vets, list) and len(vets) > 0:
+                    self.log_result("GET /api/vets", True, f"Retrieved {len(vets)} vets successfully")
+                    # Log some vet details for verification
+                    for i, vet in enumerate(vets[:2]):  # Show first 2 vets
+                        print(f"   Vet {i+1}: {vet.get('name')} - {vet.get('clinic_name')} ({vet.get('city')})")
+                    return vets
+                else:
+                    self.log_result("GET /api/vets", False, "No vets returned or invalid format")
+                    return False
+            except:
+                self.log_result("GET /api/vets", False, "Invalid JSON response")
+                return False
         else:
-            order_details = response.json()
-            if order_details.get('id') == order_id:
-                self.log_result("Orders - Get Specific Order", True, f"Retrieved order details for {order_id}")
-            else:
-                self.log_result("Orders - Get Specific Order", False, f"Order ID mismatch: {order_details}")
-        
-        return True
-
-    def test_appointments_api(self):
-        """Test Appointments API (Medium Priority, requires authentication)"""
-        print("\n=== Testing Appointments API ===")
-        
-        if not self.access_token:
-            self.log_result("Appointments API", False, "No authentication token available")
+            self.log_result("GET /api/vets", False, f"Request failed with status {response.status_code}: {response.text}")
             return False
-            
-        # First get a vet ID from seeded data
-        vet_response = self.make_request('GET', '/vets')
-        vet_id = None
-        if vet_response and vet_response.status_code == 200:
-            vets = vet_response.json()
-            if vets and len(vets) > 0:
-                vet_id = vets[0].get("id")
-                
-        if not vet_id:
-            self.log_result("Appointments - Setup", False, "No vets available for appointment testing")
+    
+    def test_get_vet_by_id(self, vet_id):
+        """Test GET /api/vets/{id} - Get vet by ID"""
+        response = self.make_request("GET", f"/vets/{vet_id}", auth_required=False)
+        
+        if response is None:
+            self.log_result("GET /api/vets/{id}", False, "Request failed - connection error")
             return False
-            
-        # Test 1: Create an appointment
-        appointment_data = {
+        
+        if response.status_code == 200:
+            try:
+                vet = response.json()
+                if vet.get("id") == vet_id:
+                    self.log_result("GET /api/vets/{id}", True, f"Retrieved vet: {vet.get('name')} - {vet.get('clinic_name')}")
+                    return vet
+                else:
+                    self.log_result("GET /api/vets/{id}", False, "Vet ID mismatch in response")
+                    return False
+            except:
+                self.log_result("GET /api/vets/{id}", False, "Invalid JSON response")
+                return False
+        elif response.status_code == 404:
+            self.log_result("GET /api/vets/{id}", False, "Vet not found")
+            return False
+        else:
+            self.log_result("GET /api/vets/{id}", False, f"Request failed with status {response.status_code}: {response.text}")
+            return False
+    
+    def test_create_appointment(self, vet_id):
+        """Test POST /api/appointments - Create a new appointment"""
+        if not self.auth_token:
+            self.log_result("POST /api/appointments", False, "No authentication token available")
+            return False
+        
+        # Create appointment for tomorrow
+        tomorrow = (datetime.now() + timedelta(days=1)).strftime("%Y-%m-%d")
+        
+        data = {
             "vet_id": vet_id,
-            "date": "2025-02-20",
-            "time": "2:00 PM",
-            "reason": "Annual checkup for my golden retriever",
-            "notes": "Dog is very friendly but gets nervous at vet visits"
+            "date": tomorrow,
+            "time": "10:00 AM",
+            "reason": "General Checkup",
+            "notes": "Regular health checkup for my pet"
         }
         
-        response = self.make_request('POST', '/appointments', appointment_data, auth_required=True)
-        if not response or response.status_code != 200:
-            error_msg = f"Create appointment failed with status {response.status_code if response else 'No response'}"
-            if response:
-                try:
-                    error_detail = response.json().get('detail', 'Unknown error')
-                    error_msg += f": {error_detail}"
-                except:
-                    error_msg += f": {response.text}"
-            self.log_result("Appointments - Create", False, error_msg)
+        response = self.make_request("POST", "/appointments", data)
+        
+        if response is None:
+            self.log_result("POST /api/appointments", False, "Request failed - connection error")
             return False
-            
-        appointment_result = response.json()
-        appointment_id = appointment_result.get("id")
-        if not appointment_id:
-            self.log_result("Appointments - Create", False, f"Missing appointment ID: {appointment_result}")
+        
+        if response.status_code == 200 or response.status_code == 201:
+            try:
+                appointment = response.json()
+                appointment_id = appointment.get("id")
+                self.log_result("POST /api/appointments", True, f"Appointment created successfully with ID: {appointment_id}")
+                print(f"   Appointment details: {appointment.get('date')} at {appointment.get('time')} - {appointment.get('reason')}")
+                return appointment
+            except:
+                self.log_result("POST /api/appointments", False, "Invalid JSON response")
+                return False
+        else:
+            self.log_result("POST /api/appointments", False, f"Request failed with status {response.status_code}: {response.text}")
             return False
-            
-        self.log_result("Appointments - Create", True, f"Appointment created with ID: {appointment_id}")
-        
-        # Test 2: Get user's appointments
-        response = self.make_request('GET', '/appointments', auth_required=True)
-        if not response or response.status_code != 200:
-            error_msg = f"Get appointments failed with status {response.status_code if response else 'No response'}"
-            self.log_result("Appointments - Get User Appointments", False, error_msg)
-        else:
-            appointments = response.json()
-            if isinstance(appointments, list) and len(appointments) > 0:
-                self.log_result("Appointments - Get User Appointments", True, f"Retrieved {len(appointments)} appointments")
-            else:
-                self.log_result("Appointments - Get User Appointments", False, f"No appointments returned: {appointments}")
-                
-        # Test 3: Get specific appointment
-        response = self.make_request('GET', f'/appointments/{appointment_id}', auth_required=True)
-        if not response or response.status_code != 200:
-            error_msg = f"Get specific appointment failed with status {response.status_code if response else 'No response'}"
-            self.log_result("Appointments - Get Specific", False, error_msg)
-        else:
-            appointment_details = response.json()
-            if appointment_details.get('id') == appointment_id:
-                self.log_result("Appointments - Get Specific", True, f"Retrieved appointment details for {appointment_id}")
-            else:
-                self.log_result("Appointments - Get Specific", False, f"Appointment ID mismatch: {appointment_details}")
-                
-        # Test 4: Cancel appointment
-        response = self.make_request('PUT', f'/appointments/{appointment_id}/cancel', auth_required=True)
-        if not response or response.status_code != 200:
-            error_msg = f"Cancel appointment failed with status {response.status_code if response else 'No response'}"
-            self.log_result("Appointments - Cancel", False, error_msg)
-        else:
-            cancel_result = response.json()
-            if 'message' in cancel_result:
-                self.log_result("Appointments - Cancel", True, f"Appointment {appointment_id} cancelled successfully")
-            else:
-                self.log_result("Appointments - Cancel", False, f"Unexpected cancel response: {cancel_result}")
-        
-        return True
-
-    def test_conversations_api(self):
-        """Test Conversations/Messages API (Medium Priority, requires authentication)"""
-        print("\n=== Testing Conversations/Messages API ===")
-        
-        if not self.access_token:
-            self.log_result("Conversations API", False, "No authentication token available")
+    
+    def test_get_appointments(self):
+        """Test GET /api/appointments - List user's appointments"""
+        if not self.auth_token:
+            self.log_result("GET /api/appointments", False, "No authentication token available")
             return False
-            
-        # Test 1: Get conversations (should be empty initially)
-        response = self.make_request('GET', '/conversations', auth_required=True)
-        if not response or response.status_code != 200:
-            error_msg = f"Get conversations failed with status {response.status_code if response else 'No response'}"
-            self.log_result("Conversations - Get All", False, error_msg)
-        else:
-            conversations = response.json()
-            if isinstance(conversations, list):
-                self.log_result("Conversations - Get All", True, f"Retrieved {len(conversations)} conversations")
-            else:
-                self.log_result("Conversations - Get All", False, f"Invalid response format: {conversations}")
-            
-        # Test 2: Create a new conversation
-        conversation_data = {
-            "other_user_id": str(uuid.uuid4()),  # Fake user ID for testing
-            "initial_message": "Hello! I'm interested in adopting the golden retriever you posted. Is he still available?"
-        }
         
-        response = self.make_request('POST', '/conversations', conversation_data, auth_required=True)
-        if not response or response.status_code != 200:
-            error_msg = f"Create conversation failed with status {response.status_code if response else 'No response'}"
-            if response:
-                try:
-                    error_detail = response.json().get('detail', 'Unknown error')
-                    error_msg += f": {error_detail}"
-                except:
-                    error_msg += f": {response.text}"
-            self.log_result("Conversations - Create", False, error_msg)
+        response = self.make_request("GET", "/appointments")
+        
+        if response is None:
+            self.log_result("GET /api/appointments", False, "Request failed - connection error")
             return False
-            
-        conversation_result = response.json()
-        conversation_id = conversation_result.get("conversation_id")
-        if not conversation_id:
-            self.log_result("Conversations - Create", False, f"Missing conversation ID: {conversation_result}")
+        
+        if response.status_code == 200:
+            try:
+                appointments = response.json()
+                if isinstance(appointments, list):
+                    self.log_result("GET /api/appointments", True, f"Retrieved {len(appointments)} appointments")
+                    for i, apt in enumerate(appointments[:3]):  # Show first 3 appointments
+                        print(f"   Appointment {i+1}: {apt.get('date')} at {apt.get('time')} - {apt.get('reason')} (Status: {apt.get('status')})")
+                    return appointments
+                else:
+                    self.log_result("GET /api/appointments", False, "Invalid response format")
+                    return False
+            except:
+                self.log_result("GET /api/appointments", False, "Invalid JSON response")
+                return False
+        else:
+            self.log_result("GET /api/appointments", False, f"Request failed with status {response.status_code}: {response.text}")
             return False
-            
-        self.log_result("Conversations - Create", True, f"Conversation created with ID: {conversation_id}")
-        
-        # Test 3: Get messages in conversation
-        response = self.make_request('GET', f'/conversations/{conversation_id}/messages', auth_required=True)
-        if not response or response.status_code != 200:
-            error_msg = f"Get messages failed with status {response.status_code if response else 'No response'}"
-            self.log_result("Conversations - Get Messages", False, error_msg)
-        else:
-            messages = response.json()
-            if isinstance(messages, list):
-                self.log_result("Conversations - Get Messages", True, f"Retrieved {len(messages)} messages")
-            else:
-                self.log_result("Conversations - Get Messages", False, f"Invalid response format: {messages}")
-                
-        # Test 4: Send a message
-        message_content = "Yes, he's still available! Would you like to schedule a meet and greet?"
-        response = self.make_request('POST', f'/conversations/{conversation_id}/messages?content={message_content}', auth_required=True)
-        if not response or response.status_code != 200:
-            error_msg = f"Send message failed with status {response.status_code if response else 'No response'}"
-            self.log_result("Conversations - Send Message", False, error_msg)
-        else:
-            message_result = response.json()
-            if message_result.get('content') == message_content:
-                self.log_result("Conversations - Send Message", True, "Message sent successfully")
-            else:
-                self.log_result("Conversations - Send Message", False, f"Message content mismatch: {message_result}")
-        
-        return True
-
-    def test_cart_api(self):
-        """Test Cart API (mentioned in test_result.md but not implemented in server.py)"""
-        print("\n=== Testing Cart API ===")
-        
-        if not self.access_token:
-            self.log_result("Cart API", False, "No authentication token available")
+    
+    def test_get_appointment_by_id(self, appointment_id):
+        """Test GET /api/appointments/{id} - Get single appointment"""
+        if not self.auth_token:
+            self.log_result("GET /api/appointments/{id}", False, "No authentication token available")
             return False
-            
-        # Note: Cart API endpoints are not implemented in the server.py file
-        # Testing to confirm they don't exist
         
-        # Test 1: Try to get cart
-        response = self.make_request('GET', '/cart', auth_required=True)
-        if response and response.status_code == 404:
-            self.log_result("Cart - Get Cart", False, "Cart API endpoint not implemented (404 Not Found)")
-        elif response and response.status_code == 200:
-            cart_data = response.json()
-            self.log_result("Cart - Get Cart", True, f"Cart endpoint exists and returned: {cart_data}")
-        else:
-            error_msg = f"Cart get failed with status {response.status_code if response else 'No response'}"
-            self.log_result("Cart - Get Cart", False, error_msg)
-            
-        # Test 2: Try to add to cart
-        cart_item_data = {
-            "product_id": str(uuid.uuid4()),
-            "quantity": 2
-        }
-        response = self.make_request('POST', '/cart/add', cart_item_data, auth_required=True)
-        if response and response.status_code == 404:
-            self.log_result("Cart - Add Item", False, "Cart add API endpoint not implemented (404 Not Found)")
-        elif response and response.status_code == 200:
-            add_result = response.json()
-            self.log_result("Cart - Add Item", True, f"Cart add endpoint exists and returned: {add_result}")
-        else:
-            error_msg = f"Cart add failed with status {response.status_code if response else 'No response'}"
-            self.log_result("Cart - Add Item", False, error_msg)
-            
-        # Test 3: Try to update cart item
-        update_data = {
-            "product_id": str(uuid.uuid4()),
-            "quantity": 3
-        }
-        response = self.make_request('PUT', '/cart/update', update_data, auth_required=True)
-        if response and response.status_code == 404:
-            self.log_result("Cart - Update Item", False, "Cart update API endpoint not implemented (404 Not Found)")
-        elif response and response.status_code == 200:
-            update_result = response.json()
-            self.log_result("Cart - Update Item", True, f"Cart update endpoint exists and returned: {update_result}")
-        else:
-            error_msg = f"Cart update failed with status {response.status_code if response else 'No response'}"
-            self.log_result("Cart - Update Item", False, error_msg)
-            
-        # Test 4: Try to remove from cart
-        response = self.make_request('DELETE', f'/cart/remove?product_id={str(uuid.uuid4())}', auth_required=True)
-        if response and response.status_code == 404:
-            self.log_result("Cart - Remove Item", False, "Cart remove API endpoint not implemented (404 Not Found)")
-        elif response and response.status_code == 200:
-            remove_result = response.json()
-            self.log_result("Cart - Remove Item", True, f"Cart remove endpoint exists and returned: {remove_result}")
-        else:
-            error_msg = f"Cart remove failed with status {response.status_code if response else 'No response'}"
-            self.log_result("Cart - Remove Item", False, error_msg)
+        response = self.make_request("GET", f"/appointments/{appointment_id}")
         
-        return True
-
+        if response is None:
+            self.log_result("GET /api/appointments/{id}", False, "Request failed - connection error")
+            return False
+        
+        if response.status_code == 200:
+            try:
+                appointment = response.json()
+                if appointment.get("id") == appointment_id:
+                    self.log_result("GET /api/appointments/{id}", True, f"Retrieved appointment: {appointment.get('date')} at {appointment.get('time')}")
+                    return appointment
+                else:
+                    self.log_result("GET /api/appointments/{id}", False, "Appointment ID mismatch in response")
+                    return False
+            except:
+                self.log_result("GET /api/appointments/{id}", False, "Invalid JSON response")
+                return False
+        elif response.status_code == 404:
+            self.log_result("GET /api/appointments/{id}", False, "Appointment not found")
+            return False
+        else:
+            self.log_result("GET /api/appointments/{id}", False, f"Request failed with status {response.status_code}: {response.text}")
+            return False
+    
+    def test_cancel_appointment(self, appointment_id):
+        """Test PUT /api/appointments/{id}/cancel - Cancel an appointment"""
+        if not self.auth_token:
+            self.log_result("PUT /api/appointments/{id}/cancel", False, "No authentication token available")
+            return False
+        
+        response = self.make_request("PUT", f"/appointments/{appointment_id}/cancel")
+        
+        if response is None:
+            self.log_result("PUT /api/appointments/{id}/cancel", False, "Request failed - connection error")
+            return False
+        
+        if response.status_code == 200:
+            try:
+                result = response.json()
+                self.log_result("PUT /api/appointments/{id}/cancel", True, f"Appointment cancelled: {result.get('message')}")
+                return True
+            except:
+                self.log_result("PUT /api/appointments/{id}/cancel", False, "Invalid JSON response")
+                return False
+        elif response.status_code == 404:
+            self.log_result("PUT /api/appointments/{id}/cancel", False, "Appointment not found")
+            return False
+        else:
+            self.log_result("PUT /api/appointments/{id}/cancel", False, f"Request failed with status {response.status_code}: {response.text}")
+            return False
+    
     def run_all_tests(self):
-        """Run Phase 2 API tests"""
-        print(f"🚀 Starting Petsy Backend API Tests - Phase 2 APIs")
+        """Run all tests in sequence"""
+        print("=" * 60)
+        print("PETSY BACKEND API TESTING - APPOINTMENTS & VETS")
+        print("=" * 60)
         print(f"Backend URL: {self.base_url}")
-        print("Testing: Map Locations, Orders, Appointments, Conversations/Messages, Cart")
+        print(f"Test User: {TEST_USER_EMAIL}")
         print("=" * 60)
         
-        # Setup seed data first
-        if not self.test_seed_data():
-            print("⚠️  Seed data failed - continuing with tests anyway")
-            
-        # Setup authentication for protected endpoints
-        if not self.setup_authentication():
-            print("❌ Authentication setup failed - skipping authenticated tests")
+        # Step 1: User Authentication
+        print("\n🔐 AUTHENTICATION TESTS")
+        print("-" * 30)
+        
+        verification_code = self.test_user_signup()
+        if verification_code and verification_code != "existing_user":
+            auth_success = self.test_user_verification(verification_code)
+        else:
+            auth_success = self.test_user_login()
+        
+        if not auth_success:
+            print("\n❌ CRITICAL: Authentication failed. Cannot proceed with protected endpoints.")
             return False
         
-        # Run Phase 2 API tests
-        print("\n🎯 Testing Phase 2 APIs...")
+        # Step 2: Vets API Tests
+        print("\n🏥 VETS API TESTS")
+        print("-" * 20)
         
-        # High Priority Tests
-        self.test_map_locations_api()
-        self.test_orders_api()
+        vets = self.test_get_vets()
+        if vets and len(vets) > 0:
+            # Test getting a specific vet
+            first_vet = vets[0]
+            vet_id = first_vet.get("id")
+            if vet_id:
+                self.test_get_vet_by_id(vet_id)
         
-        # Medium Priority Tests  
-        self.test_appointments_api()
-        self.test_conversations_api()
+        # Step 3: Appointments API Tests
+        print("\n📅 APPOINTMENTS API TESTS")
+        print("-" * 25)
         
-        # Cart API (mentioned in test_result.md)
-        self.test_cart_api()
+        # Create appointment (need a vet_id)
+        if vets and len(vets) > 0:
+            vet_id = vets[0].get("id")
+            appointment = self.test_create_appointment(vet_id)
+            
+            # List appointments
+            appointments = self.test_get_appointments()
+            
+            # Get specific appointment
+            if appointment:
+                appointment_id = appointment.get("id")
+                if appointment_id:
+                    self.test_get_appointment_by_id(appointment_id)
+                    # Cancel appointment
+                    self.test_cancel_appointment(appointment_id)
+        else:
+            print("❌ Cannot test appointments - no vets available")
         
-        # Print summary
-        self.print_summary()
-        
-        return True
-
-    def print_summary(self):
-        """Print test results summary"""
+        # Summary
         print("\n" + "=" * 60)
-        print("📊 TEST RESULTS SUMMARY")
+        print("TEST SUMMARY")
         print("=" * 60)
         
-        passed = sum(1 for result in self.test_results if result['success'])
-        total = len(self.test_results)
+        total_tests = len(self.test_results)
+        passed_tests = len([r for r in self.test_results if r["success"]])
+        failed_tests = total_tests - passed_tests
         
-        print(f"Total Tests: {total}")
-        print(f"Passed: {passed}")
-        print(f"Failed: {total - passed}")
-        print(f"Success Rate: {(passed/total*100):.1f}%" if total > 0 else "0%")
+        print(f"Total Tests: {total_tests}")
+        print(f"Passed: {passed_tests}")
+        print(f"Failed: {failed_tests}")
+        print(f"Success Rate: {(passed_tests/total_tests)*100:.1f}%")
         
-        # Show failed tests
-        failed_tests = [result for result in self.test_results if not result['success']]
-        if failed_tests:
+        if failed_tests > 0:
             print("\n❌ FAILED TESTS:")
-            for test in failed_tests:
-                print(f"  - {test['test']}: {test['message']}")
+            for result in self.test_results:
+                if not result["success"]:
+                    print(f"   - {result['test']}: {result['message']}")
         
-        print("\n" + "=" * 60)
+        return failed_tests == 0
 
 if __name__ == "__main__":
     tester = PetsyAPITester()
-    tester.run_all_tests()
+    success = tester.run_all_tests()
+    
+    if success:
+        print("\n🎉 ALL TESTS PASSED!")
+        sys.exit(0)
+    else:
+        print("\n💥 SOME TESTS FAILED!")
+        sys.exit(1)
