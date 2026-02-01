@@ -90,18 +90,47 @@ export default function SponsorPetScreen() {
       return;
     }
 
+    // Validate card details if using Stripe
+    if (paymentMethod === 'stripe') {
+      if (!cardDetails.number || cardDetails.number.length < 15) {
+        Alert.alert('Invalid Card', 'Please enter a valid card number');
+        return;
+      }
+      if (!cardDetails.expiry || cardDetails.expiry.length < 4) {
+        Alert.alert('Invalid Card', 'Please enter a valid expiry date');
+        return;
+      }
+      if (!cardDetails.cvc || cardDetails.cvc.length < 3) {
+        Alert.alert('Invalid Card', 'Please enter a valid CVC');
+        return;
+      }
+    }
+
     setSubmitting(true);
     try {
-      await sponsorshipAPI.create({
+      // First create the sponsorship
+      const sponsorshipResponse = await sponsorshipAPI.create({
         pet_id: petId,
         amount: finalAmount,
         message: message.trim() || undefined,
         is_anonymous: isAnonymous,
       });
 
+      // Then process the payment
+      await paymentAPI.processPayment({
+        amount: finalAmount,
+        payment_method: paymentMethod,
+        sponsorship_id: sponsorshipResponse.data?.id,
+        ...(paymentMethod === 'stripe' && {
+          card_number: cardDetails.number,
+          card_expiry: cardDetails.expiry,
+          card_cvc: cardDetails.cvc,
+        }),
+      });
+
       Alert.alert(
         '💝 Thank You!',
-        `Your sponsorship of $${finalAmount.toFixed(2)} for ${pet?.name} has been received. You're making a real difference!`,
+        `Your sponsorship of $${finalAmount.toFixed(2)} for ${pet?.name} has been received. You're making a real difference! You also earned ${Math.floor(finalAmount)} Petsy Points! 🎉`,
         [
           { text: 'View Pet', onPress: () => router.replace(`/pet/${petId}`) },
           { text: 'Done', onPress: () => router.back() },
