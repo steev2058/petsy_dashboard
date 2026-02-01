@@ -705,8 +705,8 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.white,
     padding: Spacing.lg,
     paddingBottom: Spacing.xl,
-    borderTopLeftRadius: BorderRadius.xxl,
-    borderTopRightRadius: BorderRadius.xxl,
+    borderTopLeftRadius: BorderRadius.xl,
+    borderTopRightRadius: BorderRadius.xl,
   },
   finalSummary: {
     flexDirection: 'row',
