@@ -235,135 +235,149 @@ export default function CheckoutScreen() {
         </View>
 
         <ScrollView showsVerticalScrollIndicator={false}>
-          {/* Order Summary */}
-          <View style={[styles.section, Shadow.small]}>
-            <View style={styles.sectionHeader}>
-              <Ionicons name="bag-handle" size={20} color={Colors.primary} />
-              <Text style={styles.sectionTitle}>Order Summary</Text>
-            </View>
-            
-            {cart.map((item) => (
-              <View key={item.product_id} style={styles.orderItem}>
-                <View style={styles.orderItemImageContainer}>
-                  {item.image ? (
-                    <Image source={{ uri: item.image }} style={styles.orderItemImage} />
-                  ) : (
-                    <View style={styles.orderItemImagePlaceholder}>
-                      <Ionicons name="cube" size={20} color={Colors.textLight} />
+          {/* Step 1: Order Review */}
+          {step === 1 && (
+            <>
+              <View style={[styles.section, Shadow.small]}>
+                <View style={styles.sectionHeader}>
+                  <Ionicons name="bag-handle" size={20} color={Colors.primary} />
+                  <Text style={styles.sectionTitle}>Order Summary</Text>
+                </View>
+                
+                {cart.map((item) => (
+                  <View key={item.product_id} style={styles.orderItem}>
+                    <View style={styles.orderItemImageContainer}>
+                      {item.image ? (
+                        <Image source={{ uri: item.image }} style={styles.orderItemImage} />
+                      ) : (
+                        <View style={styles.orderItemImagePlaceholder}>
+                          <Ionicons name="cube" size={20} color={Colors.textLight} />
+                        </View>
+                      )}
                     </View>
+                    <View style={styles.orderItemDetails}>
+                      <Text style={styles.orderItemName} numberOfLines={1}>
+                        {item.name}
+                      </Text>
+                      <Text style={styles.orderItemQty}>Qty: {item.quantity}</Text>
+                    </View>
+                    <Text style={styles.orderItemPrice}>
+                      ${(item.price * item.quantity).toFixed(2)}
+                    </Text>
+                  </View>
+                ))}
+
+                <View style={styles.summaryDivider} />
+                <View style={styles.summaryLine}>
+                  <Text style={styles.summaryLabel}>Subtotal</Text>
+                  <Text style={styles.summaryValue}>${cartTotal.toFixed(2)}</Text>
+                </View>
+                <View style={styles.summaryLine}>
+                  <Text style={styles.summaryLabel}>Shipping</Text>
+                  {shippingCost === 0 ? (
+                    <Text style={styles.freeShipping}>FREE</Text>
+                  ) : (
+                    <Text style={styles.summaryValue}>${shippingCost.toFixed(2)}</Text>
                   )}
                 </View>
-                <View style={styles.orderItemDetails}>
-                  <Text style={styles.orderItemName} numberOfLines={1}>
-                    {item.name}
-                  </Text>
-                  <Text style={styles.orderItemQty}>Qty: {item.quantity}</Text>
+                <View style={[styles.summaryLine, styles.totalLine]}>
+                  <Text style={styles.totalLabel}>Total</Text>
+                  <Text style={styles.totalValue}>${(cartTotal + shippingCost).toFixed(2)}</Text>
                 </View>
-                <Text style={styles.orderItemPrice}>
-                  ${(item.price * item.quantity).toFixed(2)}
-                </Text>
               </View>
-            ))}
-            
-            <View style={styles.summaryDivider} />
-            
-            <View style={styles.summaryLine}>
-              <Text style={styles.summaryLabel}>Subtotal</Text>
-              <Text style={styles.summaryValue}>${cartTotal.toFixed(2)}</Text>
-            </View>
-            <View style={styles.summaryLine}>
-              <Text style={styles.summaryLabel}>Shipping</Text>
-              {shippingCost === 0 ? (
-                <Text style={styles.freeShipping}>FREE</Text>
-              ) : (
-                <Text style={styles.summaryValue}>${shippingCost.toFixed(2)}</Text>
-              )}
-            </View>
-            <View style={[styles.summaryLine, styles.totalLine]}>
-              <Text style={styles.totalLabel}>Total</Text>
-              <Text style={styles.totalValue}>${totalWithShipping.toFixed(2)}</Text>
-            </View>
-          </View>
+            </>
+          )}
 
-          {/* Shipping Address */}
-          <View style={[styles.section, Shadow.small]}>
-            <View style={styles.sectionHeader}>
-              <Ionicons name="location" size={20} color={Colors.primary} />
-              <Text style={styles.sectionTitle}>Shipping Address</Text>
-            </View>
-            
-            <Input
-              label="Street Address"
-              placeholder="Street, Building, Apartment number"
-              value={formData.address}
-              onChangeText={(text) => setFormData({ ...formData, address: text })}
-              leftIcon={<Ionicons name="home-outline" size={20} color={Colors.textSecondary} />}
-            />
-            <Input
-              label="City"
-              placeholder="Enter your city"
-              value={formData.city}
-              onChangeText={(text) => setFormData({ ...formData, city: text })}
-              leftIcon={<Ionicons name="business-outline" size={20} color={Colors.textSecondary} />}
-            />
-            <Input
-              label="Phone Number"
-              placeholder="+1 234 567 8900"
-              value={formData.phone}
-              onChangeText={(text) => setFormData({ ...formData, phone: text })}
-              keyboardType="phone-pad"
-              leftIcon={<Ionicons name="call-outline" size={20} color={Colors.textSecondary} />}
-            />
-            <Input
-              label="Delivery Notes (Optional)"
-              placeholder="Any special instructions?"
-              value={formData.notes}
-              onChangeText={(text) => setFormData({ ...formData, notes: text })}
-              multiline
-              numberOfLines={2}
-              leftIcon={<Ionicons name="document-text-outline" size={20} color={Colors.textSecondary} />}
-            />
-          </View>
-
-          {/* Payment Method */}
-          <View style={[styles.section, Shadow.small]}>
-            <PaymentMethodSelector
-              selectedMethod={paymentMethod}
-              onSelect={setPaymentMethod}
-              cardDetails={cardDetails}
-              onCardDetailsChange={setCardDetails}
-            />
-          </View>
-
-          {/* Loyalty Points */}
-          <View style={[styles.section, Shadow.small]}>
-            <LoyaltyPointsCard
-              totalPoints={loyaltyPoints.total_points}
-              tier={loyaltyPoints.tier}
-              pointsValue={loyaltyPoints.points_value}
-              showRedemption={true}
-              pointsToUse={pointsToUse}
-              onPointsToUseChange={setPointsToUse}
-              orderTotal={cartTotal + shippingCost}
-            />
-          </View>
-
-          {/* Order Total with Discount */}
-          {pointsToUse > 0 && (
+          {/* Step 2: Shipping Address */}
+          {step === 2 && (
             <View style={[styles.section, Shadow.small]}>
               <View style={styles.sectionHeader}>
-                <Ionicons name="pricetag" size={20} color={Colors.success} />
-                <Text style={styles.sectionTitle}>Discount Applied</Text>
+                <Ionicons name="location" size={20} color={Colors.primary} />
+                <Text style={styles.sectionTitle}>Shipping Address</Text>
               </View>
-              <View style={styles.discountSummary}>
-                <Text style={styles.discountLabel}>Points Redeemed</Text>
-                <Text style={styles.discountValue}>-${pointsDiscount.toFixed(2)}</Text>
-              </View>
-              <View style={styles.discountSummary}>
-                <Text style={styles.newTotalLabel}>New Total</Text>
-                <Text style={styles.newTotalValue}>${totalWithShipping.toFixed(2)}</Text>
-              </View>
+              
+              <Input
+                label="Street Address"
+                placeholder="Street, Building, Apartment number"
+                value={formData.address}
+                onChangeText={(text) => setFormData({ ...formData, address: text })}
+                leftIcon={<Ionicons name="home-outline" size={20} color={Colors.textSecondary} />}
+              />
+              <Input
+                label="City"
+                placeholder="Enter your city"
+                value={formData.city}
+                onChangeText={(text) => setFormData({ ...formData, city: text })}
+                leftIcon={<Ionicons name="business-outline" size={20} color={Colors.textSecondary} />}
+              />
+              <Input
+                label="Phone Number"
+                placeholder="+1 234 567 8900"
+                value={formData.phone}
+                onChangeText={(text) => setFormData({ ...formData, phone: text })}
+                keyboardType="phone-pad"
+                leftIcon={<Ionicons name="call-outline" size={20} color={Colors.textSecondary} />}
+              />
+              <Input
+                label="Delivery Notes (Optional)"
+                placeholder="Any special instructions?"
+                value={formData.notes}
+                onChangeText={(text) => setFormData({ ...formData, notes: text })}
+                multiline
+                numberOfLines={2}
+                leftIcon={<Ionicons name="document-text-outline" size={20} color={Colors.textSecondary} />}
+              />
             </View>
+          )}
+
+          {/* Step 3: Payment */}
+          {step === 3 && (
+            <>
+              {/* Payment Method */}
+              <View style={[styles.section, Shadow.small]}>
+                <PaymentMethodSelector
+                  selectedMethod={paymentMethod}
+                  onSelect={setPaymentMethod}
+                  cardDetails={cardDetails}
+                  onCardDetailsChange={setCardDetails}
+                />
+              </View>
+
+              {/* Loyalty Points */}
+              <View style={[styles.section, Shadow.small]}>
+                <LoyaltyPointsCard
+                  totalPoints={loyaltyPoints.total_points}
+                  tier={loyaltyPoints.tier}
+                  pointsValue={loyaltyPoints.points_value}
+                  showRedemption={true}
+                  pointsToUse={pointsToUse}
+                  onPointsToUseChange={setPointsToUse}
+                  orderTotal={cartTotal + shippingCost}
+                />
+              </View>
+
+              {/* Order Total with Discount */}
+              <View style={[styles.section, Shadow.small]}>
+                <View style={styles.sectionHeader}>
+                  <Ionicons name="receipt" size={20} color={Colors.primary} />
+                  <Text style={styles.sectionTitle}>Final Summary</Text>
+                </View>
+                <View style={styles.discountSummary}>
+                  <Text style={styles.discountLabel}>Order Total</Text>
+                  <Text style={styles.summaryValue}>${(cartTotal + shippingCost).toFixed(2)}</Text>
+                </View>
+                {pointsToUse > 0 && (
+                  <View style={styles.discountSummary}>
+                    <Text style={styles.discountLabel}>Points Discount</Text>
+                    <Text style={styles.discountValue}>-${pointsDiscount.toFixed(2)}</Text>
+                  </View>
+                )}
+                <View style={[styles.discountSummary, { marginTop: Spacing.sm, paddingTop: Spacing.sm, borderTopWidth: 1, borderTopColor: Colors.border }]}>
+                  <Text style={styles.newTotalLabel}>Amount to Pay</Text>
+                  <Text style={styles.newTotalValue}>${totalWithShipping.toFixed(2)}</Text>
+                </View>
+              </View>
+            </>
           )}
 
           <View style={{ height: 140 }} />
