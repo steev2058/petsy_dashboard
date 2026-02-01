@@ -5,40 +5,60 @@ import {
   StyleSheet,
   ScrollView,
   TouchableOpacity,
-  Image,
   Alert,
   Platform,
+  Image,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
-import { Button, Input } from '../../src/components';
+import { LinearGradient } from 'expo-linear-gradient';
+import Animated, { FadeInDown, FadeInUp } from 'react-native-reanimated';
 import { Colors, FontSize, Spacing, BorderRadius, Shadow } from '../../src/constants/theme';
 import { vetsAPI, appointmentsAPI, petsAPI } from '../../src/services/api';
 import { useStore } from '../../src/store/useStore';
 import { useTranslation } from '../../src/hooks/useTranslation';
 
 const TIME_SLOTS = [
-  '09:00 AM', '10:00 AM', '11:00 AM', '12:00 PM',
-  '02:00 PM', '03:00 PM', '04:00 PM', '05:00 PM',
+  '09:00 AM', '09:30 AM', '10:00 AM', '10:30 AM',
+  '11:00 AM', '11:30 AM', '12:00 PM', '02:00 PM',
+  '02:30 PM', '03:00 PM', '03:30 PM', '04:00 PM',
+  '04:30 PM', '05:00 PM', '05:30 PM',
+];
+
+const REASONS = [
+  { id: 'checkup', label: 'General Checkup', icon: 'medical' },
+  { id: 'vaccination', label: 'Vaccination', icon: 'fitness' },
+  { id: 'sick', label: 'Pet is Sick', icon: 'thermometer' },
+  { id: 'grooming', label: 'Grooming', icon: 'cut' },
+  { id: 'dental', label: 'Dental Care', icon: 'happy' },
+  { id: 'surgery', label: 'Surgery Consultation', icon: 'medkit' },
+  { id: 'other', label: 'Other', icon: 'ellipsis-horizontal' },
 ];
 
 export default function BookAppointmentScreen() {
   const router = useRouter();
   const { vetId } = useLocalSearchParams<{ vetId: string }>();
-  const { t } = useTranslation();
-  const { user, isAuthenticated } = useStore();
+  const { t, isRTL } = useTranslation();
+  const { isAuthenticated, myPets } = useStore();
   
   const [vet, setVet] = useState<any>(null);
-  const [myPets, setMyPets] = useState<any[]>([]);
+  const [pets, setPets] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  const [submitting, setSubmitting] = useState(false);
+  const [booking, setBooking] = useState(false);
   
-  const [selectedDate, setSelectedDate] = useState<Date | null>(null);
+  const [selectedDate, setSelectedDate] = useState<Date>(new Date());
   const [selectedTime, setSelectedTime] = useState<string | null>(null);
   const [selectedPet, setSelectedPet] = useState<string | null>(null);
-  const [reason, setReason] = useState('');
-  const [notes, setNotes] = useState('');
+  const [selectedReason, setSelectedReason] = useState<string | null>(null);
+  const [step, setStep] = useState(1);
+
+  // Generate next 14 days
+  const dates = Array.from({ length: 14 }, (_, i) => {
+    const date = new Date();
+    date.setDate(date.getDate() + i);
+    return date;
+  });
 
   useEffect(() => {
     loadData();
@@ -46,12 +66,15 @@ export default function BookAppointmentScreen() {
 
   const loadData = async () => {
     try {
-      const [vetRes, petsRes] = await Promise.all([
+      const [vetResponse, petsResponse] = await Promise.all([
         vetsAPI.getById(vetId as string),
         isAuthenticated ? petsAPI.getMyPets() : Promise.resolve({ data: [] }),
       ]);
-      setVet(vetRes.data);
-      setMyPets(petsRes.data);
+      setVet(vetResponse.data);
+      setPets(petsResponse.data);
+      if (petsResponse.data.length > 0) {
+        setSelectedPet(petsResponse.data[0].id);
+      }
     } catch (error) {
       console.error('Error loading data:', error);
     } finally {
@@ -59,87 +82,85 @@ export default function BookAppointmentScreen() {
     }
   };
 
-  const generateDates = () => {
-    const dates = [];
-    const today = new Date();
-    for (let i = 0; i < 14; i++) {
-      const date = new Date(today);
-      date.setDate(today.getDate() + i);
-      dates.push(date);
-    }
-    return dates;
-  };
-
   const formatDate = (date: Date) => {
-    const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-    return {
-      day: days[date.getDay()],
-      date: date.getDate(),
-      month: date.toLocaleString('default', { month: 'short' }),
-    };
+    return date.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
   };
 
-  const handleSubmit = async () => {
-    if (!selectedDate) {
-      Alert.alert('Error', 'Please select a date');
-      return;
-    }
+  const isToday = (date: Date) => {
+    const today = new Date();
+    return date.toDateString() === today.toDateString();
+  };
+
+  const handleBookAppointment = async () => {
     if (!selectedTime) {
-      Alert.alert('Error', 'Please select a time');
+      Alert.alert('Error', 'Please select a time slot');
       return;
     }
-    if (!reason.trim()) {
-      Alert.alert('Error', 'Please enter a reason for the visit');
+    if (!selectedReason) {
+      Alert.alert('Error', 'Please select a reason for visit');
       return;
     }
 
-    setSubmitting(true);
+    setBooking(true);
     try {
-      await appointmentsAPI.create({
+      const appointmentData = {
         vet_id: vetId,
         pet_id: selectedPet,
         date: selectedDate.toISOString().split('T')[0],
         time: selectedTime,
-        reason: reason.trim(),
-        notes: notes.trim(),
-      });
+        reason: REASONS.find(r => r.id === selectedReason)?.label || selectedReason,
+        vet_name: vet?.name,
+        pet_name: pets.find(p => p.id === selectedPet)?.name,
+      };
 
+      await appointmentsAPI.create(appointmentData);
+      
       Alert.alert(
-        'Appointment Booked!',
-        `Your appointment with ${vet?.name} has been scheduled for ${selectedDate.toLocaleDateString()} at ${selectedTime}.`,
+        '🎉 Appointment Booked!',
+        `Your appointment with ${vet?.name} on ${formatDate(selectedDate)} at ${selectedTime} has been confirmed.`,
         [
-          { text: 'OK', onPress: () => router.back() },
+          { text: 'View Appointments', onPress: () => router.replace('/my-appointments') },
+          { text: 'Done', onPress: () => router.back() },
         ]
       );
     } catch (error: any) {
-      Alert.alert(
-        'Error',
-        error.response?.data?.detail || 'Failed to book appointment. Please try again.'
-      );
+      Alert.alert('Error', error.response?.data?.detail || 'Failed to book appointment');
     } finally {
-      setSubmitting(false);
+      setBooking(false);
     }
+  };
+
+  const canProceed = () => {
+    if (step === 1) return selectedTime !== null;
+    if (step === 2) return selectedReason !== null;
+    return true;
   };
 
   if (!isAuthenticated) {
     return (
       <SafeAreaView style={styles.container} edges={['top']}>
         <View style={styles.header}>
-          <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
-            <Ionicons name="arrow-back" size={24} color={Colors.text} />
+          <TouchableOpacity onPress={() => router.back()} style={styles.closeButton}>
+            <Ionicons name="close" size={24} color={Colors.text} />
           </TouchableOpacity>
-          <Text style={styles.title}>{t('book_appointment')}</Text>
+          <Text style={styles.title}>Book Appointment</Text>
           <View style={{ width: 40 }} />
         </View>
-        <View style={styles.notLoggedIn}>
-          <Ionicons name="calendar" size={64} color={Colors.textLight} />
-          <Text style={styles.notLoggedInTitle}>Login Required</Text>
-          <Text style={styles.notLoggedInText}>Please login to book appointments</Text>
-          <Button
-            title="Login"
+        <View style={styles.loginRequired}>
+          <Ionicons name="calendar" size={80} color={Colors.primary} />
+          <Text style={styles.loginTitle}>Login Required</Text>
+          <Text style={styles.loginText}>Please login to book appointments</Text>
+          <TouchableOpacity
+            style={styles.loginButton}
             onPress={() => router.push('/(auth)/login')}
-            style={{ marginTop: Spacing.lg }}
-          />
+          >
+            <LinearGradient
+              colors={[Colors.primary, Colors.primaryDark]}
+              style={styles.loginGradient}
+            >
+              <Text style={styles.loginButtonText}>Login Now</Text>
+            </LinearGradient>
+          </TouchableOpacity>
         </View>
       </SafeAreaView>
     );
@@ -149,156 +170,295 @@ export default function BookAppointmentScreen() {
     <SafeAreaView style={styles.container} edges={['top']}>
       {/* Header */}
       <View style={styles.header}>
-        <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
-          <Ionicons name="arrow-back" size={24} color={Colors.text} />
+        <TouchableOpacity onPress={() => router.back()} style={styles.closeButton}>
+          <Ionicons name="close" size={24} color={Colors.text} />
         </TouchableOpacity>
-        <Text style={styles.title}>{t('book_appointment')}</Text>
+        <Text style={styles.title}>Book Appointment</Text>
         <View style={{ width: 40 }} />
       </View>
 
-      <ScrollView showsVerticalScrollIndicator={false}>
-        {/* Vet Info */}
-        {vet && (
-          <View style={[styles.vetCard, Shadow.small]}>
-            <Image
-              source={{ uri: vet.image || 'https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?w=200' }}
-              style={styles.vetImage}
-            />
-            <View style={styles.vetInfo}>
-              <Text style={styles.vetName}>{vet.name}</Text>
-              <Text style={styles.vetClinic}>{vet.clinic_name}</Text>
-              <View style={styles.vetMeta}>
-                <Ionicons name="star" size={14} color={Colors.accent} />
-                <Text style={styles.vetRating}>{vet.rating.toFixed(1)}</Text>
-                <Text style={styles.vetExp}>• {vet.experience_years} years exp.</Text>
-              </View>
+      {/* Progress Steps */}
+      <View style={styles.progressContainer}>
+        {[1, 2, 3].map((s) => (
+          <View key={s} style={styles.progressStep}>
+            <View style={[styles.progressDot, step >= s && styles.progressDotActive]}>
+              {step > s ? (
+                <Ionicons name="checkmark" size={14} color={Colors.white} />
+              ) : (
+                <Text style={[styles.progressNumber, step >= s && styles.progressNumberActive]}>
+                  {s}
+                </Text>
+              )}
+            </View>
+            <Text style={[styles.progressLabel, step >= s && styles.progressLabelActive]}>
+              {s === 1 ? 'Date & Time' : s === 2 ? 'Reason' : 'Confirm'}
+            </Text>
+            {s < 3 && <View style={[styles.progressLine, step > s && styles.progressLineActive]} />}
+          </View>
+        ))}
+      </View>
+
+      {/* Vet Info */}
+      {vet && (
+        <Animated.View entering={FadeInDown.delay(100)} style={[styles.vetCard, Shadow.small]}>
+          <View style={styles.vetAvatar}>
+            <LinearGradient colors={[Colors.primary, Colors.primaryDark]} style={styles.avatarGradient}>
+              <Text style={styles.avatarInitial}>{vet.name[0]}</Text>
+            </LinearGradient>
+          </View>
+          <View style={styles.vetInfo}>
+            <Text style={styles.vetName}>{vet.name}</Text>
+            <Text style={styles.vetSpecialty}>{vet.specialty} Specialist</Text>
+            <View style={styles.vetRating}>
+              <Ionicons name="star" size={14} color={Colors.accent} />
+              <Text style={styles.ratingText}>{vet.rating?.toFixed(1) || '4.5'}</Text>
             </View>
           </View>
-        )}
+        </Animated.View>
+      )}
 
-        {/* Select Date */}
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Select Date</Text>
-          <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-            <View style={styles.datesRow}>
-              {generateDates().map((date, index) => {
-                const formatted = formatDate(date);
-                const isSelected = selectedDate?.toDateString() === date.toDateString();
-                return (
+      <ScrollView showsVerticalScrollIndicator={false}>
+        {/* Step 1: Date & Time */}
+        {step === 1 && (
+          <Animated.View entering={FadeInUp}>
+            {/* Date Selection */}
+            <Text style={styles.sectionTitle}>Select Date</Text>
+            <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.datesScroll}>
+              <View style={styles.datesRow}>
+                {dates.map((date, index) => (
                   <TouchableOpacity
                     key={index}
                     style={[
                       styles.dateCard,
-                      isSelected && styles.dateCardSelected,
+                      selectedDate.toDateString() === date.toDateString() && styles.dateCardActive,
                     ]}
                     onPress={() => setSelectedDate(date)}
                   >
-                    <Text style={[styles.dateDay, isSelected && styles.dateTextSelected]}>
-                      {formatted.day}
+                    <Text style={[
+                      styles.dateDay,
+                      selectedDate.toDateString() === date.toDateString() && styles.dateDayActive,
+                    ]}>
+                      {date.toLocaleDateString('en-US', { weekday: 'short' })}
                     </Text>
-                    <Text style={[styles.dateNum, isSelected && styles.dateTextSelected]}>
-                      {formatted.date}
+                    <Text style={[
+                      styles.dateNumber,
+                      selectedDate.toDateString() === date.toDateString() && styles.dateNumberActive,
+                    ]}>
+                      {date.getDate()}
                     </Text>
-                    <Text style={[styles.dateMonth, isSelected && styles.dateTextSelected]}>
-                      {formatted.month}
-                    </Text>
-                  </TouchableOpacity>
-                );
-              })}
-            </View>
-          </ScrollView>
-        </View>
-
-        {/* Select Time */}
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Select Time</Text>
-          <View style={styles.timesGrid}>
-            {TIME_SLOTS.map((time) => (
-              <TouchableOpacity
-                key={time}
-                style={[
-                  styles.timeSlot,
-                  selectedTime === time && styles.timeSlotSelected,
-                ]}
-                onPress={() => setSelectedTime(time)}
-              >
-                <Text
-                  style={[
-                    styles.timeText,
-                    selectedTime === time && styles.timeTextSelected,
-                  ]}
-                >
-                  {time}
-                </Text>
-              </TouchableOpacity>
-            ))}
-          </View>
-        </View>
-
-        {/* Select Pet */}
-        {myPets.length > 0 && (
-          <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Select Pet (optional)</Text>
-            <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-              <View style={styles.petsRow}>
-                {myPets.map((pet) => (
-                  <TouchableOpacity
-                    key={pet.id}
-                    style={[
-                      styles.petCard,
-                      selectedPet === pet.id && styles.petCardSelected,
-                    ]}
-                    onPress={() => setSelectedPet(selectedPet === pet.id ? null : pet.id)}
-                  >
-                    <View style={styles.petAvatar}>
-                      <Ionicons name="paw" size={24} color={selectedPet === pet.id ? Colors.white : Colors.primary} />
-                    </View>
-                    <Text style={[styles.petName, selectedPet === pet.id && styles.petNameSelected]}>
-                      {pet.name}
-                    </Text>
+                    {isToday(date) && (
+                      <View style={styles.todayBadge}>
+                        <Text style={styles.todayText}>Today</Text>
+                      </View>
+                    )}
                   </TouchableOpacity>
                 ))}
               </View>
             </ScrollView>
-          </View>
+
+            {/* Time Selection */}
+            <Text style={styles.sectionTitle}>Select Time</Text>
+            <View style={styles.timeSlotsGrid}>
+              {TIME_SLOTS.map((time) => (
+                <TouchableOpacity
+                  key={time}
+                  style={[
+                    styles.timeSlot,
+                    selectedTime === time && styles.timeSlotActive,
+                  ]}
+                  onPress={() => setSelectedTime(time)}
+                >
+                  <Text style={[
+                    styles.timeText,
+                    selectedTime === time && styles.timeTextActive,
+                  ]}>
+                    {time}
+                  </Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+          </Animated.View>
         )}
 
-        {/* Reason */}
-        <View style={styles.section}>
-          <Input
-            label="Reason for Visit *"
-            placeholder="e.g., Annual checkup, vaccination, health concern"
-            value={reason}
-            onChangeText={setReason}
-          />
-          <Input
-            label="Additional Notes (optional)"
-            placeholder="Any special instructions or concerns"
-            value={notes}
-            onChangeText={setNotes}
-            multiline
-            numberOfLines={3}
-          />
-        </View>
+        {/* Step 2: Reason */}
+        {step === 2 && (
+          <Animated.View entering={FadeInUp}>
+            <Text style={styles.sectionTitle}>Reason for Visit</Text>
+            <View style={styles.reasonsGrid}>
+              {REASONS.map((reason) => (
+                <TouchableOpacity
+                  key={reason.id}
+                  style={[
+                    styles.reasonCard,
+                    selectedReason === reason.id && styles.reasonCardActive,
+                  ]}
+                  onPress={() => setSelectedReason(reason.id)}
+                >
+                  <View style={[
+                    styles.reasonIcon,
+                    selectedReason === reason.id && styles.reasonIconActive,
+                  ]}>
+                    <Ionicons
+                      name={reason.icon as any}
+                      size={24}
+                      color={selectedReason === reason.id ? Colors.white : Colors.primary}
+                    />
+                  </View>
+                  <Text style={[
+                    styles.reasonLabel,
+                    selectedReason === reason.id && styles.reasonLabelActive,
+                  ]}>
+                    {reason.label}
+                  </Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+
+            {/* Pet Selection */}
+            {pets.length > 0 && (
+              <>
+                <Text style={styles.sectionTitle}>Select Pet</Text>
+                <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+                  <View style={styles.petsRow}>
+                    {pets.map((pet) => (
+                      <TouchableOpacity
+                        key={pet.id}
+                        style={[
+                          styles.petCard,
+                          selectedPet === pet.id && styles.petCardActive,
+                        ]}
+                        onPress={() => setSelectedPet(pet.id)}
+                      >
+                        {pet.image ? (
+                          <Image source={{ uri: pet.image }} style={styles.petImage} />
+                        ) : (
+                          <View style={styles.petImagePlaceholder}>
+                            <Ionicons name="paw" size={24} color={Colors.textLight} />
+                          </View>
+                        )}
+                        <Text style={[
+                          styles.petName,
+                          selectedPet === pet.id && styles.petNameActive,
+                        ]}>
+                          {pet.name}
+                        </Text>
+                      </TouchableOpacity>
+                    ))}
+                  </View>
+                </ScrollView>
+              </>
+            )}
+          </Animated.View>
+        )}
+
+        {/* Step 3: Confirmation */}
+        {step === 3 && (
+          <Animated.View entering={FadeInUp}>
+            <Text style={styles.sectionTitle}>Appointment Summary</Text>
+            <View style={[styles.summaryCard, Shadow.medium]}>
+              <View style={styles.summaryRow}>
+                <View style={styles.summaryIcon}>
+                  <Ionicons name="calendar" size={20} color={Colors.primary} />
+                </View>
+                <View>
+                  <Text style={styles.summaryLabel}>Date</Text>
+                  <Text style={styles.summaryValue}>{formatDate(selectedDate)}</Text>
+                </View>
+              </View>
+              <View style={styles.summaryDivider} />
+              <View style={styles.summaryRow}>
+                <View style={styles.summaryIcon}>
+                  <Ionicons name="time" size={20} color={Colors.primary} />
+                </View>
+                <View>
+                  <Text style={styles.summaryLabel}>Time</Text>
+                  <Text style={styles.summaryValue}>{selectedTime}</Text>
+                </View>
+              </View>
+              <View style={styles.summaryDivider} />
+              <View style={styles.summaryRow}>
+                <View style={styles.summaryIcon}>
+                  <Ionicons name="medical" size={20} color={Colors.primary} />
+                </View>
+                <View>
+                  <Text style={styles.summaryLabel}>Reason</Text>
+                  <Text style={styles.summaryValue}>
+                    {REASONS.find(r => r.id === selectedReason)?.label}
+                  </Text>
+                </View>
+              </View>
+              {selectedPet && (
+                <>
+                  <View style={styles.summaryDivider} />
+                  <View style={styles.summaryRow}>
+                    <View style={styles.summaryIcon}>
+                      <Ionicons name="paw" size={20} color={Colors.primary} />
+                    </View>
+                    <View>
+                      <Text style={styles.summaryLabel}>Pet</Text>
+                      <Text style={styles.summaryValue}>
+                        {pets.find(p => p.id === selectedPet)?.name}
+                      </Text>
+                    </View>
+                  </View>
+                </>
+              )}
+            </View>
+
+            <View style={styles.noteCard}>
+              <Ionicons name="information-circle" size={20} color={Colors.primary} />
+              <Text style={styles.noteText}>
+                You will receive a confirmation notification once your appointment is confirmed by the clinic.
+              </Text>
+            </View>
+          </Animated.View>
+        )}
 
         <View style={{ height: 120 }} />
       </ScrollView>
 
-      {/* Book Button */}
-      <View style={[styles.bottomSection, Shadow.large]}>
-        <View style={styles.summaryRow}>
-          <Text style={styles.summaryLabel}>Selected:</Text>
-          <Text style={styles.summaryValue}>
-            {selectedDate ? selectedDate.toLocaleDateString() : 'No date'}
-            {selectedTime ? ` at ${selectedTime}` : ''}
-          </Text>
-        </View>
-        <Button
-          title="Confirm Booking"
-          onPress={handleSubmit}
-          loading={submitting}
-          disabled={!selectedDate || !selectedTime || !reason.trim()}
-        />
+      {/* Bottom Actions */}
+      <View style={[styles.bottomBar, Shadow.large]}>
+        {step > 1 && (
+          <TouchableOpacity
+            style={styles.backButton}
+            onPress={() => setStep(step - 1)}
+          >
+            <Ionicons name="arrow-back" size={20} color={Colors.text} />
+            <Text style={styles.backButtonText}>Back</Text>
+          </TouchableOpacity>
+        )}
+        
+        <TouchableOpacity
+          style={[
+            styles.nextButton,
+            !canProceed() && styles.nextButtonDisabled,
+          ]}
+          onPress={() => {
+            if (step < 3) {
+              setStep(step + 1);
+            } else {
+              handleBookAppointment();
+            }
+          }}
+          disabled={!canProceed() || booking}
+        >
+          <LinearGradient
+            colors={canProceed() ? [Colors.primary, Colors.primaryDark] : [Colors.textLight, Colors.textLight]}
+            style={styles.nextGradient}
+          >
+            {booking ? (
+              <Text style={styles.nextText}>Booking...</Text>
+            ) : (
+              <>
+                <Text style={styles.nextText}>
+                  {step === 3 ? 'Confirm Booking' : 'Continue'}
+                </Text>
+                <Ionicons name="arrow-forward" size={20} color={Colors.white} />
+              </>
+            )}
+          </LinearGradient>
+        </TouchableOpacity>
       </View>
     </SafeAreaView>
   );
@@ -307,7 +467,7 @@ export default function BookAppointmentScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: Colors.backgroundDark,
+    backgroundColor: '#F8F9FA',
   },
   header: {
     flexDirection: 'row',
@@ -317,188 +477,404 @@ const styles = StyleSheet.create({
     paddingVertical: Spacing.sm,
     backgroundColor: Colors.white,
   },
-  backButton: {
-    padding: Spacing.sm,
+  closeButton: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: Colors.backgroundDark,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   title: {
     fontSize: FontSize.xl,
     fontWeight: '700',
     color: Colors.text,
   },
+  progressContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: Colors.white,
+    paddingVertical: Spacing.md,
+    paddingHorizontal: Spacing.lg,
+    borderBottomWidth: 1,
+    borderBottomColor: Colors.border,
+  },
+  progressStep: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  progressDot: {
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    backgroundColor: Colors.backgroundDark,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 2,
+    borderColor: Colors.border,
+  },
+  progressDotActive: {
+    backgroundColor: Colors.primary,
+    borderColor: Colors.primary,
+  },
+  progressNumber: {
+    fontSize: FontSize.sm,
+    fontWeight: '600',
+    color: Colors.textSecondary,
+  },
+  progressNumberActive: {
+    color: Colors.white,
+  },
+  progressLabel: {
+    fontSize: FontSize.xs,
+    color: Colors.textSecondary,
+    marginLeft: Spacing.xs,
+  },
+  progressLabelActive: {
+    color: Colors.primary,
+    fontWeight: '600',
+  },
+  progressLine: {
+    width: 30,
+    height: 2,
+    backgroundColor: Colors.border,
+    marginHorizontal: Spacing.xs,
+  },
+  progressLineActive: {
+    backgroundColor: Colors.primary,
+  },
   vetCard: {
     flexDirection: 'row',
+    alignItems: 'center',
     backgroundColor: Colors.white,
     margin: Spacing.md,
     padding: Spacing.md,
     borderRadius: BorderRadius.lg,
   },
-  vetImage: {
-    width: 70,
-    height: 70,
-    borderRadius: BorderRadius.md,
+  vetAvatar: {
+    marginRight: Spacing.md,
+  },
+  avatarGradient: {
+    width: 56,
+    height: 56,
+    borderRadius: 16,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  avatarInitial: {
+    fontSize: FontSize.xl,
+    fontWeight: '700',
+    color: Colors.white,
   },
   vetInfo: {
     flex: 1,
-    marginLeft: Spacing.md,
   },
   vetName: {
     fontSize: FontSize.lg,
     fontWeight: '700',
     color: Colors.text,
   },
-  vetClinic: {
-    fontSize: FontSize.md,
-    color: Colors.primary,
-  },
-  vetMeta: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginTop: Spacing.xs,
-    gap: Spacing.xs,
-  },
-  vetRating: {
-    fontSize: FontSize.sm,
-    color: Colors.text,
-    fontWeight: '600',
-  },
-  vetExp: {
+  vetSpecialty: {
     fontSize: FontSize.sm,
     color: Colors.textSecondary,
+    textTransform: 'capitalize',
   },
-  section: {
-    marginHorizontal: Spacing.md,
-    marginTop: Spacing.md,
+  vetRating: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    marginTop: Spacing.xs,
+  },
+  ratingText: {
+    fontSize: FontSize.sm,
+    fontWeight: '600',
+    color: Colors.text,
   },
   sectionTitle: {
     fontSize: FontSize.lg,
     fontWeight: '700',
     color: Colors.text,
-    marginBottom: Spacing.sm,
+    paddingHorizontal: Spacing.md,
+    paddingTop: Spacing.md,
+    paddingBottom: Spacing.sm,
+  },
+  datesScroll: {
+    paddingHorizontal: Spacing.md,
   },
   datesRow: {
     flexDirection: 'row',
     gap: Spacing.sm,
   },
   dateCard: {
-    alignItems: 'center',
+    width: 65,
     paddingVertical: Spacing.md,
-    paddingHorizontal: Spacing.lg,
     borderRadius: BorderRadius.lg,
     backgroundColor: Colors.white,
-    minWidth: 70,
+    alignItems: 'center',
+    borderWidth: 2,
+    borderColor: 'transparent',
   },
-  dateCardSelected: {
-    backgroundColor: Colors.primary,
+  dateCardActive: {
+    borderColor: Colors.primary,
+    backgroundColor: Colors.primary + '10',
   },
   dateDay: {
-    fontSize: FontSize.sm,
+    fontSize: FontSize.xs,
     color: Colors.textSecondary,
+    fontWeight: '600',
   },
-  dateNum: {
-    fontSize: FontSize.xxl,
+  dateDayActive: {
+    color: Colors.primary,
+  },
+  dateNumber: {
+    fontSize: FontSize.xl,
     fontWeight: '700',
     color: Colors.text,
-    marginVertical: 2,
+    marginTop: 2,
   },
-  dateMonth: {
-    fontSize: FontSize.sm,
-    color: Colors.textSecondary,
+  dateNumberActive: {
+    color: Colors.primary,
   },
-  dateTextSelected: {
+  todayBadge: {
+    backgroundColor: Colors.success,
+    paddingHorizontal: Spacing.xs,
+    paddingVertical: 2,
+    borderRadius: BorderRadius.xs,
+    marginTop: Spacing.xs,
+  },
+  todayText: {
+    fontSize: 9,
+    fontWeight: '700',
     color: Colors.white,
   },
-  timesGrid: {
+  timeSlotsGrid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
+    paddingHorizontal: Spacing.md,
     gap: Spacing.sm,
   },
   timeSlot: {
-    paddingVertical: Spacing.md,
-    paddingHorizontal: Spacing.lg,
+    width: '30%',
+    paddingVertical: Spacing.sm,
     borderRadius: BorderRadius.md,
     backgroundColor: Colors.white,
-    borderWidth: 1,
+    alignItems: 'center',
+    borderWidth: 1.5,
     borderColor: Colors.border,
   },
-  timeSlotSelected: {
+  timeSlotActive: {
     backgroundColor: Colors.primary,
     borderColor: Colors.primary,
   },
   timeText: {
-    fontSize: FontSize.md,
+    fontSize: FontSize.sm,
+    fontWeight: '600',
     color: Colors.text,
-    fontWeight: '500',
   },
-  timeTextSelected: {
+  timeTextActive: {
     color: Colors.white,
+  },
+  reasonsGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    paddingHorizontal: Spacing.md,
+    gap: Spacing.sm,
+  },
+  reasonCard: {
+    width: '47%',
+    padding: Spacing.md,
+    borderRadius: BorderRadius.lg,
+    backgroundColor: Colors.white,
+    alignItems: 'center',
+    borderWidth: 2,
+    borderColor: 'transparent',
+  },
+  reasonCardActive: {
+    borderColor: Colors.primary,
+    backgroundColor: Colors.primary + '10',
+  },
+  reasonIcon: {
+    width: 48,
+    height: 48,
+    borderRadius: 14,
+    backgroundColor: Colors.primary + '15',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: Spacing.sm,
+  },
+  reasonIconActive: {
+    backgroundColor: Colors.primary,
+  },
+  reasonLabel: {
+    fontSize: FontSize.sm,
+    fontWeight: '600',
+    color: Colors.text,
+    textAlign: 'center',
+  },
+  reasonLabelActive: {
+    color: Colors.primary,
   },
   petsRow: {
     flexDirection: 'row',
-    gap: Spacing.sm,
+    paddingHorizontal: Spacing.md,
+    gap: Spacing.md,
   },
   petCard: {
     alignItems: 'center',
     padding: Spacing.md,
     borderRadius: BorderRadius.lg,
     backgroundColor: Colors.white,
+    borderWidth: 2,
+    borderColor: 'transparent',
     minWidth: 80,
   },
-  petCardSelected: {
-    backgroundColor: Colors.primary,
+  petCardActive: {
+    borderColor: Colors.primary,
+    backgroundColor: Colors.primary + '10',
   },
-  petAvatar: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
+  petImage: {
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+  },
+  petImagePlaceholder: {
+    width: 50,
+    height: 50,
+    borderRadius: 25,
     backgroundColor: Colors.backgroundDark,
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: Spacing.xs,
   },
   petName: {
     fontSize: FontSize.sm,
     fontWeight: '600',
     color: Colors.text,
+    marginTop: Spacing.xs,
   },
-  petNameSelected: {
-    color: Colors.white,
+  petNameActive: {
+    color: Colors.primary,
   },
-  bottomSection: {
+  summaryCard: {
     backgroundColor: Colors.white,
+    marginHorizontal: Spacing.md,
+    borderRadius: BorderRadius.xl,
     padding: Spacing.lg,
-    paddingBottom: Spacing.xl,
-    borderTopLeftRadius: BorderRadius.xl,
-    borderTopRightRadius: BorderRadius.xl,
   },
   summaryRow: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginBottom: Spacing.md,
+    alignItems: 'center',
+  },
+  summaryIcon: {
+    width: 40,
+    height: 40,
+    borderRadius: 12,
+    backgroundColor: Colors.primary + '15',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: Spacing.md,
   },
   summaryLabel: {
-    fontSize: FontSize.md,
+    fontSize: FontSize.xs,
     color: Colors.textSecondary,
   },
   summaryValue: {
     fontSize: FontSize.md,
     fontWeight: '600',
-    color: Colors.primary,
+    color: Colors.text,
   },
-  notLoggedIn: {
+  summaryDivider: {
+    height: 1,
+    backgroundColor: Colors.border,
+    marginVertical: Spacing.md,
+  },
+  noteCard: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    gap: Spacing.sm,
+    backgroundColor: Colors.primary + '10',
+    marginHorizontal: Spacing.md,
+    marginTop: Spacing.md,
+    padding: Spacing.md,
+    borderRadius: BorderRadius.lg,
+  },
+  noteText: {
+    flex: 1,
+    fontSize: FontSize.sm,
+    color: Colors.primary,
+    lineHeight: 20,
+  },
+  bottomBar: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: Colors.white,
+    padding: Spacing.md,
+    paddingBottom: Spacing.xl,
+    gap: Spacing.md,
+  },
+  backButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.xs,
+    paddingVertical: Spacing.md,
+    paddingHorizontal: Spacing.lg,
+    borderRadius: BorderRadius.lg,
+    backgroundColor: Colors.backgroundDark,
+  },
+  backButtonText: {
+    fontSize: FontSize.md,
+    fontWeight: '600',
+    color: Colors.text,
+  },
+  nextButton: {
+    flex: 1,
+    borderRadius: BorderRadius.lg,
+    overflow: 'hidden',
+  },
+  nextButtonDisabled: {
+    opacity: 0.6,
+  },
+  nextGradient: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: Spacing.md,
+    gap: Spacing.sm,
+  },
+  nextText: {
+    fontSize: FontSize.md,
+    fontWeight: '700',
+    color: Colors.white,
+  },
+  loginRequired: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
     padding: Spacing.xl,
   },
-  notLoggedInTitle: {
-    fontSize: FontSize.xl,
+  loginTitle: {
+    fontSize: FontSize.xxl,
     fontWeight: '700',
     color: Colors.text,
-    marginTop: Spacing.lg,
+    marginTop: Spacing.md,
   },
-  notLoggedInText: {
+  loginText: {
     fontSize: FontSize.md,
     color: Colors.textSecondary,
     marginTop: Spacing.sm,
+    marginBottom: Spacing.xl,
+  },
+  loginButton: {
+    borderRadius: BorderRadius.lg,
+    overflow: 'hidden',
+  },
+  loginGradient: {
+    paddingVertical: Spacing.md,
+    paddingHorizontal: Spacing.xxl,
+  },
+  loginButtonText: {
+    fontSize: FontSize.lg,
+    fontWeight: '600',
+    color: Colors.white,
   },
 });
