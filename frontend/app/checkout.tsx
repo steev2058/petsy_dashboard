@@ -324,48 +324,44 @@ export default function CheckoutScreen() {
 
           {/* Payment Method */}
           <View style={[styles.section, Shadow.small]}>
-            <View style={styles.sectionHeader}>
-              <Ionicons name="card" size={20} color={Colors.primary} />
-              <Text style={styles.sectionTitle}>Payment Method</Text>
-            </View>
-            
-            {PAYMENT_METHODS.map((method) => (
-              <TouchableOpacity
-                key={method.id}
-                style={[
-                  styles.paymentOption,
-                  paymentMethod === method.id && styles.paymentOptionSelected,
-                ]}
-                onPress={() => setPaymentMethod(method.id)}
-              >
-                <View style={[
-                  styles.paymentIconContainer,
-                  paymentMethod === method.id && styles.paymentIconContainerSelected,
-                ]}>
-                  <Ionicons
-                    name={method.icon as any}
-                    size={24}
-                    color={paymentMethod === method.id ? Colors.white : Colors.primary}
-                  />
-                </View>
-                <View style={styles.paymentInfo}>
-                  <Text style={[
-                    styles.paymentLabel,
-                    paymentMethod === method.id && styles.paymentLabelSelected,
-                  ]}>
-                    {method.label}
-                  </Text>
-                  <Text style={styles.paymentDescription}>{method.description}</Text>
-                </View>
-                <View style={[
-                  styles.radioOuter,
-                  paymentMethod === method.id && styles.radioOuterSelected,
-                ]}>
-                  {paymentMethod === method.id && <View style={styles.radioInner} />}
-                </View>
-              </TouchableOpacity>
-            ))}
+            <PaymentMethodSelector
+              selectedMethod={paymentMethod}
+              onSelect={setPaymentMethod}
+              cardDetails={cardDetails}
+              onCardDetailsChange={setCardDetails}
+            />
           </View>
+
+          {/* Loyalty Points */}
+          <View style={[styles.section, Shadow.small]}>
+            <LoyaltyPointsCard
+              totalPoints={loyaltyPoints.total_points}
+              tier={loyaltyPoints.tier}
+              pointsValue={loyaltyPoints.points_value}
+              showRedemption={true}
+              pointsToUse={pointsToUse}
+              onPointsToUseChange={setPointsToUse}
+              orderTotal={cartTotal + shippingCost}
+            />
+          </View>
+
+          {/* Order Total with Discount */}
+          {pointsToUse > 0 && (
+            <View style={[styles.section, Shadow.small]}>
+              <View style={styles.sectionHeader}>
+                <Ionicons name="pricetag" size={20} color={Colors.success} />
+                <Text style={styles.sectionTitle}>Discount Applied</Text>
+              </View>
+              <View style={styles.discountSummary}>
+                <Text style={styles.discountLabel}>Points Redeemed</Text>
+                <Text style={styles.discountValue}>-${pointsDiscount.toFixed(2)}</Text>
+              </View>
+              <View style={styles.discountSummary}>
+                <Text style={styles.newTotalLabel}>New Total</Text>
+                <Text style={styles.newTotalValue}>${totalWithShipping.toFixed(2)}</Text>
+              </View>
+            </View>
+          )}
 
           <View style={{ height: 140 }} />
         </ScrollView>
