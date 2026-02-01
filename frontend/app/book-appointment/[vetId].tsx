@@ -15,9 +15,12 @@ import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import Animated, { FadeInDown, FadeInUp } from 'react-native-reanimated';
 import { Colors, FontSize, Spacing, BorderRadius, Shadow } from '../../src/constants/theme';
-import { vetsAPI, appointmentsAPI, petsAPI } from '../../src/services/api';
+import { vetsAPI, appointmentsAPI, petsAPI, paymentAPI } from '../../src/services/api';
 import { useStore } from '../../src/store/useStore';
 import { useTranslation } from '../../src/hooks/useTranslation';
+import { PaymentMethodSelector } from '../../src/components';
+
+const CONSULTATION_FEE = 50; // Default consultation fee
 
 const TIME_SLOTS = [
   '09:00 AM', '09:30 AM', '10:00 AM', '10:30 AM',
@@ -27,13 +30,13 @@ const TIME_SLOTS = [
 ];
 
 const REASONS = [
-  { id: 'checkup', label: 'General Checkup', icon: 'medical' },
-  { id: 'vaccination', label: 'Vaccination', icon: 'fitness' },
-  { id: 'sick', label: 'Pet is Sick', icon: 'thermometer' },
-  { id: 'grooming', label: 'Grooming', icon: 'cut' },
-  { id: 'dental', label: 'Dental Care', icon: 'happy' },
-  { id: 'surgery', label: 'Surgery Consultation', icon: 'medkit' },
-  { id: 'other', label: 'Other', icon: 'ellipsis-horizontal' },
+  { id: 'checkup', label: 'General Checkup', icon: 'medical', price: 50 },
+  { id: 'vaccination', label: 'Vaccination', icon: 'fitness', price: 35 },
+  { id: 'sick', label: 'Pet is Sick', icon: 'thermometer', price: 75 },
+  { id: 'grooming', label: 'Grooming', icon: 'cut', price: 40 },
+  { id: 'dental', label: 'Dental Care', icon: 'happy', price: 60 },
+  { id: 'surgery', label: 'Surgery Consultation', icon: 'medkit', price: 100 },
+  { id: 'other', label: 'Other', icon: 'ellipsis-horizontal', price: 50 },
 ];
 
 export default function BookAppointmentScreen() {
@@ -52,6 +55,10 @@ export default function BookAppointmentScreen() {
   const [selectedPet, setSelectedPet] = useState<string | null>(null);
   const [selectedReason, setSelectedReason] = useState<string | null>(null);
   const [step, setStep] = useState(1);
+  const [paymentMethod, setPaymentMethod] = useState('stripe');
+  const [cardDetails, setCardDetails] = useState({ number: '', expiry: '', cvc: '' });
+
+  const appointmentFee = REASONS.find(r => r.id === selectedReason)?.price || CONSULTATION_FEE;
 
   // Generate next 14 days
   const dates = Array.from({ length: 14 }, (_, i) => {
