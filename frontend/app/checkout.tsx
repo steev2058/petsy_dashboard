@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -14,16 +14,11 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
-import { Button, Input } from '../src/components';
+import { Button, Input, PaymentMethodSelector, LoyaltyPointsCard } from '../src/components';
 import { Colors, FontSize, Spacing, BorderRadius, Shadow } from '../src/constants/theme';
 import { useStore } from '../src/store/useStore';
-import { ordersAPI } from '../src/services/api';
+import { ordersAPI, paymentAPI, loyaltyAPI } from '../src/services/api';
 import { useTranslation } from '../src/hooks/useTranslation';
-
-const PAYMENT_METHODS = [
-  { id: 'cash_on_delivery', label: 'Cash on Delivery', icon: 'cash', description: 'Pay when you receive' },
-  { id: 'whatsapp', label: 'Pay via WhatsApp', icon: 'logo-whatsapp', description: 'Quick payment link' },
-];
 
 export default function CheckoutScreen() {
   const router = useRouter();
@@ -31,7 +26,10 @@ export default function CheckoutScreen() {
   const { cart, cartTotal, clearCart, user, isAuthenticated } = useStore();
   
   const [loading, setLoading] = useState(false);
-  const [paymentMethod, setPaymentMethod] = useState('cash_on_delivery');
+  const [paymentMethod, setPaymentMethod] = useState('stripe');
+  const [cardDetails, setCardDetails] = useState({ number: '', expiry: '', cvc: '' });
+  const [loyaltyPoints, setLoyaltyPoints] = useState({ total_points: 0, tier: 'bronze', points_value: 0 });
+  const [pointsToUse, setPointsToUse] = useState(0);
   const [formData, setFormData] = useState({
     address: '',
     city: user?.city || '',
@@ -41,7 +39,24 @@ export default function CheckoutScreen() {
   const [step, setStep] = useState(1);
 
   const shippingCost = cartTotal > 50 ? 0 : 5.99;
-  const totalWithShipping = cartTotal + shippingCost;
+  const pointsDiscount = pointsToUse / 100; // 100 points = $1
+  const totalWithShipping = Math.max(0, cartTotal + shippingCost - pointsDiscount);
+
+  // Load loyalty points on mount
+  useEffect(() => {
+    if (isAuthenticated) {
+      loadLoyaltyPoints();
+    }
+  }, [isAuthenticated]);
+
+  const loadLoyaltyPoints = async () => {
+    try {
+      const response = await loyaltyAPI.getPoints();
+      setLoyaltyPoints(response.data);
+    } catch (error) {
+      console.log('Error loading loyalty points:', error);
+    }
+  };
 
   const handlePlaceOrder = async () => {
     if (!formData.address.trim()) {
@@ -57,8 +72,25 @@ export default function CheckoutScreen() {
       return;
     }
 
+    // Validate card details if using Stripe
+    if (paymentMethod === 'stripe') {
+      if (!cardDetails.number || cardDetails.number.length < 15) {
+        Alert.alert('Invalid Card', 'Please enter a valid card number');
+        return;
+      }
+      if (!cardDetails.expiry || cardDetails.expiry.length < 4) {
+        Alert.alert('Invalid Card', 'Please enter a valid expiry date');
+        return;
+      }
+      if (!cardDetails.cvc || cardDetails.cvc.length < 3) {
+        Alert.alert('Invalid Card', 'Please enter a valid CVC');
+        return;
+      }
+    }
+
     setLoading(true);
     try {
+      // First create the order
       const orderData = {
         items: cart.map((item) => ({
           product_id: item.product_id,
@@ -73,14 +105,38 @@ export default function CheckoutScreen() {
         shipping_phone: formData.phone,
         payment_method: paymentMethod,
         notes: formData.notes,
+        points_used: pointsToUse,
       };
 
-      await ordersAPI.create(orderData);
+      const orderResponse = await ordersAPI.create(orderData);
+      const orderId = orderResponse.data?.id;
+
+      // Process payment
+      const paymentData = {
+        amount: cartTotal + shippingCost,
+        payment_method: paymentMethod,
+        order_id: orderId,
+        points_to_use: pointsToUse,
+        ...(paymentMethod === 'stripe' && {
+          card_number: cardDetails.number,
+          card_expiry: cardDetails.expiry,
+          card_cvc: cardDetails.cvc,
+        }),
+      };
+
+      const paymentResponse = await paymentAPI.processPayment(paymentData);
+      
       clearCart();
+
+      // Show success with points earned info
+      const pointsEarned = paymentResponse.data?.points_earned || 0;
+      const message = pointsEarned > 0 
+        ? `Your order has been placed successfully! You earned ${pointsEarned} Petsy Points 🎉`
+        : 'Your order has been placed successfully. We will contact you shortly for delivery.';
 
       Alert.alert(
         '🎉 Order Confirmed!',
-        'Your order has been placed successfully. We will contact you shortly for delivery.',
+        message,
         [
           {
             text: 'Continue Shopping',
