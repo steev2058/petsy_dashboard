@@ -14,12 +14,14 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
+import { LinearGradient } from 'expo-linear-gradient';
 import Animated, { FadeIn, SlideInUp } from 'react-native-reanimated';
 import { Button } from '../../src/components';
 import { Colors, FontSize, Spacing, BorderRadius, Shadow } from '../../src/constants/theme';
 import { PetImages } from '../../src/constants/images';
-import { petsAPI } from '../../src/services/api';
+import { petsAPI, conversationsAPI } from '../../src/services/api';
 import { useTranslation } from '../../src/hooks/useTranslation';
+import { useStore } from '../../src/store/useStore';
 
 const { width, height } = Dimensions.get('window');
 
