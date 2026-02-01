@@ -120,6 +120,53 @@ export const translations = {
     // AI
     ai_assistant: 'AI Assistant',
     ask_ai: 'Ask Petsy AI',
+    
+    // Additional translations for new features
+    cart: 'Cart',
+    checkout: 'Checkout',
+    shopping_bag: 'Shopping Bag',
+    place_order: 'Place Order',
+    order_placed: 'Order Placed',
+    total: 'Total',
+    subtotal: 'Subtotal',
+    shipping: 'Shipping',
+    free_shipping: 'Free Shipping',
+    quantity: 'Quantity',
+    remove: 'Remove',
+    promo_code: 'Promo Code',
+    shipping_address: 'Shipping Address',
+    payment_method: 'Payment Method',
+    cash_on_delivery: 'Cash on Delivery',
+    
+    // Map
+    petsy_map: 'Petsy Map',
+    search_locations: 'Search locations...',
+    directions: 'Directions',
+    call: 'Call',
+    share: 'Share',
+    open_now: 'Open Now',
+    closed: 'Closed',
+    
+    // Community & Lost/Found
+    create_post: 'Create Post',
+    report_pet: 'Report Pet',
+    post_type: 'Post Type',
+    ask_question_label: 'Ask Question',
+    share_story_label: 'Share Story',
+    share_tip: 'Share Tip',
+    sponsorship: 'Sponsorship',
+    last_seen: 'Last Seen',
+    contact: 'Contact',
+    
+    // Product Details
+    product_details: 'Product Details',
+    in_stock: 'In Stock',
+    out_of_stock: 'Out of Stock',
+    features: 'Features',
+    quality_assured: 'Quality Assured',
+    safe_natural: 'Safe & Natural',
+    eco_friendly: 'Eco-Friendly',
+    pet_approved: 'Pet Approved',
   },
   ar: {
     // Common
