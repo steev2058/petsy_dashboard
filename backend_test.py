@@ -22,6 +22,9 @@ class PetsyAPITester:
         self.base_url = BACKEND_URL
         self.auth_token = None
         self.user_id = None
+        self.test_pet_id = None
+        self.test_owner_id = None
+        self.conversation_id = None
         self.test_results = []
         
     def log_result(self, test_name, success, message, details=None):
@@ -38,32 +41,38 @@ class PetsyAPITester:
         print(f"{status}: {test_name} - {message}")
         if details and not success:
             print(f"   Details: {details}")
-    
+        
+    def generate_test_email(self):
+        """Generate unique test email"""
+        random_str = ''.join(random.choices(string.ascii_lowercase + string.digits, k=8))
+        return f"testuser_{random_str}@petsy.com"
+        
     def make_request(self, method, endpoint, data=None, headers=None, auth_required=True):
-        """Make HTTP request with proper headers"""
+        """Make HTTP request with proper error handling"""
         url = f"{self.base_url}{endpoint}"
         
-        request_headers = {"Content-Type": "application/json"}
+        if headers is None:
+            headers = {"Content-Type": "application/json"}
+            
         if auth_required and self.auth_token:
-            request_headers["Authorization"] = f"Bearer {self.auth_token}"
-        if headers:
-            request_headers.update(headers)
-        
+            headers["Authorization"] = f"Bearer {self.auth_token}"
+            
         try:
             if method.upper() == "GET":
-                response = requests.get(url, headers=request_headers, timeout=30)
+                response = requests.get(url, headers=headers, timeout=30)
             elif method.upper() == "POST":
-                response = requests.post(url, json=data, headers=request_headers, timeout=30)
+                response = requests.post(url, json=data, headers=headers, timeout=30)
             elif method.upper() == "PUT":
-                response = requests.put(url, json=data, headers=request_headers, timeout=30)
+                response = requests.put(url, json=data, headers=headers, timeout=30)
             elif method.upper() == "DELETE":
-                response = requests.delete(url, headers=request_headers, timeout=30)
+                response = requests.delete(url, headers=headers, timeout=30)
             else:
                 raise ValueError(f"Unsupported method: {method}")
-            
+                
             return response
         except requests.exceptions.RequestException as e:
-            return None, str(e)
+            self.log_result(f"{method} {endpoint}", False, f"Request failed: {e}")
+            return None
     
     def test_user_signup(self):
         """Test user signup"""
