@@ -325,6 +325,63 @@ export default function PetDetailScreen() {
           style={styles.contactButton}
         />
       </View>
+
+      {/* Contact Modal */}
+      <Modal
+        visible={showContactModal}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setShowContactModal(false)}
+      >
+        <TouchableOpacity 
+          style={styles.modalOverlay}
+          activeOpacity={1}
+          onPress={() => setShowContactModal(false)}
+        >
+          <View style={styles.modalContent}>
+            <Text style={styles.modalTitle}>Contact Owner</Text>
+            <Text style={styles.modalSubtitle}>How would you like to reach out?</Text>
+            
+            <TouchableOpacity 
+              style={styles.modalOption}
+              onPress={handleStartChat}
+            >
+              <View style={[styles.modalOptionIcon, { backgroundColor: Colors.primary + '20' }]}>
+                <Ionicons name="chatbubble" size={24} color={Colors.primary} />
+              </View>
+              <View style={styles.modalOptionContent}>
+                <Text style={styles.modalOptionTitle}>Send Message</Text>
+                <Text style={styles.modalOptionDesc}>Chat with the owner in-app</Text>
+              </View>
+              <Ionicons name="chevron-forward" size={20} color={Colors.textLight} />
+            </TouchableOpacity>
+            
+            <TouchableOpacity 
+              style={styles.modalOption}
+              onPress={() => {
+                setShowContactModal(false);
+                Linking.openURL('https://wa.me/963912345678');
+              }}
+            >
+              <View style={[styles.modalOptionIcon, { backgroundColor: '#25D366' + '20' }]}>
+                <Ionicons name="logo-whatsapp" size={24} color="#25D366" />
+              </View>
+              <View style={styles.modalOptionContent}>
+                <Text style={styles.modalOptionTitle}>WhatsApp</Text>
+                <Text style={styles.modalOptionDesc}>Contact via WhatsApp</Text>
+              </View>
+              <Ionicons name="chevron-forward" size={20} color={Colors.textLight} />
+            </TouchableOpacity>
+            
+            <TouchableOpacity 
+              style={styles.modalCancelButton}
+              onPress={() => setShowContactModal(false)}
+            >
+              <Text style={styles.modalCancelText}>Cancel</Text>
+            </TouchableOpacity>
+          </View>
+        </TouchableOpacity>
+      </Modal>
     </View>
   );
 }
