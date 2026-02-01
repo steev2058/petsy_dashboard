@@ -140,7 +140,7 @@ class AdminEndpointTester:
                 data = response.json()
                 
                 # Verify expected fields in stats
-                expected_fields = ["users_count", "pets_count", "revenue", "monthly_stats"]
+                expected_fields = ["users", "pets", "revenue", "monthlyStats"]
                 missing_fields = [field for field in expected_fields if field not in data]
                 
                 if not missing_fields:
