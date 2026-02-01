@@ -99,7 +99,7 @@ export default function LostFoundScreen() {
           <Ionicons name="arrow-back" size={24} color={Colors.text} />
         </TouchableOpacity>
         <Text style={styles.title}>{t('lost_found')}</Text>
-        <TouchableOpacity>
+        <TouchableOpacity onPress={() => router.push(`/create-post?type=${selectedType}`)}>
           <Ionicons name="add-circle" size={28} color={Colors.primary} />
         </TouchableOpacity>
       </View>
