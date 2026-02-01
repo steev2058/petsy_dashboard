@@ -796,4 +796,51 @@ const styles = StyleSheet.create({
     fontWeight: '800',
     color: Colors.primary,
   },
+  navigationButtons: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    gap: Spacing.md,
+  },
+  backButton: {
+    borderRadius: BorderRadius.lg,
+    borderWidth: 1,
+    borderColor: Colors.primary,
+    backgroundColor: Colors.white,
+  },
+  backButtonContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: Spacing.md,
+    paddingHorizontal: Spacing.lg,
+    gap: Spacing.sm,
+  },
+  backButtonText: {
+    color: Colors.primary,
+    fontSize: FontSize.md,
+    fontWeight: '600',
+  },
+  nextButton: {
+    flex: 2,
+    borderRadius: BorderRadius.lg,
+    overflow: 'hidden',
+  },
+  nextButtonGradient: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: Spacing.md,
+    paddingHorizontal: Spacing.lg,
+    gap: Spacing.sm,
+  },
+  nextButtonText: {
+    color: Colors.white,
+    fontSize: FontSize.md,
+    fontWeight: '600',
+  },
+  finalButtons: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.md,
+  },
 });
