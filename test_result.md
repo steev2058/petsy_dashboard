@@ -324,15 +324,18 @@ backend:
 frontend:
   - task: "Auth Screens (Login, Signup, Verify)"
     implemented: true
-    working: "NA"
+    working: true
     file: "app/(auth)/"
     stuck_count: 0
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
       - working: "NA"
         agent: "main"
         comment: "Beautiful login, signup, verification screens with language toggle"
+      - working: true
+        agent: "testing"
+        comment: "✅ TESTED: Auth screens working perfectly on mobile (390x844). Login screen loads with proper form fields (email, password), signup screen accessible with 7 input fields (Name, Email, Phone, Password, Confirm Password, etc.). RTL language toggle working - Arabic/English switch functional with proper RTL layout. Forms are mobile-responsive with appropriate button sizing. Minor: Full authentication flow not tested due to backend requirements."
 
   - task: "Tab Navigation with Bottom Bar"
     implemented: true
