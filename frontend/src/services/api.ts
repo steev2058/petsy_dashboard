@@ -55,14 +55,32 @@ export const petsAPI = {
 
 // Favorites API
 export const favoritesAPI = {
-  getAll: () => api.get('/favorites'),
+  getAll: (params?: { item_type?: string }) => api.get('/favorites', { params }),
+  add: (item_type: string, item_id: string) => api.post(`/favorites/${item_type}/${item_id}`),
+  remove: (item_type: string, item_id: string) => api.delete(`/favorites/${item_type}/${item_id}`),
 };
 
 // Health Records API
 export const healthAPI = {
   create: (data: any) => api.post('/health-records', data),
-  
   getByPetId: (petId: string) => api.get(`/health-records/${petId}`),
+  delete: (recordId: string) => api.delete(`/health-records/${recordId}`),
+};
+
+// Pet Tags API
+export const petTagsAPI = {
+  register: (data: { pet_id: string; tag_code: string }) => api.post('/pet-tags', data),
+  getByPetId: (petId: string) => api.get(`/pet-tags/${petId}`),
+  scan: (tagCode: string) => api.get(`/pet-tags/scan/${tagCode}`),
+  reportScan: (tagCode: string, data: any) => api.post(`/pet-tags/scan/${tagCode}/report`, data),
+  getScans: (petId: string) => api.get(`/pet-tags/${petId}/scans`),
+};
+
+// Sponsorship API
+export const sponsorshipAPI = {
+  create: (data: any) => api.post('/sponsorships', data),
+  getByPetId: (petId: string) => api.get(`/sponsorships/pet/${petId}`),
+  getMy: () => api.get('/sponsorships/my'),
 };
 
 // Vets API
