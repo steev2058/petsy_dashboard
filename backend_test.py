@@ -1,21 +1,21 @@
 #!/usr/bin/env python3
 """
-Petsy Backend API Testing Suite
-Tests the Appointments and Vets APIs as requested
+Backend API Testing for Petsy App - Sponsorship and Conversations APIs
+Testing the following endpoints:
+1. Sponsorship API (HIGH PRIORITY)
+2. Conversations/Messages API
 """
 
 import requests
 import json
+import time
+import random
+import string
 import sys
-from datetime import datetime, timedelta
-import uuid
+from datetime import datetime
 
-# Configuration
+# Backend URL from frontend/.env
 BACKEND_URL = "https://petsy-marketplace-1.preview.emergentagent.com/api"
-TEST_USER_EMAIL = "testuser@petsy.com"
-TEST_USER_NAME = "Test User"
-TEST_USER_PASSWORD = "testpass123"
-TEST_USER_PHONE = "+963912345678"
 
 class PetsyAPITester:
     def __init__(self):
