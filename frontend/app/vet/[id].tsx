@@ -13,10 +13,10 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
-import { Button } from '../src/components';
-import { Colors, FontSize, Spacing, BorderRadius, Shadow } from '../src/constants/theme';
-import { vetsAPI } from '../src/services/api';
-import { useTranslation } from '../src/hooks/useTranslation';
+import { Button } from '../../src/components';
+import { Colors, FontSize, Spacing, BorderRadius, Shadow } from '../../src/constants/theme';
+import { vetsAPI } from '../../src/services/api';
+import { useTranslation } from '../../src/hooks/useTranslation';
 
 export default function VetDetailScreen() {
   const router = useRouter();
