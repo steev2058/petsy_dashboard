@@ -7,23 +7,36 @@ import {
   TouchableOpacity,
   Image,
   RefreshControl,
+  TextInput,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
-import { SearchBar } from '../src/components';
+import { LinearGradient } from 'expo-linear-gradient';
 import { Colors, FontSize, Spacing, BorderRadius, Shadow } from '../src/constants/theme';
 import { conversationsAPI } from '../src/services/api';
 import { useTranslation } from '../src/hooks/useTranslation';
 import { useStore } from '../src/store/useStore';
 
+interface Conversation {
+  id: string;
+  other_user?: {
+    id: string;
+    name: string;
+    avatar?: string;
+  };
+  last_message?: string;
+  last_message_time?: string;
+  unread_count: number;
+}
+
 export default function MessagesScreen() {
   const router = useRouter();
   const { t } = useTranslation();
-  const { isAuthenticated } = useStore();
+  const { isAuthenticated, user } = useStore();
   
   const [searchQuery, setSearchQuery] = useState('');
-  const [conversations, setConversations] = useState<any[]>([]);
+  const [conversations, setConversations] = useState<Conversation[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
 
@@ -69,44 +82,78 @@ export default function MessagesScreen() {
     }
   };
 
+  const totalUnread = conversations.reduce((sum, c) => sum + (c.unread_count || 0), 0);
+
   if (!isAuthenticated) {
     return (
       <SafeAreaView style={styles.container} edges={['top']}>
         <View style={styles.header}>
           <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
-            <Ionicons name="arrow-back" size={24} color={Colors.text} />
+            <View style={styles.backButtonInner}>
+              <Ionicons name="arrow-back" size={22} color={Colors.text} />
+            </View>
           </TouchableOpacity>
-          <Text style={styles.title}>{t('messages')}</Text>
-          <View style={{ width: 40 }} />
+          <Text style={styles.title}>Messages</Text>
+          <View style={{ width: 48 }} />
         </View>
-        <View style={styles.notLoggedIn}>
-          <Ionicons name="chatbubbles" size={64} color={Colors.textLight} />
-          <Text style={styles.notLoggedInTitle}>Login Required</Text>
-          <Text style={styles.notLoggedInText}>Please login to view your messages</Text>
+        <View style={styles.loginRequired}>
+          <View style={styles.loginIconContainer}>
+            <LinearGradient
+              colors={[Colors.primary + '30', Colors.primary + '10']}
+              style={styles.loginIconGradient}
+            >
+              <Ionicons name="chatbubbles" size={60} color={Colors.primary} />
+            </LinearGradient>
+          </View>
+          <Text style={styles.loginTitle}>Login to Chat</Text>
+          <Text style={styles.loginText}>
+            Sign in to view your messages and connect with pet owners
+          </Text>
+          <TouchableOpacity
+            style={styles.loginButton}
+            onPress={() => router.push('/(auth)/login')}
+          >
+            <LinearGradient
+              colors={[Colors.primary, Colors.primaryDark]}
+              style={styles.loginGradient}
+            >
+              <Text style={styles.loginButtonText}>Login Now</Text>
+            </LinearGradient>
+          </TouchableOpacity>
         </View>
       </SafeAreaView>
     );
   }
 
-  const renderConversation = ({ item }: { item: any }) => (
+  const renderConversation = ({ item }: { item: Conversation }) => (
     <TouchableOpacity
       style={[styles.conversationCard, Shadow.small]}
       onPress={() => router.push(`/chat/${item.id}`)}
+      activeOpacity={0.9}
     >
       <View style={styles.avatarContainer}>
         {item.other_user?.avatar ? (
           <Image source={{ uri: item.other_user.avatar }} style={styles.avatar} />
         ) : (
-          <View style={styles.avatarPlaceholder}>
-            <Ionicons name="person" size={24} color={Colors.white} />
-          </View>
+          <LinearGradient
+            colors={[Colors.primary, Colors.primaryDark]}
+            style={styles.avatarPlaceholder}
+          >
+            <Text style={styles.avatarInitial}>
+              {(item.other_user?.name || 'U')[0].toUpperCase()}
+            </Text>
+          </LinearGradient>
         )}
         {item.unread_count > 0 && (
           <View style={styles.unreadBadge}>
-            <Text style={styles.unreadText}>{item.unread_count}</Text>
+            <Text style={styles.unreadText}>
+              {item.unread_count > 9 ? '9+' : item.unread_count}
+            </Text>
           </View>
         )}
+        <View style={styles.onlineIndicator} />
       </View>
+      
       <View style={styles.conversationInfo}>
         <View style={styles.conversationHeader}>
           <Text style={styles.userName} numberOfLines={1}>
@@ -123,31 +170,97 @@ export default function MessagesScreen() {
           ]}
           numberOfLines={1}
         >
-          {item.last_message || 'No messages yet'}
+          {item.last_message || 'Start a conversation'}
         </Text>
       </View>
+      
+      <Ionicons name="chevron-forward" size={20} color={Colors.textLight} />
     </TouchableOpacity>
   );
 
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
-      {/* Header */}
+      {/* Luxury Header */}
       <View style={styles.header}>
         <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
-          <Ionicons name="arrow-back" size={24} color={Colors.text} />
+          <View style={styles.backButtonInner}>
+            <Ionicons name="arrow-back" size={22} color={Colors.text} />
+          </View>
         </TouchableOpacity>
-        <Text style={styles.title}>{t('messages')}</Text>
-        <TouchableOpacity>
-          <Ionicons name="create-outline" size={24} color={Colors.primary} />
+        <View style={styles.headerCenter}>
+          <Text style={styles.title}>Messages</Text>
+          {totalUnread > 0 && (
+            <View style={styles.headerBadge}>
+              <Text style={styles.headerBadgeText}>{totalUnread} new</Text>
+            </View>
+          )}
+        </View>
+        <TouchableOpacity style={styles.newChatButton}>
+          <LinearGradient
+            colors={[Colors.primary, Colors.primaryDark]}
+            style={styles.newChatGradient}
+          >
+            <Ionicons name="create" size={20} color={Colors.white} />
+          </LinearGradient>
         </TouchableOpacity>
       </View>
 
       {/* Search */}
-      <SearchBar
-        value={searchQuery}
-        onChangeText={setSearchQuery}
-        placeholder="Search conversations..."
-      />
+      <View style={styles.searchContainer}>
+        <View style={[styles.searchBar, Shadow.small]}>
+          <Ionicons name="search" size={20} color={Colors.textSecondary} />
+          <TextInput
+            style={styles.searchInput}
+            placeholder="Search conversations..."
+            placeholderTextColor={Colors.textLight}
+            value={searchQuery}
+            onChangeText={setSearchQuery}
+          />
+          {searchQuery.length > 0 && (
+            <TouchableOpacity onPress={() => setSearchQuery('')}>
+              <Ionicons name="close-circle" size={20} color={Colors.textSecondary} />
+            </TouchableOpacity>
+          )}
+        </View>
+      </View>
+
+      {/* Online Friends */}
+      <View style={styles.onlineSection}>
+        <Text style={styles.onlineTitle}>Online Now</Text>
+        <FlatList
+          horizontal
+          data={conversations.slice(0, 5)}
+          keyExtractor={(item) => `online-${item.id}`}
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={styles.onlineList}
+          renderItem={({ item }) => (
+            <TouchableOpacity
+              style={styles.onlineUser}
+              onPress={() => router.push(`/chat/${item.id}`)}
+            >
+              {item.other_user?.avatar ? (
+                <Image source={{ uri: item.other_user.avatar }} style={styles.onlineAvatar} />
+              ) : (
+                <LinearGradient
+                  colors={[Colors.secondary, Colors.secondary + 'CC']}
+                  style={styles.onlineAvatarPlaceholder}
+                >
+                  <Text style={styles.onlineInitial}>
+                    {(item.other_user?.name || 'U')[0].toUpperCase()}
+                  </Text>
+                </LinearGradient>
+              )}
+              <View style={styles.onlineDot} />
+              <Text style={styles.onlineName} numberOfLines={1}>
+                {item.other_user?.name?.split(' ')[0] || 'User'}
+              </Text>
+            </TouchableOpacity>
+          )}
+          ListEmptyComponent={
+            <Text style={styles.noOnlineText}>No one online</Text>
+          }
+        />
+      </View>
 
       {/* Conversations List */}
       <FlatList
@@ -166,11 +279,25 @@ export default function MessagesScreen() {
         }
         ListEmptyComponent={
           <View style={styles.emptyState}>
-            <Ionicons name="chatbubbles-outline" size={64} color={Colors.textLight} />
-            <Text style={styles.emptyTitle}>No messages yet</Text>
+            <View style={styles.emptyIconContainer}>
+              <Ionicons name="chatbubbles-outline" size={48} color={Colors.white} />
+            </View>
+            <Text style={styles.emptyTitle}>No conversations yet</Text>
             <Text style={styles.emptyText}>
-              Start a conversation by contacting a pet owner
+              Start chatting by contacting a pet owner from the adoption page
             </Text>
+            <TouchableOpacity
+              style={styles.startChatButton}
+              onPress={() => router.push('/(tabs)/adoption')}
+            >
+              <LinearGradient
+                colors={[Colors.primary, Colors.primaryDark]}
+                style={styles.startChatGradient}
+              >
+                <Ionicons name="paw" size={18} color={Colors.white} />
+                <Text style={styles.startChatText}>Browse Pets</Text>
+              </LinearGradient>
+            </TouchableOpacity>
           </View>
         }
       />
@@ -181,23 +308,139 @@ export default function MessagesScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: Colors.backgroundDark,
+    backgroundColor: '#F8F9FA',
   },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
     paddingHorizontal: Spacing.md,
     paddingVertical: Spacing.sm,
     backgroundColor: Colors.white,
   },
-  backButton: {
-    padding: Spacing.sm,
+  backButton: {},
+  backButtonInner: {
+    width: 40,
+    height: 40,
+    borderRadius: 12,
+    backgroundColor: Colors.backgroundDark,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  headerCenter: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginLeft: Spacing.md,
+    gap: Spacing.sm,
   },
   title: {
     fontSize: FontSize.xl,
     fontWeight: '700',
     color: Colors.text,
+  },
+  headerBadge: {
+    backgroundColor: Colors.error,
+    paddingHorizontal: Spacing.sm,
+    paddingVertical: 2,
+    borderRadius: BorderRadius.sm,
+  },
+  headerBadgeText: {
+    color: Colors.white,
+    fontSize: FontSize.xs,
+    fontWeight: '700',
+  },
+  newChatButton: {
+    borderRadius: 12,
+    overflow: 'hidden',
+  },
+  newChatGradient: {
+    width: 40,
+    height: 40,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  searchContainer: {
+    paddingHorizontal: Spacing.md,
+    paddingVertical: Spacing.sm,
+    backgroundColor: Colors.white,
+  },
+  searchBar: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: Colors.backgroundDark,
+    borderRadius: BorderRadius.lg,
+    paddingHorizontal: Spacing.md,
+    paddingVertical: Spacing.sm,
+    gap: Spacing.sm,
+  },
+  searchInput: {
+    flex: 1,
+    fontSize: FontSize.md,
+    color: Colors.text,
+  },
+  onlineSection: {
+    backgroundColor: Colors.white,
+    paddingBottom: Spacing.md,
+    borderBottomWidth: 1,
+    borderBottomColor: Colors.border,
+  },
+  onlineTitle: {
+    fontSize: FontSize.sm,
+    fontWeight: '600',
+    color: Colors.textSecondary,
+    paddingHorizontal: Spacing.md,
+    marginBottom: Spacing.sm,
+  },
+  onlineList: {
+    paddingHorizontal: Spacing.md,
+    gap: Spacing.md,
+  },
+  onlineUser: {
+    alignItems: 'center',
+    width: 60,
+  },
+  onlineAvatar: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    borderWidth: 2,
+    borderColor: Colors.success,
+  },
+  onlineAvatarPlaceholder: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 2,
+    borderColor: Colors.success,
+  },
+  onlineInitial: {
+    fontSize: FontSize.lg,
+    fontWeight: '700',
+    color: Colors.white,
+  },
+  onlineDot: {
+    position: 'absolute',
+    top: 36,
+    right: 8,
+    width: 14,
+    height: 14,
+    borderRadius: 7,
+    backgroundColor: Colors.success,
+    borderWidth: 2,
+    borderColor: Colors.white,
+  },
+  onlineName: {
+    fontSize: FontSize.xs,
+    color: Colors.text,
+    marginTop: Spacing.xs,
+    textAlign: 'center',
+  },
+  noOnlineText: {
+    fontSize: FontSize.sm,
+    color: Colors.textSecondary,
+    fontStyle: 'italic',
   },
   listContent: {
     padding: Spacing.md,
@@ -217,26 +460,31 @@ const styles = StyleSheet.create({
   avatar: {
     width: 56,
     height: 56,
-    borderRadius: 28,
+    borderRadius: 18,
   },
   avatarPlaceholder: {
     width: 56,
     height: 56,
-    borderRadius: 28,
-    backgroundColor: Colors.primary,
+    borderRadius: 18,
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  avatarInitial: {
+    fontSize: FontSize.xl,
+    fontWeight: '700',
+    color: Colors.white,
   },
   unreadBadge: {
     position: 'absolute',
     top: -4,
     right: -4,
     backgroundColor: Colors.error,
-    width: 22,
+    minWidth: 22,
     height: 22,
     borderRadius: 11,
     justifyContent: 'center',
     alignItems: 'center',
+    paddingHorizontal: 6,
     borderWidth: 2,
     borderColor: Colors.white,
   },
@@ -244,6 +492,17 @@ const styles = StyleSheet.create({
     color: Colors.white,
     fontSize: FontSize.xs,
     fontWeight: '700',
+  },
+  onlineIndicator: {
+    position: 'absolute',
+    bottom: 2,
+    right: 2,
+    width: 12,
+    height: 12,
+    borderRadius: 6,
+    backgroundColor: Colors.success,
+    borderWidth: 2,
+    borderColor: Colors.white,
   },
   conversationInfo: {
     flex: 1,
@@ -268,7 +527,7 @@ const styles = StyleSheet.create({
   lastMessage: {
     fontSize: FontSize.md,
     color: Colors.textSecondary,
-    marginTop: 2,
+    marginTop: 4,
   },
   lastMessageUnread: {
     color: Colors.text,
@@ -278,33 +537,85 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     padding: Spacing.xxl,
   },
+  emptyIconContainer: {
+    width: 100,
+    height: 100,
+    borderRadius: 50,
+    backgroundColor: Colors.textLight,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: Spacing.lg,
+  },
   emptyTitle: {
     fontSize: FontSize.xl,
-    fontWeight: '600',
+    fontWeight: '700',
     color: Colors.text,
-    marginTop: Spacing.md,
   },
   emptyText: {
     fontSize: FontSize.md,
     color: Colors.textSecondary,
     textAlign: 'center',
     marginTop: Spacing.sm,
+    maxWidth: 280,
+    lineHeight: 22,
   },
-  notLoggedIn: {
+  startChatButton: {
+    marginTop: Spacing.lg,
+    borderRadius: BorderRadius.lg,
+    overflow: 'hidden',
+  },
+  startChatGradient: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: Spacing.md,
+    paddingHorizontal: Spacing.xl,
+    gap: Spacing.sm,
+  },
+  startChatText: {
+    color: Colors.white,
+    fontSize: FontSize.md,
+    fontWeight: '600',
+  },
+  loginRequired: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
     padding: Spacing.xl,
   },
-  notLoggedInTitle: {
-    fontSize: FontSize.xl,
+  loginIconContainer: {
+    marginBottom: Spacing.lg,
+  },
+  loginIconGradient: {
+    width: 120,
+    height: 120,
+    borderRadius: 60,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  loginTitle: {
+    fontSize: FontSize.xxl,
     fontWeight: '700',
     color: Colors.text,
-    marginTop: Spacing.lg,
+    marginBottom: Spacing.sm,
   },
-  notLoggedInText: {
+  loginText: {
     fontSize: FontSize.md,
     color: Colors.textSecondary,
-    marginTop: Spacing.sm,
+    textAlign: 'center',
+    maxWidth: 280,
+    marginBottom: Spacing.xl,
+  },
+  loginButton: {
+    borderRadius: BorderRadius.lg,
+    overflow: 'hidden',
+  },
+  loginGradient: {
+    paddingVertical: Spacing.md,
+    paddingHorizontal: Spacing.xxl,
+  },
+  loginButtonText: {
+    color: Colors.white,
+    fontSize: FontSize.lg,
+    fontWeight: '600',
   },
 });
