@@ -61,9 +61,9 @@ export default function HomeScreen() {
 
   const quickServices = [
     { id: 'adoption', icon: 'heart', label: t('adoption'), color: '#FF6B6B', route: '/(tabs)/adoption' },
-    { id: 'vet', icon: 'medkit', label: t('veterinarians'), color: '#4ECDC4', route: '/(tabs)/adoption' },
+    { id: 'map', icon: 'map', label: 'Map', color: '#4ECDC4', route: '/petsy-map' },
     { id: 'shop', icon: 'cart', label: t('shop'), color: '#45B7D1', route: '/(tabs)/shop' },
-    { id: 'lost', icon: 'search', label: t('lost_found'), color: '#96CEB4', route: '/lost-found' },
+    { id: 'chat', icon: 'chatbubbles', label: 'Messages', color: '#96CEB4', route: '/messages' },
   ];
 
   return (
