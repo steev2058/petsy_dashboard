@@ -289,6 +289,53 @@ export const translations = {
     // AI
     ai_assistant: 'المساعد الذكي',
     ask_ai: 'اسأل بيتسي الذكي',
+    
+    // Additional translations for new features
+    cart: 'السلة',
+    checkout: 'الدفع',
+    shopping_bag: 'حقيبة التسوق',
+    place_order: 'تأكيد الطلب',
+    order_placed: 'تم الطلب',
+    total: 'المجموع',
+    subtotal: 'المجموع الفرعي',
+    shipping: 'الشحن',
+    free_shipping: 'شحن مجاني',
+    quantity: 'الكمية',
+    remove: 'إزالة',
+    promo_code: 'رمز الخصم',
+    shipping_address: 'عنوان الشحن',
+    payment_method: 'طريقة الدفع',
+    cash_on_delivery: 'الدفع عند الاستلام',
+    
+    // Map
+    petsy_map: 'خريطة بيتسي',
+    search_locations: 'ابحث عن مواقع...',
+    directions: 'الاتجاهات',
+    call: 'اتصال',
+    share: 'مشاركة',
+    open_now: 'مفتوح الآن',
+    closed: 'مغلق',
+    
+    // Community & Lost/Found
+    create_post: 'إنشاء منشور',
+    report_pet: 'الإبلاغ عن حيوان',
+    post_type: 'نوع المنشور',
+    ask_question_label: 'اطرح سؤالاً',
+    share_story_label: 'شارك قصة',
+    share_tip: 'شارك نصيحة',
+    sponsorship: 'رعاية',
+    last_seen: 'آخر مشاهدة',
+    contact: 'تواصل',
+    
+    // Product Details
+    product_details: 'تفاصيل المنتج',
+    in_stock: 'متوفر',
+    out_of_stock: 'غير متوفر',
+    features: 'المميزات',
+    quality_assured: 'جودة مضمونة',
+    safe_natural: 'آمن وطبيعي',
+    eco_friendly: 'صديق للبيئة',
+    pet_approved: 'مُوصى به للحيوانات',
   },
 };
 
