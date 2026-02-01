@@ -626,4 +626,68 @@ const styles = StyleSheet.create({
   contactButton: {
     flex: 1,
   },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    justifyContent: 'flex-end',
+  },
+  modalContent: {
+    backgroundColor: Colors.white,
+    borderTopLeftRadius: BorderRadius.xl,
+    borderTopRightRadius: BorderRadius.xl,
+    padding: Spacing.lg,
+    paddingBottom: Spacing.xxl,
+  },
+  modalTitle: {
+    fontSize: FontSize.xl,
+    fontWeight: '700',
+    color: Colors.text,
+    textAlign: 'center',
+  },
+  modalSubtitle: {
+    fontSize: FontSize.md,
+    color: Colors.textSecondary,
+    textAlign: 'center',
+    marginTop: Spacing.xs,
+    marginBottom: Spacing.lg,
+  },
+  modalOption: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: Colors.backgroundDark,
+    borderRadius: BorderRadius.lg,
+    padding: Spacing.md,
+    marginBottom: Spacing.sm,
+  },
+  modalOptionIcon: {
+    width: 48,
+    height: 48,
+    borderRadius: 14,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  modalOptionContent: {
+    flex: 1,
+    marginLeft: Spacing.md,
+  },
+  modalOptionTitle: {
+    fontSize: FontSize.md,
+    fontWeight: '600',
+    color: Colors.text,
+  },
+  modalOptionDesc: {
+    fontSize: FontSize.sm,
+    color: Colors.textSecondary,
+    marginTop: 2,
+  },
+  modalCancelButton: {
+    marginTop: Spacing.md,
+    paddingVertical: Spacing.md,
+    alignItems: 'center',
+  },
+  modalCancelText: {
+    fontSize: FontSize.md,
+    fontWeight: '600',
+    color: Colors.textSecondary,
+  },
 });
