@@ -7,15 +7,37 @@ import {
   TouchableOpacity,
   Image,
   Alert,
+  Switch,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
+import { LinearGradient } from 'expo-linear-gradient';
 import { Button, PetCard } from '../../src/components';
 import { Colors, FontSize, Spacing, BorderRadius, Shadow } from '../../src/constants/theme';
 import { useStore } from '../../src/store/useStore';
-import { petsAPI } from '../../src/services/api';
+import { petsAPI, loyaltyAPI } from '../../src/services/api';
 import { useTranslation } from '../../src/hooks/useTranslation';
+
+const TIER_COLORS: Record<string, string[]> = {
+  bronze: ['#CD7F32', '#B87333'],
+  silver: ['#C0C0C0', '#A8A9AD'],
+  gold: ['#FFD700', '#FFC000'],
+  platinum: ['#E5E4E2', '#B8B8B8'],
+};
+
+export default function ProfileScreen() {
+  const router = useRouter();
+  const { t } = useTranslation();
+  const { user, logout, isAuthenticated, language, setLanguage } = useStore();
+  const [myPets, setMyPets] = useState<any[]>([]);
+  const [loyaltyPoints, setLoyaltyPoints] = useState({
+    total_points: 0,
+    lifetime_points: 0,
+    tier: 'bronze',
+    points_value: 0,
+  });
+  const [isDarkMode, setIsDarkMode] = useState(false);
 
 export default function ProfileScreen() {
   const router = useRouter();
