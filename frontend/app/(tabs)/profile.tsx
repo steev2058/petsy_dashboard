@@ -92,14 +92,21 @@ export default function ProfileScreen() {
   }
 
   const menuItems = [
-    { icon: 'paw', label: t('my_pets'), route: '/add-pet' },
-    { icon: 'heart', label: t('favorites'), onPress: () => {} },
+    { icon: 'paw', label: t('my_pets'), onPress: () => router.push('/add-pet') },
+    { icon: 'heart', label: t('favorites'), onPress: () => router.push('/favorites') },
     { icon: 'chatbubbles', label: t('messages'), onPress: () => router.push('/messages') },
-    { icon: 'calendar', label: t('my_appointments'), onPress: () => {} },
-    { icon: 'document-text', label: t('health_records'), onPress: () => {} },
+    { icon: 'calendar', label: t('my_appointments'), onPress: () => router.push('/my-appointments') },
+    { icon: 'document-text', label: t('health_records'), onPress: () => {
+      if (myPets.length > 0) {
+        router.push(`/health-records?petId=${myPets[0].id}`);
+      } else {
+        Alert.alert('No Pets', 'Add a pet first to track health records');
+      }
+    }},
+    { icon: 'location', label: 'Pet Tracking', onPress: () => router.push('/pet-tracking') },
     { icon: 'globe', label: 'العربية / English', onPress: toggleLanguage },
-    { icon: 'settings', label: t('settings'), onPress: () => {} },
-    { icon: 'help-circle', label: 'Help & Support', onPress: () => {} },
+    { icon: 'settings', label: t('settings'), onPress: () => router.push('/settings') },
+    { icon: 'help-circle', label: 'Help & Support', onPress: () => router.push('/help-support') },
   ];
 
   return (
