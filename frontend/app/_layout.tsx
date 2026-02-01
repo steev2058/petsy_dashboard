@@ -1,15 +1,32 @@
 import React, { useEffect } from 'react';
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
+import { I18nManager, Platform } from 'react-native';
+import * as Updates from 'expo-updates';
 import { useStore } from '../src/store/useStore';
 import { Colors } from '../src/constants/theme';
 
 export default function RootLayout() {
   const loadStoredAuth = useStore((state) => state.loadStoredAuth);
+  const language = useStore((state) => state.language);
 
   useEffect(() => {
     loadStoredAuth();
   }, []);
+
+  // Handle RTL for Arabic
+  useEffect(() => {
+    const isRTL = language === 'ar';
+    if (I18nManager.isRTL !== isRTL) {
+      I18nManager.allowRTL(isRTL);
+      I18nManager.forceRTL(isRTL);
+      // Reload app to apply RTL changes (only on native)
+      if (Platform.OS !== 'web') {
+        // For Expo, we would need to reload
+        // Updates.reloadAsync();
+      }
+    }
+  }, [language]);
 
   return (
     <>
@@ -31,6 +48,20 @@ export default function RootLayout() {
         <Stack.Screen name="emergency" options={{ presentation: 'modal' }} />
         <Stack.Screen name="lost-found" />
         <Stack.Screen name="community" />
+        <Stack.Screen name="cart" />
+        <Stack.Screen name="checkout" />
+        <Stack.Screen name="petsy-map" />
+        <Stack.Screen name="messages" />
+        <Stack.Screen name="create-post" options={{ presentation: 'modal' }} />
+        <Stack.Screen name="health-records" />
+        <Stack.Screen name="favorites" />
+        <Stack.Screen name="my-appointments" />
+        <Stack.Screen name="pet-tracking" />
+        <Stack.Screen name="settings" />
+        <Stack.Screen name="help-support" />
+        <Stack.Screen name="product/[id]" options={{ presentation: 'card' }} />
+        <Stack.Screen name="chat/[id]" />
+        <Stack.Screen name="book-appointment/[vetId]" options={{ presentation: 'modal' }} />
       </Stack>
     </>
   );
