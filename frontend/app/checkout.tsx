@@ -477,7 +477,7 @@ const styles = StyleSheet.create({
     paddingVertical: Spacing.sm,
     backgroundColor: Colors.white,
   },
-  backButton: {},
+  headerBackButton: {},
   backButtonInner: {
     width: 40,
     height: 40,
