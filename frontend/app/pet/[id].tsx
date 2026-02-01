@@ -61,15 +61,51 @@ export default function PetDetailScreen() {
   };
 
   const handleContact = () => {
+    if (!isAuthenticated) {
+      Alert.alert('Login Required', 'Please login to contact the owner', [
+        { text: 'Cancel', style: 'cancel' },
+        { text: 'Login', onPress: () => router.push('/(auth)/login') },
+      ]);
+      return;
+    }
+    
     Alert.alert(
       'Contact Owner',
       'How would you like to contact the owner?',
       [
         { text: 'Cancel', style: 'cancel' },
-        { text: 'Send Message', onPress: () => {} },
+        { text: 'Send Message', onPress: handleStartChat },
         { text: 'WhatsApp', onPress: () => Linking.openURL('https://wa.me/963912345678') },
       ]
     );
+  };
+
+  const handleStartChat = async () => {
+    if (!isAuthenticated || !pet?.owner_id) return;
+    
+    try {
+      const response = await conversationsAPI.create({
+        other_user_id: pet.owner_id,
+        pet_id: pet.id,
+        initial_message: `Hi! I'm interested in ${pet.name}.`,
+      });
+      router.push(`/chat/${response.data.id}`);
+    } catch (error: any) {
+      // If conversation exists, it might return the existing one
+      if (error.response?.data?.conversation_id) {
+        router.push(`/chat/${error.response.data.conversation_id}`);
+      } else {
+        Alert.alert('Error', 'Could not start conversation');
+      }
+    }
+  };
+
+  const handleSponsor = () => {
+    if (pet?.status !== 'for_adoption') {
+      Alert.alert('Not Available', 'Sponsorship is only available for rescue pets');
+      return;
+    }
+    router.push(`/sponsor/${pet.id}`);
   };
 
   const getDefaultImage = () => {
