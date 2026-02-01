@@ -125,6 +125,7 @@ export default function ProfileScreen() {
 
   const menuItems = [
     { icon: 'paw', label: t('my_pets'), onPress: () => router.push('/add-pet') },
+    { icon: 'bag-handle', label: 'Order History', onPress: () => router.push('/order-history') },
     { icon: 'heart', label: t('favorites'), onPress: () => router.push('/favorites') },
     { icon: 'chatbubbles', label: t('messages'), onPress: () => router.push('/messages') },
     { icon: 'calendar', label: t('my_appointments'), onPress: () => router.push('/my-appointments') },
@@ -137,6 +138,7 @@ export default function ProfileScreen() {
     }},
     { icon: 'location', label: 'Pet Tracking', onPress: () => router.push('/pet-tracking') },
     { icon: 'globe', label: 'العربية / English', onPress: toggleLanguage },
+    { icon: 'moon', label: 'Dark Mode', toggle: true, value: isDarkMode, onToggle: setIsDarkMode },
     { icon: 'settings', label: t('settings'), onPress: () => router.push('/settings') },
     { icon: 'help-circle', label: 'Help & Support', onPress: () => router.push('/help-support') },
   ];
