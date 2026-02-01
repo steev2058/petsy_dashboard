@@ -220,7 +220,7 @@ export default function CommunityScreen() {
       />
 
       {/* FAB */}
-      <TouchableOpacity style={styles.fab}>
+      <TouchableOpacity style={styles.fab} onPress={() => router.push('/create-post?type=community')}>
         <Ionicons name="add" size={28} color={Colors.white} />
       </TouchableOpacity>
     </SafeAreaView>
