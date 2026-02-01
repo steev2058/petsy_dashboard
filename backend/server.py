@@ -330,6 +330,57 @@ class OrderCreate(BaseModel):
     shipping_phone: str
     payment_method: str = "cash_on_delivery"
     notes: Optional[str] = None
+    points_used: int = 0  # Loyalty points to redeem
+
+# Payment Models
+class PaymentMethod(BaseModel):
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    user_id: str
+    type: str  # stripe, paypal, shamcash
+    card_last_four: Optional[str] = None
+    card_brand: Optional[str] = None  # visa, mastercard
+    is_default: bool = False
+    created_at: datetime = Field(default_factory=datetime.utcnow)
+
+class PaymentIntent(BaseModel):
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    user_id: str
+    amount: float
+    currency: str = "USD"
+    payment_method: str  # stripe, paypal, shamcash, cash_on_delivery
+    status: str = "pending"  # pending, processing, succeeded, failed, cancelled
+    order_id: Optional[str] = None
+    appointment_id: Optional[str] = None
+    sponsorship_id: Optional[str] = None
+    stripe_payment_intent_id: Optional[str] = None
+    created_at: datetime = Field(default_factory=datetime.utcnow)
+
+class PaymentRequest(BaseModel):
+    amount: float
+    payment_method: str  # stripe, paypal, shamcash, cash_on_delivery
+    card_number: Optional[str] = None  # For stripe
+    card_expiry: Optional[str] = None
+    card_cvc: Optional[str] = None
+    order_id: Optional[str] = None
+    appointment_id: Optional[str] = None
+    sponsorship_id: Optional[str] = None
+    points_to_use: int = 0
+
+# Loyalty Points Models
+class LoyaltyPoints(BaseModel):
+    user_id: str
+    total_points: int = 0
+    lifetime_points: int = 0
+    tier: str = "bronze"  # bronze, silver, gold, platinum
+
+class PointsTransaction(BaseModel):
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    user_id: str
+    points: int  # positive for earned, negative for redeemed
+    transaction_type: str  # earned, redeemed, bonus, expired
+    description: str
+    reference_id: Optional[str] = None  # order_id, appointment_id, etc.
+    created_at: datetime = Field(default_factory=datetime.utcnow)
 
 # Conversation & Chat
 class ChatMessage(BaseModel):
