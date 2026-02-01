@@ -70,30 +70,30 @@ export default function CheckoutScreen() {
 
   const handlePlaceOrder = async () => {
     if (!formData.address.trim()) {
-      Alert.alert('Missing Information', 'Please enter your shipping address');
+      showAlert('Missing Information', 'Please enter your shipping address');
       return;
     }
     if (!formData.city.trim()) {
-      Alert.alert('Missing Information', 'Please enter your city');
+      showAlert('Missing Information', 'Please enter your city');
       return;
     }
     if (!formData.phone.trim()) {
-      Alert.alert('Missing Information', 'Please enter your phone number');
+      showAlert('Missing Information', 'Please enter your phone number');
       return;
     }
 
     // Validate card details if using Stripe
     if (paymentMethod === 'stripe') {
       if (!cardDetails.number || cardDetails.number.length < 15) {
-        Alert.alert('Invalid Card', 'Please enter a valid card number');
+        showAlert('Invalid Card', 'Please enter a valid card number');
         return;
       }
       if (!cardDetails.expiry || cardDetails.expiry.length < 4) {
-        Alert.alert('Invalid Card', 'Please enter a valid expiry date');
+        showAlert('Invalid Card', 'Please enter a valid expiry date');
         return;
       }
       if (!cardDetails.cvc || cardDetails.cvc.length < 3) {
-        Alert.alert('Invalid Card', 'Please enter a valid CVC');
+        showAlert('Invalid Card', 'Please enter a valid CVC');
         return;
       }
     }
@@ -144,18 +144,11 @@ export default function CheckoutScreen() {
         ? `Your order has been placed successfully! You earned ${pointsEarned} Petsy Points 🎉`
         : 'Your order has been placed successfully. We will contact you shortly for delivery.';
 
-      Alert.alert(
-        '🎉 Order Confirmed!',
-        message,
-        [
-          {
-            text: 'Continue Shopping',
-            onPress: () => router.replace('/(tabs)/shop'),
-          },
-        ]
-      );
+      showAlert('🎉 Order Confirmed!', message, () => {
+        router.replace('/(tabs)/shop');
+      });
     } catch (error: any) {
-      Alert.alert(
+      showAlert(
         'Order Failed',
         error.response?.data?.detail || 'Failed to place order. Please try again.'
       );
