@@ -353,7 +353,7 @@ export default function ShopScreen() {
             <LuxuryProductCard
               key={product.id}
               product={product}
-              onPress={() => {}}
+              onPress={() => router.push(`/product/${product.id}`)}
               onAddToCart={() => handleAddToCart(product)}
             />
           ))}
