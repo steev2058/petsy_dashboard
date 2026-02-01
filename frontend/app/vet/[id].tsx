@@ -159,7 +159,7 @@ export default function VetDetailScreen() {
             </View>
             <Text style={styles.actionLabel}>WhatsApp</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.actionCard}>
+          <TouchableOpacity style={styles.actionCard} onPress={() => router.push(`/book-appointment/${id}`)}>
             <View style={[styles.actionIcon, { backgroundColor: Colors.primary }]}>
               <Ionicons name="calendar" size={24} color={Colors.white} />
             </View>
@@ -227,7 +227,7 @@ export default function VetDetailScreen() {
         <View style={styles.ctaSection}>
           <Button
             title={t('book_appointment')}
-            onPress={() => {}}
+            onPress={() => router.push(`/book-appointment/${id}`)}
             style={styles.ctaButton}
           />
         </View>
