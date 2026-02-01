@@ -20,8 +20,17 @@ import { useTranslation } from '../../src/hooks/useTranslation';
 export default function ProfileScreen() {
   const router = useRouter();
   const { t } = useTranslation();
-  const { user, logout, isAuthenticated } = useStore();
+  const { user, logout, isAuthenticated, language, setLanguage } = useStore();
   const [myPets, setMyPets] = useState<any[]>([]);
+
+  const toggleLanguage = () => {
+    const newLang = language === 'en' ? 'ar' : 'en';
+    setLanguage(newLang);
+    Alert.alert(
+      newLang === 'ar' ? 'تم تغيير اللغة' : 'Language Changed',
+      newLang === 'ar' ? 'تم تغيير اللغة إلى العربية' : 'Language changed to English'
+    );
+  };
 
   useEffect(() => {
     if (isAuthenticated) {
