@@ -128,4 +128,52 @@ export const aiAPI = {
     api.post('/ai/assistant', null, { params: { query, context } }),
 };
 
+// Orders API (Cart/Checkout)
+export const ordersAPI = {
+  create: (data: {
+    items: Array<{ product_id: string; name: string; price: number; quantity: number; image?: string }>;
+    total: number;
+    shipping_address: string;
+    shipping_city: string;
+    shipping_phone: string;
+    payment_method?: string;
+    notes?: string;
+  }) => api.post('/orders', data),
+  
+  getAll: () => api.get('/orders'),
+  
+  getById: (id: string) => api.get(`/orders/${id}`),
+};
+
+// Conversations API (Chat)
+export const conversationsAPI = {
+  create: (data: { other_user_id: string; pet_id?: string; initial_message: string }) =>
+    api.post('/conversations', data),
+  
+  getAll: () => api.get('/conversations'),
+  
+  getMessages: (conversationId: string) =>
+    api.get(`/conversations/${conversationId}/messages`),
+  
+  sendMessage: (conversationId: string, content: string) =>
+    api.post(`/conversations/${conversationId}/messages`, null, { params: { content } }),
+};
+
+// Map Locations API
+export const mapAPI = {
+  getLocations: (params?: { type?: string; city?: string; lat?: number; lng?: number }) =>
+    api.get('/map-locations', { params }),
+};
+
+// Updated Appointments API
+export const appointmentsAPI = {
+  create: (data: any) => api.post('/appointments', data),
+  
+  getAll: () => api.get('/appointments'),
+  
+  getById: (id: string) => api.get(`/appointments/${id}`),
+  
+  cancel: (id: string) => api.put(`/appointments/${id}/cancel`),
+};
+
 export default api;
