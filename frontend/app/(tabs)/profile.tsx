@@ -244,15 +244,33 @@ export default function ProfileScreen() {
           {menuItems.map((item: any, index) => (
             <TouchableOpacity
               key={index}
-              style={styles.menuItem}
+              style={[
+                styles.menuItem, 
+                item.isAdmin && styles.adminMenuItem
+              ]}
               onPress={item.toggle ? undefined : (item.route ? () => router.push(item.route as any) : item.onPress)}
               activeOpacity={item.toggle ? 1 : 0.7}
             >
               <View style={styles.menuItemLeft}>
-                <View style={styles.menuIcon}>
-                  <Ionicons name={item.icon as any} size={22} color={Colors.primary} />
+                <View style={[
+                  styles.menuIcon,
+                  item.isAdmin && styles.adminMenuIcon
+                ]}>
+                  <Ionicons 
+                    name={item.icon as any} 
+                    size={22} 
+                    color={item.isAdmin ? Colors.white : Colors.primary} 
+                  />
                 </View>
-                <Text style={styles.menuLabel}>{item.label}</Text>
+                <Text style={[
+                  styles.menuLabel,
+                  item.isAdmin && styles.adminMenuLabel
+                ]}>{item.label}</Text>
+                {item.isAdmin && (
+                  <View style={styles.adminBadge}>
+                    <Text style={styles.adminBadgeText}>ADMIN</Text>
+                  </View>
+                )}
               </View>
               {item.toggle ? (
                 <Switch
@@ -262,7 +280,7 @@ export default function ProfileScreen() {
                   thumbColor={item.value ? Colors.primary : Colors.textLight}
                 />
               ) : (
-                <Ionicons name="chevron-forward" size={20} color={Colors.textSecondary} />
+                <Ionicons name="chevron-forward" size={20} color={item.isAdmin ? Colors.primary : Colors.textSecondary} />
               )}
             </TouchableOpacity>
           ))}
