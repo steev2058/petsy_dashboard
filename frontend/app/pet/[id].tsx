@@ -36,6 +36,7 @@ export default function PetDetailScreen() {
   const [pet, setPet] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [liked, setLiked] = useState(false);
+  const [showContactModal, setShowContactModal] = useState(false);
 
   useEffect(() => {
     loadPet();
