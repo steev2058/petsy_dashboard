@@ -12,7 +12,7 @@ import sys
 import os
 
 # Backend URL from frontend/.env
-BACKEND_URL = "https://petsy-marketplace.preview.emergentagent.com/api"
+BACKEND_URL = "https://petsy-adoption.preview.emergentagent.com/api"
 
 class PetsyAPITester:
     def __init__(self):
