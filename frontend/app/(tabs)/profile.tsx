@@ -185,6 +185,31 @@ export default function ProfileScreen() {
           />
         </View>
 
+        {/* Loyalty Points Card */}
+        <View style={styles.loyaltyCard}>
+          <LinearGradient
+            colors={TIER_COLORS[loyaltyPoints.tier] || TIER_COLORS.bronze}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 1 }}
+            style={styles.loyaltyGradient}
+          >
+            <View style={styles.loyaltyHeader}>
+              <View style={styles.tierBadge}>
+                <Ionicons name="star" size={14} color={Colors.white} />
+                <Text style={styles.tierText}>{loyaltyPoints.tier?.toUpperCase()}</Text>
+              </View>
+              <Text style={styles.loyaltyTitle}>Petsy Points</Text>
+            </View>
+            <View style={styles.loyaltyContent}>
+              <Text style={styles.pointsValue}>{loyaltyPoints.total_points.toLocaleString()}</Text>
+              <Text style={styles.pointsLabel}>points (${loyaltyPoints.points_value.toFixed(2)} value)</Text>
+            </View>
+            <View style={styles.loyaltyFooter}>
+              <Text style={styles.loyaltyFooterText}>Earn 1 point per $1 spent • 100 pts = $1 discount</Text>
+            </View>
+          </LinearGradient>
+        </View>
+
         {/* My Pets Section */}
         <View style={styles.section}>
           <View style={styles.sectionHeader}>
