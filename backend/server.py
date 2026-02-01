@@ -81,6 +81,8 @@ class UserResponse(BaseModel):
     avatar: Optional[str] = None
     language: str
     is_verified: bool
+    is_admin: bool = False
+    role: str = "user"
     created_at: datetime
 
 class UserUpdate(BaseModel):
