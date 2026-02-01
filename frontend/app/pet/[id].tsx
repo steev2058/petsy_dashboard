@@ -65,26 +65,30 @@ export default function PetDetailScreen() {
 
   const handleContact = () => {
     if (!isAuthenticated) {
-      Alert.alert('Login Required', 'Please login to contact the owner', [
-        { text: 'Cancel', style: 'cancel' },
-        { text: 'Login', onPress: () => router.push('/(auth)/login') },
-      ]);
+      if (Platform.OS === 'web') {
+        if (window.confirm('Login Required. Please login to contact the owner. Click OK to login.')) {
+          router.push('/(auth)/login');
+        }
+      } else {
+        Alert.alert('Login Required', 'Please login to contact the owner', [
+          { text: 'Cancel', style: 'cancel' },
+          { text: 'Login', onPress: () => router.push('/(auth)/login') },
+        ]);
+      }
       return;
     }
     
-    Alert.alert(
-      'Contact Owner',
-      'How would you like to contact the owner?',
-      [
-        { text: 'Cancel', style: 'cancel' },
-        { text: 'Send Message', onPress: handleStartChat },
-        { text: 'WhatsApp', onPress: () => Linking.openURL('https://wa.me/963912345678') },
-      ]
-    );
+    // Show modal on web, alert on native
+    setShowContactModal(true);
   };
 
   const handleStartChat = async () => {
-    if (!isAuthenticated || !pet?.owner_id) return;
+    setShowContactModal(false);
+    if (!isAuthenticated || !pet?.owner_id) {
+      // If no owner_id, navigate to messages screen to start a new conversation
+      router.push('/messages');
+      return;
+    }
     
     try {
       const response = await conversationsAPI.create({
@@ -98,7 +102,8 @@ export default function PetDetailScreen() {
       if (error.response?.data?.conversation_id) {
         router.push(`/chat/${error.response.data.conversation_id}`);
       } else {
-        Alert.alert('Error', 'Could not start conversation');
+        // Navigate to messages anyway
+        router.push('/messages');
       }
     }
   };
