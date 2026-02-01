@@ -57,6 +57,7 @@ export default function ProfileScreen() {
   useEffect(() => {
     if (isAuthenticated) {
       loadMyPets();
+      loadLoyaltyPoints();
     }
   }, [isAuthenticated]);
 
@@ -66,6 +67,15 @@ export default function ProfileScreen() {
       setMyPets(response.data);
     } catch (error) {
       console.error('Error loading my pets:', error);
+    }
+  };
+
+  const loadLoyaltyPoints = async () => {
+    try {
+      const response = await loyaltyAPI.getPoints();
+      setLoyaltyPoints(response.data);
+    } catch (error) {
+      console.log('Error loading loyalty points:', error);
     }
   };
 
