@@ -108,6 +108,22 @@ export default function BookAppointmentScreen() {
       return;
     }
 
+    // Validate card if using Stripe
+    if (paymentMethod === 'stripe') {
+      if (!cardDetails.number || cardDetails.number.length < 15) {
+        Alert.alert('Invalid Card', 'Please enter a valid card number');
+        return;
+      }
+      if (!cardDetails.expiry || cardDetails.expiry.length < 4) {
+        Alert.alert('Invalid Card', 'Please enter a valid expiry date');
+        return;
+      }
+      if (!cardDetails.cvc || cardDetails.cvc.length < 3) {
+        Alert.alert('Invalid Card', 'Please enter a valid CVC');
+        return;
+      }
+    }
+
     setBooking(true);
     try {
       const appointmentData = {
@@ -118,13 +134,26 @@ export default function BookAppointmentScreen() {
         reason: REASONS.find(r => r.id === selectedReason)?.label || selectedReason,
         vet_name: vet?.name,
         pet_name: pets.find(p => p.id === selectedPet)?.name,
+        fee: appointmentFee,
       };
 
-      await appointmentsAPI.create(appointmentData);
+      const appointmentResponse = await appointmentsAPI.create(appointmentData);
+      
+      // Process payment
+      await paymentAPI.processPayment({
+        amount: appointmentFee,
+        payment_method: paymentMethod,
+        appointment_id: appointmentResponse.data?.id,
+        ...(paymentMethod === 'stripe' && {
+          card_number: cardDetails.number,
+          card_expiry: cardDetails.expiry,
+          card_cvc: cardDetails.cvc,
+        }),
+      });
       
       Alert.alert(
         '🎉 Appointment Booked!',
-        `Your appointment with ${vet?.name} on ${formatDate(selectedDate)} at ${selectedTime} has been confirmed.`,
+        `Your appointment with ${vet?.name} on ${formatDate(selectedDate)} at ${selectedTime} has been confirmed. You earned ${appointmentFee} Petsy Points!`,
         [
           { text: 'View Appointments', onPress: () => router.replace('/my-appointments') },
           { text: 'Done', onPress: () => router.back() },
@@ -140,6 +169,7 @@ export default function BookAppointmentScreen() {
   const canProceed = () => {
     if (step === 1) return selectedTime !== null;
     if (step === 2) return selectedReason !== null;
+    if (step === 3) return paymentMethod !== null;
     return true;
   };
 
