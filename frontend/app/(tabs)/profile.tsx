@@ -243,11 +243,12 @@ export default function ProfileScreen() {
 
         {/* Menu Items */}
         <View style={styles.menuSection}>
-          {menuItems.map((item, index) => (
+          {menuItems.map((item: any, index) => (
             <TouchableOpacity
               key={index}
               style={styles.menuItem}
-              onPress={item.route ? () => router.push(item.route as any) : item.onPress}
+              onPress={item.toggle ? undefined : (item.route ? () => router.push(item.route as any) : item.onPress)}
+              activeOpacity={item.toggle ? 1 : 0.7}
             >
               <View style={styles.menuItemLeft}>
                 <View style={styles.menuIcon}>
@@ -255,7 +256,16 @@ export default function ProfileScreen() {
                 </View>
                 <Text style={styles.menuLabel}>{item.label}</Text>
               </View>
-              <Ionicons name="chevron-forward" size={20} color={Colors.textSecondary} />
+              {item.toggle ? (
+                <Switch
+                  value={item.value}
+                  onValueChange={item.onToggle}
+                  trackColor={{ false: Colors.border, true: Colors.primary + '80' }}
+                  thumbColor={item.value ? Colors.primary : Colors.textLight}
+                />
+              ) : (
+                <Ionicons name="chevron-forward" size={20} color={Colors.textSecondary} />
+              )}
             </TouchableOpacity>
           ))}
         </View>
