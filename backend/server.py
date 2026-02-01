@@ -810,15 +810,22 @@ async def get_conversations(current_user: dict = Depends(get_current_user)):
             "is_read": False
         })
         
-        result.append({
-            **conv,
+        # Create a clean dict without MongoDB ObjectId
+        clean_conv = {
+            "id": conv["id"],
+            "participants": conv["participants"],
+            "pet_id": conv.get("pet_id"),
+            "last_message": conv.get("last_message"),
+            "last_message_time": conv.get("last_message_time"),
+            "created_at": conv["created_at"],
             "other_user": {
                 "id": other_user["id"] if other_user else None,
                 "name": other_user["name"] if other_user else "Unknown",
                 "avatar": other_user.get("avatar") if other_user else None
             },
             "unread_count": unread
-        })
+        }
+        result.append(clean_conv)
     
     return result
 
