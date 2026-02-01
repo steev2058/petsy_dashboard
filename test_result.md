@@ -384,6 +384,21 @@ backend:
         agent: "testing"
         comment: "✅ TESTED: Payment Processing API working perfectly. POST /api/payments/process successfully processes $25.00 stripe payment (ID: 068ae6ac-b411-4e1f-ab0c-71233f95b97c). Points redemption tested: 200 points ($2 discount) correctly applied, final amount $23.00. Bonus points system working (awarded 500 test points). Points earned from purchases (1 point per $1). Authentication required and working correctly."
 
+  - task: "Admin Dashboard Backend Endpoints"
+    implemented: true
+    working: true
+    file: "server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Implemented admin access control and admin endpoints: GET /api/admin/stats (dashboard statistics), GET /api/admin/users (user management), GET /api/admin/orders (order management), GET /api/admin/products (product management). Added is_admin field to user model and get_admin_user dependency for access control. Seeded admin user (admin@petsy.com / admin123)."
+      - working: true
+        agent: "testing"
+        comment: "✅ TESTED: Admin Dashboard Backend Endpoints working perfectly. Admin login successful with admin@petsy.com/admin123. All 4 core admin endpoints tested: GET /api/admin/stats returns comprehensive dashboard statistics (users: 10, pets: 10, orders: 27, revenue: $551.35, monthlyStats with 6-month data), GET /api/admin/users returns 10 users with is_admin field, GET /api/admin/orders returns 27 orders, GET /api/admin/products returns 10 products. Access control verified: all admin endpoints correctly return 403 Forbidden for non-admin users. 5/5 test cases passed with 100% success rate."
+
 frontend:
   - task: "Auth Screens (Login, Signup, Verify)"
     implemented: true
