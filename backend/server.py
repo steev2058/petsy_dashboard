@@ -634,6 +634,101 @@ async def cancel_appointment(appointment_id: str, current_user: dict = Depends(g
         raise HTTPException(status_code=404, detail="Appointment not found")
     return {"message": "Appointment cancelled"}
 
+# ========================= CART =========================
+
+class CartItemAdd(BaseModel):
+    product_id: str
+    name: str
+    price: float
+    quantity: int = 1
+    image: Optional[str] = None
+
+class CartItemUpdate(BaseModel):
+    quantity: int
+
+@api_router.get("/cart")
+async def get_cart(current_user: dict = Depends(get_current_user)):
+    cart = await db.carts.find_one({"user_id": current_user["id"]})
+    if not cart:
+        return {"items": [], "total": 0}
+    
+    total = sum(item["price"] * item["quantity"] for item in cart.get("items", []))
+    return {"items": cart.get("items", []), "total": total}
+
+@api_router.post("/cart/add")
+async def add_to_cart(item: CartItemAdd, current_user: dict = Depends(get_current_user)):
+    cart = await db.carts.find_one({"user_id": current_user["id"]})
+    
+    if not cart:
+        # Create new cart
+        cart = {
+            "user_id": current_user["id"],
+            "items": [item.dict()],
+            "created_at": datetime.utcnow()
+        }
+        await db.carts.insert_one(cart)
+    else:
+        # Check if item already in cart
+        existing_item = next(
+            (i for i in cart.get("items", []) if i["product_id"] == item.product_id),
+            None
+        )
+        
+        if existing_item:
+            # Update quantity
+            await db.carts.update_one(
+                {"user_id": current_user["id"], "items.product_id": item.product_id},
+                {"$inc": {"items.$.quantity": item.quantity}}
+            )
+        else:
+            # Add new item
+            await db.carts.update_one(
+                {"user_id": current_user["id"]},
+                {"$push": {"items": item.dict()}}
+            )
+    
+    return {"message": "Item added to cart"}
+
+@api_router.put("/cart/update/{product_id}")
+async def update_cart_item(product_id: str, update_data: CartItemUpdate, current_user: dict = Depends(get_current_user)):
+    if update_data.quantity <= 0:
+        # Remove item if quantity is 0 or less
+        await db.carts.update_one(
+            {"user_id": current_user["id"]},
+            {"$pull": {"items": {"product_id": product_id}}}
+        )
+        return {"message": "Item removed from cart"}
+    
+    result = await db.carts.update_one(
+        {"user_id": current_user["id"], "items.product_id": product_id},
+        {"$set": {"items.$.quantity": update_data.quantity}}
+    )
+    
+    if result.matched_count == 0:
+        raise HTTPException(status_code=404, detail="Item not found in cart")
+    
+    return {"message": "Cart updated"}
+
+@api_router.delete("/cart/remove/{product_id}")
+async def remove_from_cart(product_id: str, current_user: dict = Depends(get_current_user)):
+    result = await db.carts.update_one(
+        {"user_id": current_user["id"]},
+        {"$pull": {"items": {"product_id": product_id}}}
+    )
+    
+    if result.matched_count == 0:
+        raise HTTPException(status_code=404, detail="Cart not found")
+    
+    return {"message": "Item removed from cart"}
+
+@api_router.delete("/cart/clear")
+async def clear_cart(current_user: dict = Depends(get_current_user)):
+    await db.carts.update_one(
+        {"user_id": current_user["id"]},
+        {"$set": {"items": []}}
+    )
+    return {"message": "Cart cleared"}
+
 # ========================= ORDERS (SHOP CHECKOUT) =========================
 
 @api_router.post("/orders", response_model=Order)
