@@ -711,4 +711,29 @@ const styles = StyleSheet.create({
     fontSize: FontSize.lg,
     fontWeight: '600',
   },
+  discountSummary: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingVertical: Spacing.sm,
+  },
+  discountLabel: {
+    fontSize: FontSize.md,
+    color: Colors.textSecondary,
+  },
+  discountValue: {
+    fontSize: FontSize.lg,
+    fontWeight: '700',
+    color: Colors.success,
+  },
+  newTotalLabel: {
+    fontSize: FontSize.lg,
+    fontWeight: '600',
+    color: Colors.text,
+  },
+  newTotalValue: {
+    fontSize: FontSize.xl,
+    fontWeight: '800',
+    color: Colors.primary,
+  },
 });
