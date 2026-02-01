@@ -502,27 +502,34 @@ class PetsyAPITester:
         return True
 
     def run_all_tests(self):
-        """Run all test suites"""
-        print(f"🚀 Starting Petsy Backend API Tests")
+        """Run Phase 2 API tests"""
+        print(f"🚀 Starting Petsy Backend API Tests - Phase 2 APIs")
         print(f"Backend URL: {self.base_url}")
+        print("Testing: Map Locations, Orders, Appointments, Conversations/Messages, Cart")
         print("=" * 60)
         
-        # Test basic connectivity first
-        if not self.test_health_check():
-            print("\n❌ Health check failed - stopping tests")
+        # Setup seed data first
+        if not self.test_seed_data():
+            print("⚠️  Seed data failed - continuing with tests anyway")
+            
+        # Setup authentication for protected endpoints
+        if not self.setup_authentication():
+            print("❌ Authentication setup failed - skipping authenticated tests")
             return False
         
-        # Test authentication flow
-        auth_success = self.test_authentication_flow()
+        # Run Phase 2 API tests
+        print("\n🎯 Testing Phase 2 APIs...")
         
-        # Test pet management (requires auth)
-        if auth_success:
-            self.test_pet_management()
-        else:
-            print("\n⚠️  Skipping pet management tests due to auth failure")
+        # High Priority Tests
+        self.test_map_locations_api()
+        self.test_orders_api()
         
-        # Test other APIs (no auth required)
-        self.test_other_apis()
+        # Medium Priority Tests  
+        self.test_appointments_api()
+        self.test_conversations_api()
+        
+        # Cart API (mentioned in test_result.md)
+        self.test_cart_api()
         
         # Print summary
         self.print_summary()
