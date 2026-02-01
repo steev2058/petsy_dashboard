@@ -64,27 +64,19 @@ export default function PetDetailScreen() {
   };
 
   const handleContact = () => {
-    if (!isAuthenticated) {
-      if (Platform.OS === 'web') {
-        if (window.confirm('Login Required. Please login to contact the owner. Click OK to login.')) {
-          router.push('/(auth)/login');
-        }
-      } else {
-        Alert.alert('Login Required', 'Please login to contact the owner', [
-          { text: 'Cancel', style: 'cancel' },
-          { text: 'Login', onPress: () => router.push('/(auth)/login') },
-        ]);
-      }
-      return;
-    }
-    
-    // Show modal on web, alert on native
+    // Always show the modal - if not authenticated, we'll handle it when they select an option
     setShowContactModal(true);
   };
 
   const handleStartChat = async () => {
     setShowContactModal(false);
-    if (!isAuthenticated || !pet?.owner_id) {
+    
+    if (!isAuthenticated) {
+      router.push('/(auth)/login');
+      return;
+    }
+    
+    if (!pet?.owner_id) {
       // If no owner_id, navigate to messages screen to start a new conversation
       router.push('/messages');
       return;
