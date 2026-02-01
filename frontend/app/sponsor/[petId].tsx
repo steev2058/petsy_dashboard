@@ -17,9 +17,10 @@ import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import Animated, { FadeInDown, FadeInUp } from 'react-native-reanimated';
 import { Colors, FontSize, Spacing, BorderRadius, Shadow } from '../../src/constants/theme';
-import { petsAPI, sponsorshipAPI } from '../../src/services/api';
+import { petsAPI, sponsorshipAPI, paymentAPI } from '../../src/services/api';
 import { useStore } from '../../src/store/useStore';
 import { useTranslation } from '../../src/hooks/useTranslation';
+import { PaymentMethodSelector } from '../../src/components';
 
 const PRESET_AMOUNTS = [5, 10, 25, 50, 100];
 
@@ -46,6 +47,8 @@ export default function SponsorPetScreen() {
   const [isAnonymous, setIsAnonymous] = useState(false);
   const [message, setMessage] = useState('');
   const [step, setStep] = useState(1);
+  const [paymentMethod, setPaymentMethod] = useState('stripe');
+  const [cardDetails, setCardDetails] = useState({ number: '', expiry: '', cvc: '' });
 
   useEffect(() => {
     loadPet();
