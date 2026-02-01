@@ -161,8 +161,8 @@ export default function CheckoutScreen() {
     return (
       <SafeAreaView style={styles.container} edges={['top']}>
         <View style={styles.header}>
-          <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
-            <View style={styles.backButtonInner}>
+          <TouchableOpacity onPress={() => router.back()} style={styles.headerBackButton}>
+            <View style={styles.headerBackButtonInner}>
               <Ionicons name="arrow-back" size={22} color={Colors.text} />
             </View>
           </TouchableOpacity>
@@ -199,8 +199,8 @@ export default function CheckoutScreen() {
       >
         {/* Header */}
         <View style={styles.header}>
-          <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
-            <View style={styles.backButtonInner}>
+          <TouchableOpacity onPress={() => router.back()} style={styles.headerBackButton}>
+            <View style={styles.headerBackButtonInner}>
               <Ionicons name="arrow-back" size={22} color={Colors.text} />
             </View>
           </TouchableOpacity>
@@ -389,12 +389,12 @@ export default function CheckoutScreen() {
             <View style={styles.navigationButtons}>
               {step > 1 && (
                 <TouchableOpacity
-                  style={styles.backButton}
+                  style={styles.headerBackButton}
                   onPress={() => setStep(step - 1)}
                 >
-                  <View style={styles.backButtonContent}>
+                  <View style={styles.headerBackButtonContent}>
                     <Ionicons name="arrow-back" size={20} color={Colors.primary} />
-                    <Text style={styles.backButtonText}>Back</Text>
+                    <Text style={styles.headerBackButtonText}>Back</Text>
                   </View>
                 </TouchableOpacity>
               )}
@@ -423,12 +423,12 @@ export default function CheckoutScreen() {
               </View>
               <View style={styles.finalButtons}>
                 <TouchableOpacity
-                  style={styles.backButton}
+                  style={styles.headerBackButton}
                   onPress={() => setStep(step - 1)}
                 >
-                  <View style={styles.backButtonContent}>
+                  <View style={styles.headerBackButtonContent}>
                     <Ionicons name="arrow-back" size={20} color={Colors.primary} />
-                    <Text style={styles.backButtonText}>Back</Text>
+                    <Text style={styles.headerBackButtonText}>Back</Text>
                   </View>
                 </TouchableOpacity>
                 <TouchableOpacity
