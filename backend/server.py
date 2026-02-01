@@ -1412,6 +1412,25 @@ async def ai_assistant(query: str, context: Optional[str] = None, current_user: 
 async def seed_data():
     """Seed initial data for testing"""
     
+    # Seed Admin User
+    admin_email = "admin@petsy.com"
+    existing_admin = await db.users.find_one({"email": admin_email})
+    if not existing_admin:
+        admin_user = {
+            "id": str(uuid.uuid4()),
+            "email": admin_email,
+            "name": "Admin User",
+            "phone": "+963900000000",
+            "password_hash": hash_password("admin123"),
+            "is_verified": True,
+            "is_admin": True,
+            "role": "admin",
+            "language": "en",
+            "created_at": datetime.utcnow(),
+        }
+        await db.users.insert_one(admin_user)
+        logger.info(f"Admin user created: {admin_email} / admin123")
+    
     # Seed Vets
     vets_data = [
         {
