@@ -389,7 +389,7 @@ export default function CheckoutScreen() {
             <View style={styles.navigationButtons}>
               {step > 1 && (
                 <TouchableOpacity
-                  style={styles.headerBackButton}
+                  style={styles.backButton}
                   onPress={() => setStep(step - 1)}
                 >
                   <View style={styles.headerBackButtonContent}>
@@ -423,7 +423,7 @@ export default function CheckoutScreen() {
               </View>
               <View style={styles.finalButtons}>
                 <TouchableOpacity
-                  style={styles.headerBackButton}
+                  style={styles.backButton}
                   onPress={() => setStep(step - 1)}
                 >
                   <View style={styles.headerBackButtonContent}>
