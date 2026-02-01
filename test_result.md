@@ -488,7 +488,11 @@ metadata:
   run_ui: false
 
 test_plan:
-  current_focus: []
+  current_focus:
+    - "Vet Booking Flow - Full end-to-end"
+    - "Community Comments & Sharing"
+    - "RTL Layout for Arabic"
+    - "Health Records, Favorites, Pet Tracking screens"
   stuck_tasks: []
   test_all: false
   test_priority: "high_first"
