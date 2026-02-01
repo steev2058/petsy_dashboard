@@ -85,9 +85,10 @@ export default function ProfileScreen() {
   const menuItems = [
     { icon: 'paw', label: t('my_pets'), route: '/add-pet' },
     { icon: 'heart', label: t('favorites'), onPress: () => {} },
-    { icon: 'chatbubbles', label: t('messages'), onPress: () => {} },
+    { icon: 'chatbubbles', label: t('messages'), onPress: () => router.push('/messages') },
     { icon: 'calendar', label: t('my_appointments'), onPress: () => {} },
     { icon: 'document-text', label: t('health_records'), onPress: () => {} },
+    { icon: 'globe', label: 'العربية / English', onPress: toggleLanguage },
     { icon: 'settings', label: t('settings'), onPress: () => {} },
     { icon: 'help-circle', label: 'Help & Support', onPress: () => {} },
   ];
