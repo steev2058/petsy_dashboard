@@ -15,7 +15,7 @@ import sys
 from datetime import datetime
 
 # Backend URL from frontend/.env
-BACKEND_URL = "https://petsy-marketplace-1.preview.emergentagent.com/api"
+BACKEND_URL = "https://petadopt-8.preview.emergentagent.com/api"
 
 class PetsyAPITester:
     def __init__(self):
