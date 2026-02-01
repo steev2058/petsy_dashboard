@@ -1516,6 +1516,250 @@ async def seed_data():
     
     return {"message": "Seed data created successfully"}
 
+# ========================= PAYMENT ENDPOINTS =========================
+
+# Stripe placeholder key (replace with real key later)
+STRIPE_SECRET_KEY = os.environ.get('STRIPE_SECRET_KEY', 'sk_test_PLACEHOLDER_REPLACE_WITH_REAL_KEY')
+STRIPE_PUBLISHABLE_KEY = os.environ.get('STRIPE_PUBLISHABLE_KEY', 'pk_test_PLACEHOLDER_REPLACE_WITH_REAL_KEY')
+
+@api_router.get("/payments/config")
+async def get_payment_config():
+    """Get payment configuration for frontend"""
+    return {
+        "stripe_publishable_key": STRIPE_PUBLISHABLE_KEY,
+        "supported_methods": ["stripe", "paypal", "shamcash", "cash_on_delivery"],
+        "supported_cards": ["visa", "mastercard", "amex"],
+        "currency": "USD",
+        "points_per_dollar": 1,  # Earn 1 point per $1 spent
+        "points_redemption_rate": 100,  # 100 points = $1 discount
+    }
+
+@api_router.post("/payments/process")
+async def process_payment(payment: PaymentRequest, current_user: dict = Depends(get_current_user)):
+    """Process a payment"""
+    try:
+        # Calculate final amount after points discount
+        points_discount = payment.points_to_use / 100  # 100 points = $1
+        final_amount = max(0, payment.amount - points_discount)
+        
+        # Simulate payment processing based on method
+        payment_result = {
+            "success": True,
+            "payment_id": str(uuid.uuid4()),
+            "amount": final_amount,
+            "original_amount": payment.amount,
+            "points_used": payment.points_to_use,
+            "points_discount": points_discount,
+            "method": payment.payment_method,
+        }
+        
+        if payment.payment_method == "stripe":
+            # In production, use real Stripe API:
+            # stripe.api_key = STRIPE_SECRET_KEY
+            # payment_intent = stripe.PaymentIntent.create(...)
+            payment_result["stripe_client_secret"] = f"pi_{uuid.uuid4().hex[:24]}_secret_{uuid.uuid4().hex[:24]}"
+            payment_result["message"] = "Stripe payment initiated"
+            
+        elif payment.payment_method == "paypal":
+            payment_result["paypal_order_id"] = f"PAYPAL-{uuid.uuid4().hex[:16].upper()}"
+            payment_result["message"] = "PayPal payment initiated"
+            
+        elif payment.payment_method == "shamcash":
+            # Generate QR code data for ShamCash
+            qr_data = {
+                "merchant_id": "PETSY_MERCHANT_001",
+                "amount": final_amount,
+                "currency": "USD",
+                "reference": str(uuid.uuid4()),
+                "timestamp": datetime.utcnow().isoformat()
+            }
+            payment_result["shamcash_qr_data"] = str(qr_data)
+            payment_result["shamcash_reference"] = qr_data["reference"]
+            payment_result["message"] = "ShamCash QR generated"
+            
+        elif payment.payment_method == "cash_on_delivery":
+            payment_result["message"] = "Cash on delivery confirmed"
+        
+        # If points were used, deduct them
+        if payment.points_to_use > 0:
+            await db.users.update_one(
+                {"id": current_user["id"]},
+                {"$inc": {"loyalty_points": -payment.points_to_use}}
+            )
+            # Record the points transaction
+            await db.points_transactions.insert_one({
+                "id": str(uuid.uuid4()),
+                "user_id": current_user["id"],
+                "points": -payment.points_to_use,
+                "transaction_type": "redeemed",
+                "description": f"Redeemed {payment.points_to_use} points for ${points_discount:.2f} discount",
+                "reference_id": payment_result["payment_id"],
+                "created_at": datetime.utcnow()
+            })
+        
+        # Award points for the purchase (1 point per $1 spent)
+        points_earned = int(final_amount)
+        if points_earned > 0:
+            await db.users.update_one(
+                {"id": current_user["id"]},
+                {
+                    "$inc": {
+                        "loyalty_points": points_earned,
+                        "lifetime_points": points_earned
+                    }
+                }
+            )
+            # Record earned points
+            await db.points_transactions.insert_one({
+                "id": str(uuid.uuid4()),
+                "user_id": current_user["id"],
+                "points": points_earned,
+                "transaction_type": "earned",
+                "description": f"Earned {points_earned} points from purchase",
+                "reference_id": payment_result["payment_id"],
+                "created_at": datetime.utcnow()
+            })
+            payment_result["points_earned"] = points_earned
+        
+        # Store payment record
+        await db.payments.insert_one({
+            "id": payment_result["payment_id"],
+            "user_id": current_user["id"],
+            "amount": final_amount,
+            "original_amount": payment.amount,
+            "payment_method": payment.payment_method,
+            "status": "succeeded" if payment.payment_method == "cash_on_delivery" else "pending",
+            "order_id": payment.order_id,
+            "appointment_id": payment.appointment_id,
+            "sponsorship_id": payment.sponsorship_id,
+            "points_used": payment.points_to_use,
+            "points_earned": points_earned,
+            "created_at": datetime.utcnow()
+        })
+        
+        return payment_result
+        
+    except Exception as e:
+        logger.error(f"Payment error: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Payment processing failed: {str(e)}")
+
+@api_router.post("/payments/confirm/{payment_id}")
+async def confirm_payment(payment_id: str, current_user: dict = Depends(get_current_user)):
+    """Confirm a pending payment (for Stripe/PayPal callbacks)"""
+    payment = await db.payments.find_one({"id": payment_id, "user_id": current_user["id"]})
+    if not payment:
+        raise HTTPException(status_code=404, detail="Payment not found")
+    
+    await db.payments.update_one(
+        {"id": payment_id},
+        {"$set": {"status": "succeeded", "confirmed_at": datetime.utcnow()}}
+    )
+    
+    return {"success": True, "message": "Payment confirmed"}
+
+@api_router.get("/payments/history")
+async def get_payment_history(current_user: dict = Depends(get_current_user)):
+    """Get user's payment history"""
+    payments = await db.payments.find({"user_id": current_user["id"]}).sort("created_at", -1).to_list(50)
+    return [
+        {
+            "id": p.get("id"),
+            "amount": p.get("amount"),
+            "payment_method": p.get("payment_method"),
+            "status": p.get("status"),
+            "created_at": p.get("created_at"),
+            "order_id": p.get("order_id"),
+            "points_used": p.get("points_used", 0),
+            "points_earned": p.get("points_earned", 0),
+        }
+        for p in payments
+    ]
+
+# ========================= LOYALTY POINTS ENDPOINTS =========================
+
+@api_router.get("/loyalty/points")
+async def get_loyalty_points(current_user: dict = Depends(get_current_user)):
+    """Get user's loyalty points balance and tier"""
+    user = await db.users.find_one({"id": current_user["id"]})
+    total_points = user.get("loyalty_points", 0)
+    lifetime_points = user.get("lifetime_points", 0)
+    
+    # Calculate tier based on lifetime points
+    if lifetime_points >= 5000:
+        tier = "platinum"
+        tier_multiplier = 2.0
+    elif lifetime_points >= 2000:
+        tier = "gold"
+        tier_multiplier = 1.5
+    elif lifetime_points >= 500:
+        tier = "silver"
+        tier_multiplier = 1.25
+    else:
+        tier = "bronze"
+        tier_multiplier = 1.0
+    
+    # Calculate points value in dollars
+    points_value = total_points / 100
+    
+    return {
+        "total_points": total_points,
+        "lifetime_points": lifetime_points,
+        "tier": tier,
+        "tier_multiplier": tier_multiplier,
+        "points_value": points_value,
+        "points_to_next_tier": {
+            "bronze": max(0, 500 - lifetime_points),
+            "silver": max(0, 2000 - lifetime_points),
+            "gold": max(0, 5000 - lifetime_points),
+        }.get(tier, 0)
+    }
+
+@api_router.get("/loyalty/transactions")
+async def get_points_transactions(current_user: dict = Depends(get_current_user)):
+    """Get user's points transaction history"""
+    transactions = await db.points_transactions.find(
+        {"user_id": current_user["id"]}
+    ).sort("created_at", -1).to_list(50)
+    
+    return [
+        {
+            "id": t.get("id"),
+            "points": t.get("points"),
+            "transaction_type": t.get("transaction_type"),
+            "description": t.get("description"),
+            "created_at": t.get("created_at"),
+        }
+        for t in transactions
+    ]
+
+@api_router.post("/loyalty/bonus")
+async def award_bonus_points(
+    points: int,
+    description: str,
+    current_user: dict = Depends(get_current_user)
+):
+    """Award bonus points to user (for promotions, etc.)"""
+    await db.users.update_one(
+        {"id": current_user["id"]},
+        {
+            "$inc": {
+                "loyalty_points": points,
+                "lifetime_points": points
+            }
+        }
+    )
+    
+    await db.points_transactions.insert_one({
+        "id": str(uuid.uuid4()),
+        "user_id": current_user["id"],
+        "points": points,
+        "transaction_type": "bonus",
+        "description": description,
+        "created_at": datetime.utcnow()
+    })
+    
+    return {"success": True, "points_awarded": points}
+
 # ========================= MAIN ROUTES =========================
 
 @api_router.get("/")
