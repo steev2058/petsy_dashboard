@@ -20,6 +20,16 @@ import { useStore } from '../src/store/useStore';
 import { ordersAPI, paymentAPI, loyaltyAPI } from '../src/services/api';
 import { useTranslation } from '../src/hooks/useTranslation';
 
+// Cross-platform alert function
+const showAlert = (title: string, message: string, onOk?: () => void) => {
+  if (Platform.OS === 'web') {
+    window.alert(`${title}\n\n${message}`);
+    if (onOk) onOk();
+  } else {
+    Alert.alert(title, message, onOk ? [{ text: 'OK', onPress: onOk }] : undefined);
+  }
+};
+
 export default function CheckoutScreen() {
   const router = useRouter();
   const { t } = useTranslation();
