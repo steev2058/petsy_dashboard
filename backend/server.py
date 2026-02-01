@@ -1056,9 +1056,13 @@ async def create_health_record(record: HealthRecordCreate, current_user: dict = 
     if not pet:
         raise HTTPException(status_code=404, detail="Pet not found")
     
-    new_record = HealthRecord(**record.dict(), user_id=current_user["id"])
-    await db.health_records.insert_one(new_record.dict())
-    return new_record
+    record_dict = record.dict()
+    record_dict["user_id"] = current_user["id"]
+    record_dict["id"] = str(uuid.uuid4())
+    record_dict["created_at"] = datetime.utcnow()
+    
+    await db.health_records.insert_one(record_dict)
+    return record_dict
 
 @api_router.get("/health-records/{pet_id}")
 async def get_health_records(pet_id: str, current_user: dict = Depends(get_current_user)):
