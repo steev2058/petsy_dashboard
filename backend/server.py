@@ -1760,6 +1760,228 @@ async def award_bonus_points(
     
     return {"success": True, "points_awarded": points}
 
+# ========================= ADMIN ENDPOINTS =========================
+
+@api_router.get("/admin/stats")
+async def get_admin_stats(current_user: dict = Depends(get_current_user)):
+    """Get dashboard statistics"""
+    try:
+        users_count = await db.users.count_documents({})
+        pets_count = await db.pets.count_documents({})
+        orders_count = await db.orders.count_documents({})
+        appointments_count = await db.appointments.count_documents({})
+        products_count = await db.products.count_documents({})
+        vets_count = await db.vets.count_documents({})
+        
+        # Calculate revenue
+        orders = await db.orders.find({}).to_list(1000)
+        revenue = sum(order.get("total", 0) for order in orders)
+        
+        pending_orders = await db.orders.count_documents({"status": "pending"})
+        
+        return {
+            "users": users_count,
+            "pets": pets_count,
+            "orders": orders_count,
+            "appointments": appointments_count,
+            "products": products_count,
+            "vets": vets_count,
+            "revenue": revenue,
+            "pendingOrders": pending_orders,
+        }
+    except Exception as e:
+        logger.error(f"Admin stats error: {str(e)}")
+        return {
+            "users": 0, "pets": 0, "orders": 0, "appointments": 0,
+            "products": 0, "vets": 0, "revenue": 0, "pendingOrders": 0,
+        }
+
+@api_router.get("/admin/users")
+async def get_all_users(current_user: dict = Depends(get_current_user)):
+    """Get all users for admin"""
+    users = await db.users.find({}).to_list(1000)
+    return [
+        {
+            "id": u.get("id"),
+            "name": u.get("name"),
+            "email": u.get("email"),
+            "phone": u.get("phone"),
+            "city": u.get("city"),
+            "is_verified": u.get("is_verified", False),
+            "role": u.get("role", "user"),
+            "created_at": u.get("created_at"),
+            "loyalty_points": u.get("loyalty_points", 0),
+        }
+        for u in users
+    ]
+
+@api_router.put("/admin/users/{user_id}")
+async def update_user_admin(user_id: str, data: dict, current_user: dict = Depends(get_current_user)):
+    """Update user (admin)"""
+    await db.users.update_one({"id": user_id}, {"$set": data})
+    return {"success": True}
+
+@api_router.delete("/admin/users/{user_id}")
+async def delete_user_admin(user_id: str, current_user: dict = Depends(get_current_user)):
+    """Delete user (admin)"""
+    await db.users.delete_one({"id": user_id})
+    return {"success": True}
+
+@api_router.get("/admin/orders")
+async def get_all_orders_admin(current_user: dict = Depends(get_current_user)):
+    """Get all orders for admin"""
+    orders = await db.orders.find({}).sort("created_at", -1).to_list(1000)
+    result = []
+    for order in orders:
+        user = await db.users.find_one({"id": order.get("user_id")})
+        result.append({
+            "id": order.get("id"),
+            "user_id": order.get("user_id"),
+            "user_name": user.get("name") if user else "Unknown",
+            "items": order.get("items", []),
+            "total": order.get("total", 0),
+            "status": order.get("status", "pending"),
+            "payment_method": order.get("payment_method"),
+            "shipping_address": order.get("shipping_address"),
+            "shipping_city": order.get("shipping_city"),
+            "created_at": order.get("created_at"),
+        })
+    return result
+
+@api_router.put("/admin/orders/{order_id}")
+async def update_order_admin(order_id: str, data: dict, current_user: dict = Depends(get_current_user)):
+    """Update order status (admin)"""
+    await db.orders.update_one({"id": order_id}, {"$set": data})
+    return {"success": True}
+
+@api_router.get("/admin/products")
+async def get_all_products_admin(current_user: dict = Depends(get_current_user)):
+    """Get all products for admin"""
+    products = await db.products.find({}).to_list(1000)
+    return [
+        {
+            "id": p.get("id"),
+            "name": p.get("name"),
+            "description": p.get("description"),
+            "price": p.get("price"),
+            "category": p.get("category"),
+            "stock": p.get("stock", 0),
+            "image_url": p.get("image_url"),
+            "is_active": p.get("is_active", True),
+        }
+        for p in products
+    ]
+
+@api_router.post("/admin/products")
+async def create_product_admin(data: dict, current_user: dict = Depends(get_current_user)):
+    """Create new product (admin)"""
+    product = {
+        "id": str(uuid.uuid4()),
+        **data,
+        "created_at": datetime.utcnow(),
+    }
+    await db.products.insert_one(product)
+    return product
+
+@api_router.put("/admin/products/{product_id}")
+async def update_product_admin(product_id: str, data: dict, current_user: dict = Depends(get_current_user)):
+    """Update product (admin)"""
+    await db.products.update_one({"id": product_id}, {"$set": data})
+    return {"success": True}
+
+@api_router.delete("/admin/products/{product_id}")
+async def delete_product_admin(product_id: str, current_user: dict = Depends(get_current_user)):
+    """Delete product (admin)"""
+    await db.products.delete_one({"id": product_id})
+    return {"success": True}
+
+@api_router.get("/admin/appointments")
+async def get_all_appointments_admin(current_user: dict = Depends(get_current_user)):
+    """Get all appointments for admin"""
+    appointments = await db.appointments.find({}).sort("date", -1).to_list(1000)
+    return appointments
+
+@api_router.get("/admin/vets")
+async def get_all_vets_admin(current_user: dict = Depends(get_current_user)):
+    """Get all vets for admin"""
+    vets = await db.vets.find({}).to_list(100)
+    return vets
+
+@api_router.post("/admin/vets")
+async def create_vet_admin(data: dict, current_user: dict = Depends(get_current_user)):
+    """Create new vet (admin)"""
+    vet = {
+        "id": str(uuid.uuid4()),
+        **data,
+        "created_at": datetime.utcnow(),
+    }
+    await db.vets.insert_one(vet)
+    return vet
+
+@api_router.put("/admin/vets/{vet_id}")
+async def update_vet_admin(vet_id: str, data: dict, current_user: dict = Depends(get_current_user)):
+    """Update vet (admin)"""
+    await db.vets.update_one({"id": vet_id}, {"$set": data})
+    return {"success": True}
+
+@api_router.delete("/admin/vets/{vet_id}")
+async def delete_vet_admin(vet_id: str, current_user: dict = Depends(get_current_user)):
+    """Delete vet (admin)"""
+    await db.vets.delete_one({"id": vet_id})
+    return {"success": True}
+
+@api_router.get("/admin/community")
+async def get_all_posts_admin(current_user: dict = Depends(get_current_user)):
+    """Get all community posts for admin"""
+    posts = await db.community_posts.find({}).sort("created_at", -1).to_list(1000)
+    return posts
+
+@api_router.delete("/admin/community/{post_id}")
+async def delete_post_admin(post_id: str, current_user: dict = Depends(get_current_user)):
+    """Delete community post (admin)"""
+    await db.community_posts.delete_one({"id": post_id})
+    return {"success": True}
+
+@api_router.get("/admin/payments")
+async def get_all_payments_admin(current_user: dict = Depends(get_current_user)):
+    """Get all payments for admin"""
+    payments = await db.payments.find({}).sort("created_at", -1).to_list(1000)
+    return payments
+
+@api_router.get("/admin/sponsorships")
+async def get_all_sponsorships_admin(current_user: dict = Depends(get_current_user)):
+    """Get all sponsorships for admin"""
+    sponsorships = await db.sponsorships.find({}).sort("created_at", -1).to_list(1000)
+    return sponsorships
+
+@api_router.get("/admin/locations")
+async def get_all_locations_admin(current_user: dict = Depends(get_current_user)):
+    """Get all map locations for admin"""
+    locations = await db.map_locations.find({}).to_list(1000)
+    return locations
+
+@api_router.post("/admin/locations")
+async def create_location_admin(data: dict, current_user: dict = Depends(get_current_user)):
+    """Create map location (admin)"""
+    location = {
+        "id": str(uuid.uuid4()),
+        **data,
+    }
+    await db.map_locations.insert_one(location)
+    return location
+
+@api_router.put("/admin/locations/{location_id}")
+async def update_location_admin(location_id: str, data: dict, current_user: dict = Depends(get_current_user)):
+    """Update map location (admin)"""
+    await db.map_locations.update_one({"id": location_id}, {"$set": data})
+    return {"success": True}
+
+@api_router.delete("/admin/locations/{location_id}")
+async def delete_location_admin(location_id: str, current_user: dict = Depends(get_current_user)):
+    """Delete map location (admin)"""
+    await db.map_locations.delete_one({"id": location_id})
+    return {"success": True}
+
 # ========================= MAIN ROUTES =========================
 
 @api_router.get("/")
