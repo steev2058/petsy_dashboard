@@ -614,8 +614,181 @@ async def create_appointment(apt: AppointmentCreate, current_user: dict = Depend
 
 @api_router.get("/appointments", response_model=List[Appointment])
 async def get_appointments(current_user: dict = Depends(get_current_user)):
-    appointments = await db.appointments.find({"user_id": current_user["id"]}).to_list(100)
+    appointments = await db.appointments.find({"user_id": current_user["id"]}).sort("created_at", -1).to_list(100)
     return [Appointment(**a) for a in appointments]
+
+@api_router.get("/appointments/{appointment_id}")
+async def get_appointment(appointment_id: str, current_user: dict = Depends(get_current_user)):
+    appointment = await db.appointments.find_one({"id": appointment_id, "user_id": current_user["id"]})
+    if not appointment:
+        raise HTTPException(status_code=404, detail="Appointment not found")
+    return Appointment(**appointment)
+
+@api_router.put("/appointments/{appointment_id}/cancel")
+async def cancel_appointment(appointment_id: str, current_user: dict = Depends(get_current_user)):
+    result = await db.appointments.update_one(
+        {"id": appointment_id, "user_id": current_user["id"]},
+        {"$set": {"status": "cancelled"}}
+    )
+    if result.modified_count == 0:
+        raise HTTPException(status_code=404, detail="Appointment not found")
+    return {"message": "Appointment cancelled"}
+
+# ========================= ORDERS (SHOP CHECKOUT) =========================
+
+@api_router.post("/orders", response_model=Order)
+async def create_order(order_data: OrderCreate, current_user: dict = Depends(get_current_user)):
+    order = Order(**order_data.dict(), user_id=current_user["id"])
+    await db.orders.insert_one(order.dict())
+    return order
+
+@api_router.get("/orders", response_model=List[Order])
+async def get_orders(current_user: dict = Depends(get_current_user)):
+    orders = await db.orders.find({"user_id": current_user["id"]}).sort("created_at", -1).to_list(100)
+    return [Order(**o) for o in orders]
+
+@api_router.get("/orders/{order_id}")
+async def get_order(order_id: str, current_user: dict = Depends(get_current_user)):
+    order = await db.orders.find_one({"id": order_id, "user_id": current_user["id"]})
+    if not order:
+        raise HTTPException(status_code=404, detail="Order not found")
+    return Order(**order)
+
+# ========================= CONVERSATIONS (CHAT) =========================
+
+@api_router.post("/conversations")
+async def create_conversation(data: ConversationCreate, current_user: dict = Depends(get_current_user)):
+    # Check if conversation already exists
+    existing = await db.conversations.find_one({
+        "participants": {"$all": [current_user["id"], data.other_user_id]}
+    })
+    
+    if existing:
+        # Add message to existing conversation
+        chat_msg = ChatMessage(
+            conversation_id=existing["id"],
+            sender_id=current_user["id"],
+            content=data.initial_message
+        )
+        await db.chat_messages.insert_one(chat_msg.dict())
+        await db.conversations.update_one(
+            {"id": existing["id"]},
+            {"$set": {"last_message": data.initial_message, "last_message_time": datetime.utcnow()}}
+        )
+        return {"conversation_id": existing["id"], "is_new": False}
+    
+    # Create new conversation
+    conversation = Conversation(
+        participants=[current_user["id"], data.other_user_id],
+        pet_id=data.pet_id,
+        last_message=data.initial_message,
+        last_message_time=datetime.utcnow()
+    )
+    await db.conversations.insert_one(conversation.dict())
+    
+    # Add initial message
+    chat_msg = ChatMessage(
+        conversation_id=conversation.id,
+        sender_id=current_user["id"],
+        content=data.initial_message
+    )
+    await db.chat_messages.insert_one(chat_msg.dict())
+    
+    return {"conversation_id": conversation.id, "is_new": True}
+
+@api_router.get("/conversations")
+async def get_conversations(current_user: dict = Depends(get_current_user)):
+    conversations = await db.conversations.find({
+        "participants": current_user["id"]
+    }).sort("last_message_time", -1).to_list(100)
+    
+    # Enrich with user info
+    result = []
+    for conv in conversations:
+        other_user_id = [p for p in conv["participants"] if p != current_user["id"]][0]
+        other_user = await db.users.find_one({"id": other_user_id})
+        
+        # Get unread count
+        unread = await db.chat_messages.count_documents({
+            "conversation_id": conv["id"],
+            "sender_id": {"$ne": current_user["id"]},
+            "is_read": False
+        })
+        
+        result.append({
+            **conv,
+            "other_user": {
+                "id": other_user["id"] if other_user else None,
+                "name": other_user["name"] if other_user else "Unknown",
+                "avatar": other_user.get("avatar") if other_user else None
+            },
+            "unread_count": unread
+        })
+    
+    return result
+
+@api_router.get("/conversations/{conversation_id}/messages")
+async def get_chat_messages(conversation_id: str, current_user: dict = Depends(get_current_user)):
+    # Verify user is participant
+    conversation = await db.conversations.find_one({
+        "id": conversation_id,
+        "participants": current_user["id"]
+    })
+    if not conversation:
+        raise HTTPException(status_code=404, detail="Conversation not found")
+    
+    # Mark messages as read
+    await db.chat_messages.update_many(
+        {"conversation_id": conversation_id, "sender_id": {"$ne": current_user["id"]}},
+        {"$set": {"is_read": True}}
+    )
+    
+    messages = await db.chat_messages.find({"conversation_id": conversation_id}).sort("created_at", 1).to_list(200)
+    return [ChatMessage(**m) for m in messages]
+
+@api_router.post("/conversations/{conversation_id}/messages")
+async def send_chat_message(conversation_id: str, content: str, current_user: dict = Depends(get_current_user)):
+    # Verify user is participant
+    conversation = await db.conversations.find_one({
+        "id": conversation_id,
+        "participants": current_user["id"]
+    })
+    if not conversation:
+        raise HTTPException(status_code=404, detail="Conversation not found")
+    
+    chat_msg = ChatMessage(
+        conversation_id=conversation_id,
+        sender_id=current_user["id"],
+        content=content
+    )
+    await db.chat_messages.insert_one(chat_msg.dict())
+    
+    # Update conversation
+    await db.conversations.update_one(
+        {"id": conversation_id},
+        {"$set": {"last_message": content, "last_message_time": datetime.utcnow()}}
+    )
+    
+    return chat_msg
+
+# ========================= MAP LOCATIONS =========================
+
+@api_router.get("/map-locations", response_model=List[MapLocation])
+async def get_map_locations(
+    type: Optional[str] = None,
+    city: Optional[str] = None,
+    lat: Optional[float] = None,
+    lng: Optional[float] = None,
+    radius_km: float = 50
+):
+    query = {}
+    if type:
+        query["type"] = type
+    if city:
+        query["city"] = {"$regex": city, "$options": "i"}
+    
+    locations = await db.map_locations.find(query).to_list(100)
+    return [MapLocation(**loc) for loc in locations]
 
 # ========================= PRODUCTS (SHOP) =========================
 
