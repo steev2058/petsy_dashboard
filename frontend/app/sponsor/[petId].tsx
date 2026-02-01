@@ -365,6 +365,14 @@ export default function SponsorPetScreen() {
                   💝 100% of your sponsorship goes directly to caring for {pet?.name}
                 </Text>
               </View>
+
+              {/* Payment Method */}
+              <PaymentMethodSelector
+                selectedMethod={paymentMethod}
+                onSelect={setPaymentMethod}
+                cardDetails={cardDetails}
+                onCardDetailsChange={setCardDetails}
+              />
             </Animated.View>
           )}
 
