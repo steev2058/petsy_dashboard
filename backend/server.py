@@ -1,5 +1,6 @@
-from fastapi import FastAPI, APIRouter, HTTPException, Depends, status, UploadFile, File
+from fastapi import FastAPI, APIRouter, HTTPException, Depends, status, UploadFile, File, WebSocket, WebSocketDisconnect
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
+from fastapi.encoders import jsonable_encoder
 from dotenv import load_dotenv
 from starlette.middleware.cors import CORSMiddleware
 from motor.motor_asyncio import AsyncIOMotorClient
@@ -7,7 +8,7 @@ import os
 import logging
 from pathlib import Path
 from pydantic import BaseModel, Field, EmailStr
-from typing import List, Optional
+from typing import List, Optional, Dict, Set, Any
 import uuid
 from datetime import datetime, timedelta
 import bcrypt
@@ -39,6 +40,50 @@ security = HTTPBearer()
 # Configure logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
+
+# ========================= REALTIME CHAT (WEBSOCKET) =========================
+
+class ChatConnectionManager:
+    def __init__(self):
+        self.active_connections: Dict[str, Set[WebSocket]] = {}
+
+    async def connect(self, user_id: str, websocket: WebSocket):
+        await websocket.accept()
+        self.active_connections.setdefault(user_id, set()).add(websocket)
+
+    def disconnect(self, user_id: str, websocket: WebSocket):
+        if user_id in self.active_connections:
+            self.active_connections[user_id].discard(websocket)
+            if not self.active_connections[user_id]:
+                del self.active_connections[user_id]
+
+    async def send_user_event(self, user_id: str, event: Dict[str, Any]):
+        sockets = list(self.active_connections.get(user_id, set()))
+        stale: List[WebSocket] = []
+        encoded_event = jsonable_encoder(event)
+        for ws in sockets:
+            try:
+                await ws.send_json(encoded_event)
+            except Exception:
+                stale.append(ws)
+        for ws in stale:
+            self.disconnect(user_id, ws)
+
+chat_ws_manager = ChatConnectionManager()
+
+async def notify_conversation_participants(conversation_id: str, event_type: str, payload: Dict[str, Any]):
+    conversation = await db.conversations.find_one({"id": conversation_id})
+    if not conversation:
+        return
+    participants = conversation.get("participants", [])
+    event = {
+        "type": event_type,
+        "conversation_id": conversation_id,
+        "payload": payload,
+        "timestamp": datetime.utcnow().isoformat(),
+    }
+    for user_id in participants:
+        await chat_ws_manager.send_user_event(user_id, event)
 
 # ========================= MODELS =========================
 
@@ -468,6 +513,42 @@ async def get_admin_user(current_user: dict = Depends(get_current_user)) -> dict
         raise HTTPException(status_code=403, detail="Admin access required")
     return current_user
 
+# ========================= REALTIME ROUTES =========================
+
+async def get_user_from_token(token: str) -> Optional[dict]:
+    try:
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        user_id = payload.get("sub")
+        if not user_id:
+            return None
+        return await db.users.find_one({"id": user_id})
+    except Exception:
+        return None
+
+@app.websocket("/ws/chat")
+async def chat_websocket(websocket: WebSocket):
+    token = websocket.query_params.get("token")
+    if not token:
+        await websocket.close(code=1008)
+        return
+
+    user = await get_user_from_token(token)
+    if not user:
+        await websocket.close(code=1008)
+        return
+
+    user_id = user["id"]
+    await chat_ws_manager.connect(user_id, websocket)
+    try:
+        await websocket.send_json({"type": "connected", "user_id": user_id})
+        while True:
+            # Keepalive / optional client pings
+            await websocket.receive_text()
+    except WebSocketDisconnect:
+        chat_ws_manager.disconnect(user_id, websocket)
+    except Exception:
+        chat_ws_manager.disconnect(user_id, websocket)
+
 # ========================= AUTH ROUTES =========================
 
 @api_router.post("/auth/signup", response_model=dict)
@@ -845,6 +926,14 @@ async def create_conversation(data: ConversationCreate, current_user: dict = Dep
             {"id": existing["id"]},
             {"$set": {"last_message": initial_message, "last_message_time": datetime.utcnow()}}
         )
+
+        await notify_conversation_participants(
+            existing["id"],
+            "new_message",
+            {"message": chat_msg.dict(), "is_new_conversation": False},
+        )
+        await notify_conversation_participants(existing["id"], "conversations_updated", {})
+
         return {"conversation_id": existing["id"], "is_new": False}
 
     # Create new conversation
@@ -863,6 +952,13 @@ async def create_conversation(data: ConversationCreate, current_user: dict = Dep
         content=initial_message
     )
     await db.chat_messages.insert_one(chat_msg.dict())
+
+    await notify_conversation_participants(
+        conversation.id,
+        "new_message",
+        {"message": chat_msg.dict(), "is_new_conversation": True},
+    )
+    await notify_conversation_participants(conversation.id, "conversations_updated", {})
 
     return {"conversation_id": conversation.id, "is_new": True}
 
@@ -950,7 +1046,14 @@ async def send_chat_message(conversation_id: str, content: str, current_user: di
         {"id": conversation_id},
         {"$set": {"last_message": clean_content, "last_message_time": datetime.utcnow()}}
     )
-    
+
+    await notify_conversation_participants(
+        conversation_id,
+        "new_message",
+        {"message": chat_msg.dict(), "is_new_conversation": False},
+    )
+    await notify_conversation_participants(conversation_id, "conversations_updated", {})
+
     return chat_msg
 
 # ========================= MAP LOCATIONS =========================

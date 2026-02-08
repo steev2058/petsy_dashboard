@@ -14,7 +14,7 @@ import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Colors, FontSize, Spacing, BorderRadius, Shadow } from '../src/constants/theme';
-import { conversationsAPI } from '../src/services/api';
+import { conversationsAPI, getChatWebSocketUrl } from '../src/services/api';
 import { useTranslation } from '../src/hooks/useTranslation';
 import { useStore } from '../src/store/useStore';
 
@@ -39,14 +39,57 @@ export default function MessagesScreen() {
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
+  const wsRef = React.useRef<WebSocket | null>(null);
+  const reconnectTimerRef = React.useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
     if (isAuthenticated) {
       loadConversations();
+      connectRealtime();
     } else {
       setLoading(false);
     }
+
+    return () => {
+      if (reconnectTimerRef.current) {
+        clearTimeout(reconnectTimerRef.current);
+        reconnectTimerRef.current = null;
+      }
+      if (wsRef.current) {
+        wsRef.current.close();
+        wsRef.current = null;
+      }
+    };
   }, [isAuthenticated]);
+
+  const connectRealtime = async () => {
+    try {
+      const wsUrl = await getChatWebSocketUrl();
+      if (!wsUrl) return;
+
+      if (wsRef.current) wsRef.current.close();
+      const ws = new WebSocket(wsUrl);
+      wsRef.current = ws;
+
+      ws.onmessage = (event) => {
+        try {
+          const data = JSON.parse(event.data);
+          if (data.type === 'new_message' || data.type === 'conversations_updated') {
+            loadConversations();
+          }
+        } catch (e) {
+          console.log('Messages realtime parse error', e);
+        }
+      };
+
+      ws.onclose = () => {
+        if (!isAuthenticated) return;
+        reconnectTimerRef.current = setTimeout(() => connectRealtime(), 2000);
+      };
+    } catch (error) {
+      console.error('Realtime connection error:', error);
+    }
+  };
 
   const loadConversations = async () => {
     try {

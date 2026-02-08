@@ -16,7 +16,7 @@ import { useRouter, useLocalSearchParams } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Colors, FontSize, Spacing, BorderRadius, Shadow } from '../../src/constants/theme';
-import { conversationsAPI } from '../../src/services/api';
+import { conversationsAPI, getChatWebSocketUrl } from '../../src/services/api';
 import { useStore } from '../../src/store/useStore';
 import { useTranslation } from '../../src/hooks/useTranslation';
 
@@ -38,12 +38,23 @@ interface ConversationDetail {
   };
 }
 
+interface RealtimeEvent {
+  type: string;
+  conversation_id?: string;
+  payload?: {
+    message?: ChatMessage;
+    [key: string]: any;
+  };
+}
+
 export default function ChatScreen() {
   const router = useRouter();
   const { id } = useLocalSearchParams<{ id: string }>();
   const { t, isRTL } = useTranslation();
   const { user, isAuthenticated } = useStore();
   const flatListRef = useRef<FlatList>(null);
+  const wsRef = useRef<WebSocket | null>(null);
+  const reconnectTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [conversation, setConversation] = useState<ConversationDetail | null>(null);
@@ -54,10 +65,64 @@ export default function ChatScreen() {
   useEffect(() => {
     if (isAuthenticated && id) {
       loadMessages();
+      connectRealtime();
     } else {
       setLoading(false);
     }
+
+    return () => {
+      if (reconnectTimerRef.current) {
+        clearTimeout(reconnectTimerRef.current);
+        reconnectTimerRef.current = null;
+      }
+      if (wsRef.current) {
+        wsRef.current.close();
+        wsRef.current = null;
+      }
+    };
   }, [id, isAuthenticated]);
+
+  const connectRealtime = async () => {
+    try {
+      const wsUrl = await getChatWebSocketUrl();
+      if (!wsUrl) return;
+
+      if (wsRef.current) {
+        wsRef.current.close();
+      }
+
+      const ws = new WebSocket(wsUrl);
+      wsRef.current = ws;
+
+      ws.onmessage = (event) => {
+        try {
+          const data: RealtimeEvent = JSON.parse(event.data);
+          if (data.type === 'new_message' && data.conversation_id === id) {
+            const incoming = data.payload?.message;
+            if (!incoming) return;
+            setMessages((prev) => {
+              if (prev.some((m) => m.id === incoming.id)) return prev;
+              return [...prev, incoming];
+            });
+            setTimeout(() => {
+              flatListRef.current?.scrollToEnd({ animated: true });
+            }, 50);
+          }
+        } catch (e) {
+          console.log('Realtime parse error:', e);
+        }
+      };
+
+      ws.onclose = () => {
+        if (!isAuthenticated) return;
+        reconnectTimerRef.current = setTimeout(() => {
+          connectRealtime();
+        }, 2000);
+      };
+    } catch (error) {
+      console.error('Realtime connection error:', error);
+    }
+  };
 
   const loadMessages = async () => {
     try {
