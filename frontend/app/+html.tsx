@@ -15,12 +15,32 @@ export default function Root({ children }: PropsWithChildren) {
         <style
           dangerouslySetInnerHTML={{
             __html: `
+              input,
+              textarea {
+                -webkit-appearance: none !important;
+                appearance: none !important;
+                border: none !important;
+                outline: none !important;
+                box-shadow: none !important;
+                -webkit-box-shadow: none !important;
+                background-clip: padding-box;
+              }
+
               input:focus,
               input:focus-visible,
               textarea:focus,
               textarea:focus-visible {
                 outline: none !important;
+                border: none !important;
                 box-shadow: none !important;
+                -webkit-box-shadow: none !important;
+              }
+
+              input::-webkit-contacts-auto-fill-button,
+              input::-webkit-credentials-auto-fill-button {
+                visibility: hidden;
+                display: none !important;
+                pointer-events: none;
               }
             `,
           }}
