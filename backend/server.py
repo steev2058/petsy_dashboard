@@ -15,6 +15,8 @@ import bcrypt
 import jwt
 import random
 import base64
+import smtplib
+from email.message import EmailMessage
 
 ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / '.env')
@@ -519,6 +521,36 @@ def create_access_token(data: dict) -> str:
 def generate_verification_code() -> str:
     return str(random.randint(1000, 9999))
 
+def smtp_is_configured() -> bool:
+    return bool(
+        os.environ.get("SMTP_HOST")
+        and os.environ.get("SMTP_PORT")
+        and os.environ.get("SMTP_USERNAME")
+        and os.environ.get("SMTP_PASSWORD")
+        and os.environ.get("SMTP_FROM_EMAIL")
+    )
+
+def send_email_smtp(to_email: str, subject: str, body: str) -> None:
+    host = os.environ.get("SMTP_HOST")
+    port = int(os.environ.get("SMTP_PORT", "587"))
+    username = os.environ.get("SMTP_USERNAME")
+    password = os.environ.get("SMTP_PASSWORD")
+    from_email = os.environ.get("SMTP_FROM_EMAIL")
+
+    if not all([host, port, username, password, from_email]):
+        raise RuntimeError("SMTP is not fully configured")
+
+    msg = EmailMessage()
+    msg["Subject"] = subject
+    msg["From"] = from_email
+    msg["To"] = to_email
+    msg.set_content(body)
+
+    with smtplib.SMTP(host, port, timeout=20) as server:
+        server.starttls()
+        server.login(username, password)
+        server.send_message(msg)
+
 async def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(security)) -> dict:
     try:
         token = credentials.credentials
@@ -647,7 +679,20 @@ async def signup(user_data: UserCreate):
     
     await db.users.insert_one(user_dict)
     logger.info(f"User registered: {user.email}, verification code: {verification_code}")
-    
+
+    if smtp_is_configured():
+        try:
+            send_email_smtp(
+                user.email,
+                "Your Petsy verification code",
+                f"Welcome to Petsy!\n\nYour verification code is: {verification_code}\n\nThis code is for your account verification.",
+            )
+            return {"message": "User created. Verification code sent to email.", "user_id": user.id}
+        except Exception as e:
+            logger.error(f"SMTP send failed on signup: {e}")
+            # Fallback to demo mode response when SMTP fails
+            return {"message": "User created. Email sending failed; using demo code.", "user_id": user.id, "verification_code": verification_code}
+
     return {"message": "User created. Please verify your account.", "user_id": user.id, "verification_code": verification_code}
 
 @api_router.post("/auth/resend-verification", response_model=dict)
@@ -664,6 +709,17 @@ async def resend_verification(req: ResendVerificationRequest):
         {"id": user["id"]},
         {"$set": {"verification_code": verification_code}},
     )
+
+    if smtp_is_configured():
+        try:
+            send_email_smtp(
+                req.email,
+                "Your Petsy verification code",
+                f"Your new verification code is: {verification_code}",
+            )
+            return {"message": "Verification code sent to email."}
+        except Exception as e:
+            logger.error(f"SMTP send failed on resend verification: {e}")
 
     return {
         "message": "Verification code generated.",
@@ -703,8 +759,21 @@ async def forgot_password(req: ForgotPasswordRequest):
         {"$set": {"reset_code": reset_code, "reset_code_expires_at": expires_at}},
     )
 
-    # Dev mode: return code directly so frontend flow can be completed now.
-    # Replace with email/SMS sending in production.
+    if smtp_is_configured():
+        try:
+            send_email_smtp(
+                req.email,
+                "Your Petsy password reset code",
+                f"Your password reset code is: {reset_code}\nThis code expires in 15 minutes.",
+            )
+            return {
+                "message": "If that email exists, a reset code has been sent.",
+                "expires_at": expires_at.isoformat(),
+            }
+        except Exception as e:
+            logger.error(f"SMTP send failed on forgot password: {e}")
+
+    # Dev mode fallback: return code directly
     return {
         "message": "Password reset code generated.",
         "reset_code": reset_code,
