@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   View,
   TextInput,
@@ -6,6 +6,7 @@ import {
   StyleSheet,
   TextInputProps,
   ViewStyle,
+  Platform,
 } from 'react-native';
 import { Colors, BorderRadius, FontSize, Spacing } from '../constants/theme';
 
@@ -24,21 +25,41 @@ export const Input: React.FC<InputProps> = ({
   leftIcon,
   rightIcon,
   style,
+  onFocus,
+  onBlur,
   ...props
 }) => {
+  const [isFocused, setIsFocused] = useState(false);
+
   return (
     <View style={[styles.container, containerStyle]}>
       {label && <Text style={styles.label}>{label}</Text>}
-      <View style={[styles.inputContainer, error && styles.inputError]}>
+      <View
+        style={[
+          styles.inputContainer,
+          isFocused && !error && styles.inputFocused,
+          error && styles.inputError,
+        ]}
+      >
         {leftIcon && <View style={styles.iconLeft}>{leftIcon}</View>}
         <TextInput
           style={[
             styles.input,
             leftIcon && styles.inputWithLeftIcon,
             rightIcon && styles.inputWithRightIcon,
+            Platform.OS === 'web' ? (styles.webNoOutline as any) : null,
             style,
           ]}
           placeholderTextColor={Colors.textLight}
+          selectionColor={Colors.primary}
+          onFocus={(e) => {
+            setIsFocused(true);
+            onFocus?.(e);
+          }}
+          onBlur={(e) => {
+            setIsFocused(false);
+            onBlur?.(e);
+          }}
           {...props}
         />
         {rightIcon && <View style={styles.iconRight}>{rightIcon}</View>}
@@ -66,6 +87,14 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: Colors.border,
   },
+  inputFocused: {
+    borderColor: Colors.primary,
+    shadowColor: Colors.primary,
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.15,
+    shadowRadius: 6,
+    elevation: 1,
+  },
   inputError: {
     borderColor: Colors.error,
   },
@@ -75,6 +104,10 @@ const styles = StyleSheet.create({
     paddingHorizontal: Spacing.md,
     fontSize: FontSize.lg,
     color: Colors.text,
+  },
+  webNoOutline: {
+    outlineStyle: 'none',
+    outlineWidth: 0,
   },
   inputWithLeftIcon: {
     paddingLeft: Spacing.xs,
