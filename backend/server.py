@@ -814,42 +814,56 @@ async def get_order(order_id: str, current_user: dict = Depends(get_current_user
 
 @api_router.post("/conversations")
 async def create_conversation(data: ConversationCreate, current_user: dict = Depends(get_current_user)):
-    # Check if conversation already exists
+    # Basic validation
+    if data.other_user_id == current_user["id"]:
+        raise HTTPException(status_code=400, detail="Cannot start a conversation with yourself")
+
+    initial_message = (data.initial_message or "").strip()
+    if not initial_message:
+        raise HTTPException(status_code=400, detail="Initial message cannot be empty")
+
+    # Verify other user exists
+    other_user = await db.users.find_one({"id": data.other_user_id})
+    if not other_user:
+        raise HTTPException(status_code=404, detail="Recipient user not found")
+
+    # Check if 1:1 conversation already exists (exactly two participants)
     existing = await db.conversations.find_one({
-        "participants": {"$all": [current_user["id"], data.other_user_id]}
+        "participants": {"$all": [current_user["id"], data.other_user_id]},
+        "$expr": {"$eq": [{"$size": "$participants"}, 2]}
     })
-    
+
     if existing:
         # Add message to existing conversation
         chat_msg = ChatMessage(
             conversation_id=existing["id"],
             sender_id=current_user["id"],
-            content=data.initial_message
+            content=initial_message
         )
         await db.chat_messages.insert_one(chat_msg.dict())
         await db.conversations.update_one(
             {"id": existing["id"]},
-            {"$set": {"last_message": data.initial_message, "last_message_time": datetime.utcnow()}}
+            {"$set": {"last_message": initial_message, "last_message_time": datetime.utcnow()}}
         )
         return {"conversation_id": existing["id"], "is_new": False}
-    
+
     # Create new conversation
     conversation = Conversation(
         participants=[current_user["id"], data.other_user_id],
         pet_id=data.pet_id,
-        last_message=data.initial_message,
+        last_message=initial_message,
         last_message_time=datetime.utcnow()
     )
     await db.conversations.insert_one(conversation.dict())
-    
+
     # Add initial message
     chat_msg = ChatMessage(
         conversation_id=conversation.id,
         sender_id=current_user["id"],
-        content=data.initial_message
+        content=initial_message
     )
     await db.chat_messages.insert_one(chat_msg.dict())
-    
+
     return {"conversation_id": conversation.id, "is_new": True}
 
 @api_router.get("/conversations")
@@ -861,8 +875,9 @@ async def get_conversations(current_user: dict = Depends(get_current_user)):
     # Enrich with user info
     result = []
     for conv in conversations:
-        other_user_id = [p for p in conv["participants"] if p != current_user["id"]][0]
-        other_user = await db.users.find_one({"id": other_user_id})
+        other_candidates = [p for p in conv.get("participants", []) if p != current_user["id"]]
+        other_user_id = other_candidates[0] if other_candidates else None
+        other_user = await db.users.find_one({"id": other_user_id}) if other_user_id else None
         
         # Get unread count
         unread = await db.chat_messages.count_documents({
@@ -918,18 +933,22 @@ async def send_chat_message(conversation_id: str, content: str, current_user: di
     })
     if not conversation:
         raise HTTPException(status_code=404, detail="Conversation not found")
-    
+
+    clean_content = (content or "").strip()
+    if not clean_content:
+        raise HTTPException(status_code=400, detail="Message content cannot be empty")
+
     chat_msg = ChatMessage(
         conversation_id=conversation_id,
         sender_id=current_user["id"],
-        content=content
+        content=clean_content
     )
     await db.chat_messages.insert_one(chat_msg.dict())
     
     # Update conversation
     await db.conversations.update_one(
         {"id": conversation_id},
-        {"$set": {"last_message": content, "last_message_time": datetime.utcnow()}}
+        {"$set": {"last_message": clean_content, "last_message_time": datetime.utcnow()}}
     )
     
     return chat_msg
