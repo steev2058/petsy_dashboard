@@ -65,6 +65,14 @@ export default function VerifyScreen() {
     if (text && index < 3) {
       inputRefs.current[index + 1]?.focus();
     }
+
+    // Auto-submit when all 4 digits are filled
+    const fullCode = newCode.join('');
+    if (fullCode.length === 4 && !newCode.includes('') && !loading) {
+      setTimeout(() => {
+        handleVerifyWithCode(fullCode);
+      }, 80);
+    }
   };
 
   const handleKeyPress = (e: any, index: number) => {
@@ -73,12 +81,8 @@ export default function VerifyScreen() {
     }
   };
 
-  const handleVerify = async () => {
-    const fullCode = code.join('');
-    if (fullCode.length !== 4) {
-      showToast('Please enter the 4-digit code', 'error');
-      return;
-    }
+  const handleVerifyWithCode = async (fullCode: string) => {
+    if (loading) return;
 
     setLoading(true);
     try {
@@ -91,6 +95,15 @@ export default function VerifyScreen() {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleVerify = async () => {
+    const fullCode = code.join('');
+    if (fullCode.length !== 4) {
+      showToast('Please enter the 4-digit code', 'error');
+      return;
+    }
+    await handleVerifyWithCode(fullCode);
   };
 
   const handleResend = async () => {
