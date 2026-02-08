@@ -24,14 +24,37 @@ export default function VerifyScreen() {
   
   const [code, setCode] = useState(['', '', '', '']);
   const [loading, setLoading] = useState(false);
+  const [toast, setToast] = useState<{ visible: boolean; message: string; type: 'success' | 'error' }>({
+    visible: false,
+    message: '',
+    type: 'success',
+  });
   const inputRefs = useRef<(TextInput | null)[]>([]);
+  const toastTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // For demo: show the verification code
   useEffect(() => {
     if (verificationCode) {
       Alert.alert('Demo Mode', `Your verification code is: ${verificationCode}`);
     }
+
+    return () => {
+      if (toastTimerRef.current) {
+        clearTimeout(toastTimerRef.current);
+        toastTimerRef.current = null;
+      }
+    };
   }, [verificationCode]);
+
+  const showToast = (message: string, type: 'success' | 'error' = 'success') => {
+    if (toastTimerRef.current) {
+      clearTimeout(toastTimerRef.current);
+    }
+    setToast({ visible: true, message, type });
+    toastTimerRef.current = setTimeout(() => {
+      setToast((prev) => ({ ...prev, visible: false }));
+    }, 2500);
+  };
 
   const handleCodeChange = (text: string, index: number) => {
     const newCode = [...code];
@@ -53,7 +76,7 @@ export default function VerifyScreen() {
   const handleVerify = async () => {
     const fullCode = code.join('');
     if (fullCode.length !== 4) {
-      Alert.alert('Error', 'Please enter the 4-digit code');
+      showToast('Please enter the 4-digit code', 'error');
       return;
     }
 
@@ -64,10 +87,7 @@ export default function VerifyScreen() {
       setUser(response.data.user);
       router.replace('/(tabs)/home');
     } catch (error: any) {
-      Alert.alert(
-        'Verification Failed',
-        error.response?.data?.detail || 'Invalid code. Please try again.'
-      );
+      showToast(error.response?.data?.detail || 'The code is wrong. Please try again.', 'error');
     } finally {
       setLoading(false);
     }
@@ -75,7 +95,7 @@ export default function VerifyScreen() {
 
   const handleResend = async () => {
     if (!email) {
-      Alert.alert('Error', 'Missing email for resend');
+      showToast('Missing email for resend', 'error');
       return;
     }
     try {
@@ -83,17 +103,27 @@ export default function VerifyScreen() {
       const newCode = response?.data?.verification_code;
       if (newCode) {
         Alert.alert('New Code', `Your new verification code is: ${newCode}`);
-      } else {
-        Alert.alert('Success', response?.data?.message || 'Verification code resent');
       }
+      showToast(response?.data?.message || 'Verification code resent', 'success');
     } catch (error: any) {
-      Alert.alert('Error', error?.response?.data?.detail || 'Failed to resend code');
+      showToast(error?.response?.data?.detail || 'Failed to resend code', 'error');
     }
   };
 
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.content}>
+        {toast.visible && (
+          <View style={[styles.toast, toast.type === 'error' ? styles.toastError : styles.toastSuccess]}>
+            <Ionicons
+              name={toast.type === 'error' ? 'alert-circle' : 'checkmark-circle'}
+              size={18}
+              color={Colors.white}
+            />
+            <Text style={styles.toastText}>{toast.message}</Text>
+          </View>
+        )}
+
         {/* Header */}
         <View style={styles.header}>
           <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
@@ -137,6 +167,7 @@ export default function VerifyScreen() {
           title={t('confirm')}
           onPress={handleVerify}
           loading={loading}
+          disabled={code.join('').length !== 4}
           style={styles.verifyButton}
         />
 
@@ -230,5 +261,30 @@ const styles = StyleSheet.create({
     color: Colors.primary,
     fontSize: FontSize.md,
     fontWeight: '600',
+  },
+  toast: {
+    position: 'absolute',
+    top: Spacing.md,
+    left: Spacing.lg,
+    right: Spacing.lg,
+    zIndex: 20,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.sm,
+    paddingVertical: Spacing.sm,
+    paddingHorizontal: Spacing.md,
+    borderRadius: BorderRadius.md,
+  },
+  toastSuccess: {
+    backgroundColor: Colors.success,
+  },
+  toastError: {
+    backgroundColor: Colors.error,
+  },
+  toastText: {
+    color: Colors.white,
+    fontSize: FontSize.sm,
+    fontWeight: '600',
+    flex: 1,
   },
 });
