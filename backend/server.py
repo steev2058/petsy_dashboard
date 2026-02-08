@@ -1374,37 +1374,75 @@ async def get_tag_scans(pet_id: str, current_user: dict = Depends(get_current_us
 
 @api_router.post("/ai/assistant")
 async def ai_assistant(query: str, context: Optional[str] = None, current_user: dict = Depends(get_current_user)):
+    """
+    AI assistant endpoint with graceful fallback.
+    - Preferred: emergentintegrations + EMERGENT_LLM_KEY
+    - Fallback: local rule-based pet-care helper (never fails with 500 for missing AI deps)
+    """
+
+    def fallback_pet_reply(user_query: str) -> str:
+        q = (user_query or "").lower()
+
+        emergency_keywords = ["poison", "blood", "seizure", "can't breathe", "can’t breathe", "not breathing", "hit by car"]
+        if any(k in q for k in emergency_keywords):
+            return (
+                "⚠️ This sounds urgent. Please contact the nearest emergency vet immediately. "
+                "Keep your pet warm and calm, and avoid giving any medication unless a vet instructs you."
+            )
+
+        if "food" in q or "diet" in q or "eat" in q:
+            return (
+                "For food planning: choose species-specific food, split meals by age, keep clean water always available, "
+                "and avoid sudden food changes. If you share pet type + age, I can give a precise plan."
+            )
+
+        if "name" in q:
+            return "Name ideas: Luna, Milo, Bella, Max, Coco. Tell me pet gender/species and I’ll suggest a better custom list."
+
+        if "breed" in q or "adopt" in q:
+            return (
+                "I can recommend a breed based on your home size, activity level, and experience. "
+                "Share these 3 details and I’ll suggest the best matches."
+            )
+
+        return (
+            "I can help with pet care, food, behavior, breed suggestions, and basic symptom guidance. "
+            "For serious symptoms, always visit a licensed vet immediately."
+        )
+
     try:
         from emergentintegrations.llm.chat import LlmChat, UserMessage
-        
+
         api_key = os.environ.get('EMERGENT_LLM_KEY')
         if not api_key:
-            raise HTTPException(status_code=500, detail="AI service not configured")
-        
-        system_message = """You are Petsy AI Assistant, a friendly and knowledgeable pet care expert. 
-        You help users with:
-        - Pet breed recommendations based on their lifestyle
-        - Pet name suggestions
-        - Food and nutrition advice based on pet age and species
-        - Basic symptom detection and health advice (always recommend visiting a vet for serious issues)
-        - General pet care tips
-        
-        Be concise, helpful, and always prioritize pet welfare. If symptoms sound serious, always recommend professional veterinary care.
-        Respond in the same language the user asks in (Arabic or English)."""
-        
+            # graceful fallback if key is not configured
+            return {"response": fallback_pet_reply(query), "query": query, "mode": "fallback"}
+
+        system_message = """You are Petsy AI Assistant, a friendly and knowledgeable pet care expert.
+You help users with:
+- Pet breed recommendations based on their lifestyle
+- Pet name suggestions
+- Food and nutrition advice based on pet age and species
+- Basic symptom detection and health advice (always recommend visiting a vet for serious issues)
+- General pet care tips
+
+Be concise, helpful, and always prioritize pet welfare. If symptoms sound serious, always recommend professional veterinary care.
+Respond in the same language the user asks in (Arabic or English)."""
+
         chat = LlmChat(
             api_key=api_key,
             session_id=f"petsy-{current_user['id']}-{datetime.utcnow().strftime('%Y%m%d')}",
-            system_message=system_message
+            system_message=system_message,
         ).with_model("openai", "gpt-4o")
-        
+
         user_message = UserMessage(text=query)
         response = await chat.send_message(user_message)
-        
-        return {"response": response, "query": query}
+
+        return {"response": response, "query": query, "mode": "llm"}
+
     except Exception as e:
-        logger.error(f"AI Assistant error: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+        logger.warning(f"AI Assistant fallback activated: {e}")
+        return {"response": fallback_pet_reply(query), "query": query, "mode": "fallback"}
 
 # ========================= SEED DATA =========================
 
