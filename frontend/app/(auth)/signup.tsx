@@ -60,8 +60,9 @@ export default function SignupScreen() {
       const response = await authAPI.signup({ email, name, password, phone });
       router.push({
         pathname: '/(auth)/verify',
-        params: { 
+        params: {
           userId: response.data.user_id,
+          email,
           verificationCode: response.data.verification_code // For demo purposes
         },
       });

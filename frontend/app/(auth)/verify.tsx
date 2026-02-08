@@ -18,7 +18,7 @@ import { useTranslation } from '../../src/hooks/useTranslation';
 
 export default function VerifyScreen() {
   const router = useRouter();
-  const { userId, verificationCode } = useLocalSearchParams<{ userId: string; verificationCode?: string }>();
+  const { userId, email, verificationCode } = useLocalSearchParams<{ userId: string; email?: string; verificationCode?: string }>();
   const { t } = useTranslation();
   const { setUser, setToken } = useStore();
   
@@ -70,6 +70,24 @@ export default function VerifyScreen() {
       );
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleResend = async () => {
+    if (!email) {
+      Alert.alert('Error', 'Missing email for resend');
+      return;
+    }
+    try {
+      const response = await authAPI.resendVerification(email);
+      const newCode = response?.data?.verification_code;
+      if (newCode) {
+        Alert.alert('New Code', `Your new verification code is: ${newCode}`);
+      } else {
+        Alert.alert('Success', response?.data?.message || 'Verification code resent');
+      }
+    } catch (error: any) {
+      Alert.alert('Error', error?.response?.data?.detail || 'Failed to resend code');
     }
   };
 
@@ -125,7 +143,7 @@ export default function VerifyScreen() {
         {/* Resend */}
         <View style={styles.resendContainer}>
           <Text style={styles.resendText}>Didn't receive the code? </Text>
-          <TouchableOpacity>
+          <TouchableOpacity onPress={handleResend}>
             <Text style={styles.resendLink}>{t('resend_code')}</Text>
           </TouchableOpacity>
         </View>

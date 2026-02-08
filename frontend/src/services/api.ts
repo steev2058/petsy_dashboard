@@ -30,9 +30,18 @@ api.interceptors.request.use(async (config) => {
 export const authAPI = {
   signup: (data: { email: string; name: string; password: string; phone?: string }) =>
     api.post('/auth/signup', data),
+
+  resendVerification: (email: string) =>
+    api.post('/auth/resend-verification', { email }),
   
   verify: (userId: string, code: string) =>
     api.post(`/auth/verify?user_id=${userId}&code=${code}`),
+
+  forgotPassword: (email: string) =>
+    api.post('/auth/forgot-password', { email }),
+
+  resetPassword: (data: { email: string; code: string; new_password: string }) =>
+    api.post('/auth/reset-password', data),
   
   login: (data: { email: string; password: string }) =>
     api.post('/auth/login', data),

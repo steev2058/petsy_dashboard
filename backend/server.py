@@ -123,6 +123,17 @@ class UserLogin(BaseModel):
     email: EmailStr
     password: str
 
+class ForgotPasswordRequest(BaseModel):
+    email: EmailStr
+
+class ResetPasswordRequest(BaseModel):
+    email: EmailStr
+    code: str
+    new_password: str
+
+class ResendVerificationRequest(BaseModel):
+    email: EmailStr
+
 class User(UserBase):
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
     created_at: datetime = Field(default_factory=datetime.utcnow)
@@ -130,6 +141,8 @@ class User(UserBase):
     is_admin: bool = False
     role: str = "user"  # user, admin
     verification_code: Optional[str] = None
+    reset_code: Optional[str] = None
+    reset_code_expires_at: Optional[datetime] = None
 
 class UserResponse(BaseModel):
     id: str
@@ -637,6 +650,26 @@ async def signup(user_data: UserCreate):
     
     return {"message": "User created. Please verify your account.", "user_id": user.id, "verification_code": verification_code}
 
+@api_router.post("/auth/resend-verification", response_model=dict)
+async def resend_verification(req: ResendVerificationRequest):
+    user = await db.users.find_one({"email": req.email})
+    if not user:
+        return {"message": "If that email exists, a verification code has been generated."}
+
+    if user.get("is_verified", False):
+        return {"message": "Account is already verified."}
+
+    verification_code = generate_verification_code()
+    await db.users.update_one(
+        {"id": user["id"]},
+        {"$set": {"verification_code": verification_code}},
+    )
+
+    return {
+        "message": "Verification code generated.",
+        "verification_code": verification_code,
+    }
+
 @api_router.post("/auth/verify", response_model=TokenResponse)
 async def verify_account(user_id: str, code: str):
     user = await db.users.find_one({"id": user_id})
@@ -655,15 +688,74 @@ async def verify_account(user_id: str, code: str):
         user=UserResponse(**user)
     )
 
+@api_router.post("/auth/forgot-password", response_model=dict)
+async def forgot_password(req: ForgotPasswordRequest):
+    user = await db.users.find_one({"email": req.email})
+
+    # Always return success-like message to avoid email enumeration
+    if not user:
+        return {"message": "If that email exists, a reset code has been generated."}
+
+    reset_code = generate_verification_code()
+    expires_at = datetime.utcnow() + timedelta(minutes=15)
+    await db.users.update_one(
+        {"id": user["id"]},
+        {"$set": {"reset_code": reset_code, "reset_code_expires_at": expires_at}},
+    )
+
+    # Dev mode: return code directly so frontend flow can be completed now.
+    # Replace with email/SMS sending in production.
+    return {
+        "message": "Password reset code generated.",
+        "reset_code": reset_code,
+        "expires_at": expires_at.isoformat(),
+    }
+
+@api_router.post("/auth/reset-password", response_model=dict)
+async def reset_password(req: ResetPasswordRequest):
+    user = await db.users.find_one({"email": req.email})
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+
+    code = user.get("reset_code")
+    exp = user.get("reset_code_expires_at")
+    if not code or not exp:
+        raise HTTPException(status_code=400, detail="No reset request found")
+
+    if req.code != code:
+        raise HTTPException(status_code=400, detail="Invalid reset code")
+
+    if isinstance(exp, str):
+        try:
+            exp = datetime.fromisoformat(exp)
+        except Exception:
+            exp = None
+
+    if not exp or exp < datetime.utcnow():
+        raise HTTPException(status_code=400, detail="Reset code expired")
+
+    await db.users.update_one(
+        {"id": user["id"]},
+        {
+            "$set": {"password_hash": hash_password(req.new_password)},
+            "$unset": {"reset_code": "", "reset_code_expires_at": ""},
+        },
+    )
+
+    return {"message": "Password reset successful"}
+
 @api_router.post("/auth/login", response_model=TokenResponse)
 async def login(credentials: UserLogin):
     user = await db.users.find_one({"email": credentials.email})
     if not user:
         raise HTTPException(status_code=401, detail="Invalid credentials")
-    
+
     if not verify_password(credentials.password, user.get("password_hash", "")):
         raise HTTPException(status_code=401, detail="Invalid credentials")
-    
+
+    if not user.get("is_verified", False):
+        raise HTTPException(status_code=403, detail="Please verify your account before login")
+
     token = create_access_token({"sub": user["id"]})
     return TokenResponse(
         access_token=token,
