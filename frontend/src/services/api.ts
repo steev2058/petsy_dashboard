@@ -188,6 +188,9 @@ export const conversationsAPI = {
   
   getMessages: (conversationId: string) =>
     api.get(`/conversations/${conversationId}/messages`),
+
+  markRead: (conversationId: string) =>
+    api.post(`/conversations/${conversationId}/read`),
   
   sendMessage: (conversationId: string, content: string) =>
     api.post(`/conversations/${conversationId}/messages`, null, { params: { content } }),

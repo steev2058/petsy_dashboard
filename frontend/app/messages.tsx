@@ -24,6 +24,7 @@ interface Conversation {
     id: string;
     name: string;
     avatar?: string;
+    is_online?: boolean;
   };
   last_message?: string;
   last_message_time?: string;
@@ -76,6 +77,22 @@ export default function MessagesScreen() {
           const data = JSON.parse(event.data);
           if (data.type === 'new_message' || data.type === 'conversations_updated') {
             loadConversations();
+          } else if (data.type === 'presence_update') {
+            const uid = data?.payload?.user_id;
+            const isOnline = !!data?.payload?.is_online;
+            if (!uid) return;
+            setConversations((prev) => prev.map((c) => (
+              c.other_user?.id === uid
+                ? { ...c, other_user: { ...c.other_user, is_online: isOnline } }
+                : c
+            )));
+          } else if (data.type === 'connected') {
+            const onlineIds: string[] = data?.payload?.online_user_ids || [];
+            setConversations((prev) => prev.map((c) => (
+              c.other_user?.id
+                ? { ...c, other_user: { ...c.other_user, is_online: onlineIds.includes(c.other_user.id) } }
+                : c
+            )));
           }
         } catch (e) {
           console.log('Messages realtime parse error', e);
@@ -194,7 +211,7 @@ export default function MessagesScreen() {
             </Text>
           </View>
         )}
-        <View style={styles.onlineIndicator} />
+        {item.other_user?.is_online ? <View style={styles.onlineIndicator} /> : null}
       </View>
       
       <View style={styles.conversationInfo}>
@@ -272,7 +289,7 @@ export default function MessagesScreen() {
         <Text style={styles.onlineTitle}>Online Now</Text>
         <FlatList
           horizontal
-          data={conversations.slice(0, 5)}
+          data={conversations.filter((c) => !!c.other_user?.is_online).slice(0, 5)}
           keyExtractor={(item) => `online-${item.id}`}
           showsHorizontalScrollIndicator={false}
           contentContainerStyle={styles.onlineList}

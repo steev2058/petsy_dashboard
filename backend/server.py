@@ -57,6 +57,12 @@ class ChatConnectionManager:
             if not self.active_connections[user_id]:
                 del self.active_connections[user_id]
 
+    def is_online(self, user_id: str) -> bool:
+        return user_id in self.active_connections and len(self.active_connections[user_id]) > 0
+
+    def online_user_ids(self) -> List[str]:
+        return list(self.active_connections.keys())
+
     async def send_user_event(self, user_id: str, event: Dict[str, Any]):
         sockets = list(self.active_connections.get(user_id, set()))
         stale: List[WebSocket] = []
@@ -68,6 +74,11 @@ class ChatConnectionManager:
                 stale.append(ws)
         for ws in stale:
             self.disconnect(user_id, ws)
+
+    async def broadcast_event(self, event: Dict[str, Any]):
+        users = list(self.active_connections.keys())
+        for uid in users:
+            await self.send_user_event(uid, event)
 
 chat_ws_manager = ChatConnectionManager()
 
@@ -84,6 +95,10 @@ async def notify_conversation_participants(conversation_id: str, event_type: str
     }
     for user_id in participants:
         await chat_ws_manager.send_user_event(user_id, event)
+
+async def user_is_conversation_participant(user_id: str, conversation_id: str) -> bool:
+    conversation = await db.conversations.find_one({"id": conversation_id, "participants": user_id})
+    return conversation is not None
 
 # ========================= MODELS =========================
 
@@ -539,15 +554,65 @@ async def chat_websocket(websocket: WebSocket):
 
     user_id = user["id"]
     await chat_ws_manager.connect(user_id, websocket)
+
+    # announce online presence + initial state
+    await chat_ws_manager.broadcast_event({
+        "type": "presence_update",
+        "payload": {"user_id": user_id, "is_online": True}
+    })
+
     try:
-        await websocket.send_json({"type": "connected", "user_id": user_id})
+        await websocket.send_json({
+            "type": "connected",
+            "user_id": user_id,
+            "payload": {"online_user_ids": chat_ws_manager.online_user_ids()}
+        })
+
         while True:
-            # Keepalive / optional client pings
-            await websocket.receive_text()
+            message = await websocket.receive_json()
+            event_type = message.get("type")
+            conversation_id = message.get("conversation_id")
+
+            if event_type == "ping":
+                await websocket.send_json({"type": "pong"})
+                continue
+
+            if event_type in {"typing", "read"}:
+                if not conversation_id or not await user_is_conversation_participant(user_id, conversation_id):
+                    continue
+
+            if event_type == "typing":
+                await notify_conversation_participants(
+                    conversation_id,
+                    "typing",
+                    {
+                        "user_id": user_id,
+                        "is_typing": bool(message.get("is_typing", False))
+                    },
+                )
+            elif event_type == "read":
+                await db.chat_messages.update_many(
+                    {"conversation_id": conversation_id, "sender_id": {"$ne": user_id}, "is_read": False},
+                    {"$set": {"is_read": True}},
+                )
+                await notify_conversation_participants(
+                    conversation_id,
+                    "messages_read",
+                    {"reader_id": user_id},
+                )
+
     except WebSocketDisconnect:
         chat_ws_manager.disconnect(user_id, websocket)
+        await chat_ws_manager.broadcast_event({
+            "type": "presence_update",
+            "payload": {"user_id": user_id, "is_online": chat_ws_manager.is_online(user_id)}
+        })
     except Exception:
         chat_ws_manager.disconnect(user_id, websocket)
+        await chat_ws_manager.broadcast_event({
+            "type": "presence_update",
+            "payload": {"user_id": user_id, "is_online": chat_ws_manager.is_online(user_id)}
+        })
 
 # ========================= AUTH ROUTES =========================
 
@@ -993,7 +1058,8 @@ async def get_conversations(current_user: dict = Depends(get_current_user)):
             "other_user": {
                 "id": other_user["id"] if other_user else None,
                 "name": other_user["name"] if other_user else "Unknown",
-                "avatar": other_user.get("avatar") if other_user else None
+                "avatar": other_user.get("avatar") if other_user else None,
+                "is_online": chat_ws_manager.is_online(other_user["id"]) if other_user else False,
             },
             "unread_count": unread
         }
@@ -1012,13 +1078,43 @@ async def get_chat_messages(conversation_id: str, current_user: dict = Depends(g
         raise HTTPException(status_code=404, detail="Conversation not found")
     
     # Mark messages as read
-    await db.chat_messages.update_many(
-        {"conversation_id": conversation_id, "sender_id": {"$ne": current_user["id"]}},
+    read_result = await db.chat_messages.update_many(
+        {"conversation_id": conversation_id, "sender_id": {"$ne": current_user["id"]}, "is_read": False},
         {"$set": {"is_read": True}}
     )
-    
+
+    if read_result.modified_count > 0:
+        await notify_conversation_participants(
+            conversation_id,
+            "messages_read",
+            {"reader_id": current_user["id"]},
+        )
+
     messages = await db.chat_messages.find({"conversation_id": conversation_id}).sort("created_at", 1).to_list(200)
     return [ChatMessage(**m) for m in messages]
+
+@api_router.post("/conversations/{conversation_id}/read")
+async def mark_conversation_read(conversation_id: str, current_user: dict = Depends(get_current_user)):
+    conversation = await db.conversations.find_one({
+        "id": conversation_id,
+        "participants": current_user["id"]
+    })
+    if not conversation:
+        raise HTTPException(status_code=404, detail="Conversation not found")
+
+    read_result = await db.chat_messages.update_many(
+        {"conversation_id": conversation_id, "sender_id": {"$ne": current_user["id"]}, "is_read": False},
+        {"$set": {"is_read": True}}
+    )
+
+    if read_result.modified_count > 0:
+        await notify_conversation_participants(
+            conversation_id,
+            "messages_read",
+            {"reader_id": current_user["id"]},
+        )
+
+    return {"updated": int(read_result.modified_count)}
 
 @api_router.post("/conversations/{conversation_id}/messages")
 async def send_chat_message(conversation_id: str, content: str, current_user: dict = Depends(get_current_user)):

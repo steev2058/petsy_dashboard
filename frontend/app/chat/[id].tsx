@@ -35,6 +35,7 @@ interface ConversationDetail {
     id: string;
     name: string;
     avatar?: string;
+    is_online?: boolean;
   };
 }
 
@@ -61,6 +62,10 @@ export default function ChatScreen() {
   const [inputText, setInputText] = useState('');
   const [loading, setLoading] = useState(true);
   const [sending, setSending] = useState(false);
+  const [otherTyping, setOtherTyping] = useState(false);
+  const [otherOnline, setOtherOnline] = useState(false);
+  const [seenByOther, setSeenByOther] = useState(false);
+  const typingStopTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
     if (isAuthenticated && id) {
@@ -74,6 +79,10 @@ export default function ChatScreen() {
       if (reconnectTimerRef.current) {
         clearTimeout(reconnectTimerRef.current);
         reconnectTimerRef.current = null;
+      }
+      if (typingStopTimerRef.current) {
+        clearTimeout(typingStopTimerRef.current);
+        typingStopTimerRef.current = null;
       }
       if (wsRef.current) {
         wsRef.current.close();
@@ -94,7 +103,7 @@ export default function ChatScreen() {
       const ws = new WebSocket(wsUrl);
       wsRef.current = ws;
 
-      ws.onmessage = (event) => {
+      ws.onmessage = async (event) => {
         try {
           const data: RealtimeEvent = JSON.parse(event.data);
           if (data.type === 'new_message' && data.conversation_id === id) {
@@ -104,9 +113,38 @@ export default function ChatScreen() {
               if (prev.some((m) => m.id === incoming.id)) return prev;
               return [...prev, incoming];
             });
+
+            // incoming from other user -> mark read + send read signal
+            if (incoming.sender_id !== user?.id) {
+              try {
+                await conversationsAPI.markRead(id as string);
+                ws.send(JSON.stringify({ type: 'read', conversation_id: id }));
+              } catch {}
+            }
+
             setTimeout(() => {
               flatListRef.current?.scrollToEnd({ animated: true });
             }, 50);
+          } else if (data.type === 'typing' && data.conversation_id === id) {
+            const typingUserId = data.payload?.user_id;
+            if (typingUserId && typingUserId !== user?.id) {
+              setOtherTyping(!!data.payload?.is_typing);
+            }
+          } else if (data.type === 'messages_read' && data.conversation_id === id) {
+            const readerId = data.payload?.reader_id;
+            if (readerId && readerId !== user?.id) {
+              setSeenByOther(true);
+            }
+          } else if (data.type === 'presence_update') {
+            const pUserId = data.payload?.user_id;
+            if (pUserId && pUserId === conversation?.other_user?.id) {
+              setOtherOnline(!!data.payload?.is_online);
+            }
+          } else if (data.type === 'connected') {
+            const onlineIds: string[] = (data as any)?.payload?.online_user_ids || [];
+            if (conversation?.other_user?.id) {
+              setOtherOnline(onlineIds.includes(conversation.other_user.id));
+            }
           }
         } catch (e) {
           console.log('Realtime parse error:', e);
@@ -132,8 +170,15 @@ export default function ChatScreen() {
       setMessages(messagesData);
       if (!Array.isArray(response.data) && response.data.conversation) {
         setConversation(response.data.conversation);
+        setOtherOnline(!!response.data.conversation?.other_user?.is_online);
       } else {
         setConversation({ id: id as string });
+      }
+
+      try {
+        await conversationsAPI.markRead(id as string);
+      } catch (e) {
+        // non-blocking
       }
     } catch (error) {
       console.error('Error loading messages:', error);
@@ -147,6 +192,7 @@ export default function ChatScreen() {
 
     const messageContent = inputText.trim();
     setSending(true);
+    setSeenByOther(false);
     
     // Optimistically add the message to the UI
     const optimisticMessage: ChatMessage = {
@@ -175,6 +221,29 @@ export default function ChatScreen() {
     } finally {
       setSending(false);
     }
+  };
+
+  const onChangeInput = (text: string) => {
+    setInputText(text);
+
+    if (wsRef.current && id) {
+      try {
+        wsRef.current.send(JSON.stringify({
+          type: 'typing',
+          conversation_id: id,
+          is_typing: text.trim().length > 0,
+        }));
+      } catch {}
+    }
+
+    if (typingStopTimerRef.current) clearTimeout(typingStopTimerRef.current);
+    typingStopTimerRef.current = setTimeout(() => {
+      if (wsRef.current && id) {
+        try {
+          wsRef.current.send(JSON.stringify({ type: 'typing', conversation_id: id, is_typing: false }));
+        } catch {}
+      }
+    }, 1200);
   };
 
   const formatTime = (dateString: string) => {
@@ -228,6 +297,11 @@ export default function ChatScreen() {
           ]}>
             {formatTime(item.created_at)}
           </Text>
+          {isOwnMessage && index === messages.length - 1 && seenByOther && (
+            <Text style={[styles.messageTime, isOwnMessage && styles.messageTimeOwn]}>
+              Seen
+            </Text>
+          )}
         </View>
       </View>
     );
@@ -296,8 +370,10 @@ export default function ChatScreen() {
               {conversation?.other_user?.name || 'User'}
             </Text>
             <View style={styles.onlineStatus}>
-              <View style={styles.onlineDot} />
-              <Text style={styles.onlineText}>Online</Text>
+              <View style={[styles.onlineDot, !otherOnline && { backgroundColor: Colors.textLight }]} />
+              <Text style={[styles.onlineText, !otherOnline && { color: Colors.textSecondary }]}>
+                {otherTyping ? 'Typing…' : (otherOnline ? 'Online' : 'Offline')}
+              </Text>
             </View>
           </View>
         </TouchableOpacity>
@@ -344,7 +420,7 @@ export default function ChatScreen() {
             placeholder="Type a message..."
             placeholderTextColor={Colors.textLight}
             value={inputText}
-            onChangeText={setInputText}
+            onChangeText={onChangeInput}
             multiline
             maxLength={1000}
           />
