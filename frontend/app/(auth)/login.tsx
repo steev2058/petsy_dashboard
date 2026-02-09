@@ -71,6 +71,12 @@ export default function LoginScreen() {
     setLanguage(language === 'en' ? 'ar' : 'en');
   };
 
+  const continueAsGuest = async () => {
+    await setToken(null);
+    setUser(null);
+    router.replace('/(tabs)/home');
+  };
+
   return (
     <SafeAreaView style={styles.container}>
       <KeyboardAvoidingView
@@ -137,6 +143,13 @@ export default function LoginScreen() {
               onPress={handleLogin}
               loading={loading}
               style={styles.loginButton}
+            />
+
+            <Button
+              title="Continue as Guest"
+              onPress={continueAsGuest}
+              variant="outline"
+              style={styles.guestButton}
             />
 
             <View style={styles.divider}>
@@ -234,6 +247,9 @@ const styles = StyleSheet.create({
     fontSize: FontSize.md,
   },
   loginButton: {
+    marginTop: Spacing.sm,
+  },
+  guestButton: {
     marginTop: Spacing.sm,
   },
   divider: {
