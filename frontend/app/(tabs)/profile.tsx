@@ -176,7 +176,7 @@ export default function ProfileScreen() {
           )}
           <Button
             title={t('edit_profile')}
-            onPress={() => {}}
+            onPress={() => router.push('/edit-profile')}
             variant="outline"
             size="small"
             style={styles.editButton}
