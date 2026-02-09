@@ -943,7 +943,7 @@ async def create_health_record(record: HealthRecordCreate, current_user: dict = 
     if not pet:
         raise HTTPException(status_code=404, detail="Pet not found")
     
-    health_record = HealthRecord(**record.dict())
+    health_record = HealthRecord(**record.dict(), user_id=current_user["id"])
     await db.health_records.insert_one(health_record.dict())
     return health_record
 
