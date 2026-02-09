@@ -23,6 +23,7 @@ export default function MyPetsScreen() {
   const [pets, setPets] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
+  const [actionLoading, setActionLoading] = useState<{ petId: string; type: 'edit' | 'health' | 'delete' } | null>(null);
 
   const loadPets = async () => {
     try {
@@ -52,18 +53,26 @@ export default function MyPetsScreen() {
         text: 'Delete',
         style: 'destructive',
         onPress: async () => {
+          setActionLoading({ petId, type: 'delete' });
           try {
             await petsAPI.delete(petId);
             setPets((prev) => prev.filter((p) => p.id !== petId));
           } catch (e) {
             Alert.alert('Error', 'Failed to delete pet');
+          } finally {
+            setActionLoading(null);
           }
         },
       },
     ]);
   };
 
-  const renderItem = ({ item }: { item: any }) => (
+  const renderItem = ({ item }: { item: any }) => {
+    const editLoading = actionLoading?.petId === item.id && actionLoading?.type === 'edit';
+    const healthLoading = actionLoading?.petId === item.id && actionLoading?.type === 'health';
+    const deleteLoading = actionLoading?.petId === item.id && actionLoading?.type === 'delete';
+
+    return (
     <View style={[styles.card, Shadow.small]}>
       <TouchableOpacity onPress={() => router.push(`/pet/${item.id}`)} activeOpacity={0.9}>
         {item.image ? (
@@ -83,21 +92,42 @@ export default function MyPetsScreen() {
       </View>
 
       <View style={styles.actionsRow}>
-        <TouchableOpacity style={styles.actionBtn} onPress={() => router.push(`/add-pet?editId=${item.id}`)}>
-          <Ionicons name="create-outline" size={16} color={Colors.primary} />
+        <TouchableOpacity
+          style={styles.actionBtn}
+          disabled={!!actionLoading}
+          onPress={() => {
+            setActionLoading({ petId: item.id, type: 'edit' });
+            router.push(`/add-pet?editId=${item.id}`);
+            setTimeout(() => setActionLoading(null), 700);
+          }}
+        >
+          {editLoading ? <ActivityIndicator size="small" color={Colors.primary} /> : <Ionicons name="create-outline" size={16} color={Colors.primary} />}
           <Text style={styles.actionText}>Edit</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.actionBtn} onPress={() => router.push(`/health-records?petId=${item.id}`)}>
-          <Ionicons name="medkit-outline" size={16} color={Colors.primary} />
+        <TouchableOpacity
+          style={styles.actionBtn}
+          disabled={!!actionLoading}
+          onPress={() => {
+            setActionLoading({ petId: item.id, type: 'health' });
+            router.push(`/health-records?petId=${item.id}`);
+            setTimeout(() => setActionLoading(null), 700);
+          }}
+        >
+          {healthLoading ? <ActivityIndicator size="small" color={Colors.primary} /> : <Ionicons name="medkit-outline" size={16} color={Colors.primary} />}
           <Text style={styles.actionText}>Health</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={[styles.actionBtn, styles.actionDanger]} onPress={() => onDeletePet(item.id, item.name)}>
-          <Ionicons name="trash-outline" size={16} color={Colors.error} />
+        <TouchableOpacity
+          style={[styles.actionBtn, styles.actionDanger]}
+          disabled={!!actionLoading}
+          onPress={() => onDeletePet(item.id, item.name)}
+        >
+          {deleteLoading ? <ActivityIndicator size="small" color={Colors.error} /> : <Ionicons name="trash-outline" size={16} color={Colors.error} />}
           <Text style={[styles.actionText, { color: Colors.error }]}>Delete</Text>
         </TouchableOpacity>
       </View>
     </View>
   );
+};
 
   if (loading) {
     return (
