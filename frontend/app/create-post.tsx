@@ -139,11 +139,10 @@ export default function CreatePostScreen() {
           content: formData.content,
           image: image,
         });
-        Alert.alert(
-          'Success!',
-          'Your post has been published',
-          [{ text: 'OK', onPress: () => router.replace('/community') }]
-        );
+        showToast('Your post has been published', 'success');
+        setTimeout(() => {
+          router.replace('/community');
+        }, 900);
       }
     } catch (error: any) {
       Alert.alert('Error', error.response?.data?.detail || 'Failed to create post');
