@@ -137,6 +137,13 @@ class ResetPasswordRequest(BaseModel):
 class ResendVerificationRequest(BaseModel):
     email: EmailStr
 
+class ChangePasswordRequest(BaseModel):
+    current_password: str
+    new_password: str
+
+class DeleteAccountRequest(BaseModel):
+    password: Optional[str] = None
+
 class User(UserBase):
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
     created_at: datetime = Field(default_factory=datetime.utcnow)
@@ -673,6 +680,16 @@ async def chat_websocket(websocket: WebSocket):
             "payload": {"user_id": user_id, "is_online": chat_ws_manager.is_online(user_id)}
         })
 
+DEFAULT_USER_SETTINGS = {
+    "push_notifications": True,
+    "dark_mode": False,
+    "location_services": True,
+    "email_updates": True,
+    "chat_sound": True,
+    "chat_preview": True,
+    "language": "en",
+}
+
 # ========================= AUTH ROUTES =========================
 
 @api_router.post("/auth/signup", response_model=dict)
@@ -856,6 +873,58 @@ async def update_profile(update_data: UserUpdate, current_user: dict = Depends(g
         await db.users.update_one({"id": current_user["id"]}, {"$set": update_dict})
     updated = await db.users.find_one({"id": current_user["id"]})
     return UserResponse(**updated)
+
+@api_router.post('/auth/change-password')
+async def change_password(payload: ChangePasswordRequest, current_user: dict = Depends(get_current_user)):
+    if not verify_password(payload.current_password, current_user.get('password_hash', '')):
+        raise HTTPException(status_code=400, detail='Current password is incorrect')
+    if len(payload.new_password or '') < 6:
+        raise HTTPException(status_code=400, detail='New password must be at least 6 characters')
+    await db.users.update_one({"id": current_user["id"]}, {"$set": {"password_hash": hash_password(payload.new_password)}})
+    return {"message": "Password changed successfully"}
+
+@api_router.post('/auth/delete-account')
+async def delete_account(payload: DeleteAccountRequest, current_user: dict = Depends(get_current_user)):
+    if current_user.get('password_hash'):
+        if not payload.password or not verify_password(payload.password, current_user.get('password_hash', '')):
+            raise HTTPException(status_code=400, detail='Password is required to delete account')
+
+    uid = current_user['id']
+    await db.users.delete_one({"id": uid})
+    await db.pets.delete_many({"owner_id": uid})
+    await db.comments.delete_many({"user_id": uid})
+    await db.community.delete_many({"user_id": uid})
+    await db.conversations.delete_many({"participants": uid})
+    await db.chat_messages.delete_many({"sender_id": uid})
+    await db.favorites.delete_many({"user_id": uid})
+    await db.user_settings.delete_many({"user_id": uid})
+    await db.blocked_users.delete_many({"$or": [{"user_id": uid}, {"blocked_user_id": uid}]})
+    await db.community_post_notifications.delete_many({"user_id": uid})
+    await db.community_reports.delete_many({"reported_by": uid})
+    return {"message": "Account deleted"}
+
+@api_router.get('/user-settings')
+async def get_user_settings(current_user: dict = Depends(get_current_user)):
+    row = await db.user_settings.find_one({"user_id": current_user["id"]})
+    if not row:
+        row = {"user_id": current_user["id"], **DEFAULT_USER_SETTINGS}
+        await db.user_settings.insert_one({**row, "created_at": datetime.utcnow(), "updated_at": datetime.utcnow()})
+    return {k: row.get(k, DEFAULT_USER_SETTINGS.get(k)) for k in DEFAULT_USER_SETTINGS.keys()}
+
+@api_router.put('/user-settings')
+async def update_user_settings(data: dict, current_user: dict = Depends(get_current_user)):
+    allowed = set(DEFAULT_USER_SETTINGS.keys())
+    patch = {k: v for k, v in (data or {}).items() if k in allowed}
+    if not patch:
+        return await get_user_settings(current_user)
+
+    await db.user_settings.update_one(
+        {"user_id": current_user["id"]},
+        {"$set": {**patch, "updated_at": datetime.utcnow()}, "$setOnInsert": {"created_at": datetime.utcnow()}},
+        upsert=True,
+    )
+    row = await db.user_settings.find_one({"user_id": current_user["id"]})
+    return {k: row.get(k, DEFAULT_USER_SETTINGS.get(k)) for k in DEFAULT_USER_SETTINGS.keys()}
 
 # ========================= PET ROUTES =========================
 

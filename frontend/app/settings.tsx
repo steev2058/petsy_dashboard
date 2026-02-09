@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   View,
   Text,
@@ -7,6 +7,7 @@ import {
   TouchableOpacity,
   Switch,
   Alert,
+  ActivityIndicator,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
@@ -14,6 +15,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Colors, FontSize, Spacing, BorderRadius, Shadow } from '../src/constants/theme';
 import { useStore } from '../src/store/useStore';
+import { authAPI, settingsAPI } from '../src/services/api';
 import { useTranslation } from '../src/hooks/useTranslation';
 
 export default function SettingsScreen() {
@@ -25,6 +27,34 @@ export default function SettingsScreen() {
   const [darkMode, setDarkMode] = useState(false);
   const [locationServices, setLocationServices] = useState(true);
   const [emailUpdates, setEmailUpdates] = useState(true);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const loadSettings = async () => {
+      try {
+        const res = await settingsAPI.get();
+        const s = res.data || {};
+        setNotifications(!!s.push_notifications);
+        setDarkMode(!!s.dark_mode);
+        setLocationServices(!!s.location_services);
+        setEmailUpdates(!!s.email_updates);
+      } catch {
+        // keep defaults
+      } finally {
+        setLoading(false);
+      }
+    };
+    if (isAuthenticated) loadSettings();
+    else setLoading(false);
+  }, [isAuthenticated]);
+
+  const patchSettings = async (patch: any) => {
+    try {
+      await settingsAPI.update(patch);
+    } catch {
+      Alert.alert('Error', 'Failed to save setting');
+    }
+  };
 
   const handleLanguageChange = () => {
     const newLang = language === 'en' ? 'ar' : 'en';
@@ -34,18 +64,10 @@ export default function SettingsScreen() {
   const handleDeleteAccount = () => {
     Alert.alert(
       'Delete Account',
-      'Are you sure you want to delete your account? This action cannot be undone.',
+      'To continue, enter your password on the next page.',
       [
         { text: 'Cancel', style: 'cancel' },
-        {
-          text: 'Delete',
-          style: 'destructive',
-          onPress: async () => {
-            Alert.alert('Account Deleted', 'Your account has been deleted.');
-            await logout();
-            router.replace('/(auth)/login');
-          },
-        },
+        { text: 'Continue', style: 'destructive', onPress: () => router.push('/delete-account') },
       ]
     );
   };
@@ -54,9 +76,9 @@ export default function SettingsScreen() {
     {
       title: 'Account',
       items: [
-        { icon: 'person', label: 'Edit Profile', onPress: () => router.push('/(tabs)/profile') },
-        { icon: 'lock-closed', label: 'Change Password', onPress: () => Alert.alert('Coming Soon', 'This feature is coming soon') },
-        { icon: 'shield-checkmark', label: 'Privacy Settings', onPress: () => Alert.alert('Coming Soon', 'This feature is coming soon') },
+        { icon: 'person', label: 'Edit Profile', onPress: () => router.push('/edit-profile') },
+        { icon: 'lock-closed', label: 'Change Password', onPress: () => router.push('/change-password') },
+        { icon: 'shield-checkmark', label: 'Privacy Settings', onPress: () => router.push('/privacy-settings') },
       ],
     },
     {
@@ -73,7 +95,10 @@ export default function SettingsScreen() {
           label: 'Push Notifications',
           isSwitch: true,
           switchValue: notifications,
-          onSwitch: setNotifications,
+          onSwitch: (value: boolean) => {
+            setNotifications(value);
+            patchSettings({ push_notifications: value });
+          },
         },
         {
           icon: 'moon',
@@ -82,7 +107,7 @@ export default function SettingsScreen() {
           switchValue: darkMode,
           onSwitch: (value: boolean) => {
             setDarkMode(value);
-            Alert.alert('Coming Soon', 'Dark mode will be available soon!');
+            patchSettings({ dark_mode: value });
           },
         },
         {
@@ -90,7 +115,10 @@ export default function SettingsScreen() {
           label: 'Location Services',
           isSwitch: true,
           switchValue: locationServices,
-          onSwitch: setLocationServices,
+          onSwitch: (value: boolean) => {
+            setLocationServices(value);
+            patchSettings({ location_services: value });
+          },
         },
       ],
     },
@@ -102,21 +130,34 @@ export default function SettingsScreen() {
           label: 'Email Updates',
           isSwitch: true,
           switchValue: emailUpdates,
-          onSwitch: setEmailUpdates,
+          onSwitch: (value: boolean) => {
+            setEmailUpdates(value);
+            patchSettings({ email_updates: value });
+          },
         },
-        { icon: 'chatbubbles', label: 'Chat Preferences', onPress: () => Alert.alert('Coming Soon') },
+        { icon: 'chatbubbles', label: 'Chat Preferences', onPress: () => router.push('/chat-preferences') },
       ],
     },
     {
       title: 'Support',
       items: [
         { icon: 'help-circle', label: 'Help Center', onPress: () => router.push('/help-support') },
-        { icon: 'document-text', label: 'Terms of Service', onPress: () => Alert.alert('Terms', 'Terms of Service will be displayed here') },
-        { icon: 'shield', label: 'Privacy Policy', onPress: () => Alert.alert('Privacy', 'Privacy Policy will be displayed here') },
-        { icon: 'information-circle', label: 'About Petsy', onPress: () => Alert.alert('Petsy', 'Version 1.0.0\n\nPetsy is your complete pet marketplace and adoption platform.') },
+        { icon: 'document-text', label: 'Terms of Service', onPress: () => router.push('/terms') },
+        { icon: 'shield', label: 'Privacy Policy', onPress: () => router.push('/privacy-policy') },
+        { icon: 'information-circle', label: 'About Petsy', onPress: () => router.push('/about') },
       ],
     },
   ];
+
+  if (loading) {
+    return (
+      <SafeAreaView style={styles.container} edges={['top']}>
+        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+          <ActivityIndicator size="small" color={Colors.primary} />
+        </View>
+      </SafeAreaView>
+    );
+  }
 
   return (
     <SafeAreaView style={styles.container} edges={['top']}>

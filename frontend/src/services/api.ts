@@ -49,6 +49,12 @@ export const authAPI = {
   getMe: () => api.get('/auth/me'),
   
   updateProfile: (data: any) => api.put('/auth/update', data),
+
+  changePassword: (data: { current_password: string; new_password: string }) =>
+    api.post('/auth/change-password', data),
+
+  deleteAccount: (password?: string) =>
+    api.post('/auth/delete-account', { password }),
 };
 
 // Pets API
@@ -181,6 +187,12 @@ export const communityAPI = {
 
   likeComment: (commentId: string) =>
     api.post(`/community/comments/${commentId}/like`),
+};
+
+// User Settings API
+export const settingsAPI = {
+  get: () => api.get('/user-settings'),
+  update: (data: any) => api.put('/user-settings', data),
 };
 
 // AI API

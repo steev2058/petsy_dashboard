@@ -59,6 +59,10 @@ export default function RootLayout() {
       'edit-profile',
       'my-pets',
       'blocked-users',
+      'change-password',
+      'privacy-settings',
+      'chat-preferences',
+      'delete-account',
     ]);
 
     const protectedTabRoutes = new Set(['profile']);
@@ -111,6 +115,13 @@ export default function RootLayout() {
         <Stack.Screen name="pet-tracking" />
         <Stack.Screen name="settings" />
         <Stack.Screen name="blocked-users" />
+        <Stack.Screen name="change-password" />
+        <Stack.Screen name="privacy-settings" />
+        <Stack.Screen name="chat-preferences" />
+        <Stack.Screen name="terms" />
+        <Stack.Screen name="privacy-policy" />
+        <Stack.Screen name="about" />
+        <Stack.Screen name="delete-account" />
         <Stack.Screen name="edit-profile" options={{ presentation: 'card' }} />
         <Stack.Screen name="help-support" />
         <Stack.Screen name="product/[id]" options={{ presentation: 'card' }} />
