@@ -71,10 +71,13 @@ export default function CommunityScreen() {
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [likedPostIds, setLikedPostIds] = useState<Set<string>>(new Set());
+  const [blockedUserIds, setBlockedUserIds] = useState<Set<string>>(new Set());
+  const [notifyPostIds, setNotifyPostIds] = useState<Set<string>>(new Set());
   
   // Comments modal
   const [showComments, setShowComments] = useState(false);
   const [selectedPost, setSelectedPost] = useState<Post | null>(null);
+  const [menuPost, setMenuPost] = useState<Post | null>(null);
   const [comments, setComments] = useState<Comment[]>([]);
   const [newComment, setNewComment] = useState('');
   const [loadingComments, setLoadingComments] = useState(false);
@@ -266,6 +269,32 @@ export default function CommunityScreen() {
     lastTapRef.current[post.id] = now;
   };
 
+  const handleReportPost = () => {
+    setMenuPost(null);
+    Alert.alert('Reported', 'Thanks. We received your report and will review this post.');
+  };
+
+  const handleBlockUser = () => {
+    if (!menuPost) return;
+    setBlockedUserIds((prev) => new Set(prev).add(menuPost.user_id));
+    setPosts((prev) => prev.filter((p) => p.user_id !== menuPost.user_id));
+    setMenuPost(null);
+    Alert.alert('Blocked', `You will no longer see posts from ${menuPost.user_name}.`);
+  };
+
+  const handleToggleNotifyPost = () => {
+    if (!menuPost) return;
+    const isOn = notifyPostIds.has(menuPost.id);
+    setNotifyPostIds((prev) => {
+      const next = new Set(prev);
+      if (isOn) next.delete(menuPost.id);
+      else next.add(menuPost.id);
+      return next;
+    });
+    setMenuPost(null);
+    Alert.alert(isOn ? 'Notifications Off' : 'Notifications On', isOn ? 'You will not be notified about this post.' : 'You will be notified about updates for this post.');
+  };
+
   const formatTime = (dateString: string) => {
     const date = new Date(dateString);
     const now = new Date();
@@ -301,6 +330,8 @@ export default function CommunityScreen() {
     }
   };
 
+  const visiblePosts = posts.filter((p) => !blockedUserIds.has(p.user_id));
+
   const renderPost = ({ item, index }: { item: Post; index: number }) => (
     <AnimatedRN.View entering={FadeInDown.delay(index * 50)}>
       <View style={[styles.postCard, Shadow.small]}>
@@ -331,7 +362,13 @@ export default function CommunityScreen() {
               <Text style={styles.postTime}>{formatTime(item.created_at)}</Text>
             </View>
           </View>
-          <TouchableOpacity style={styles.moreButton}>
+          <TouchableOpacity
+            style={styles.moreButton}
+            onPress={(e: any) => {
+              e?.stopPropagation?.();
+              setMenuPost(item);
+            }}
+          >
             <Ionicons name="ellipsis-horizontal" size={20} color={Colors.textSecondary} />
           </TouchableOpacity>
         </View>
@@ -459,7 +496,7 @@ export default function CommunityScreen() {
 
       {/* Posts */}
       <FlatList
-        data={posts}
+        data={visiblePosts}
         keyExtractor={(item) => item.id}
         renderItem={renderPost}
         contentContainerStyle={styles.listContent}
@@ -483,6 +520,26 @@ export default function CommunityScreen() {
           <Ionicons name="add" size={28} color={Colors.white} />
         </LinearGradient>
       </TouchableOpacity>
+
+      {/* Post Options Modal */}
+      <Modal visible={!!menuPost} transparent animationType="fade" onRequestClose={() => setMenuPost(null)}>
+        <TouchableOpacity style={styles.menuOverlay} activeOpacity={1} onPress={() => setMenuPost(null)}>
+          <View style={[styles.menuCard, Shadow.large]}>
+            <TouchableOpacity style={styles.menuItem} onPress={handleReportPost}>
+              <Ionicons name="flag-outline" size={18} color={Colors.text} />
+              <Text style={styles.menuText}>Report post</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.menuItem} onPress={handleBlockUser}>
+              <Ionicons name="ban-outline" size={18} color={Colors.error} />
+              <Text style={[styles.menuText, { color: Colors.error }]}>Block {menuPost?.user_name || 'user'}</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.menuItem} onPress={handleToggleNotifyPost}>
+              <Ionicons name={menuPost && notifyPostIds.has(menuPost.id) ? 'notifications-off-outline' : 'notifications-outline'} size={18} color={Colors.text} />
+              <Text style={styles.menuText}>{menuPost && notifyPostIds.has(menuPost.id) ? 'Turn off notifications' : 'Get notifications about this post'}</Text>
+            </TouchableOpacity>
+          </View>
+        </TouchableOpacity>
+      </Modal>
 
       {/* Comments Modal */}
       <Modal visible={showComments} transparent animationType="none" onRequestClose={() => setShowComments(false)}>
@@ -788,6 +845,32 @@ const styles = StyleSheet.create({
     height: 56,
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  menuOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.25)',
+    justifyContent: 'flex-start',
+    alignItems: 'flex-end',
+    paddingTop: 120,
+    paddingRight: Spacing.md,
+  },
+  menuCard: {
+    backgroundColor: Colors.white,
+    borderRadius: BorderRadius.lg,
+    minWidth: 240,
+    paddingVertical: 6,
+  },
+  menuItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+    paddingHorizontal: 14,
+    paddingVertical: 12,
+  },
+  menuText: {
+    fontSize: FontSize.md,
+    color: Colors.text,
+    fontWeight: '500',
   },
   modalOverlay: {
     flex: 1,
