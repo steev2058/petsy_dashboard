@@ -8,6 +8,7 @@ import {
   Dimensions,
   RefreshControl,
   Platform,
+  ActivityIndicator,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
@@ -129,7 +130,19 @@ export default function AdminDashboard() {
     if (!data || data.length === 0) return null;
     const maxRevenue = Math.max(...data.map(d => d.revenue), 1);
     
+  
+  if (loading) {
     return (
+      <SafeAreaView style={styles.container} edges={['top']}>
+        <View style={styles.loaderBox}>
+          <ActivityIndicator size="small" color={Colors.primary} />
+          <Text style={styles.loaderText}>Loading data...</Text>
+        </View>
+      </SafeAreaView>
+    );
+  }
+
+  return (
       <View style={styles.chartContainer}>
         <Text style={styles.chartTitle}>Revenue Overview (Last 6 Months)</Text>
         <View style={styles.chartBars}>
@@ -637,5 +650,15 @@ const styles = StyleSheet.create({
     fontSize: FontSize.md,
     fontWeight: '600',
     color: Colors.text,
+  },
+  loaderBox: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  loaderText: {
+    marginTop: Spacing.sm,
+    color: Colors.textSecondary,
+    fontSize: FontSize.sm,
   },
 });

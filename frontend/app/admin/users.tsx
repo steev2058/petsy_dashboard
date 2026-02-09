@@ -10,6 +10,7 @@ import {
   Alert,
   Image,
   Modal,
+  ActivityIndicator,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
@@ -102,6 +103,18 @@ export default function AdminUsersScreen() {
     const date = new Date(dateString);
     return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
   };
+
+
+  if (loading) {
+    return (
+      <SafeAreaView style={styles.container} edges={['top']}>
+        <View style={styles.loaderBox}>
+          <ActivityIndicator size="small" color={Colors.primary} />
+          <Text style={styles.loaderText}>Loading data...</Text>
+        </View>
+      </SafeAreaView>
+    );
+  }
 
   const renderUser = ({ item }: { item: any }) => (
     <TouchableOpacity
@@ -284,4 +297,14 @@ const styles = StyleSheet.create({
   modalActions: { flexDirection: 'row', gap: Spacing.md },
   modalAction: { flex: 1, alignItems: 'center', backgroundColor: Colors.backgroundDark, padding: Spacing.md, borderRadius: BorderRadius.lg },
   modalActionText: { fontSize: FontSize.sm, fontWeight: '600', color: Colors.text, marginTop: Spacing.xs },
+  loaderBox: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  loaderText: {
+    marginTop: Spacing.sm,
+    color: Colors.textSecondary,
+    fontSize: FontSize.sm,
+  },
 });

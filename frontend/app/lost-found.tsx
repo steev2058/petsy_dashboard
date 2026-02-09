@@ -47,6 +47,18 @@ export default function LostFoundScreen() {
     setRefreshing(false);
   };
 
+
+  if (loading) {
+    return (
+      <SafeAreaView style={styles.container} edges={['top']}>
+        <View style={styles.loaderBox}>
+          <ActivityIndicator size="small" color={Colors.primary} />
+          <Text style={styles.loaderText}>Loading data...</Text>
+        </View>
+      </SafeAreaView>
+    );
+  }
+
   const renderPost = ({ item }: { item: any }) => (
     <TouchableOpacity style={[styles.postCard, Shadow.medium]}>
       <View style={styles.postImageContainer}>
@@ -359,5 +371,15 @@ const styles = StyleSheet.create({
   },
   reportButton: {
     minWidth: 200,
+  },
+  loaderBox: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  loaderText: {
+    marginTop: Spacing.sm,
+    color: Colors.textSecondary,
+    fontSize: FontSize.sm,
   },
 });

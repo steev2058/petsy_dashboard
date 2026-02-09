@@ -8,6 +8,7 @@ import {
   RefreshControl,
   Alert,
   Image,
+  ActivityIndicator,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
@@ -47,6 +48,18 @@ export default function AdminAppointmentsScreen() {
       default: return Colors.textSecondary;
     }
   };
+
+
+  if (loading) {
+    return (
+      <SafeAreaView style={styles.container} edges={['top']}>
+        <View style={styles.loaderBox}>
+          <ActivityIndicator size="small" color={Colors.primary} />
+          <Text style={styles.loaderText}>Loading data...</Text>
+        </View>
+      </SafeAreaView>
+    );
+  }
 
   const renderAppointment = ({ item }: { item: any }) => (
     <View style={[styles.card, Shadow.small]}>
@@ -119,4 +132,14 @@ const styles = StyleSheet.create({
   statusText: { fontSize: FontSize.xs, fontWeight: '600' },
   emptyState: { alignItems: 'center', paddingVertical: Spacing.xxl },
   emptyText: { fontSize: FontSize.md, color: Colors.textSecondary, marginTop: Spacing.md },
+  loaderBox: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  loaderText: {
+    marginTop: Spacing.sm,
+    color: Colors.textSecondary,
+    fontSize: FontSize.sm,
+  },
 });

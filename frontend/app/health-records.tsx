@@ -12,6 +12,7 @@ import {
   ScrollView,
   KeyboardAvoidingView,
   Platform,
+  ActivityIndicator,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter, useLocalSearchParams } from 'expo-router';
@@ -127,6 +128,18 @@ export default function HealthRecordsScreen() {
     const date = new Date(dateStr);
     return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
   };
+
+
+  if (loading) {
+    return (
+      <SafeAreaView style={styles.container} edges={['top']}>
+        <View style={styles.loaderBox}>
+          <ActivityIndicator size="small" color={Colors.primary} />
+          <Text style={styles.loaderText}>Loading data...</Text>
+        </View>
+      </SafeAreaView>
+    );
+  }
 
   const renderRecord = ({ item, index }: { item: HealthRecord; index: number }) => {
     const typeConfig = getTypeConfig(item.record_type);
@@ -581,5 +594,15 @@ const styles = StyleSheet.create({
     fontSize: FontSize.md,
     fontWeight: '600',
     color: Colors.white,
+  },
+  loaderBox: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  loaderText: {
+    marginTop: Spacing.sm,
+    color: Colors.textSecondary,
+    fontSize: FontSize.sm,
   },
 });

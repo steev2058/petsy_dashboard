@@ -8,6 +8,7 @@ import {
   RefreshControl,
   Alert,
   Modal,
+  ActivityIndicator,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
@@ -77,6 +78,18 @@ export default function AdminOrdersScreen() {
   };
 
   const filteredOrders = filter === 'all' ? orders : orders.filter(o => o.status === filter);
+
+
+  if (loading) {
+    return (
+      <SafeAreaView style={styles.container} edges={['top']}>
+        <View style={styles.loaderBox}>
+          <ActivityIndicator size="small" color={Colors.primary} />
+          <Text style={styles.loaderText}>Loading data...</Text>
+        </View>
+      </SafeAreaView>
+    );
+  }
 
   const renderOrder = ({ item }: { item: any }) => {
     const status = STATUS_CONFIG[item.status] || STATUS_CONFIG.pending;
@@ -235,4 +248,14 @@ const styles = StyleSheet.create({
   statusOption: { width: '31%', alignItems: 'center', backgroundColor: Colors.backgroundDark, padding: Spacing.md, borderRadius: BorderRadius.lg, borderWidth: 2, borderColor: 'transparent' },
   statusOptionIcon: { width: 40, height: 40, borderRadius: 20, justifyContent: 'center', alignItems: 'center', marginBottom: Spacing.xs },
   statusOptionText: { fontSize: FontSize.sm, fontWeight: '600', color: Colors.text },
+  loaderBox: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  loaderText: {
+    marginTop: Spacing.sm,
+    color: Colors.textSecondary,
+    fontSize: FontSize.sm,
+  },
 });

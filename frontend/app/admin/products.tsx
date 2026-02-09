@@ -126,6 +126,18 @@ export default function AdminProductsScreen() {
     p.name?.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
+
+  if (loading) {
+    return (
+      <SafeAreaView style={styles.container} edges={['top']}>
+        <View style={styles.loaderBox}>
+          <ActivityIndicator size="small" color={Colors.primary} />
+          <Text style={styles.loaderText}>Loading data...</Text>
+        </View>
+      </SafeAreaView>
+    );
+  }
+
   const renderProduct = ({ item }: { item: any }) => (
     <TouchableOpacity style={[styles.productCard, Shadow.small]} onPress={() => openEditModal(item)}>
       <View style={styles.productImageContainer}>
@@ -287,4 +299,14 @@ const styles = StyleSheet.create({
   saveButton: { marginTop: Spacing.lg, borderRadius: BorderRadius.lg, overflow: 'hidden' },
   saveButtonGradient: { paddingVertical: Spacing.md, alignItems: 'center' },
   saveButtonText: { fontSize: FontSize.lg, fontWeight: '600', color: Colors.white },
+  loaderBox: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  loaderText: {
+    marginTop: Spacing.sm,
+    color: Colors.textSecondary,
+    fontSize: FontSize.sm,
+  },
 });
