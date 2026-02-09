@@ -10,6 +10,7 @@ import {
   Image,
   Share,
   ActivityIndicator,
+  Linking,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
@@ -147,6 +148,22 @@ export default function PetTrackingScreen() {
     });
   };
 
+  const openMapForLocation = async (locationText?: string, latitude?: number, longitude?: number) => {
+    const q = (latitude && longitude)
+      ? `${latitude},${longitude}`
+      : encodeURIComponent(locationText || '');
+    if (!q) {
+      Alert.alert('No location', 'No location available yet for this pet');
+      return;
+    }
+    const url = `https://www.google.com/maps/search/?api=1&query=${q}`;
+    try {
+      await Linking.openURL(url);
+    } catch {
+      Alert.alert('Error', 'Could not open map');
+    }
+  };
+
   if (!isAuthenticated) {
     return (
       <SafeAreaView style={styles.container} edges={['top']}>
@@ -275,6 +292,13 @@ export default function PetTrackingScreen() {
                         <Text style={styles.tagStatLabel}>Last Scan</Text>
                       </View>
                     </View>
+                    {petTag.last_location ? (
+                      <TouchableOpacity style={styles.mapButton} onPress={() => openMapForLocation(petTag.last_location)}>
+                        <Ionicons name="map" size={18} color={Colors.primary} />
+                        <Text style={styles.mapButtonText}>Open last location on map</Text>
+                      </TouchableOpacity>
+                    ) : null}
+
                     {petTag.is_active ? (
                       <>
                         <TouchableOpacity style={styles.shareButton} onPress={handleShare}>
@@ -337,6 +361,15 @@ export default function PetTrackingScreen() {
                           <Text style={styles.scannerInfo}>
                             Scanned by: {scan.scanner_name}
                           </Text>
+                        )}
+                        {!!(scan.location || (scan.latitude && scan.longitude)) && (
+                          <TouchableOpacity
+                            style={styles.scanMapBtn}
+                            onPress={() => openMapForLocation(scan.location, scan.latitude, scan.longitude)}
+                          >
+                            <Ionicons name="navigate" size={14} color={Colors.primary} />
+                            <Text style={styles.scanMapText}>Open in map</Text>
+                          </TouchableOpacity>
                         )}
                       </View>
                     </View>
@@ -551,6 +584,21 @@ const styles = StyleSheet.create({
     fontSize: FontSize.xs,
     color: Colors.textSecondary,
   },
+  mapButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.xs,
+    paddingVertical: Spacing.xs,
+    paddingHorizontal: Spacing.md,
+    borderRadius: BorderRadius.full,
+    backgroundColor: Colors.backgroundDark,
+    marginBottom: Spacing.sm,
+  },
+  mapButtonText: {
+    fontSize: FontSize.sm,
+    color: Colors.primary,
+    fontWeight: '600',
+  },
   shareButton: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -651,6 +699,22 @@ const styles = StyleSheet.create({
     fontSize: FontSize.xs,
     color: Colors.primary,
     marginTop: 2,
+  },
+  scanMapBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    alignSelf: 'flex-start',
+    marginTop: 6,
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: BorderRadius.sm,
+    backgroundColor: Colors.primary + '12',
+  },
+  scanMapText: {
+    fontSize: FontSize.xs,
+    color: Colors.primary,
+    fontWeight: '600',
   },
   stepsContainer: {
     flexDirection: 'row',
