@@ -1409,6 +1409,13 @@ async def get_lost_found(type: Optional[str] = None, status: str = "active"):
     posts = await db.lost_found.find(query).sort("created_at", -1).to_list(100)
     return [LostFoundPost(**p) for p in posts]
 
+@api_router.get("/lost-found/{post_id}", response_model=LostFoundPost)
+async def get_lost_found_by_id(post_id: str):
+    post = await db.lost_found.find_one({"id": post_id})
+    if not post:
+        raise HTTPException(status_code=404, detail="Post not found")
+    return LostFoundPost(**post)
+
 # ========================= COMMUNITY =========================
 
 @api_router.post("/community", response_model=CommunityPost)

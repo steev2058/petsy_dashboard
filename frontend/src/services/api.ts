@@ -148,6 +148,8 @@ export const lostFoundAPI = {
   
   getAll: (params?: { type?: string; status?: string }) =>
     api.get('/lost-found', { params }),
+
+  getById: (id: string) => api.get(`/lost-found/${id}`),
 };
 
 // Community API

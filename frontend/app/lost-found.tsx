@@ -78,7 +78,11 @@ export default function LostFoundScreen() {
   });
 
   const renderPost = ({ item }: { item: any }) => (
-    <TouchableOpacity style={[styles.postCard, Shadow.medium]}>
+    <TouchableOpacity
+      style={[styles.postCard, Shadow.medium]}
+      onPress={() => router.push(`/lost-found/${item.id}`)}
+      activeOpacity={0.9}
+    >
       <View style={styles.postImageContainer}>
         {item.image ? (
           <Image source={{ uri: item.image }} style={styles.postImage} />
@@ -113,7 +117,10 @@ export default function LostFoundScreen() {
           <Ionicons name="calendar" size={14} color={Colors.textSecondary} />
           <Text style={styles.postDateText}>{item.last_seen_date}</Text>
         </View>
-        <TouchableOpacity style={styles.contactButton}>
+        <TouchableOpacity
+          style={styles.contactButton}
+          onPress={() => router.push(`/lost-found/${item.id}`)}
+        >
           <Ionicons name="call" size={16} color={Colors.white} />
           <Text style={styles.contactButtonText}>Contact</Text>
         </TouchableOpacity>
