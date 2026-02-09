@@ -305,6 +305,16 @@ export default function PetTrackingScreen() {
                         <Text style={styles.tagStatLabel}>Last Scan</Text>
                       </View>
                     </View>
+
+                    <View style={styles.lastSeenBox}>
+                      <Ionicons name="location" size={16} color={Colors.primary} />
+                      <View style={{ flex: 1 }}>
+                        <Text style={styles.lastSeenTitle}>Last Seen</Text>
+                        <Text style={styles.lastSeenText}>
+                          {petTag.last_location || selectedPet?.location || 'No location yet'}
+                        </Text>
+                      </View>
+                    </View>
                     {(petTag.last_location || selectedPet?.location) ? (
                       <>
                         <Text style={styles.mapHint}>
@@ -608,6 +618,26 @@ const styles = StyleSheet.create({
   tagStatLabel: {
     fontSize: FontSize.xs,
     color: Colors.textSecondary,
+  },
+  lastSeenBox: {
+    marginBottom: Spacing.sm,
+    width: '100%',
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.sm,
+    backgroundColor: Colors.backgroundDark,
+    borderRadius: BorderRadius.md,
+    padding: Spacing.sm,
+  },
+  lastSeenTitle: {
+    fontSize: FontSize.xs,
+    color: Colors.textSecondary,
+    fontWeight: '700',
+  },
+  lastSeenText: {
+    fontSize: FontSize.sm,
+    color: Colors.text,
+    marginTop: 2,
   },
   mapHint: {
     fontSize: FontSize.sm,
