@@ -40,9 +40,9 @@ export default function SettingsScreen() {
         {
           text: 'Delete',
           style: 'destructive',
-          onPress: () => {
+          onPress: async () => {
             Alert.alert('Account Deleted', 'Your account has been deleted.');
-            logout();
+            await logout();
             router.replace('/(auth)/login');
           },
         },
