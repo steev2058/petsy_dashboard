@@ -11,6 +11,7 @@ import {
   TextInput,
   ScrollView,
   KeyboardAvoidingView,
+  Image,
   Platform,
   ActivityIndicator,
 } from 'react-native';
@@ -224,18 +225,29 @@ export default function HealthRecordsScreen() {
 
       {/* Pet selector */}
       {petsList.length > 0 && (
-        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.petSelectorRow}>
-          {petsList.map((pet) => (
-            <TouchableOpacity
-              key={pet.id}
-              style={[styles.petChip, selectedPetId === pet.id && styles.petChipActive]}
-              onPress={() => setSelectedPetId(pet.id)}
-            >
-              <Ionicons name="paw" size={14} color={selectedPetId === pet.id ? Colors.white : Colors.primary} />
-              <Text style={[styles.petChipText, selectedPetId === pet.id && styles.petChipTextActive]}>{pet.name}</Text>
-            </TouchableOpacity>
-          ))}
-        </ScrollView>
+        <View style={styles.petSelectSection}>
+          <Text style={styles.petSelectTitle}>Select Pet</Text>
+          <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.petSelectorRow}>
+            {petsList.map((pet) => (
+              <TouchableOpacity
+                key={pet.id}
+                style={[styles.petCard, selectedPetId === pet.id && styles.petCardActive]}
+                onPress={() => setSelectedPetId(pet.id)}
+              >
+                <View style={styles.petAvatarWrap}>
+                  {pet.image ? (
+                    <Image source={{ uri: pet.image }} style={styles.petAvatar} />
+                  ) : (
+                    <View style={styles.petAvatarPlaceholder}>
+                      <Ionicons name="paw" size={20} color={Colors.textLight} />
+                    </View>
+                  )}
+                </View>
+                <Text style={[styles.petName, selectedPetId === pet.id && styles.petNameActive]} numberOfLines={1}>{pet.name}</Text>
+              </TouchableOpacity>
+            ))}
+          </ScrollView>
+        </View>
       )}
 
       {/* Stats */}
@@ -426,33 +438,59 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  petSelectorRow: {
+  petSelectSection: {
     paddingHorizontal: Spacing.md,
     paddingTop: Spacing.sm,
-    gap: Spacing.sm,
   },
-  petChip: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
+  petSelectTitle: {
+    fontSize: FontSize.lg,
+    fontWeight: '700',
+    color: Colors.text,
+    marginBottom: Spacing.sm,
+  },
+  petSelectorRow: {
+    gap: Spacing.sm,
+    paddingBottom: 2,
+  },
+  petCard: {
+    width: 106,
     backgroundColor: Colors.white,
+    borderRadius: BorderRadius.lg,
     borderWidth: 1,
-    borderColor: Colors.primary,
-    borderRadius: BorderRadius.full,
-    paddingHorizontal: Spacing.md,
-    paddingVertical: 8,
+    borderColor: Colors.border,
+    alignItems: 'center',
+    paddingVertical: Spacing.sm,
     marginRight: Spacing.sm,
   },
-  petChipActive: {
-    backgroundColor: Colors.primary,
+  petCardActive: {
+    borderColor: Colors.primary,
+    borderWidth: 1.5,
   },
-  petChipText: {
-    color: Colors.primary,
+  petAvatarWrap: {
+    width: 58,
+    height: 58,
+    borderRadius: 29,
+    overflow: 'hidden',
+    marginBottom: 8,
+  },
+  petAvatar: {
+    width: '100%',
+    height: '100%',
+  },
+  petAvatarPlaceholder: {
+    flex: 1,
+    backgroundColor: Colors.backgroundDark,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  petName: {
+    color: Colors.text,
     fontSize: FontSize.sm,
     fontWeight: '600',
+    textTransform: 'lowercase',
   },
-  petChipTextActive: {
-    color: Colors.white,
+  petNameActive: {
+    color: Colors.primary,
   },
   statsContainer: {
     flexDirection: 'row',
