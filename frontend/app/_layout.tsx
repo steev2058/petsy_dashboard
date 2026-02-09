@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { Stack } from 'expo-router';
+import { Stack, useRouter, useSegments } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { I18nManager, Platform } from 'react-native';
 import * as Updates from 'expo-updates';
@@ -9,6 +9,10 @@ import { Colors } from '../src/constants/theme';
 export default function RootLayout() {
   const loadStoredAuth = useStore((state) => state.loadStoredAuth);
   const language = useStore((state) => state.language);
+  const isAuthenticated = useStore((state) => state.isAuthenticated);
+  const isLoading = useStore((state) => state.isLoading);
+  const router = useRouter();
+  const segments = useSegments();
 
   useEffect(() => {
     loadStoredAuth();
@@ -27,6 +31,47 @@ export default function RootLayout() {
       }
     }
   }, [language]);
+
+  // Route guard for protected screens
+  useEffect(() => {
+    if (isLoading) return;
+
+    const first = segments[0] || '';
+    const second = segments[1] || '';
+
+    const isAuthRoute = first === '(auth)';
+
+    const protectedTopRoutes = new Set([
+      'messages',
+      'chat',
+      'my-appointments',
+      'favorites',
+      'settings',
+      'add-pet',
+      'checkout',
+      'create-post',
+      'health-records',
+      'pet-tracking',
+      'book-appointment',
+      'sponsor',
+      'order-history',
+    ]);
+
+    const protectedTabRoutes = new Set(['profile']);
+
+    const isProtectedRoute =
+      protectedTopRoutes.has(first) ||
+      (first === '(tabs)' && protectedTabRoutes.has(second));
+
+    if (!isAuthenticated && isProtectedRoute) {
+      router.replace('/(auth)/login');
+      return;
+    }
+
+    if (isAuthenticated && isAuthRoute) {
+      router.replace('/(tabs)/home');
+    }
+  }, [segments, isAuthenticated, isLoading, router]);
 
   return (
     <>
