@@ -10,51 +10,51 @@ export default function TabLayout() {
   const { t } = useTranslation();
   const router = useRouter();
 
+  const renderTabIcon = (icon: keyof typeof Ionicons.glyphMap, color: string, size: number, focused: boolean) => (
+    <View style={[styles.iconWrap, focused && styles.iconWrapActive]}>
+      <Ionicons name={icon} size={focused ? size + 1 : size} color={focused ? Colors.primary : color} />
+    </View>
+  );
+
   return (
     <>
       <Tabs
         screenOptions={{
           headerShown: false,
           tabBarStyle: styles.tabBar,
+          tabBarItemStyle: styles.tabItem,
           tabBarActiveTintColor: Colors.primary,
           tabBarInactiveTintColor: Colors.textSecondary,
           tabBarLabelStyle: styles.tabLabel,
+          tabBarHideOnKeyboard: true,
         }}
       >
         <Tabs.Screen
           name="home"
           options={{
             title: t('home'),
-            tabBarIcon: ({ color, size }) => (
-              <Ionicons name="home" size={size} color={color} />
-            ),
+            tabBarIcon: ({ color, size, focused }) => renderTabIcon('home', color, size, focused),
           }}
         />
         <Tabs.Screen
           name="adoption"
           options={{
             title: t('adoption'),
-            tabBarIcon: ({ color, size }) => (
-              <Ionicons name="heart" size={size} color={color} />
-            ),
+            tabBarIcon: ({ color, size, focused }) => renderTabIcon('heart', color, size, focused),
           }}
         />
         <Tabs.Screen
           name="shop"
           options={{
             title: t('shop'),
-            tabBarIcon: ({ color, size }) => (
-              <Ionicons name="storefront" size={size} color={color} />
-            ),
+            tabBarIcon: ({ color, size, focused }) => renderTabIcon('storefront', color, size, focused),
           }}
         />
         <Tabs.Screen
           name="profile"
           options={{
             title: t('profile'),
-            tabBarIcon: ({ color, size }) => (
-              <Ionicons name="person" size={size} color={color} />
-            ),
+            tabBarIcon: ({ color, size, focused }) => renderTabIcon('person', color, size, focused),
           }}
         />
       </Tabs>
@@ -72,24 +72,43 @@ export default function TabLayout() {
 
 const styles = StyleSheet.create({
   tabBar: {
+    position: 'absolute',
+    left: Spacing.md,
+    right: Spacing.md,
+    bottom: Spacing.sm,
     backgroundColor: Colors.white,
     borderTopWidth: 0,
-    elevation: 10,
+    borderRadius: BorderRadius.xl,
+    elevation: 12,
     shadowColor: Colors.black,
-    shadowOffset: { width: 0, height: -4 },
-    shadowOpacity: 0.1,
-    shadowRadius: 12,
-    height: 60,
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.12,
+    shadowRadius: 14,
+    height: 68,
     paddingBottom: 8,
     paddingTop: 8,
   },
+  tabItem: {
+    paddingTop: 2,
+  },
+  iconWrap: {
+    width: 30,
+    height: 30,
+    borderRadius: 15,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  iconWrapActive: {
+    backgroundColor: Colors.primary + '14',
+  },
   tabLabel: {
-    fontSize: FontSize.xs,
-    fontWeight: '600',
+    fontSize: 11,
+    fontWeight: '700',
+    marginBottom: 2,
   },
   sosButton: {
     position: 'absolute',
-    bottom: 80,
+    bottom: 100,
     right: Spacing.md,
     width: 56,
     height: 56,
