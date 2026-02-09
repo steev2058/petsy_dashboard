@@ -243,13 +243,28 @@ export default function HomeScreen() {
           onPress={() => setDrawerOpen(false)}
         >
           <View style={styles.drawer}>
-            <View style={styles.drawerHeader}>
+            <TouchableOpacity
+              style={styles.drawerHeader}
+              activeOpacity={0.85}
+              onPress={() => {
+                setDrawerOpen(false);
+                if (user) {
+                  router.push('/edit-profile');
+                } else {
+                  router.push('/(auth)/login');
+                }
+              }}
+            >
               <View style={styles.drawerAvatar}>
-                <Ionicons name="person" size={40} color={Colors.white} />
+                {user?.avatar ? (
+                  <Image source={{ uri: user.avatar }} style={styles.drawerAvatarImage} />
+                ) : (
+                  <Ionicons name="person" size={40} color={Colors.white} />
+                )}
               </View>
               <Text style={styles.drawerName}>{user?.name || 'Guest'}</Text>
               <Text style={styles.drawerEmail}>{user?.email || 'Login to continue'}</Text>
-            </View>
+            </TouchableOpacity>
             
             <View style={styles.drawerMenu}>
               {[
@@ -456,6 +471,11 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     marginBottom: Spacing.md,
+    overflow: 'hidden',
+  },
+  drawerAvatarImage: {
+    width: '100%',
+    height: '100%',
   },
   drawerName: {
     fontSize: FontSize.xl,
