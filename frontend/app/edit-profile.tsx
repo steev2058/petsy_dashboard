@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import {
   View,
   Text,
@@ -31,6 +31,12 @@ export default function EditProfileScreen() {
   const [avatar, setAvatar] = useState(user?.avatar || '');
   const [loading, setLoading] = useState(false);
   const [avatarMenuVisible, setAvatarMenuVisible] = useState(false);
+  const [toast, setToast] = useState<{ visible: boolean; message: string; type: 'success' | 'error' }>({
+    visible: false,
+    message: '',
+    type: 'success',
+  });
+  const toastTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const hasChanges = useMemo(() => {
     return (
@@ -47,6 +53,22 @@ export default function EditProfileScreen() {
     const filled = fields.filter((f) => !!(f && String(f).trim())).length;
     return Math.round((filled / fields.length) * 100);
   }, [name, user?.email, phone, city, bio, avatar]);
+
+  useEffect(() => {
+    return () => {
+      if (toastTimerRef.current) {
+        clearTimeout(toastTimerRef.current);
+      }
+    };
+  }, []);
+
+  const showToast = (message: string, type: 'success' | 'error' = 'success') => {
+    if (toastTimerRef.current) clearTimeout(toastTimerRef.current);
+    setToast({ visible: true, message, type });
+    toastTimerRef.current = setTimeout(() => {
+      setToast((prev) => ({ ...prev, visible: false }));
+    }, 2200);
+  };
 
   const setAvatarFromAsset = (asset: ImagePicker.ImagePickerAsset) => {
     if (asset.base64) {
@@ -153,9 +175,8 @@ export default function EditProfileScreen() {
       });
 
       setUser(response.data);
-      Alert.alert('Success', 'Profile updated successfully', [
-        { text: 'OK', onPress: () => router.back() },
-      ]);
+      showToast('Profile updated successfully', 'success');
+      setTimeout(() => router.back(), 900);
     } catch (error: any) {
       Alert.alert('Update Failed', error?.response?.data?.detail || 'Could not update profile');
     } finally {
@@ -173,6 +194,18 @@ export default function EditProfileScreen() {
           <Text style={styles.title}>Edit Profile</Text>
           <View style={{ width: 40 }} />
         </View>
+
+        {toast.visible && (
+          <View style={[styles.toast, toast.type === 'error' ? styles.toastError : styles.toastSuccess]}>
+            <Ionicons
+              name={toast.type === 'error' ? 'alert-circle' : 'checkmark-circle'}
+              size={18}
+              color={Colors.white}
+              style={{ marginRight: 8 }}
+            />
+            <Text style={styles.toastText}>{toast.message}</Text>
+          </View>
+        )}
 
         <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
           <TouchableOpacity onPress={openAvatarActions} activeOpacity={0.85}>
@@ -280,6 +313,22 @@ const styles = StyleSheet.create({
   },
   title: { fontSize: FontSize.xl, fontWeight: '700', color: Colors.text },
   content: { padding: Spacing.lg, paddingBottom: 120 },
+  toast: {
+    marginHorizontal: Spacing.md,
+    marginTop: Spacing.sm,
+    borderRadius: BorderRadius.md,
+    paddingHorizontal: Spacing.md,
+    paddingVertical: Spacing.sm,
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  toastSuccess: { backgroundColor: '#22c55e' },
+  toastError: { backgroundColor: Colors.error },
+  toastText: {
+    color: Colors.white,
+    fontSize: FontSize.sm,
+    fontWeight: '600',
+  },
   avatarPlaceholder: {
     width: 90,
     height: 90,
