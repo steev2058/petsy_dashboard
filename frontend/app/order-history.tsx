@@ -73,7 +73,11 @@ export default function OrderHistoryScreen() {
     
     return (
       <Animated.View entering={FadeInDown.delay(index * 100)}>
-        <TouchableOpacity style={[styles.orderCard, Shadow.small]}>
+        <TouchableOpacity
+          style={[styles.orderCard, Shadow.small]}
+          onPress={() => router.push(`/order/${item.id}`)}
+          activeOpacity={0.9}
+        >
           {/* Order Header */}
           <View style={styles.orderHeader}>
             <View>

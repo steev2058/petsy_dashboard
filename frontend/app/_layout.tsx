@@ -55,6 +55,7 @@ export default function RootLayout() {
       'book-appointment',
       'sponsor',
       'order-history',
+      'order',
       'edit-profile',
     ]);
 
@@ -107,6 +108,7 @@ export default function RootLayout() {
         <Stack.Screen name="edit-profile" options={{ presentation: 'card' }} />
         <Stack.Screen name="help-support" />
         <Stack.Screen name="product/[id]" options={{ presentation: 'card' }} />
+        <Stack.Screen name="order/[id]" options={{ presentation: 'card' }} />
         <Stack.Screen name="chat/[id]" />
         <Stack.Screen name="book-appointment/[vetId]" options={{ presentation: 'modal' }} />
         <Stack.Screen name="sponsor/[petId]" options={{ presentation: 'modal' }} />
