@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import {
   View,
   Text,
@@ -46,6 +46,26 @@ export default function CreatePostScreen() {
   const [selectedType, setSelectedType] = useState('question');
   const [selectedSpecies, setSelectedSpecies] = useState('dog');
   const [image, setImage] = useState<string | null>(null);
+  const [toast, setToast] = useState<{ visible: boolean; message: string; type: 'success' | 'error' }>({
+    visible: false,
+    message: '',
+    type: 'success',
+  });
+  const toastTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    return () => {
+      if (toastTimerRef.current) clearTimeout(toastTimerRef.current);
+    };
+  }, []);
+
+  const showToast = (message: string, type: 'success' | 'error' = 'success') => {
+    if (toastTimerRef.current) clearTimeout(toastTimerRef.current);
+    setToast({ visible: true, message, type });
+    toastTimerRef.current = setTimeout(() => {
+      setToast((prev) => ({ ...prev, visible: false }));
+    }, 1800);
+  };
   
   const [formData, setFormData] = useState({
     title: '',
@@ -108,11 +128,10 @@ export default function CreatePostScreen() {
           contact_phone: formData.contact_phone,
           image: image,
         });
-        Alert.alert(
-          'Success!',
-          `Your ${postCategory} pet report has been posted`,
-          [{ text: 'OK', onPress: () => router.replace('/lost-found') }]
-        );
+        showToast(`Your ${postCategory} pet report has been posted`, 'success');
+        setTimeout(() => {
+          router.replace('/lost-found');
+        }, 900);
       } else {
         await communityAPI.create({
           type: selectedType,
@@ -167,6 +186,12 @@ export default function CreatePostScreen() {
 
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
+      {toast.visible && (
+        <View style={[styles.toast, toast.type === 'success' ? styles.toastSuccess : styles.toastError]}>
+          <Ionicons name={toast.type === 'success' ? 'checkmark-circle' : 'alert-circle'} size={16} color={Colors.white} />
+          <Text style={styles.toastText}>{toast.message}</Text>
+        </View>
+      )}
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         style={{ flex: 1 }}
@@ -558,5 +583,31 @@ const styles = StyleSheet.create({
     color: Colors.white,
     fontSize: FontSize.lg,
     fontWeight: '600',
+  },
+  toast: {
+    position: 'absolute',
+    top: 16,
+    left: 16,
+    right: 16,
+    zIndex: 100,
+    borderRadius: BorderRadius.md,
+    paddingVertical: 10,
+    paddingHorizontal: 12,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    ...Shadow.small,
+  },
+  toastSuccess: {
+    backgroundColor: Colors.success,
+  },
+  toastError: {
+    backgroundColor: Colors.error,
+  },
+  toastText: {
+    color: Colors.white,
+    fontSize: FontSize.sm,
+    fontWeight: '600',
+    flex: 1,
   },
 });
