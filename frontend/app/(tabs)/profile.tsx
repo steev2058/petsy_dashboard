@@ -173,7 +173,7 @@ export default function ProfileScreen() {
                 <Ionicons name="person" size={40} color={Colors.white} />
               </View>
             )}
-            <TouchableOpacity style={styles.editAvatarButton}>
+            <TouchableOpacity style={styles.editAvatarButton} onPress={() => router.push('/edit-profile')}>
               <Ionicons name="camera" size={16} color={Colors.white} />
             </TouchableOpacity>
           </View>
