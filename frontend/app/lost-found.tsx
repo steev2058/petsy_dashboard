@@ -7,6 +7,7 @@ import {
   TouchableOpacity,
   Image,
   RefreshControl,
+  ActivityIndicator,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
