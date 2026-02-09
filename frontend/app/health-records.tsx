@@ -20,7 +20,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import Animated, { FadeInDown, FadeInUp } from 'react-native-reanimated';
 import { Colors, FontSize, Spacing, BorderRadius, Shadow } from '../src/constants/theme';
-import { healthAPI } from '../src/services/api';
+import { healthAPI, petsAPI } from '../src/services/api';
 import { useStore } from '../src/store/useStore';
 import { useTranslation } from '../src/hooks/useTranslation';
 
@@ -50,6 +50,8 @@ export default function HealthRecordsScreen() {
   const { petId } = useLocalSearchParams<{ petId: string }>();
   const { t, isRTL } = useTranslation();
   const { isAuthenticated, myPets } = useStore();
+  const [petsList, setPetsList] = useState<any[]>(myPets || []);
+  const [selectedPetId, setSelectedPetId] = useState<string | undefined>(petId);
   
   const [records, setRecords] = useState<HealthRecord[]>([]);
   const [loading, setLoading] = useState(true);
@@ -66,17 +68,34 @@ export default function HealthRecordsScreen() {
     notes: '',
   });
 
-  const currentPet = myPets.find(p => p.id === petId);
+  const currentPet = petsList.find(p => p.id === selectedPetId);
 
   useEffect(() => {
-    if (petId) {
-      loadRecords();
-    }
+    const initPets = async () => {
+      try {
+        const source = (myPets && myPets.length > 0) ? myPets : (await petsAPI.getMyPets()).data;
+        setPetsList(source || []);
+        if (!selectedPetId && source?.length) setSelectedPetId(source[0].id);
+      } catch (e) {
+        console.error('Error loading pets for health records:', e);
+      }
+    };
+    initPets();
+  }, []);
+
+  useEffect(() => {
+    if (petId) setSelectedPetId(petId);
   }, [petId]);
 
-  const loadRecords = async () => {
+  useEffect(() => {
+    if (selectedPetId) loadRecords(selectedPetId);
+    else setLoading(false);
+  }, [selectedPetId]);
+
+  const loadRecords = async (targetPetId?: string) => {
+    if (!targetPetId) return;
     try {
-      const response = await healthAPI.getByPetId(petId as string);
+      const response = await healthAPI.getByPetId(targetPetId);
       setRecords(response.data);
     } catch (error) {
       console.error('Error loading records:', error);
@@ -87,9 +106,9 @@ export default function HealthRecordsScreen() {
 
   const onRefresh = useCallback(async () => {
     setRefreshing(true);
-    await loadRecords();
+    await loadRecords(selectedPetId);
     setRefreshing(false);
-  }, [petId]);
+  }, [selectedPetId]);
 
   const handleAddRecord = async () => {
     if (!formData.title.trim()) {
@@ -98,8 +117,12 @@ export default function HealthRecordsScreen() {
     }
 
     try {
+      if (!selectedPetId) {
+        Alert.alert('No pet selected', 'Please select a pet first');
+        return;
+      }
       await healthAPI.create({
-        pet_id: petId,
+        pet_id: selectedPetId,
         record_type: selectedType,
         ...formData,
       });
@@ -113,7 +136,7 @@ export default function HealthRecordsScreen() {
         next_due_date: '',
         notes: '',
       });
-      loadRecords();
+      loadRecords(selectedPetId);
       Alert.alert('Success', 'Health record added successfully');
     } catch (error: any) {
       Alert.alert('Error', error.response?.data?.detail || 'Failed to add record');
@@ -198,6 +221,22 @@ export default function HealthRecordsScreen() {
           </LinearGradient>
         </TouchableOpacity>
       </View>
+
+      {/* Pet selector */}
+      {petsList.length > 0 && (
+        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.petSelectorRow}>
+          {petsList.map((pet) => (
+            <TouchableOpacity
+              key={pet.id}
+              style={[styles.petChip, selectedPetId === pet.id && styles.petChipActive]}
+              onPress={() => setSelectedPetId(pet.id)}
+            >
+              <Ionicons name="paw" size={14} color={selectedPetId === pet.id ? Colors.white : Colors.primary} />
+              <Text style={[styles.petChipText, selectedPetId === pet.id && styles.petChipTextActive]}>{pet.name}</Text>
+            </TouchableOpacity>
+          ))}
+        </ScrollView>
+      )}
 
       {/* Stats */}
       <View style={styles.statsContainer}>
@@ -386,6 +425,34 @@ const styles = StyleSheet.create({
     height: 40,
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  petSelectorRow: {
+    paddingHorizontal: Spacing.md,
+    paddingTop: Spacing.sm,
+    gap: Spacing.sm,
+  },
+  petChip: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    backgroundColor: Colors.white,
+    borderWidth: 1,
+    borderColor: Colors.primary,
+    borderRadius: BorderRadius.full,
+    paddingHorizontal: Spacing.md,
+    paddingVertical: 8,
+    marginRight: Spacing.sm,
+  },
+  petChipActive: {
+    backgroundColor: Colors.primary,
+  },
+  petChipText: {
+    color: Colors.primary,
+    fontSize: FontSize.sm,
+    fontWeight: '600',
+  },
+  petChipTextActive: {
+    color: Colors.white,
   },
   statsContainer: {
     flexDirection: 'row',
