@@ -16,7 +16,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import Animated, { FadeInDown, FadeInUp } from 'react-native-reanimated';
 import { Colors, FontSize, Spacing, BorderRadius, Shadow } from '../../src/constants/theme';
-import { vetsAPI, appointmentsAPI, petsAPI, paymentAPI } from '../../src/services/api';
+import { vetsAPI, appointmentsAPI, petsAPI, paymentAPI, healthAPI } from '../../src/services/api';
 import { useStore } from '../../src/store/useStore';
 import { useTranslation } from '../../src/hooks/useTranslation';
 import { PaymentMethodSelector } from '../../src/components';
@@ -181,6 +181,24 @@ export default function BookAppointmentScreen() {
             card_cvc: cardDetails.cvc,
           }),
         });
+      }
+
+      // Sync this appointment to pet health records (vet_visit)
+      if (selectedPet) {
+        try {
+          await healthAPI.create({
+            pet_id: selectedPet,
+            record_type: 'vet_visit',
+            title: REASONS.find(r => r.id === selectedReason)?.label || 'Vet Visit',
+            description: `Appointment ${rescheduleId ? 'rescheduled' : 'booked'} with ${vet?.name || 'veterinarian'} at ${selectedTime}`,
+            date: selectedDate.toISOString().split('T')[0],
+            vet_name: vet?.name || '',
+            clinic_name: vet?.clinic_name || 'Petsy Clinic',
+            notes: `Appointment ID: ${appointmentResponse.data?.id || ''}`,
+          });
+        } catch (e) {
+          console.log('Health record sync failed:', e);
+        }
       }
       
       showToast(rescheduleId ? 'Reschedule is successful' : 'Booking is successful', 'success');
