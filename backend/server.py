@@ -927,10 +927,10 @@ async def like_pet(pet_id: str, current_user: dict = Depends(get_current_user)):
         await db.pets.update_one({"id": pet_id}, {"$inc": {"likes": 1}})
         return {"liked": True}
 
-@api_router.get("/favorites", response_model=List[Pet])
-async def get_favorites(current_user: dict = Depends(get_current_user)):
+@api_router.get("/favorites/pets", response_model=List[Pet])
+async def get_favorite_pets_legacy(current_user: dict = Depends(get_current_user)):
     favorites = await db.favorites.find({"user_id": current_user["id"]}).to_list(100)
-    pet_ids = [f["pet_id"] for f in favorites]
+    pet_ids = [f.get("pet_id") for f in favorites if f.get("pet_id")]
     pets = await db.pets.find({"id": {"$in": pet_ids}}).to_list(100)
     return [Pet(**pet) for pet in pets]
 
@@ -1558,20 +1558,43 @@ async def remove_favorite(item_type: str, item_id: str, current_user: dict = Dep
 
 @api_router.get("/favorites")
 async def get_favorites(item_type: Optional[str] = None, current_user: dict = Depends(get_current_user)):
-    query = {"user_id": current_user["id"]}
-    if item_type:
-        query["item_type"] = item_type
-    favorites = await db.favorites.find(query).sort("created_at", -1).to_list(100)
-    
-    # Populate with actual items
+    # Read all user favorites then normalize legacy/new shapes
+    raw_favorites = await db.favorites.find({"user_id": current_user["id"]}).sort("created_at", -1).to_list(100)
+
     result = []
-    for fav in favorites:
-        if fav["item_type"] == "pet":
-            item = await db.pets.find_one({"id": fav["item_id"]})
+    for fav in raw_favorites:
+        normalized_type = fav.get("item_type")
+        normalized_id = fav.get("item_id")
+
+        # Legacy compatibility
+        if not normalized_type:
+            if fav.get("pet_id"):
+                normalized_type = "pet"
+                normalized_id = fav.get("pet_id")
+            elif fav.get("product_id"):
+                normalized_type = "product"
+                normalized_id = fav.get("product_id")
+
+        if not normalized_type or not normalized_id:
+            continue
+
+        if item_type and normalized_type != item_type:
+            continue
+
+        if normalized_type == "pet":
+            item = await db.pets.find_one({"id": normalized_id})
         else:
-            item = await db.products.find_one({"id": fav["item_id"]})
+            item = await db.products.find_one({"id": normalized_id})
+
         if item:
-            result.append({**fav, "item": item})
+            fav_clean = {k: v for k, v in fav.items() if k != "_id"}
+            item_clean = {k: v for k, v in item.items() if k != "_id"}
+            result.append({
+                **fav_clean,
+                "item_type": normalized_type,
+                "item_id": normalized_id,
+                "item": item_clean,
+            })
     return result
 
 # ========================= SPONSORSHIP =========================
