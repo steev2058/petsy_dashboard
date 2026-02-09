@@ -94,11 +94,11 @@ export default function PetTrackingScreen() {
 
     setLoading(true);
     try {
-      await petTagsAPI.register({
+      const res = await petTagsAPI.register({
         pet_id: selectedPet.id,
-        tag_code: tagCode.trim(),
+        tag_code: tagCode.trim().toUpperCase(),
       });
-      Alert.alert('Success', 'Pet tag registered successfully!');
+      Alert.alert('Success', res?.data?.message || 'Pet tag registered successfully!');
       setShowRegister(false);
       setTagCode('');
       loadPetTag();
@@ -109,12 +109,28 @@ export default function PetTrackingScreen() {
     }
   };
 
+  const handleTagStatus = async (nextActive: boolean) => {
+    if (!selectedPet) return;
+    setLoading(true);
+    try {
+      await petTagsAPI.setStatus(selectedPet.id, nextActive);
+      Alert.alert('Success', nextActive ? 'Tag activated' : 'Tag deactivated');
+      loadPetTag();
+    } catch (error: any) {
+      Alert.alert('Error', error.response?.data?.detail || 'Failed to update tag status');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const handleShare = async () => {
     if (!petTag) return;
-    
+
     try {
+      const webBase = (process.env.EXPO_PUBLIC_BACKEND_URL || 'http://76.13.151.33:8000').replace(':8000', ':3000');
+      const scanUrl = `${webBase}/tag/${petTag.tag_code}`;
       await Share.share({
-        message: `Scan this Petsy Tag to find my pet: ${selectedPet.name}\nTag Code: ${petTag.tag_code}\nScan URL: https://petsy.app/tag/${petTag.tag_code}`,
+        message: `If you found my pet (${selectedPet.name}), please open this link: ${scanUrl}`,
       });
     } catch (error) {
       console.error('Error sharing:', error);
@@ -238,12 +254,12 @@ export default function PetTrackingScreen() {
                 {petTag ? (
                   <>
                     <LinearGradient
-                      colors={[Colors.primary, Colors.primaryDark]}
+                      colors={petTag.is_active ? [Colors.primary, Colors.primaryDark] : [Colors.textLight, Colors.textLight]}
                       style={styles.tagIcon}
                     >
                       <Ionicons name="qr-code" size={40} color={Colors.white} />
                     </LinearGradient>
-                    <Text style={styles.tagTitle}>Petsy Tag Active</Text>
+                    <Text style={styles.tagTitle}>{petTag.is_active ? 'Petsy Tag Active' : 'Petsy Tag Inactive'}</Text>
                     <Text style={styles.tagCode}>Code: {petTag.tag_code}</Text>
                     <View style={styles.tagStats}>
                       <View style={styles.tagStat}>
@@ -259,10 +275,24 @@ export default function PetTrackingScreen() {
                         <Text style={styles.tagStatLabel}>Last Scan</Text>
                       </View>
                     </View>
-                    <TouchableOpacity style={styles.shareButton} onPress={handleShare}>
-                      <Ionicons name="share-social" size={20} color={Colors.primary} />
-                      <Text style={styles.shareText}>Share Tag</Text>
-                    </TouchableOpacity>
+                    {petTag.is_active ? (
+                      <>
+                        <TouchableOpacity style={styles.shareButton} onPress={handleShare}>
+                          <Ionicons name="share-social" size={20} color={Colors.primary} />
+                          <Text style={styles.shareText}>Share Tag</Text>
+                        </TouchableOpacity>
+                        <TouchableOpacity style={styles.deactivateButton} onPress={() => handleTagStatus(false)}>
+                          <Text style={styles.deactivateText}>Deactivate Tag</Text>
+                        </TouchableOpacity>
+                      </>
+                    ) : (
+                      <TouchableOpacity style={styles.activateButton} onPress={() => handleTagStatus(true)}>
+                        <LinearGradient colors={[Colors.primary, Colors.primaryDark]} style={styles.registerGradient}>
+                          <Ionicons name="checkmark-circle" size={20} color={Colors.white} />
+                          <Text style={styles.registerText}>Activate Tag</Text>
+                        </LinearGradient>
+                      </TouchableOpacity>
+                    )}
                   </>
                 ) : (
                   <>
@@ -558,6 +588,22 @@ const styles = StyleSheet.create({
   registerButton: {
     borderRadius: BorderRadius.lg,
     overflow: 'hidden',
+  },
+  activateButton: {
+    borderRadius: BorderRadius.lg,
+    overflow: 'hidden',
+  },
+  deactivateButton: {
+    marginTop: Spacing.sm,
+    paddingVertical: Spacing.sm,
+    paddingHorizontal: Spacing.lg,
+    borderRadius: BorderRadius.full,
+    borderWidth: 1,
+    borderColor: Colors.error,
+  },
+  deactivateText: {
+    color: Colors.error,
+    fontWeight: '600',
   },
   registerGradient: {
     flexDirection: 'row',

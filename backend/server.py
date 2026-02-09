@@ -1,4 +1,4 @@
-from fastapi import FastAPI, APIRouter, HTTPException, Depends, status, UploadFile, File, WebSocket, WebSocketDisconnect
+from fastapi import FastAPI, APIRouter, HTTPException, Depends, status, UploadFile, File, WebSocket, WebSocketDisconnect, Body
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from fastapi.encoders import jsonable_encoder
 from dotenv import load_dotenv
@@ -1884,30 +1884,63 @@ async def register_pet_tag(tag: PetTagCreate, current_user: dict = Depends(get_c
     pet = await db.pets.find_one({"id": tag.pet_id, "owner_id": current_user["id"]})
     if not pet:
         raise HTTPException(status_code=404, detail="Pet not found")
-    
-    # Check if tag code already exists
-    existing = await db.pet_tags.find_one({"tag_code": tag.tag_code})
-    if existing:
+
+    normalized_code = (tag.tag_code or '').strip().upper()
+    if not normalized_code:
+        raise HTTPException(status_code=400, detail='Tag code is required')
+
+    # If this pet already has a tag, replace it with the new code
+    existing_pet_tag = await db.pet_tags.find_one({"pet_id": tag.pet_id, "owner_id": current_user["id"]})
+
+    # Check if tag code already exists globally
+    existing_code = await db.pet_tags.find_one({"tag_code": normalized_code})
+    if existing_code and existing_code.get('owner_id') != current_user['id']:
         raise HTTPException(status_code=400, detail="Tag code already registered")
-    
+
+    # Reactivate existing code for same owner
+    if existing_code and existing_code.get('owner_id') == current_user['id']:
+        await db.pet_tags.update_one(
+            {"id": existing_code["id"]},
+            {"$set": {"pet_id": tag.pet_id, "is_active": True}}
+        )
+        updated = await db.pet_tags.find_one({"id": existing_code["id"]})
+        return {**updated, "message": "Tag activated"}
+
     new_tag = PetTag(
-        tag_code=tag.tag_code,
+        tag_code=normalized_code,
         pet_id=tag.pet_id,
-        owner_id=current_user["id"]
+        owner_id=current_user["id"],
+        is_active=True,
     )
+
+    # remove old tag row if pet already had one
+    if existing_pet_tag:
+        await db.pet_tags.delete_one({"id": existing_pet_tag["id"]})
+
     await db.pet_tags.insert_one(new_tag.dict())
-    return new_tag
+    return {**new_tag.dict(), "message": "Tag registered and activated"}
 
 @api_router.get("/pet-tags/{pet_id}")
 async def get_pet_tag(pet_id: str, current_user: dict = Depends(get_current_user)):
     tag = await db.pet_tags.find_one({"pet_id": pet_id, "owner_id": current_user["id"]})
     if not tag:
         return None
-    return tag
+    return {k: v for k, v in tag.items() if k != '_id'}
+
+@api_router.put('/pet-tags/{pet_id}/status')
+async def set_pet_tag_status(pet_id: str, data: dict = Body(default={}), current_user: dict = Depends(get_current_user)):
+    tag = await db.pet_tags.find_one({"pet_id": pet_id, "owner_id": current_user["id"]})
+    if not tag:
+        raise HTTPException(status_code=404, detail='Tag not found')
+    is_active = bool(data.get('is_active', True))
+    await db.pet_tags.update_one({"id": tag["id"]}, {"$set": {"is_active": is_active}})
+    updated = await db.pet_tags.find_one({"id": tag["id"]})
+    return {k: v for k, v in updated.items() if k != '_id'}
 
 @api_router.get("/pet-tags/scan/{tag_code}")
 async def scan_pet_tag(tag_code: str):
     """Public endpoint - anyone can scan a tag"""
+    tag_code = tag_code.upper()
     tag = await db.pet_tags.find_one({"tag_code": tag_code, "is_active": True})
     if not tag:
         raise HTTPException(status_code=404, detail="Tag not found or inactive")
@@ -1924,45 +1957,42 @@ async def scan_pet_tag(tag_code: str):
     return {
         "pet": {
             "name": pet["name"] if pet else "Unknown",
-            "species": pet.get("species"),
-            "breed": pet.get("breed"),
-            "image": pet.get("image"),
-            "description": pet.get("description"),
+            "species": pet.get("species") if pet else None,
+            "breed": pet.get("breed") if pet else None,
+            "image": pet.get("image") if pet else None,
+            "description": pet.get("description") if pet else None,
         },
         "owner": {
             "name": owner["name"] if owner else "Unknown",
-            "phone": owner.get("phone"),
-            "city": owner.get("city"),
+            "phone": owner.get("phone") if owner else None,
+            "city": owner.get("city") if owner else None,
         },
-        "tag": tag
+        "tag": {k: v for k, v in tag.items() if k != '_id'}
     }
 
 @api_router.post("/pet-tags/scan/{tag_code}/report")
-async def report_tag_scan(tag_code: str, location: Optional[str] = None, 
-                          scanner_name: Optional[str] = None, scanner_phone: Optional[str] = None,
-                          message: Optional[str] = None, latitude: Optional[float] = None,
-                          longitude: Optional[float] = None):
+async def report_tag_scan(tag_code: str, data: dict = Body(default={})):
     """Report a found pet via tag scan"""
-    tag = await db.pet_tags.find_one({"tag_code": tag_code})
+    tag = await db.pet_tags.find_one({"tag_code": tag_code.upper()})
     if not tag:
         raise HTTPException(status_code=404, detail="Tag not found")
-    
+
     scan = TagScan(
-        tag_code=tag_code,
+        tag_code=tag_code.upper(),
         pet_id=tag["pet_id"],
-        scanner_name=scanner_name,
-        scanner_phone=scanner_phone,
-        location=location,
-        latitude=latitude,
-        longitude=longitude,
-        message=message
+        scanner_name=data.get('scanner_name'),
+        scanner_phone=data.get('scanner_phone'),
+        location=data.get('location'),
+        latitude=data.get('latitude'),
+        longitude=data.get('longitude'),
+        message=data.get('message')
     )
     await db.tag_scans.insert_one(scan.dict())
     
     # Update tag with last location
     await db.pet_tags.update_one(
-        {"tag_code": tag_code},
-        {"$set": {"last_location": location, "last_scanned": datetime.utcnow()}}
+        {"tag_code": tag_code.upper()},
+        {"$set": {"last_location": data.get('location'), "last_scanned": datetime.utcnow()}}
     )
     
     return {"message": "Scan reported successfully", "scan_id": scan.id}
@@ -1975,7 +2005,7 @@ async def get_tag_scans(pet_id: str, current_user: dict = Depends(get_current_us
         raise HTTPException(status_code=404, detail="Tag not found")
     
     scans = await db.tag_scans.find({"pet_id": pet_id}).sort("created_at", -1).to_list(50)
-    return scans
+    return [{k: v for k, v in s.items() if k != '_id'} for s in scans]
 
 # ========================= AI ASSISTANT =========================
 

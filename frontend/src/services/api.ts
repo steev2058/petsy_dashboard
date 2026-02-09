@@ -93,6 +93,7 @@ export const healthAPI = {
 export const petTagsAPI = {
   register: (data: { pet_id: string; tag_code: string }) => api.post('/pet-tags', data),
   getByPetId: (petId: string) => api.get(`/pet-tags/${petId}`),
+  setStatus: (petId: string, is_active: boolean) => api.put(`/pet-tags/${petId}/status`, { is_active }),
   scan: (tagCode: string) => api.get(`/pet-tags/scan/${tagCode}`),
   reportScan: (tagCode: string, data: any) => api.post(`/pet-tags/scan/${tagCode}/report`, data),
   getScans: (petId: string) => api.get(`/pet-tags/${petId}/scans`),
