@@ -42,7 +42,7 @@ const REASONS = [
 
 export default function BookAppointmentScreen() {
   const router = useRouter();
-  const { vetId } = useLocalSearchParams<{ vetId: string }>();
+  const { vetId, rescheduleId } = useLocalSearchParams<{ vetId: string; rescheduleId?: string }>();
   const { t, isRTL } = useTranslation();
   const { isAuthenticated, myPets } = useStore();
   
@@ -159,20 +159,31 @@ export default function BookAppointmentScreen() {
       };
 
       const appointmentResponse = await appointmentsAPI.create(appointmentData);
+
+      // If this is reschedule flow, replace old appointment with the new one
+      if (rescheduleId) {
+        try {
+          await appointmentsAPI.cancel(String(rescheduleId));
+        } catch (e) {
+          console.log('Old appointment cancel on reschedule failed:', e);
+        }
+      }
       
-      // Process payment
-      await paymentAPI.processPayment({
-        amount: appointmentFee,
-        payment_method: paymentMethod,
-        appointment_id: appointmentResponse.data?.id,
-        ...(paymentMethod === 'stripe' && {
-          card_number: cardDetails.number,
-          card_expiry: cardDetails.expiry,
-          card_cvc: cardDetails.cvc,
-        }),
-      });
+      // Process payment only for new bookings (not reschedules)
+      if (!rescheduleId) {
+        await paymentAPI.processPayment({
+          amount: appointmentFee,
+          payment_method: paymentMethod,
+          appointment_id: appointmentResponse.data?.id,
+          ...(paymentMethod === 'stripe' && {
+            card_number: cardDetails.number,
+            card_expiry: cardDetails.expiry,
+            card_cvc: cardDetails.cvc,
+          }),
+        });
+      }
       
-      showToast('Booking is successful', 'success');
+      showToast(rescheduleId ? 'Reschedule is successful' : 'Booking is successful', 'success');
       setTimeout(() => router.replace('/my-appointments'), 900);
     } catch (error: any) {
       Alert.alert('Error', error.response?.data?.detail || 'Failed to book appointment');
