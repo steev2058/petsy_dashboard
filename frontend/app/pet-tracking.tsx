@@ -305,19 +305,24 @@ export default function PetTrackingScreen() {
                         <Text style={styles.tagStatLabel}>Last Scan</Text>
                       </View>
                     </View>
-                    {petTag.last_location ? (
+                    {(petTag.last_location || selectedPet?.location) ? (
                       <>
-                        {buildStaticMapUrl(petTag.last_location) ? (
-                          <TouchableOpacity onPress={() => openMapForLocation(petTag.last_location)} activeOpacity={0.9}>
-                            <Image source={{ uri: buildStaticMapUrl(petTag.last_location)! }} style={styles.mapPreview} />
+                        <Text style={styles.mapHint}>
+                          {petTag.last_location ? `Last known: ${petTag.last_location}` : `Home location: ${selectedPet?.location}`}
+                        </Text>
+                        {buildStaticMapUrl(petTag.last_location || selectedPet?.location) ? (
+                          <TouchableOpacity onPress={() => openMapForLocation(petTag.last_location || selectedPet?.location)} activeOpacity={0.9}>
+                            <Image source={{ uri: buildStaticMapUrl(petTag.last_location || selectedPet?.location)! }} style={styles.mapPreview} />
                           </TouchableOpacity>
                         ) : null}
-                        <TouchableOpacity style={styles.mapButton} onPress={() => openMapForLocation(petTag.last_location)}>
+                        <TouchableOpacity style={styles.mapButton} onPress={() => openMapForLocation(petTag.last_location || selectedPet?.location)}>
                           <Ionicons name="map" size={18} color={Colors.primary} />
-                          <Text style={styles.mapButtonText}>Open last location on map</Text>
+                          <Text style={styles.mapButtonText}>Open on map</Text>
                         </TouchableOpacity>
                       </>
-                    ) : null}
+                    ) : (
+                      <Text style={styles.mapHint}>No location yet. After someone scans and reports location, map will appear here.</Text>
+                    )}
 
                     {petTag.is_active ? (
                       <>
@@ -603,6 +608,12 @@ const styles = StyleSheet.create({
   tagStatLabel: {
     fontSize: FontSize.xs,
     color: Colors.textSecondary,
+  },
+  mapHint: {
+    fontSize: FontSize.sm,
+    color: Colors.textSecondary,
+    marginBottom: Spacing.sm,
+    textAlign: 'center',
   },
   mapPreview: {
     width: 280,
