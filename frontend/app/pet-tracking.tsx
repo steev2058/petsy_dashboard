@@ -9,6 +9,7 @@ import {
   Alert,
   Image,
   Share,
+  ActivityIndicator,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
@@ -30,12 +31,15 @@ export default function PetTrackingScreen() {
   const [tagCode, setTagCode] = useState('');
   const [scans, setScans] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
+  const [dataLoading, setDataLoading] = useState(true);
   const [showRegister, setShowRegister] = useState(false);
   const [pets, setPets] = useState<any[]>([]);
 
   useEffect(() => {
     if (isAuthenticated) {
       loadPets();
+    } else {
+      setDataLoading(false);
     }
   }, [isAuthenticated]);
 
@@ -46,6 +50,7 @@ export default function PetTrackingScreen() {
   }, [selectedPet]);
 
   const loadPets = async () => {
+    setDataLoading(true);
     try {
       const response = await petsAPI.getMyPets();
       setPets(response.data);
@@ -54,6 +59,8 @@ export default function PetTrackingScreen() {
       }
     } catch (error) {
       console.error('Error loading pets:', error);
+    } finally {
+      setDataLoading(false);
     }
   };
 
@@ -125,19 +132,7 @@ export default function PetTrackingScreen() {
   };
 
   if (!isAuthenticated) {
-  
-  if (loading) {
     return (
-      <SafeAreaView style={styles.container} edges={['top']}>
-        <View style={styles.loaderBox}>
-          <ActivityIndicator size="small" color={Colors.primary} />
-          <Text style={styles.loaderText}>Loading data...</Text>
-        </View>
-      </SafeAreaView>
-    );
-  }
-
-  return (
       <SafeAreaView style={styles.container} edges={['top']}>
         <View style={styles.header}>
           <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
@@ -163,6 +158,17 @@ export default function PetTrackingScreen() {
               <Text style={styles.loginButtonText}>Login Now</Text>
             </LinearGradient>
           </TouchableOpacity>
+        </View>
+      </SafeAreaView>
+    );
+  }
+
+  if (dataLoading) {
+    return (
+      <SafeAreaView style={styles.container} edges={['top']}>
+        <View style={styles.loaderBox}>
+          <ActivityIndicator size="small" color={Colors.primary} />
+          <Text style={styles.loaderText}>Loading pet tracking...</Text>
         </View>
       </SafeAreaView>
     );
