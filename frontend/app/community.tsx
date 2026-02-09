@@ -13,6 +13,7 @@ import {
   Share,
   Alert,
   Modal,
+  Linking,
   Animated,
   ActivityIndicator,
 } from 'react-native';
@@ -223,6 +224,14 @@ export default function CommunityScreen() {
           await nav.share({ title: post.title, text: message, url: postUrl });
           return;
         }
+
+        // Telegram in-app browser / insecure HTTP may block Web Share API.
+        // Fallback: open Telegram share URL directly.
+        const tgShare = `https://t.me/share/url?url=${encodeURIComponent(postUrl)}&text=${encodeURIComponent(post.title)}`;
+        try {
+          await Linking.openURL(tgShare);
+          return;
+        } catch {}
 
         if (nav?.clipboard?.writeText) {
           try {
