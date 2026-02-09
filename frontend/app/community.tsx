@@ -81,6 +81,7 @@ export default function CommunityScreen() {
   const [replyToComment, setReplyToComment] = useState<Comment | null>(null);
   
   const slideAnim = useRef(new Animated.Value(500)).current;
+  const lastTapRef = useRef<Record<string, number>>({});
 
   useEffect(() => {
     loadPosts();
@@ -212,13 +213,36 @@ export default function CommunityScreen() {
 
   const handleShare = async (post: Post) => {
     try {
+      const message = `Check out this post on Petsy: "${post.title}"\n\n${post.content.substring(0, 100)}...\n\nDownload Petsy to see more!`;
+
+      if (Platform.OS === 'web') {
+        const nav: any = typeof navigator !== 'undefined' ? navigator : null;
+        if (nav?.share) {
+          await nav.share({ title: post.title, text: message });
+          return;
+        }
+        await Share.share({ title: post.title, message });
+        Alert.alert('Shared', 'Share dialog opened');
+        return;
+      }
+
       await Share.share({
         title: post.title,
-        message: `Check out this post on Petsy: "${post.title}"\n\n${post.content.substring(0, 100)}...\n\nDownload Petsy to see more!`,
+        message,
       });
     } catch (error) {
       console.error('Error sharing:', error);
+      Alert.alert('Share', 'Could not share this post on your device');
     }
+  };
+
+  const handlePostPress = (post: Post) => {
+    const now = Date.now();
+    const last = lastTapRef.current[post.id] || 0;
+    if (now - last < 300) {
+      handleLike(post);
+    }
+    lastTapRef.current[post.id] = now;
   };
 
   const formatTime = (dateString: string) => {
@@ -258,7 +282,11 @@ export default function CommunityScreen() {
 
   const renderPost = ({ item, index }: { item: Post; index: number }) => (
     <AnimatedRN.View entering={FadeInDown.delay(index * 50)}>
-      <View style={[styles.postCard, Shadow.small]}>
+      <TouchableOpacity
+        style={[styles.postCard, Shadow.small]}
+        activeOpacity={0.98}
+        onPress={() => handlePostPress(item)}
+      >
         {/* Post Header */}
         <View style={styles.postHeader}>
           {item.user_avatar ? (
@@ -317,7 +345,7 @@ export default function CommunityScreen() {
             <Text style={styles.actionText}>Share</Text>
           </TouchableOpacity>
         </View>
-      </View>
+      </TouchableOpacity>
     </AnimatedRN.View>
   );
 
