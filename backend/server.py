@@ -930,6 +930,11 @@ async def update_user_settings(data: dict, current_user: dict = Depends(get_curr
 
 @api_router.post("/pets", response_model=Pet)
 async def create_pet(pet_data: PetCreate, current_user: dict = Depends(get_current_user)):
+    species = (pet_data.species or '').strip().lower()
+    status_val = (pet_data.status or '').strip().lower()
+    if species == 'dog' and status_val == 'for_sale':
+        raise HTTPException(status_code=400, detail='Dogs are adoption/rehoming only and cannot be listed for sale')
+
     pet = Pet(**pet_data.dict(), owner_id=current_user["id"])
     await db.pets.insert_one(pet.dict())
     return pet
@@ -978,6 +983,10 @@ async def update_pet(pet_id: str, pet_data: PetUpdate, current_user: dict = Depe
     
     update_dict = {k: v for k, v in pet_data.dict().items() if v is not None}
     if update_dict:
+        next_species = (update_dict.get('species') or pet.get('species') or '').strip().lower()
+        next_status = (update_dict.get('status') or pet.get('status') or '').strip().lower()
+        if next_species == 'dog' and next_status == 'for_sale':
+            raise HTTPException(status_code=400, detail='Dogs are adoption/rehoming only and cannot be listed for sale')
         await db.pets.update_one({"id": pet_id}, {"$set": update_dict})
     
     updated = await db.pets.find_one({"id": pet_id})
