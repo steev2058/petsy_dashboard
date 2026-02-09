@@ -9,6 +9,7 @@ import {
   KeyboardAvoidingView,
   Platform,
   Image,
+  Modal,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
@@ -29,6 +30,7 @@ export default function EditProfileScreen() {
   const [bio, setBio] = useState(user?.bio || '');
   const [avatar, setAvatar] = useState(user?.avatar || '');
   const [loading, setLoading] = useState(false);
+  const [avatarMenuVisible, setAvatarMenuVisible] = useState(false);
 
   const hasChanges = useMemo(() => {
     return (
@@ -94,13 +96,23 @@ export default function EditProfileScreen() {
     }
   };
 
-  const openAvatarActions = () => {
-    Alert.alert('Profile Picture', 'Choose an action', [
-      { text: 'Take Photo', onPress: () => takeFromCamera() },
-      { text: 'Choose from Gallery', onPress: () => pickFromGallery() },
-      ...(avatar ? [{ text: 'Remove Photo', style: 'destructive' as const, onPress: () => setAvatar('') }] : []),
-      { text: 'Cancel', style: 'cancel' },
-    ]);
+  const openAvatarActions = () => setAvatarMenuVisible(true);
+
+  const closeAvatarActions = () => setAvatarMenuVisible(false);
+
+  const onTakePhoto = async () => {
+    closeAvatarActions();
+    await takeFromCamera();
+  };
+
+  const onChooseFromGallery = async () => {
+    closeAvatarActions();
+    await pickFromGallery();
+  };
+
+  const onRemovePhoto = () => {
+    closeAvatarActions();
+    setAvatar('');
   };
 
   const handleSave = async () => {
@@ -217,6 +229,31 @@ export default function EditProfileScreen() {
           />
         </ScrollView>
       </KeyboardAvoidingView>
+
+      <Modal transparent visible={avatarMenuVisible} animationType="fade" onRequestClose={closeAvatarActions}>
+        <TouchableOpacity style={styles.modalBackdrop} activeOpacity={1} onPress={closeAvatarActions}>
+          <View style={styles.modalCard}>
+            <Text style={styles.modalTitle}>Profile Picture</Text>
+            <TouchableOpacity style={styles.modalAction} onPress={onTakePhoto}>
+              <Ionicons name="camera" size={18} color={Colors.text} />
+              <Text style={styles.modalActionText}>Take Photo</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.modalAction} onPress={onChooseFromGallery}>
+              <Ionicons name="images" size={18} color={Colors.text} />
+              <Text style={styles.modalActionText}>Choose from Gallery</Text>
+            </TouchableOpacity>
+            {avatar ? (
+              <TouchableOpacity style={styles.modalAction} onPress={onRemovePhoto}>
+                <Ionicons name="trash" size={18} color={Colors.error} />
+                <Text style={[styles.modalActionText, { color: Colors.error }]}>Remove Photo</Text>
+              </TouchableOpacity>
+            ) : null}
+            <TouchableOpacity style={styles.cancelBtn} onPress={closeAvatarActions}>
+              <Text style={styles.cancelBtnText}>Cancel</Text>
+            </TouchableOpacity>
+          </View>
+        </TouchableOpacity>
+      </Modal>
     </SafeAreaView>
   );
 }
@@ -314,6 +351,47 @@ const styles = StyleSheet.create({
     marginTop: -Spacing.xs,
     marginBottom: Spacing.sm,
     fontSize: FontSize.xs,
+  },
+  modalBackdrop: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.45)',
+    justifyContent: 'flex-end',
+  },
+  modalCard: {
+    backgroundColor: Colors.white,
+    borderTopLeftRadius: BorderRadius.lg,
+    borderTopRightRadius: BorderRadius.lg,
+    padding: Spacing.lg,
+    gap: Spacing.sm,
+  },
+  modalTitle: {
+    fontSize: FontSize.lg,
+    fontWeight: '700',
+    color: Colors.text,
+    marginBottom: Spacing.xs,
+  },
+  modalAction: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.sm,
+    paddingVertical: Spacing.sm,
+  },
+  modalActionText: {
+    fontSize: FontSize.md,
+    color: Colors.text,
+  },
+  cancelBtn: {
+    marginTop: Spacing.sm,
+    borderWidth: 1,
+    borderColor: Colors.border,
+    borderRadius: BorderRadius.md,
+    paddingVertical: Spacing.sm,
+    alignItems: 'center',
+  },
+  cancelBtnText: {
+    color: Colors.text,
+    fontSize: FontSize.md,
+    fontWeight: '600',
   },
   saveButton: { marginTop: Spacing.md },
 });
