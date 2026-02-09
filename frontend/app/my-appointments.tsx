@@ -9,6 +9,7 @@ import {
   Alert,
   Image,
   ActivityIndicator,
+  Platform,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
@@ -47,6 +48,7 @@ export default function MyAppointmentsScreen() {
   const [selectedTab, setSelectedTab] = useState('upcoming');
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
+  const [actionLoading, setActionLoading] = useState<{ id: string; type: 'cancel' | 'reschedule' } | null>(null);
 
   useEffect(() => {
     if (isAuthenticated) {
@@ -73,7 +75,26 @@ export default function MyAppointmentsScreen() {
     setRefreshing(false);
   }, []);
 
+  const doCancelAppointment = async (appointment: Appointment) => {
+    setActionLoading({ id: appointment.id, type: 'cancel' });
+    try {
+      await appointmentsAPI.cancel(appointment.id);
+      await loadAppointments();
+      Alert.alert('Success', 'Appointment cancelled successfully');
+    } catch (error: any) {
+      Alert.alert('Error', error.response?.data?.detail || 'Failed to cancel');
+    } finally {
+      setActionLoading(null);
+    }
+  };
+
   const handleCancelAppointment = async (appointment: Appointment) => {
+    if (Platform.OS === 'web') {
+      const ok = typeof window !== 'undefined' ? window.confirm('Are you sure you want to cancel this appointment?') : true;
+      if (ok) await doCancelAppointment(appointment);
+      return;
+    }
+
     Alert.alert(
       'Cancel Appointment',
       'Are you sure you want to cancel this appointment?',
@@ -82,18 +103,16 @@ export default function MyAppointmentsScreen() {
         {
           text: 'Yes, Cancel',
           style: 'destructive',
-          onPress: async () => {
-            try {
-              await appointmentsAPI.cancel(appointment.id);
-              loadAppointments();
-              Alert.alert('Success', 'Appointment cancelled successfully');
-            } catch (error: any) {
-              Alert.alert('Error', error.response?.data?.detail || 'Failed to cancel');
-            }
-          },
+          onPress: () => doCancelAppointment(appointment),
         },
       ]
     );
+  };
+
+  const handleRescheduleAppointment = (appointment: Appointment) => {
+    setActionLoading({ id: appointment.id, type: 'reschedule' });
+    router.push(`/book-appointment/${appointment.vet_id}?rescheduleId=${appointment.id}` as any);
+    setTimeout(() => setActionLoading(null), 700);
   };
 
   if (loading) {
@@ -206,16 +225,26 @@ export default function MyAppointmentsScreen() {
             <View style={styles.appointmentActions}>
               <TouchableOpacity
                 style={styles.rescheduleButton}
-                onPress={() => Alert.alert('Reschedule', 'Contact the clinic to reschedule')}
+                disabled={!!actionLoading}
+                onPress={() => handleRescheduleAppointment(item)}
               >
-                <Ionicons name="calendar" size={16} color={Colors.primary} />
+                {actionLoading?.id === item.id && actionLoading?.type === 'reschedule' ? (
+                  <ActivityIndicator size="small" color={Colors.primary} />
+                ) : (
+                  <Ionicons name="calendar" size={16} color={Colors.primary} />
+                )}
                 <Text style={styles.rescheduleText}>Reschedule</Text>
               </TouchableOpacity>
               <TouchableOpacity
                 style={styles.cancelButton}
+                disabled={!!actionLoading}
                 onPress={() => handleCancelAppointment(item)}
               >
-                <Ionicons name="close-circle" size={16} color={Colors.error} />
+                {actionLoading?.id === item.id && actionLoading?.type === 'cancel' ? (
+                  <ActivityIndicator size="small" color={Colors.error} />
+                ) : (
+                  <Ionicons name="close-circle" size={16} color={Colors.error} />
+                )}
                 <Text style={styles.cancelText}>Cancel</Text>
               </TouchableOpacity>
             </View>
