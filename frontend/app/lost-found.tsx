@@ -8,18 +8,21 @@ import {
   Image,
   RefreshControl,
   ActivityIndicator,
+  Alert,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { SearchBar, Button } from '../src/components';
 import { Colors, FontSize, Spacing, BorderRadius, Shadow } from '../src/constants/theme';
-import { lostFoundAPI } from '../src/services/api';
+import { conversationsAPI, lostFoundAPI } from '../src/services/api';
 import { useTranslation } from '../src/hooks/useTranslation';
+import { useStore } from '../src/store/useStore';
 
 export default function LostFoundScreen() {
   const router = useRouter();
   const { t } = useTranslation();
+  const { user, isAuthenticated } = useStore();
   
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedType, setSelectedType] = useState<'lost' | 'found'>('lost');
@@ -48,6 +51,36 @@ export default function LostFoundScreen() {
     setRefreshing(false);
   };
 
+  const handleStartChat = async (item: any) => {
+    if (!isAuthenticated) {
+      router.push('/(auth)/login');
+      return;
+    }
+    if (!item?.user_id) {
+      Alert.alert('Error', 'Post owner not found');
+      return;
+    }
+    if (item.user_id === user?.id) {
+      Alert.alert('Info', 'This is your own post');
+      return;
+    }
+
+    try {
+      const initial = `Hi, I'm contacting you about your ${item.type} pet report (${item.pet_species}${item.breed ? ` - ${item.breed}` : ''}).`;
+      const res = await conversationsAPI.create({
+        other_user_id: item.user_id,
+        initial_message: initial,
+      });
+      const conversationId = res?.data?.conversation_id;
+      if (conversationId) {
+        router.push(`/chat/${conversationId}`);
+      } else {
+        Alert.alert('Error', 'Could not open chat');
+      }
+    } catch (error: any) {
+      Alert.alert('Error', error?.response?.data?.detail || 'Failed to start chat');
+    }
+  };
 
   if (loading) {
     return (
@@ -119,10 +152,10 @@ export default function LostFoundScreen() {
         </View>
         <TouchableOpacity
           style={styles.contactButton}
-          onPress={() => router.push(`/lost-found/${item.id}`)}
+          onPress={() => handleStartChat(item)}
         >
-          <Ionicons name="call" size={16} color={Colors.white} />
-          <Text style={styles.contactButtonText}>Contact</Text>
+          <Ionicons name="chatbubble-ellipses" size={16} color={Colors.white} />
+          <Text style={styles.contactButtonText}>Chat</Text>
         </TouchableOpacity>
       </View>
     </TouchableOpacity>
