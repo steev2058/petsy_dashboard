@@ -38,6 +38,7 @@ app = FastAPI(title="Petsy API", version="1.0.0")
 api_router = APIRouter(prefix="/api")
 
 security = HTTPBearer()
+security_optional = HTTPBearer(auto_error=False)
 
 # Configure logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
@@ -566,6 +567,19 @@ async def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(s
         raise HTTPException(status_code=401, detail="Token expired")
     except jwt.InvalidTokenError:
         raise HTTPException(status_code=401, detail="Invalid token")
+
+async def get_current_user_optional(credentials: Optional[HTTPAuthorizationCredentials] = Depends(security_optional)) -> Optional[dict]:
+    if not credentials:
+        return None
+    try:
+        token = credentials.credentials
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        user_id = payload.get("sub")
+        if not user_id:
+            return None
+        return await db.users.find_one({"id": user_id})
+    except Exception:
+        return None
 
 async def get_admin_user(current_user: dict = Depends(get_current_user)) -> dict:
     """Verify user has admin privileges"""
@@ -1430,10 +1444,18 @@ async def create_community_post(post: CommunityPostCreate, current_user: dict = 
     return community_post
 
 @api_router.get("/community", response_model=List[CommunityPost])
-async def get_community_posts(type: Optional[str] = None, limit: int = 50):
+async def get_community_posts(type: Optional[str] = None, limit: int = 50, current_user: Optional[dict] = Depends(get_current_user_optional)):
     query = {}
     if type:
         query["type"] = type
+
+    # Hide posts from blocked users for the current user
+    if current_user:
+        blocked_rows = await db.blocked_users.find({"user_id": current_user["id"]}).to_list(1000)
+        blocked_ids = [r.get("blocked_user_id") for r in blocked_rows if r.get("blocked_user_id")]
+        if blocked_ids:
+            query["user_id"] = {"$nin": blocked_ids}
+
     posts = await db.community.find(query).sort("created_at", -1).limit(limit).to_list(limit)
 
     enriched = []
@@ -1446,7 +1468,7 @@ async def get_community_posts(type: Optional[str] = None, limit: int = 50):
 
     return enriched
 
-@api_router.get("/community/{post_id}", response_model=CommunityPost)
+@api_router.get("/community/post/{post_id}", response_model=CommunityPost)
 async def get_community_post_by_id(post_id: str):
     post = await db.community.find_one({"id": post_id})
     if not post:
@@ -1462,6 +1484,81 @@ async def get_community_post_by_id(post_id: str):
 async def like_community_post(post_id: str, current_user: dict = Depends(get_current_user)):
     await db.community.update_one({"id": post_id}, {"$inc": {"likes": 1}})
     return {"message": "Liked"}
+
+@api_router.post("/community/{post_id}/report")
+async def report_community_post(post_id: str, data: dict = {}, current_user: dict = Depends(get_current_user)):
+    post = await db.community.find_one({"id": post_id})
+    if not post:
+        raise HTTPException(status_code=404, detail="Post not found")
+
+    row = {
+        "id": str(uuid.uuid4()),
+        "post_id": post_id,
+        "reported_by": current_user["id"],
+        "post_owner_id": post.get("user_id"),
+        "reason": data.get("reason", "inappropriate"),
+        "notes": data.get("notes"),
+        "created_at": datetime.utcnow(),
+    }
+    await db.community_reports.insert_one(row)
+    return {"message": "Report submitted"}
+
+@api_router.post("/community/users/{target_user_id}/block")
+async def block_community_user(target_user_id: str, current_user: dict = Depends(get_current_user)):
+    if target_user_id == current_user["id"]:
+        raise HTTPException(status_code=400, detail="Cannot block yourself")
+
+    existing = await db.blocked_users.find_one({"user_id": current_user["id"], "blocked_user_id": target_user_id})
+    if not existing:
+        await db.blocked_users.insert_one({
+            "id": str(uuid.uuid4()),
+            "user_id": current_user["id"],
+            "blocked_user_id": target_user_id,
+            "created_at": datetime.utcnow(),
+        })
+    return {"message": "User blocked"}
+
+@api_router.delete("/community/users/{target_user_id}/block")
+async def unblock_community_user(target_user_id: str, current_user: dict = Depends(get_current_user)):
+    await db.blocked_users.delete_one({"user_id": current_user["id"], "blocked_user_id": target_user_id})
+    return {"message": "User unblocked"}
+
+@api_router.get("/community/blocked-users")
+async def get_blocked_users(current_user: dict = Depends(get_current_user)):
+    rows = await db.blocked_users.find({"user_id": current_user["id"]}).sort("created_at", -1).to_list(1000)
+    result = []
+    for r in rows:
+        uid = r.get("blocked_user_id")
+        u = await db.users.find_one({"id": uid})
+        result.append({
+            "user_id": uid,
+            "name": (u or {}).get("name", "Unknown"),
+            "avatar": (u or {}).get("avatar"),
+            "blocked_at": r.get("created_at"),
+        })
+    return result
+
+@api_router.post("/community/{post_id}/notify")
+async def enable_post_notifications(post_id: str, current_user: dict = Depends(get_current_user)):
+    existing = await db.community_post_notifications.find_one({"user_id": current_user["id"], "post_id": post_id})
+    if not existing:
+        await db.community_post_notifications.insert_one({
+            "id": str(uuid.uuid4()),
+            "user_id": current_user["id"],
+            "post_id": post_id,
+            "created_at": datetime.utcnow(),
+        })
+    return {"message": "Notifications enabled"}
+
+@api_router.delete("/community/{post_id}/notify")
+async def disable_post_notifications(post_id: str, current_user: dict = Depends(get_current_user)):
+    await db.community_post_notifications.delete_one({"user_id": current_user["id"], "post_id": post_id})
+    return {"message": "Notifications disabled"}
+
+@api_router.get("/community/notifications/subscriptions")
+async def get_notification_subscriptions(current_user: dict = Depends(get_current_user)):
+    rows = await db.community_post_notifications.find({"user_id": current_user["id"]}).to_list(2000)
+    return [r.get("post_id") for r in rows if r.get("post_id")]
 
 # ========================= COMMUNITY COMMENTS =========================
 

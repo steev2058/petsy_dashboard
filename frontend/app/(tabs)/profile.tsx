@@ -154,6 +154,7 @@ export default function ProfileScreen() {
     { icon: 'globe', label: 'العربية / English', onPress: toggleLanguage },
     { icon: 'moon', label: 'Dark Mode', toggle: true, value: isDarkMode, onToggle: setIsDarkMode },
     { icon: 'settings', label: t('settings'), onPress: () => router.push('/settings') },
+    { icon: 'ban', label: 'Blocked Users', onPress: () => router.push('/blocked-users') },
     { icon: 'help-circle', label: 'Help & Support', onPress: () => router.push('/help-support') },
   ];
 

@@ -159,7 +159,18 @@ export const communityAPI = {
   getAll: (params?: { type?: string }) =>
     api.get('/community', { params }),
 
-  getById: (id: string) => api.get(`/community/${id}`),
+  getById: (id: string) => api.get(`/community/post/${id}`),
+
+  reportPost: (postId: string, reason?: string, notes?: string) =>
+    api.post(`/community/${postId}/report`, { reason, notes }),
+
+  blockUser: (userId: string) => api.post(`/community/users/${userId}/block`),
+  unblockUser: (userId: string) => api.delete(`/community/users/${userId}/block`),
+  getBlockedUsers: () => api.get('/community/blocked-users'),
+
+  enablePostNotify: (postId: string) => api.post(`/community/${postId}/notify`),
+  disablePostNotify: (postId: string) => api.delete(`/community/${postId}/notify`),
+  getNotifySubscriptions: () => api.get('/community/notifications/subscriptions'),
   
   like: (id: string) => api.post(`/community/${id}/like`),
   

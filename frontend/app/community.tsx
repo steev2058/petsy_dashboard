@@ -89,7 +89,10 @@ export default function CommunityScreen() {
 
   useEffect(() => {
     loadPosts();
-  }, [selectedType]);
+    if (isAuthenticated) {
+      loadCommunityPreferences();
+    }
+  }, [selectedType, isAuthenticated]);
 
   useEffect(() => {
     if (showComments) {
@@ -125,11 +128,27 @@ export default function CommunityScreen() {
     }
   };
 
+  const loadCommunityPreferences = async () => {
+    try {
+      const [blockedRes, notifyRes] = await Promise.all([
+        communityAPI.getBlockedUsers(),
+        communityAPI.getNotifySubscriptions(),
+      ]);
+      const blocked = new Set((blockedRes.data || []).map((u: any) => u.user_id));
+      const notify = new Set((notifyRes.data || []));
+      setBlockedUserIds(blocked);
+      setNotifyPostIds(notify);
+    } catch (e) {
+      // non-blocking
+    }
+  };
+
   const onRefresh = useCallback(async () => {
     setRefreshing(true);
     await loadPosts();
+    if (isAuthenticated) await loadCommunityPreferences();
     setRefreshing(false);
-  }, [selectedType]);
+  }, [selectedType, isAuthenticated]);
 
   const loadComments = async (postId: string) => {
     setLoadingComments(true);
@@ -269,30 +288,53 @@ export default function CommunityScreen() {
     lastTapRef.current[post.id] = now;
   };
 
-  const handleReportPost = () => {
-    setMenuPost(null);
-    Alert.alert('Reported', 'Thanks. We received your report and will review this post.');
-  };
-
-  const handleBlockUser = () => {
+  const handleReportPost = async () => {
     if (!menuPost) return;
-    setBlockedUserIds((prev) => new Set(prev).add(menuPost.user_id));
-    setPosts((prev) => prev.filter((p) => p.user_id !== menuPost.user_id));
-    setMenuPost(null);
-    Alert.alert('Blocked', `You will no longer see posts from ${menuPost.user_name}.`);
+    try {
+      await communityAPI.reportPost(menuPost.id, 'inappropriate');
+      Alert.alert('Reported', 'Thanks. We received your report and will review this post.');
+    } catch (e: any) {
+      Alert.alert('Error', e?.response?.data?.detail || 'Failed to submit report');
+    } finally {
+      setMenuPost(null);
+    }
   };
 
-  const handleToggleNotifyPost = () => {
+  const handleBlockUser = async () => {
+    if (!menuPost) return;
+    try {
+      await communityAPI.blockUser(menuPost.user_id);
+      setBlockedUserIds((prev) => new Set(prev).add(menuPost.user_id));
+      setPosts((prev) => prev.filter((p) => p.user_id !== menuPost.user_id));
+      Alert.alert('Blocked', `You will no longer see posts from ${menuPost.user_name}.`);
+    } catch (e: any) {
+      Alert.alert('Error', e?.response?.data?.detail || 'Failed to block user');
+    } finally {
+      setMenuPost(null);
+    }
+  };
+
+  const handleToggleNotifyPost = async () => {
     if (!menuPost) return;
     const isOn = notifyPostIds.has(menuPost.id);
-    setNotifyPostIds((prev) => {
-      const next = new Set(prev);
-      if (isOn) next.delete(menuPost.id);
-      else next.add(menuPost.id);
-      return next;
-    });
-    setMenuPost(null);
-    Alert.alert(isOn ? 'Notifications Off' : 'Notifications On', isOn ? 'You will not be notified about this post.' : 'You will be notified about updates for this post.');
+    try {
+      if (isOn) {
+        await communityAPI.disablePostNotify(menuPost.id);
+      } else {
+        await communityAPI.enablePostNotify(menuPost.id);
+      }
+      setNotifyPostIds((prev) => {
+        const next = new Set(prev);
+        if (isOn) next.delete(menuPost.id);
+        else next.add(menuPost.id);
+        return next;
+      });
+      Alert.alert(isOn ? 'Notifications Off' : 'Notifications On', isOn ? 'You will not be notified about this post.' : 'You will be notified about updates for this post.');
+    } catch (e: any) {
+      Alert.alert('Error', e?.response?.data?.detail || 'Failed to update notifications');
+    } finally {
+      setMenuPost(null);
+    }
   };
 
   const formatTime = (dateString: string) => {
