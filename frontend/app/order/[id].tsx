@@ -41,9 +41,8 @@ export default function OrderDetailsScreen() {
   }, [id]);
 
   const isOldOrder = useMemo(() => {
-    if (!order?.created_at) return false;
-    const days = (Date.now() - new Date(order.created_at).getTime()) / (1000 * 60 * 60 * 24);
-    return days >= 14;
+    const status = String(order?.status || '').toLowerCase();
+    return ['delivered', 'completed', 'finished'].includes(status);
   }, [order]);
 
   const handleReorder = async () => {
