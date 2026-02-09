@@ -152,7 +152,10 @@ export default function LostFoundScreen() {
         </View>
         <TouchableOpacity
           style={styles.contactButton}
-          onPress={() => handleStartChat(item)}
+          onPress={(e: any) => {
+            e?.stopPropagation?.();
+            handleStartChat(item);
+          }}
         >
           <Ionicons name="chatbubble-ellipses" size={16} color={Colors.white} />
           <Text style={styles.contactButtonText}>Chat</Text>
