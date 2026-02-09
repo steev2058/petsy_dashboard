@@ -1435,7 +1435,16 @@ async def get_community_posts(type: Optional[str] = None, limit: int = 50):
     if type:
         query["type"] = type
     posts = await db.community.find(query).sort("created_at", -1).limit(limit).to_list(limit)
-    return [CommunityPost(**p) for p in posts]
+
+    enriched = []
+    for p in posts:
+      clean = {k: v for k, v in p.items() if k != "_id"}
+      comments_count = await db.comments.count_documents({"post_id": clean.get("id")})
+      clean["comments_count"] = comments_count
+      clean["comments"] = comments_count
+      enriched.append(CommunityPost(**clean))
+
+    return enriched
 
 @api_router.post("/community/{post_id}/like")
 async def like_community_post(post_id: str, current_user: dict = Depends(get_current_user)):
