@@ -91,7 +91,9 @@ export default function AdoptionScreen() {
 
       {tx === 'sale' && <Text style={styles.ruleText}>Dogs are restricted to adoption/rehoming only and hidden from sale listings.</Text>}
 
-      <SearchBar value={query} onChangeText={setQuery} placeholder='Search by name, breed, location...' />
+      <View style={styles.searchWrap}>
+        <SearchBar value={query} onChangeText={setQuery} placeholder='Search by name, breed, location...' />
+      </View>
 
       <FlatList
         horizontal
@@ -161,18 +163,19 @@ const styles = StyleSheet.create({
   title: { fontSize: FontSize.xxl, fontWeight: '800', color: Colors.text },
   noticeBox: { flexDirection: 'row', gap: 8, alignItems: 'flex-start', backgroundColor: '#EEF6FF', borderRadius: BorderRadius.md, marginHorizontal: Spacing.md, marginTop: Spacing.sm, padding: Spacing.sm },
   noticeText: { flex: 1, color: Colors.textSecondary, fontSize: FontSize.sm },
-  txRow: { flexDirection: 'row', gap: Spacing.sm, paddingHorizontal: Spacing.md, marginTop: Spacing.sm },
+  txRow: { flexDirection: 'row', gap: Spacing.sm, paddingHorizontal: Spacing.md, marginTop: Spacing.sm, marginBottom: Spacing.xs },
   txBtn: { flex: 1, height: 44, borderRadius: BorderRadius.full, backgroundColor: Colors.white, borderWidth: 1, borderColor: Colors.border, alignItems: 'center', justifyContent: 'center' },
   txBtnActive: { backgroundColor: Colors.primary, borderColor: Colors.primary },
   txText: { color: Colors.text, fontWeight: '600' },
   txTextActive: { color: Colors.white },
-  ruleText: { paddingHorizontal: Spacing.md, marginTop: 6, color: Colors.textSecondary, fontSize: FontSize.xs },
-  filterRow: { paddingHorizontal: Spacing.md, paddingTop: Spacing.sm, gap: Spacing.sm, alignItems: 'center' },
+  searchWrap: { paddingTop: 2, paddingBottom: 8 },
+  ruleText: { paddingHorizontal: Spacing.md, marginTop: 4, marginBottom: 6, color: Colors.textSecondary, fontSize: FontSize.xs },
+  filterRow: { paddingHorizontal: Spacing.md, paddingTop: Spacing.md, paddingBottom: Spacing.xs, gap: Spacing.sm, alignItems: 'center' },
   filterChip: { height: 38, minWidth: 96, maxWidth: 220, paddingHorizontal: Spacing.md, borderRadius: BorderRadius.full, backgroundColor: Colors.white, borderWidth: 1, borderColor: Colors.border, alignItems: 'center', justifyContent: 'center' },
   filterChipActive: { backgroundColor: Colors.primary, borderColor: Colors.primary },
   filterChipText: { color: Colors.textSecondary, fontSize: FontSize.sm, fontWeight: '600' },
   filterChipTextActive: { color: Colors.white },
-  infoPanel: { margin: Spacing.md, marginTop: Spacing.sm, padding: Spacing.sm, borderRadius: BorderRadius.md, backgroundColor: Colors.white, borderWidth: 1, borderColor: Colors.border },
+  infoPanel: { marginHorizontal: Spacing.md, marginTop: Spacing.sm, marginBottom: Spacing.sm, padding: Spacing.sm, borderRadius: BorderRadius.md, backgroundColor: Colors.white, borderWidth: 1, borderColor: Colors.border },
   infoTitle: { fontWeight: '700', color: Colors.text, marginBottom: 4 },
   infoText: { color: Colors.textSecondary, fontSize: FontSize.xs, marginBottom: 2 },
   resultsHeader: { paddingHorizontal: Spacing.md, paddingBottom: 6, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
