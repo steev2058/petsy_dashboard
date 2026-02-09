@@ -148,15 +148,28 @@ export default function PetTrackingScreen() {
     });
   };
 
-  const openMapForLocation = async (locationText?: string, latitude?: number, longitude?: number) => {
-    const q = (latitude && longitude)
+  const GOOGLE_MAPS_KEY = process.env.EXPO_PUBLIC_GOOGLE_MAPS_API_KEY || '';
+
+  const buildMapQuery = (locationText?: string, latitude?: number, longitude?: number) => {
+    return (latitude && longitude)
       ? `${latitude},${longitude}`
-      : encodeURIComponent(locationText || '');
-    if (!q) {
+      : (locationText || '').trim();
+  };
+
+  const buildStaticMapUrl = (locationText?: string, latitude?: number, longitude?: number) => {
+    const query = buildMapQuery(locationText, latitude, longitude);
+    if (!query || !GOOGLE_MAPS_KEY) return null;
+    const marker = encodeURIComponent(query);
+    return `https://maps.googleapis.com/maps/api/staticmap?center=${marker}&zoom=14&size=900x360&maptype=roadmap&markers=color:red%7C${marker}&key=${GOOGLE_MAPS_KEY}`;
+  };
+
+  const openMapForLocation = async (locationText?: string, latitude?: number, longitude?: number) => {
+    const query = buildMapQuery(locationText, latitude, longitude);
+    if (!query) {
       Alert.alert('No location', 'No location available yet for this pet');
       return;
     }
-    const url = `https://www.google.com/maps/search/?api=1&query=${q}`;
+    const url = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(query)}`;
     try {
       await Linking.openURL(url);
     } catch {
@@ -293,10 +306,17 @@ export default function PetTrackingScreen() {
                       </View>
                     </View>
                     {petTag.last_location ? (
-                      <TouchableOpacity style={styles.mapButton} onPress={() => openMapForLocation(petTag.last_location)}>
-                        <Ionicons name="map" size={18} color={Colors.primary} />
-                        <Text style={styles.mapButtonText}>Open last location on map</Text>
-                      </TouchableOpacity>
+                      <>
+                        {buildStaticMapUrl(petTag.last_location) ? (
+                          <TouchableOpacity onPress={() => openMapForLocation(petTag.last_location)} activeOpacity={0.9}>
+                            <Image source={{ uri: buildStaticMapUrl(petTag.last_location)! }} style={styles.mapPreview} />
+                          </TouchableOpacity>
+                        ) : null}
+                        <TouchableOpacity style={styles.mapButton} onPress={() => openMapForLocation(petTag.last_location)}>
+                          <Ionicons name="map" size={18} color={Colors.primary} />
+                          <Text style={styles.mapButtonText}>Open last location on map</Text>
+                        </TouchableOpacity>
+                      </>
                     ) : null}
 
                     {petTag.is_active ? (
@@ -583,6 +603,12 @@ const styles = StyleSheet.create({
   tagStatLabel: {
     fontSize: FontSize.xs,
     color: Colors.textSecondary,
+  },
+  mapPreview: {
+    width: 280,
+    height: 130,
+    borderRadius: BorderRadius.md,
+    marginBottom: Spacing.sm,
   },
   mapButton: {
     flexDirection: 'row',
