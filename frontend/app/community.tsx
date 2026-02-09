@@ -67,6 +67,7 @@ export default function CommunityScreen() {
   const [selectedType, setSelectedType] = useState('all');
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
+  const [likedPostIds, setLikedPostIds] = useState<Set<string>>(new Set());
   
   // Comments modal
   const [showComments, setShowComments] = useState(false);
@@ -103,7 +104,12 @@ export default function CommunityScreen() {
     try {
       const params = selectedType === 'all' ? {} : { type: selectedType };
       const response = await communityAPI.getAll(params);
-      setPosts(response.data);
+      const normalized = (response.data || []).map((p: any) => ({
+        ...p,
+        comments: Number(p.comments ?? p.comments_count ?? 0),
+        likes: Number(p.likes ?? 0),
+      }));
+      setPosts(normalized);
     } catch (error) {
       console.error('Error loading posts:', error);
     } finally {
@@ -171,10 +177,13 @@ export default function CommunityScreen() {
       return;
     }
 
+    if (likedPostIds.has(post.id)) return;
+
     try {
       await communityAPI.like(post.id);
+      setLikedPostIds((prev) => new Set(prev).add(post.id));
       setPosts(prev => prev.map(p => 
-        p.id === post.id ? { ...p, likes: p.likes + 1 } : p
+        p.id === post.id ? { ...p, likes: Number(p.likes || 0) + 1 } : p
       ));
     } catch (error) {
       console.error('Error liking post:', error);
@@ -272,12 +281,16 @@ export default function CommunityScreen() {
         {/* Post Actions */}
         <View style={styles.postActions}>
           <TouchableOpacity style={styles.actionButton} onPress={() => handleLike(item)}>
-            <Ionicons name="heart-outline" size={22} color={Colors.textSecondary} />
-            <Text style={styles.actionCount}>{item.likes}</Text>
+            <Ionicons
+              name={likedPostIds.has(item.id) ? 'heart' : 'heart-outline'}
+              size={22}
+              color={likedPostIds.has(item.id) ? Colors.error : Colors.textSecondary}
+            />
+            <Text style={styles.actionCount}>{Number(item.likes || 0)}</Text>
           </TouchableOpacity>
           <TouchableOpacity style={styles.actionButton} onPress={() => handleOpenComments(item)}>
             <Ionicons name="chatbubble-outline" size={20} color={Colors.textSecondary} />
-            <Text style={styles.actionCount}>{item.comments}</Text>
+            <Text style={styles.actionCount}>{Number(item.comments || 0)}</Text>
           </TouchableOpacity>
           <TouchableOpacity style={styles.actionButton} onPress={() => handleShare(item)}>
             <Ionicons name="share-social-outline" size={22} color={Colors.textSecondary} />
@@ -333,6 +346,7 @@ export default function CommunityScreen() {
         data={POST_TYPES}
         keyExtractor={(item) => item.id}
         showsHorizontalScrollIndicator={false}
+        style={styles.typeFiltersList}
         contentContainerStyle={styles.typeFilters}
         renderItem={({ item }) => (
           <TouchableOpacity
@@ -500,17 +514,24 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
+  typeFiltersList: {
+    backgroundColor: Colors.white,
+    maxHeight: 62,
+    flexGrow: 0,
+  },
   typeFilters: {
     paddingHorizontal: Spacing.md,
     paddingVertical: Spacing.sm,
-    backgroundColor: Colors.white,
+    alignItems: 'center',
     gap: Spacing.sm,
   },
   typeFilter: {
-    paddingVertical: Spacing.sm,
+    height: 40,
     paddingHorizontal: Spacing.md,
     borderRadius: BorderRadius.full,
     backgroundColor: Colors.backgroundDark,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   typeFilterActive: {
     backgroundColor: Colors.primary,
