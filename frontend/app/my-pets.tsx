@@ -9,6 +9,7 @@ import {
   Alert,
   Image,
   ActivityIndicator,
+  Platform,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
@@ -46,23 +47,31 @@ export default function MyPetsScreen() {
     setRefreshing(false);
   }, []);
 
+  const doDeletePet = async (petId: string) => {
+    setActionLoading({ petId, type: 'delete' });
+    try {
+      await petsAPI.delete(petId);
+      setPets((prev) => prev.filter((p) => p.id !== petId));
+    } catch (e) {
+      Alert.alert('Error', 'Failed to delete pet');
+    } finally {
+      setActionLoading(null);
+    }
+  };
+
   const onDeletePet = (petId: string, petName: string) => {
+    if (Platform.OS === 'web') {
+      const ok = typeof window !== 'undefined' ? window.confirm(`Delete ${petName}?`) : true;
+      if (ok) doDeletePet(petId);
+      return;
+    }
+
     Alert.alert('Delete Pet', `Delete ${petName}?`, [
       { text: 'Cancel', style: 'cancel' },
       {
         text: 'Delete',
         style: 'destructive',
-        onPress: async () => {
-          setActionLoading({ petId, type: 'delete' });
-          try {
-            await petsAPI.delete(petId);
-            setPets((prev) => prev.filter((p) => p.id !== petId));
-          } catch (e) {
-            Alert.alert('Error', 'Failed to delete pet');
-          } finally {
-            setActionLoading(null);
-          }
-        },
+        onPress: () => doDeletePet(petId),
       },
     ]);
   };
