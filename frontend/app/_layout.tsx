@@ -97,6 +97,7 @@ export default function RootLayout() {
         <Stack.Screen name="lost-found" />
         <Stack.Screen name="lost-found/[id]" options={{ presentation: 'card' }} />
         <Stack.Screen name="community" />
+        <Stack.Screen name="community/[id]" options={{ presentation: 'card' }} />
         <Stack.Screen name="cart" />
         <Stack.Screen name="checkout" />
         <Stack.Screen name="petsy-map" />

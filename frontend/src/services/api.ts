@@ -158,6 +158,8 @@ export const communityAPI = {
   
   getAll: (params?: { type?: string }) =>
     api.get('/community', { params }),
+
+  getById: (id: string) => api.get(`/community/${id}`),
   
   like: (id: string) => api.post(`/community/${id}/like`),
   

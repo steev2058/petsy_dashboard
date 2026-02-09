@@ -1446,6 +1446,18 @@ async def get_community_posts(type: Optional[str] = None, limit: int = 50):
 
     return enriched
 
+@api_router.get("/community/{post_id}", response_model=CommunityPost)
+async def get_community_post_by_id(post_id: str):
+    post = await db.community.find_one({"id": post_id})
+    if not post:
+        raise HTTPException(status_code=404, detail="Post not found")
+
+    clean = {k: v for k, v in post.items() if k != "_id"}
+    comments_count = await db.comments.count_documents({"post_id": clean.get("id")})
+    clean["comments_count"] = comments_count
+    clean["comments"] = comments_count
+    return CommunityPost(**clean)
+
 @api_router.post("/community/{post_id}/like")
 async def like_community_post(post_id: str, current_user: dict = Depends(get_current_user)):
     await db.community.update_one({"id": post_id}, {"$inc": {"likes": 1}})

@@ -213,22 +213,24 @@ export default function CommunityScreen() {
 
   const handleShare = async (post: Post) => {
     try {
-      const message = `Check out this post on Petsy: "${post.title}"\n\n${post.content.substring(0, 100)}...\n\nDownload Petsy to see more!`;
+      const webBase = (process.env.EXPO_PUBLIC_BACKEND_URL || 'http://76.13.151.33:8000').replace(':8000', ':3000');
+      const postUrl = `${webBase}/community/${post.id}`;
+      const message = `Check out this post on Petsy: "${post.title}"\n\n${post.content.substring(0, 100)}...\n\n${postUrl}`;
 
       if (Platform.OS === 'web') {
         const nav: any = typeof navigator !== 'undefined' ? navigator : null;
         if (nav?.share) {
-          await nav.share({ title: post.title, text: message });
+          await nav.share({ title: post.title, text: message, url: postUrl });
           return;
         }
 
         if (nav?.clipboard?.writeText) {
-          await nav.clipboard.writeText(message);
-          Alert.alert('Copied', 'Post text copied. You can paste and share it anywhere.');
+          await nav.clipboard.writeText(postUrl);
+          Alert.alert('Copied', 'Post link copied. You can share it on social media.');
           return;
         }
 
-        Alert.alert('Share', 'Sharing is not supported on this browser.');
+        Alert.alert('Share', `Copy this link: ${postUrl}`);
         return;
       }
 
