@@ -60,6 +60,23 @@ export default function LostFoundScreen() {
     );
   }
 
+  const filteredPosts = posts.filter((item) => {
+    const q = searchQuery.trim().toLowerCase();
+    if (!q) return true;
+    const haystack = [
+      item?.title,
+      item?.pet_species,
+      item?.breed,
+      item?.color,
+      item?.last_seen_location,
+      item?.description,
+    ]
+      .filter(Boolean)
+      .join(' ')
+      .toLowerCase();
+    return haystack.includes(q);
+  });
+
   const renderPost = ({ item }: { item: any }) => (
     <TouchableOpacity style={[styles.postCard, Shadow.medium]}>
       <View style={styles.postImageContainer}>
@@ -172,7 +189,7 @@ export default function LostFoundScreen() {
 
       {/* Posts List */}
       <FlatList
-        data={posts}
+        data={filteredPosts}
         keyExtractor={(item) => item.id}
         renderItem={renderPost}
         contentContainerStyle={styles.listContent}
@@ -191,10 +208,14 @@ export default function LostFoundScreen() {
               color={Colors.textLight}
             />
             <Text style={styles.emptyTitle}>
-              No {selectedType} pets reported
+              {searchQuery.trim()
+                ? 'No matching results'
+                : `No ${selectedType} pets reported`}
             </Text>
             <Text style={styles.emptyText}>
-              {selectedType === 'lost'
+              {searchQuery.trim()
+                ? 'Try another keyword (location, breed, species, color)'
+                : selectedType === 'lost'
                 ? 'Report a lost pet to get help from the community'
                 : 'Found a pet? Report it to help find the owner'}
             </Text>
