@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import {
   View,
   Text,
@@ -58,6 +58,12 @@ export default function BookAppointmentScreen() {
   const [step, setStep] = useState(1);
   const [paymentMethod, setPaymentMethod] = useState('cash');
   const [cardDetails, setCardDetails] = useState({ number: '', expiry: '', cvc: '' });
+  const [toast, setToast] = useState<{ visible: boolean; message: string; type: 'success' | 'error' }>({
+    visible: false,
+    message: '',
+    type: 'success',
+  });
+  const toastTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const appointmentFee = REASONS.find(r => r.id === selectedReason)?.price || CONSULTATION_FEE;
 
@@ -71,6 +77,20 @@ export default function BookAppointmentScreen() {
   useEffect(() => {
     loadData();
   }, [vetId]);
+
+  useEffect(() => {
+    return () => {
+      if (toastTimerRef.current) clearTimeout(toastTimerRef.current);
+    };
+  }, []);
+
+  const showToast = (message: string, type: 'success' | 'error' = 'success') => {
+    if (toastTimerRef.current) clearTimeout(toastTimerRef.current);
+    setToast({ visible: true, message, type });
+    toastTimerRef.current = setTimeout(() => {
+      setToast((prev) => ({ ...prev, visible: false }));
+    }, 2200);
+  };
 
   const loadData = async () => {
     try {
@@ -152,14 +172,8 @@ export default function BookAppointmentScreen() {
         }),
       });
       
-      Alert.alert(
-        '🎉 Appointment Booked!',
-        `Your appointment with ${vet?.name} on ${formatDate(selectedDate)} at ${selectedTime} has been confirmed. You earned ${appointmentFee} Petsy Points!`,
-        [
-          { text: 'View Appointments', onPress: () => router.replace('/my-appointments') },
-          { text: 'Done', onPress: () => router.back() },
-        ]
-      );
+      showToast('Booking is successful', 'success');
+      setTimeout(() => router.replace('/my-appointments'), 900);
     } catch (error: any) {
       Alert.alert('Error', error.response?.data?.detail || 'Failed to book appointment');
     } finally {
@@ -225,6 +239,18 @@ export default function BookAppointmentScreen() {
         <Text style={styles.title}>Book Appointment</Text>
         <View style={{ width: 40 }} />
       </View>
+
+      {toast.visible && (
+        <View style={[styles.toast, toast.type === 'error' ? styles.toastError : styles.toastSuccess]}>
+          <Ionicons
+            name={toast.type === 'error' ? 'alert-circle' : 'checkmark-circle'}
+            size={18}
+            color={Colors.white}
+            style={{ marginRight: 8 }}
+          />
+          <Text style={styles.toastText}>{toast.message}</Text>
+        </View>
+      )}
 
       {/* Progress Steps */}
       <View style={styles.progressContainer}>
@@ -538,6 +564,22 @@ const styles = StyleSheet.create({
     fontSize: FontSize.xl,
     fontWeight: '700',
     color: Colors.text,
+  },
+  toast: {
+    marginHorizontal: Spacing.md,
+    marginTop: Spacing.sm,
+    borderRadius: BorderRadius.md,
+    paddingHorizontal: Spacing.md,
+    paddingVertical: Spacing.sm,
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  toastSuccess: { backgroundColor: '#22c55e' },
+  toastError: { backgroundColor: Colors.error },
+  toastText: {
+    color: Colors.white,
+    fontSize: FontSize.sm,
+    fontWeight: '600',
   },
   progressContainer: {
     flexDirection: 'row',
