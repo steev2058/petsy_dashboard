@@ -8,10 +8,12 @@ import {
   Alert,
   KeyboardAvoidingView,
   Platform,
+  Image,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
+import * as ImagePicker from 'expo-image-picker';
 import { Input, Button } from '../src/components';
 import { Colors, FontSize, Spacing, BorderRadius } from '../src/constants/theme';
 import { authAPI } from '../src/services/api';
@@ -44,6 +46,35 @@ export default function EditProfileScreen() {
     return Math.round((filled / fields.length) * 100);
   }, [name, user?.email, phone, city, bio, avatar]);
 
+  const pickAvatar = async () => {
+    try {
+      const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
+      if (!permission.granted) {
+        Alert.alert('Permission needed', 'Please allow photo access to select an avatar.');
+        return;
+      }
+
+      const result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        quality: 0.7,
+        allowsEditing: true,
+        aspect: [1, 1],
+        base64: true,
+      });
+
+      if (!result.canceled && result.assets?.[0]) {
+        const asset = result.assets[0];
+        if (asset.base64) {
+          setAvatar(`data:image/jpeg;base64,${asset.base64}`);
+        } else if (asset.uri) {
+          setAvatar(asset.uri);
+        }
+      }
+    } catch (e) {
+      Alert.alert('Error', 'Could not pick image');
+    }
+  };
+
   const handleSave = async () => {
     if (!name.trim()) {
       Alert.alert('Validation', 'Name is required');
@@ -60,8 +91,14 @@ export default function EditProfileScreen() {
       return;
     }
 
-    if (avatar.trim() && !/^https?:\/\//i.test(avatar.trim())) {
-      Alert.alert('Validation', 'Avatar URL must start with http:// or https://');
+    if (
+      avatar.trim() &&
+      !/^https?:\/\//i.test(avatar.trim()) &&
+      !/^data:image\//i.test(avatar.trim()) &&
+      !/^file:/i.test(avatar.trim()) &&
+      !/^blob:/i.test(avatar.trim())
+    ) {
+      Alert.alert('Validation', 'Avatar must be a valid image URL or selected image');
       return;
     }
 
@@ -98,10 +135,19 @@ export default function EditProfileScreen() {
         </View>
 
         <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
-          <View style={styles.avatarPlaceholder}>
-            <Ionicons name="person" size={42} color={Colors.white} />
-          </View>
-          <Text style={styles.avatarHint}>Use an avatar image URL for now</Text>
+          <TouchableOpacity onPress={pickAvatar} activeOpacity={0.85}>
+            {avatar ? (
+              <Image source={{ uri: avatar }} style={styles.avatarImage} />
+            ) : (
+              <View style={styles.avatarPlaceholder}>
+                <Ionicons name="person" size={42} color={Colors.white} />
+              </View>
+            )}
+            <View style={styles.avatarEditBadge}>
+              <Ionicons name="camera" size={14} color={Colors.white} />
+            </View>
+          </TouchableOpacity>
+          <Text style={styles.avatarHint}>Tap avatar to upload from gallery</Text>
 
           <View style={styles.progressBox}>
             <Text style={styles.progressTitle}>Profile completeness</Text>
@@ -178,6 +224,26 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: Spacing.sm,
+  },
+  avatarImage: {
+    width: 90,
+    height: 90,
+    borderRadius: 45,
+    alignSelf: 'center',
+    marginBottom: Spacing.sm,
+  },
+  avatarEditBadge: {
+    position: 'absolute',
+    right: -2,
+    bottom: 8,
+    width: 26,
+    height: 26,
+    borderRadius: 13,
+    backgroundColor: Colors.primary,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 2,
+    borderColor: Colors.white,
   },
   avatarHint: {
     textAlign: 'center',
