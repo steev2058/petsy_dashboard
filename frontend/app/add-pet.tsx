@@ -11,7 +11,7 @@ import {
   Platform,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useRouter } from 'expo-router';
+import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
 import { Button, Input } from '../src/components';
@@ -36,6 +36,8 @@ const STATUS_OPTIONS = [
 
 export default function AddPetScreen() {
   const router = useRouter();
+  const { editId } = useLocalSearchParams<{ editId?: string }>();
+  const isEditMode = !!editId;
   const { t } = useTranslation();
   
   const [loading, setLoading] = useState(false);
@@ -76,6 +78,38 @@ export default function AddPetScreen() {
     }, 2200);
   };
 
+  useEffect(() => {
+    const loadPetForEdit = async () => {
+      if (!editId) return;
+      setLoading(true);
+      try {
+        const res = await petsAPI.getById(editId);
+        const p = res.data;
+        setFormData({
+          name: p.name || '',
+          species: p.species || 'dog',
+          breed: p.breed || '',
+          age: p.age || '',
+          gender: p.gender || 'male',
+          color: p.color || '',
+          weight: p.weight ? String(p.weight) : '',
+          description: p.description || '',
+          status: p.status || 'owned',
+          price: p.price ? String(p.price) : '',
+          location: p.location || '',
+          vaccinated: !!p.vaccinated,
+          neutered: !!p.neutered,
+        });
+        if (p.image) setImage(p.image);
+      } catch (e) {
+        Alert.alert('Error', 'Failed to load pet details');
+      } finally {
+        setLoading(false);
+      }
+    };
+    loadPetForEdit();
+  }, [editId]);
+
   const pickImage = async () => {
     const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (status !== 'granted') {
@@ -111,9 +145,14 @@ export default function AddPetScreen() {
         image: image || undefined,
       };
 
-      await petsAPI.create(petData);
-      showToast('Saved successfully', 'success');
-      setTimeout(() => router.replace('/(tabs)/profile'), 900);
+      if (isEditMode && editId) {
+        await petsAPI.update(editId, petData);
+        showToast('Pet updated successfully', 'success');
+      } else {
+        await petsAPI.create(petData);
+        showToast('Saved successfully', 'success');
+      }
+      setTimeout(() => router.replace('/my-pets'), 900);
     } catch (error: any) {
       Alert.alert(
         'Error',
@@ -135,7 +174,7 @@ export default function AddPetScreen() {
           <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
             <Ionicons name="close" size={24} color={Colors.text} />
           </TouchableOpacity>
-          <Text style={styles.title}>{t('add_pet')}</Text>
+          <Text style={styles.title}>{isEditMode ? 'Edit Pet' : t('add_pet')}</Text>
           <View style={{ width: 40 }} />
         </View>
 
@@ -385,7 +424,7 @@ export default function AddPetScreen() {
             </View>
 
             <Button
-              title={t('save')}
+              title={isEditMode ? 'Update Pet' : t('save')}
               onPress={handleSubmit}
               loading={loading}
               style={styles.submitButton}

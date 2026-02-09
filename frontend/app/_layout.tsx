@@ -57,6 +57,7 @@ export default function RootLayout() {
       'order-history',
       'order',
       'edit-profile',
+      'my-pets',
     ]);
 
     const protectedTabRoutes = new Set(['profile']);
@@ -103,6 +104,7 @@ export default function RootLayout() {
         <Stack.Screen name="health-records" />
         <Stack.Screen name="favorites" />
         <Stack.Screen name="my-appointments" />
+        <Stack.Screen name="my-pets" />
         <Stack.Screen name="pet-tracking" />
         <Stack.Screen name="settings" />
         <Stack.Screen name="edit-profile" options={{ presentation: 'card' }} />

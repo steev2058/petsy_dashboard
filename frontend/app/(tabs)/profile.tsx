@@ -138,7 +138,7 @@ export default function ProfileScreen() {
   const menuItems = [
     // Admin Dashboard (only for admins)
     ...(isAdmin ? [{ icon: 'shield-checkmark', label: 'Admin Dashboard', onPress: () => router.push('/admin'), isAdmin: true }] : []),
-    { icon: 'paw', label: t('my_pets'), onPress: () => router.push('/add-pet') },
+    { icon: 'paw', label: t('my_pets'), onPress: () => router.push('/my-pets') },
     { icon: 'bag-handle', label: 'Order History', onPress: () => router.push('/order-history') },
     { icon: 'heart', label: t('favorites'), onPress: () => router.push('/favorites') },
     { icon: 'chatbubbles', label: t('messages'), onPress: () => router.push('/messages') },
@@ -228,7 +228,7 @@ export default function ProfileScreen() {
         <View style={styles.section}>
           <View style={styles.sectionHeader}>
             <Text style={styles.sectionTitle}>{t('my_pets')}</Text>
-            <TouchableOpacity onPress={() => router.push('/add-pet')}>
+            <TouchableOpacity onPress={() => router.push('/my-pets')}>
               <Ionicons name="add-circle" size={28} color={Colors.primary} />
             </TouchableOpacity>
           </View>
