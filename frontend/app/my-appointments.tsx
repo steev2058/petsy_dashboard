@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import {
   View,
   Text,
@@ -49,6 +49,12 @@ export default function MyAppointmentsScreen() {
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [actionLoading, setActionLoading] = useState<{ id: string; type: 'cancel' | 'reschedule' } | null>(null);
+  const [toast, setToast] = useState<{ visible: boolean; message: string; type: 'success' | 'error' }>({
+    visible: false,
+    message: '',
+    type: 'success',
+  });
+  const toastTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
     if (isAuthenticated) {
@@ -57,6 +63,20 @@ export default function MyAppointmentsScreen() {
       setLoading(false);
     }
   }, [isAuthenticated]);
+
+  useEffect(() => {
+    return () => {
+      if (toastTimerRef.current) clearTimeout(toastTimerRef.current);
+    };
+  }, []);
+
+  const showToast = (message: string, type: 'success' | 'error' = 'success') => {
+    if (toastTimerRef.current) clearTimeout(toastTimerRef.current);
+    setToast({ visible: true, message, type });
+    toastTimerRef.current = setTimeout(() => {
+      setToast((prev) => ({ ...prev, visible: false }));
+    }, 2200);
+  };
 
   const loadAppointments = async () => {
     try {
@@ -80,7 +100,7 @@ export default function MyAppointmentsScreen() {
     try {
       await appointmentsAPI.cancel(appointment.id);
       await loadAppointments();
-      Alert.alert('Success', 'Appointment cancelled successfully');
+      showToast('Cancellation done successfully', 'success');
     } catch (error: any) {
       Alert.alert('Error', error.response?.data?.detail || 'Failed to cancel');
     } finally {
@@ -277,6 +297,18 @@ export default function MyAppointmentsScreen() {
         </TouchableOpacity>
       </View>
 
+      {toast.visible && (
+        <View style={[styles.toast, toast.type === 'error' ? styles.toastError : styles.toastSuccess]}>
+          <Ionicons
+            name={toast.type === 'error' ? 'alert-circle' : 'checkmark-circle'}
+            size={18}
+            color={Colors.white}
+            style={{ marginRight: 8 }}
+          />
+          <Text style={styles.toastText}>{toast.message}</Text>
+        </View>
+      )}
+
       {/* Tabs */}
       <View style={styles.tabsContainer}>
         {TABS.map((tab) => (
@@ -358,6 +390,22 @@ const styles = StyleSheet.create({
     fontSize: FontSize.xl,
     fontWeight: '700',
     color: Colors.text,
+  },
+  toast: {
+    marginHorizontal: Spacing.md,
+    marginTop: Spacing.sm,
+    borderRadius: BorderRadius.md,
+    paddingHorizontal: Spacing.md,
+    paddingVertical: Spacing.sm,
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  toastSuccess: { backgroundColor: '#22c55e' },
+  toastError: { backgroundColor: Colors.error },
+  toastText: {
+    color: Colors.white,
+    fontSize: FontSize.sm,
+    fontWeight: '600',
   },
   addButton: {
     borderRadius: 12,
