@@ -1469,10 +1469,10 @@ async def create_comment(post_id: str, comment: CommentCreate, current_user: dic
     await db.community.update_one({"id": post_id}, {"$inc": {"comments": 1}})
     return new_comment
 
-@api_router.get("/community/{post_id}/comments")
+@api_router.get("/community/{post_id}/comments", response_model=List[Comment])
 async def get_comments(post_id: str):
     comments = await db.comments.find({"post_id": post_id}).sort("created_at", -1).to_list(100)
-    return comments
+    return [Comment(**{k: v for k, v in c.items() if k != "_id"}) for c in comments]
 
 # ========================= HEALTH RECORDS =========================
 
