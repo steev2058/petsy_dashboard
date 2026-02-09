@@ -9,6 +9,7 @@ import {
   Dimensions,
   RefreshControl,
   FlatList,
+  ActivityIndicator,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
@@ -29,6 +30,7 @@ export default function HomeScreen() {
   
   const [searchQuery, setSearchQuery] = useState('');
   const [refreshing, setRefreshing] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [pets, setPets] = useState<any[]>([]);
   const [vets, setVets] = useState<any[]>([]);
   const [products, setProducts] = useState<any[]>([]);
@@ -46,6 +48,8 @@ export default function HomeScreen() {
       setProducts(productsRes.data.slice(0, 6));
     } catch (error) {
       console.error('Error loading data:', error);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -60,11 +64,23 @@ export default function HomeScreen() {
   }, []);
 
   const quickServices = [
+
     { id: 'adoption', icon: 'heart', label: t('adoption'), color: '#FF6B6B', route: '/(tabs)/adoption' },
     { id: 'map', icon: 'map', label: 'Map', color: '#4ECDC4', route: '/petsy-map' },
     { id: 'shop', icon: 'cart', label: t('shop'), color: '#45B7D1', route: '/(tabs)/shop' },
     { id: 'chat', icon: 'chatbubbles', label: 'Messages', color: '#96CEB4', route: '/messages' },
   ];
+
+  if (loading) {
+    return (
+      <SafeAreaView style={styles.container} edges={['top']}>
+        <View style={styles.pageLoader}>
+          <ActivityIndicator size="small" color={Colors.primary} />
+          <Text style={styles.pageLoaderText}>Loading home data...</Text>
+        </View>
+      </SafeAreaView>
+    );
+  }
 
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
@@ -499,5 +515,15 @@ const styles = StyleSheet.create({
   drawerItemText: {
     fontSize: FontSize.lg,
     color: Colors.text,
+  },
+  pageLoader: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  pageLoaderText: {
+    marginTop: Spacing.sm,
+    color: Colors.textSecondary,
+    fontSize: FontSize.sm,
   },
 });

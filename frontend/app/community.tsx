@@ -14,6 +14,7 @@ import {
   Alert,
   Modal,
   Animated,
+  ActivityIndicator,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
@@ -127,6 +128,17 @@ export default function CommunityScreen() {
       setLoadingComments(false);
     }
   };
+
+  if (loading) {
+    return (
+      <SafeAreaView style={styles.container} edges={['top']}>
+        <View style={styles.loaderBox}>
+          <ActivityIndicator size="small" color={Colors.primary} />
+          <Text style={styles.loaderText}>Loading community posts...</Text>
+        </View>
+      </SafeAreaView>
+    );
+  }
 
   const handleOpenComments = (post: Post) => {
     setSelectedPost(post);
@@ -787,5 +799,15 @@ const styles = StyleSheet.create({
     fontSize: FontSize.md,
     color: Colors.primary,
     fontWeight: '600',
+  },
+  loaderBox: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  loaderText: {
+    marginTop: Spacing.sm,
+    color: Colors.textSecondary,
+    fontSize: FontSize.sm,
   },
 });
