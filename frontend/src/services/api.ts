@@ -163,8 +163,11 @@ export const communityAPI = {
   
   getComments: (postId: string) => api.get(`/community/${postId}/comments`),
   
-  addComment: (postId: string, content: string) =>
-    api.post(`/community/${postId}/comments`, { content }),
+  addComment: (postId: string, content: string, parent_comment_id?: string) =>
+    api.post(`/community/${postId}/comments`, { content, parent_comment_id }),
+
+  likeComment: (commentId: string) =>
+    api.post(`/community/comments/${commentId}/like`),
 };
 
 // AI API

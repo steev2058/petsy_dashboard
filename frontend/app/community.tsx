@@ -47,6 +47,8 @@ interface Comment {
   user_name: string;
   user_avatar?: string;
   content: string;
+  likes?: number;
+  parent_comment_id?: string;
   created_at: string;
 }
 
@@ -76,6 +78,7 @@ export default function CommunityScreen() {
   const [newComment, setNewComment] = useState('');
   const [loadingComments, setLoadingComments] = useState(false);
   const [sendingComment, setSendingComment] = useState(false);
+  const [replyToComment, setReplyToComment] = useState<Comment | null>(null);
   
   const slideAnim = useRef(new Animated.Value(500)).current;
 
@@ -148,6 +151,7 @@ export default function CommunityScreen() {
 
   const handleOpenComments = (post: Post) => {
     setSelectedPost(post);
+    setReplyToComment(null);
     setShowComments(true);
     loadComments(post.id);
   };
@@ -157,17 +161,33 @@ export default function CommunityScreen() {
 
     setSendingComment(true);
     try {
-      await communityAPI.addComment(selectedPost.id, newComment.trim());
+      await communityAPI.addComment(selectedPost.id, newComment.trim(), replyToComment?.id);
       setNewComment('');
+      setReplyToComment(null);
       loadComments(selectedPost.id);
       // Update post comment count locally
       setPosts(prev => prev.map(p => 
-        p.id === selectedPost.id ? { ...p, comments: p.comments + 1 } : p
+        p.id === selectedPost.id ? { ...p, comments: Number(p.comments || 0) + 1 } : p
       ));
     } catch (error: any) {
       Alert.alert('Error', error.response?.data?.detail || 'Failed to post comment');
     } finally {
       setSendingComment(false);
+    }
+  };
+
+  const handleLikeComment = async (commentId: string) => {
+    if (!isAuthenticated) {
+      Alert.alert('Login Required', 'Please login to like comments');
+      return;
+    }
+    try {
+      await communityAPI.likeComment(commentId);
+      setComments((prev) => prev.map((c) => (
+        c.id === commentId ? { ...c, likes: Number(c.likes || 0) + 1 } : c
+      )));
+    } catch (error) {
+      console.error('Error liking comment:', error);
     }
   };
 
@@ -301,26 +321,50 @@ export default function CommunityScreen() {
     </AnimatedRN.View>
   );
 
-  const renderComment = ({ item }: { item: Comment }) => (
-    <View style={styles.commentItem}>
-      {item.user_avatar ? (
-        <Image source={{ uri: item.user_avatar }} style={styles.commentAvatar} />
-      ) : (
-        <View style={styles.commentAvatarPlaceholder}>
-          <Text style={styles.commentAvatarInitial}>
-            {item.user_name[0]?.toUpperCase()}
-          </Text>
+  const renderComment = ({ item }: { item: Comment }) => {
+    const replies = comments.filter((c) => c.parent_comment_id === item.id);
+
+    return (
+      <View style={styles.commentItem}>
+        {item.user_avatar ? (
+          <Image source={{ uri: item.user_avatar }} style={styles.commentAvatar} />
+        ) : (
+          <View style={styles.commentAvatarPlaceholder}>
+            <Text style={styles.commentAvatarInitial}>
+              {item.user_name[0]?.toUpperCase()}
+            </Text>
+          </View>
+        )}
+        <View style={styles.commentContent}>
+          <View style={styles.commentBubble}>
+            <Text style={styles.commentUserName}>{item.user_name}</Text>
+            <Text style={styles.commentText}>{item.content}</Text>
+          </View>
+
+          <View style={styles.commentActionsRow}>
+            <Text style={styles.commentTime}>{formatTime(item.created_at)}</Text>
+            <TouchableOpacity onPress={() => handleLikeComment(item.id)}>
+              <Text style={styles.commentActionBtn}>Like {Number(item.likes || 0) > 0 ? `(${Number(item.likes || 0)})` : ''}</Text>
+            </TouchableOpacity>
+            <TouchableOpacity onPress={() => setReplyToComment(item)}>
+              <Text style={styles.commentActionBtn}>Reply</Text>
+            </TouchableOpacity>
+          </View>
+
+          {replies.length > 0 && (
+            <View style={styles.repliesWrap}>
+              {replies.map((r) => (
+                <View key={r.id} style={styles.replyItem}>
+                  <Text style={styles.replyName}>{r.user_name}</Text>
+                  <Text style={styles.replyText}>{r.content}</Text>
+                </View>
+              ))}
+            </View>
+          )}
         </View>
-      )}
-      <View style={styles.commentContent}>
-        <View style={styles.commentBubble}>
-          <Text style={styles.commentUserName}>{item.user_name}</Text>
-          <Text style={styles.commentText}>{item.content}</Text>
-        </View>
-        <Text style={styles.commentTime}>{formatTime(item.created_at)}</Text>
       </View>
-    </View>
-  );
+    );
+  };
 
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
@@ -417,7 +461,7 @@ export default function CommunityScreen() {
               </View>
 
               <FlatList
-                data={comments}
+                data={comments.filter((c) => !c.parent_comment_id)}
                 keyExtractor={(item) => item.id}
                 renderItem={renderComment}
                 style={styles.commentsList}
@@ -434,10 +478,18 @@ export default function CommunityScreen() {
                 <KeyboardAvoidingView
                   behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
                 >
+                  {replyToComment && (
+                    <View style={styles.replyingBar}>
+                      <Text style={styles.replyingText}>Replying to {replyToComment.user_name}</Text>
+                      <TouchableOpacity onPress={() => setReplyToComment(null)}>
+                        <Ionicons name="close" size={16} color={Colors.textSecondary} />
+                      </TouchableOpacity>
+                    </View>
+                  )}
                   <View style={styles.commentInput}>
                     <TextInput
                       style={styles.input}
-                      placeholder="Write a comment..."
+                      placeholder={replyToComment ? `Reply to ${replyToComment.user_name}...` : 'Write a comment...'}
                       placeholderTextColor={Colors.textLight}
                       value={newComment}
                       onChangeText={setNewComment}
@@ -770,8 +822,38 @@ const styles = StyleSheet.create({
   commentTime: {
     fontSize: FontSize.xs,
     color: Colors.textLight,
+  },
+  commentActionsRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.sm,
     marginTop: 4,
     marginLeft: Spacing.sm,
+  },
+  commentActionBtn: {
+    fontSize: FontSize.xs,
+    color: Colors.textSecondary,
+    fontWeight: '600',
+  },
+  repliesWrap: {
+    marginTop: 8,
+    marginLeft: Spacing.sm,
+    gap: 6,
+  },
+  replyItem: {
+    backgroundColor: Colors.backgroundDark,
+    borderRadius: BorderRadius.md,
+    paddingVertical: 6,
+    paddingHorizontal: 10,
+  },
+  replyName: {
+    fontSize: FontSize.xs,
+    fontWeight: '700',
+    color: Colors.text,
+  },
+  replyText: {
+    fontSize: FontSize.sm,
+    color: Colors.textSecondary,
   },
   noComments: {
     alignItems: 'center',
@@ -780,6 +862,18 @@ const styles = StyleSheet.create({
   noCommentsText: {
     fontSize: FontSize.md,
     color: Colors.textSecondary,
+  },
+  replyingBar: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: Spacing.md,
+    paddingTop: Spacing.sm,
+  },
+  replyingText: {
+    color: Colors.textSecondary,
+    fontSize: FontSize.sm,
+    fontWeight: '600',
   },
   commentInput: {
     flexDirection: 'row',

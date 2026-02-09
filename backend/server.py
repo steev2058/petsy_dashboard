@@ -1446,6 +1446,7 @@ async def like_community_post(post_id: str, current_user: dict = Depends(get_cur
 
 class CommentCreate(BaseModel):
     content: str
+    parent_comment_id: Optional[str] = None
 
 class Comment(BaseModel):
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
@@ -1454,6 +1455,8 @@ class Comment(BaseModel):
     user_name: str
     user_avatar: Optional[str] = None
     content: str
+    likes: int = 0
+    parent_comment_id: Optional[str] = None
     created_at: datetime = Field(default_factory=datetime.utcnow)
 
 @api_router.post("/community/{post_id}/comments")
@@ -1463,7 +1466,8 @@ async def create_comment(post_id: str, comment: CommentCreate, current_user: dic
         user_id=current_user["id"],
         user_name=current_user["name"],
         user_avatar=current_user.get("avatar"),
-        content=comment.content
+        content=comment.content,
+        parent_comment_id=comment.parent_comment_id
     )
     await db.comments.insert_one(new_comment.dict())
     await db.community.update_one({"id": post_id}, {"$inc": {"comments": 1}})
@@ -1471,8 +1475,15 @@ async def create_comment(post_id: str, comment: CommentCreate, current_user: dic
 
 @api_router.get("/community/{post_id}/comments", response_model=List[Comment])
 async def get_comments(post_id: str):
-    comments = await db.comments.find({"post_id": post_id}).sort("created_at", -1).to_list(100)
+    comments = await db.comments.find({"post_id": post_id}).sort("created_at", 1).to_list(300)
     return [Comment(**{k: v for k, v in c.items() if k != "_id"}) for c in comments]
+
+@api_router.post('/community/comments/{comment_id}/like')
+async def like_comment(comment_id: str, current_user: dict = Depends(get_current_user)):
+    result = await db.comments.update_one({'id': comment_id}, {'$inc': {'likes': 1}})
+    if result.matched_count == 0:
+        raise HTTPException(status_code=404, detail='Comment not found')
+    return {'message': 'Comment liked'}
 
 # ========================= HEALTH RECORDS =========================
 
