@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import {
   View,
   Text,
@@ -40,6 +40,12 @@ export default function AddPetScreen() {
   
   const [loading, setLoading] = useState(false);
   const [image, setImage] = useState<string | null>(null);
+  const [toast, setToast] = useState<{ visible: boolean; message: string; type: 'success' | 'error' }>({
+    visible: false,
+    message: '',
+    type: 'success',
+  });
+  const toastTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [formData, setFormData] = useState({
     name: '',
     species: 'dog',
@@ -55,6 +61,20 @@ export default function AddPetScreen() {
     vaccinated: false,
     neutered: false,
   });
+
+  useEffect(() => {
+    return () => {
+      if (toastTimerRef.current) clearTimeout(toastTimerRef.current);
+    };
+  }, []);
+
+  const showToast = (message: string, type: 'success' | 'error' = 'success') => {
+    if (toastTimerRef.current) clearTimeout(toastTimerRef.current);
+    setToast({ visible: true, message, type });
+    toastTimerRef.current = setTimeout(() => {
+      setToast((prev) => ({ ...prev, visible: false }));
+    }, 2200);
+  };
 
   const pickImage = async () => {
     const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
@@ -92,9 +112,8 @@ export default function AddPetScreen() {
       };
 
       await petsAPI.create(petData);
-      Alert.alert('Success', 'Pet added successfully!', [
-        { text: 'OK', onPress: () => router.back() },
-      ]);
+      showToast('Saved successfully', 'success');
+      setTimeout(() => router.replace('/(tabs)/profile'), 900);
     } catch (error: any) {
       Alert.alert(
         'Error',
@@ -119,6 +138,18 @@ export default function AddPetScreen() {
           <Text style={styles.title}>{t('add_pet')}</Text>
           <View style={{ width: 40 }} />
         </View>
+
+        {toast.visible && (
+          <View style={[styles.toast, toast.type === 'error' ? styles.toastError : styles.toastSuccess]}>
+            <Ionicons
+              name={toast.type === 'error' ? 'alert-circle' : 'checkmark-circle'}
+              size={18}
+              color={Colors.white}
+              style={{ marginRight: 8 }}
+            />
+            <Text style={styles.toastText}>{toast.message}</Text>
+          </View>
+        )}
 
         <ScrollView showsVerticalScrollIndicator={false}>
           {/* Image Picker */}
@@ -391,6 +422,22 @@ const styles = StyleSheet.create({
     fontSize: FontSize.xl,
     fontWeight: '700',
     color: Colors.text,
+  },
+  toast: {
+    marginHorizontal: Spacing.md,
+    marginTop: Spacing.sm,
+    borderRadius: BorderRadius.md,
+    paddingHorizontal: Spacing.md,
+    paddingVertical: Spacing.sm,
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  toastSuccess: { backgroundColor: '#22c55e' },
+  toastError: { backgroundColor: Colors.error },
+  toastText: {
+    color: Colors.white,
+    fontSize: FontSize.sm,
+    fontWeight: '600',
   },
   imagePicker: {
     alignSelf: 'center',
