@@ -179,8 +179,8 @@ export default function FavoritesScreen() {
         activeOpacity={0.9}
       >
         <View style={styles.itemImageContainer}>
-          {item.item?.image ? (
-            <Image source={{ uri: item.item.image }} style={styles.itemImage} />
+          {(item.item?.image || item.item?.image_url) ? (
+            <Image source={{ uri: item.item?.image || item.item?.image_url }} style={styles.itemImage} />
           ) : (
             <View style={styles.imagePlaceholder}>
               <Ionicons
