@@ -225,12 +225,16 @@ export default function CommunityScreen() {
         }
 
         if (nav?.clipboard?.writeText) {
-          await nav.clipboard.writeText(postUrl);
-          Alert.alert('Copied', 'Post link copied. You can share it on social media.');
-          return;
+          try {
+            await nav.clipboard.writeText(postUrl);
+            Alert.alert('Copied', 'Post link copied. You can share it on social media.');
+            return;
+          } catch {
+            // continue to manual fallback
+          }
         }
 
-        Alert.alert('Share', `Copy this link: ${postUrl}`);
+        Alert.alert('Share Link', postUrl);
         return;
       }
 
@@ -290,11 +294,8 @@ export default function CommunityScreen() {
 
   const renderPost = ({ item, index }: { item: Post; index: number }) => (
     <AnimatedRN.View entering={FadeInDown.delay(index * 50)}>
-      <TouchableOpacity
-        style={[styles.postCard, Shadow.small]}
-        activeOpacity={0.98}
-        onPress={() => handlePostPress(item)}
-      >
+      <View style={[styles.postCard, Shadow.small]}>
+        <TouchableOpacity activeOpacity={0.98} onPress={() => handlePostPress(item)}>
         {/* Post Header */}
         <View style={styles.postHeader}>
           {item.user_avatar ? (
@@ -333,6 +334,7 @@ export default function CommunityScreen() {
         {item.image && (
           <Image source={{ uri: item.image }} style={styles.postImage} />
         )}
+        </TouchableOpacity>
 
         {/* Post Actions */}
         <View style={styles.postActions}>
@@ -353,7 +355,7 @@ export default function CommunityScreen() {
             <Text style={styles.actionText}>Share</Text>
           </TouchableOpacity>
         </View>
-      </TouchableOpacity>
+      </View>
     </AnimatedRN.View>
   );
 
