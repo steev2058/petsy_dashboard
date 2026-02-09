@@ -221,8 +221,14 @@ export default function CommunityScreen() {
           await nav.share({ title: post.title, text: message });
           return;
         }
-        await Share.share({ title: post.title, message });
-        Alert.alert('Shared', 'Share dialog opened');
+
+        if (nav?.clipboard?.writeText) {
+          await nav.clipboard.writeText(message);
+          Alert.alert('Copied', 'Post text copied. You can paste and share it anywhere.');
+          return;
+        }
+
+        Alert.alert('Share', 'Sharing is not supported on this browser.');
         return;
       }
 
