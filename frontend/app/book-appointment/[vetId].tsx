@@ -56,7 +56,7 @@ export default function BookAppointmentScreen() {
   const [selectedPet, setSelectedPet] = useState<string | null>(null);
   const [selectedReason, setSelectedReason] = useState<string | null>(null);
   const [step, setStep] = useState(1);
-  const [paymentMethod, setPaymentMethod] = useState('stripe');
+  const [paymentMethod, setPaymentMethod] = useState('cash');
   const [cardDetails, setCardDetails] = useState({ number: '', expiry: '', cvc: '' });
 
   const appointmentFee = REASONS.find(r => r.id === selectedReason)?.price || CONSULTATION_FEE;
@@ -174,8 +174,6 @@ export default function BookAppointmentScreen() {
     return true;
   };
 
-  if (!isAuthenticated) {
-  
   if (loading) {
     return (
       <SafeAreaView style={styles.container} edges={['top']}>
@@ -187,7 +185,8 @@ export default function BookAppointmentScreen() {
     );
   }
 
-  return (
+  if (!isAuthenticated) {
+    return (
       <SafeAreaView style={styles.container} edges={['top']}>
         <View style={styles.header}>
           <TouchableOpacity onPress={() => router.back()} style={styles.closeButton}>
