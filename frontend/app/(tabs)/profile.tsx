@@ -9,6 +9,7 @@ import {
   Alert,
   Switch,
   Platform,
+  ActivityIndicator,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
@@ -32,6 +33,7 @@ export default function ProfileScreen() {
   const { t } = useTranslation();
   const { user, logout, isAuthenticated, language, setLanguage } = useStore();
   const [myPets, setMyPets] = useState<any[]>([]);
+  const [myPetsLoading, setMyPetsLoading] = useState(false);
   const [loyaltyPoints, setLoyaltyPoints] = useState({
     total_points: 0,
     lifetime_points: 0,
@@ -57,11 +59,14 @@ export default function ProfileScreen() {
   }, [isAuthenticated]);
 
   const loadMyPets = async () => {
+    setMyPetsLoading(true);
     try {
       const response = await petsAPI.getMyPets();
       setMyPets(response.data);
     } catch (error) {
       console.error('Error loading my pets:', error);
+    } finally {
+      setMyPetsLoading(false);
     }
   };
 
@@ -227,7 +232,12 @@ export default function ProfileScreen() {
               <Ionicons name="add-circle" size={28} color={Colors.primary} />
             </TouchableOpacity>
           </View>
-          {myPets.length > 0 ? (
+          {myPetsLoading ? (
+            <View style={styles.petsLoaderBox}>
+              <ActivityIndicator size="small" color={Colors.primary} />
+              <Text style={styles.petsLoaderText}>Loading your pets...</Text>
+            </View>
+          ) : myPets.length > 0 ? (
             <ScrollView horizontal showsHorizontalScrollIndicator={false}>
               {myPets.map((pet) => (
                 <View key={pet.id} style={styles.petCardWrapper}>
@@ -461,6 +471,21 @@ const styles = StyleSheet.create({
   },
   petCardWrapper: {
     paddingLeft: Spacing.md,
+  },
+  petsLoaderBox: {
+    marginHorizontal: Spacing.md,
+    backgroundColor: Colors.white,
+    borderRadius: BorderRadius.lg,
+    paddingVertical: Spacing.lg,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 1,
+    borderColor: Colors.border,
+  },
+  petsLoaderText: {
+    marginTop: Spacing.sm,
+    color: Colors.textSecondary,
+    fontSize: FontSize.sm,
   },
   addPetCard: {
     marginHorizontal: Spacing.md,
