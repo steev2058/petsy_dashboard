@@ -46,33 +46,61 @@ export default function EditProfileScreen() {
     return Math.round((filled / fields.length) * 100);
   }, [name, user?.email, phone, city, bio, avatar]);
 
-  const pickAvatar = async () => {
-    try {
-      const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
-      if (!permission.granted) {
-        Alert.alert('Permission needed', 'Please allow photo access to select an avatar.');
-        return;
-      }
-
-      const result = await ImagePicker.launchImageLibraryAsync({
-        mediaTypes: ImagePicker.MediaTypeOptions.Images,
-        quality: 0.7,
-        allowsEditing: true,
-        aspect: [1, 1],
-        base64: true,
-      });
-
-      if (!result.canceled && result.assets?.[0]) {
-        const asset = result.assets[0];
-        if (asset.base64) {
-          setAvatar(`data:image/jpeg;base64,${asset.base64}`);
-        } else if (asset.uri) {
-          setAvatar(asset.uri);
-        }
-      }
-    } catch (e) {
-      Alert.alert('Error', 'Could not pick image');
+  const setAvatarFromAsset = (asset: ImagePicker.ImagePickerAsset) => {
+    if (asset.base64) {
+      setAvatar(`data:image/jpeg;base64,${asset.base64}`);
+    } else if (asset.uri) {
+      setAvatar(asset.uri);
     }
+  };
+
+  const pickFromGallery = async () => {
+    const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (!permission.granted) {
+      Alert.alert('Permission needed', 'Please allow photo access to select an avatar.');
+      return;
+    }
+
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      quality: 0.55,
+      allowsEditing: true,
+      aspect: [1, 1],
+      base64: true,
+    });
+
+    if (!result.canceled && result.assets?.[0]) {
+      setAvatarFromAsset(result.assets[0]);
+    }
+  };
+
+  const takeFromCamera = async () => {
+    const permission = await ImagePicker.requestCameraPermissionsAsync();
+    if (!permission.granted) {
+      Alert.alert('Permission needed', 'Please allow camera access to take a profile photo.');
+      return;
+    }
+
+    const result = await ImagePicker.launchCameraAsync({
+      quality: 0.55,
+      allowsEditing: true,
+      aspect: [1, 1],
+      base64: true,
+      cameraType: ImagePicker.CameraType.front,
+    });
+
+    if (!result.canceled && result.assets?.[0]) {
+      setAvatarFromAsset(result.assets[0]);
+    }
+  };
+
+  const openAvatarActions = () => {
+    Alert.alert('Profile Picture', 'Choose an action', [
+      { text: 'Take Photo', onPress: () => takeFromCamera() },
+      { text: 'Choose from Gallery', onPress: () => pickFromGallery() },
+      ...(avatar ? [{ text: 'Remove Photo', style: 'destructive' as const, onPress: () => setAvatar('') }] : []),
+      { text: 'Cancel', style: 'cancel' },
+    ]);
   };
 
   const handleSave = async () => {
@@ -135,7 +163,7 @@ export default function EditProfileScreen() {
         </View>
 
         <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
-          <TouchableOpacity onPress={pickAvatar} activeOpacity={0.85}>
+          <TouchableOpacity onPress={openAvatarActions} activeOpacity={0.85}>
             {avatar ? (
               <Image source={{ uri: avatar }} style={styles.avatarImage} />
             ) : (
@@ -147,7 +175,7 @@ export default function EditProfileScreen() {
               <Ionicons name="camera" size={14} color={Colors.white} />
             </View>
           </TouchableOpacity>
-          <Text style={styles.avatarHint}>Tap avatar to upload from gallery</Text>
+          <Text style={styles.avatarHint}>Tap avatar to take photo, choose from gallery, or remove it</Text>
 
           <View style={styles.progressBox}>
             <Text style={styles.progressTitle}>Profile completeness</Text>
