@@ -16,7 +16,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import Animated, { FadeInRight, FadeOutLeft } from 'react-native-reanimated';
 import { Colors, FontSize, Spacing, BorderRadius, Shadow } from '../src/constants/theme';
-import { favoritesAPI } from '../src/services/api';
+import { favoritesAPI, petsAPI, productsAPI } from '../src/services/api';
 import { useStore } from '../src/store/useStore';
 import { useTranslation } from '../src/hooks/useTranslation';
 
@@ -55,7 +55,36 @@ export default function FavoritesScreen() {
     try {
       const params = selectedTab === 'all' ? {} : { item_type: selectedTab };
       const response = await favoritesAPI.getAll(params);
-      setFavorites(response.data);
+      const raw = response.data || [];
+
+      const normalized = await Promise.all(raw.map(async (f: any) => {
+        const itemType = f.item_type || (f.pet_id ? 'pet' : 'product');
+        let item = f.item || f.pet || f.product || null;
+        const itemId = f.item_id || f.pet_id || f.product_id;
+
+        if (!item && itemId) {
+          try {
+            if (itemType === 'pet') {
+              const p = await petsAPI.getById(String(itemId));
+              item = p.data;
+            } else {
+              const p = await productsAPI.getById(String(itemId));
+              item = p.data;
+            }
+          } catch (e) {
+            // keep fallback below
+          }
+        }
+
+        return {
+          id: f.id || `${itemType}-${itemId}`,
+          item_type: itemType,
+          item_id: String(itemId || item?.id || ''),
+          item,
+        } as FavoriteItem;
+      }));
+
+      setFavorites(normalized);
     } catch (error) {
       console.error('Error loading favorites:', error);
     } finally {
@@ -172,14 +201,14 @@ export default function FavoritesScreen() {
         
         <View style={styles.itemContent}>
           <Text style={styles.itemName} numberOfLines={2}>
-            {item.item?.name || 'Unknown'}
+            {item.item?.name || (item.item_type === 'pet' ? 'Pet' : 'Product')}
           </Text>
           {item.item_type === 'pet' ? (
             <Text style={styles.itemMeta}>
-              {item.item?.species} • {item.item?.breed || 'Mixed'}
+              {item.item?.species || 'Pet'} • {item.item?.breed || 'Mixed'}
             </Text>
           ) : (
-            <Text style={styles.itemPrice}>${item.item?.price?.toFixed(2)}</Text>
+            <Text style={styles.itemPrice}>${Number(item.item?.price || 0).toFixed(2)}</Text>
           )}
         </View>
         
