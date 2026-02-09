@@ -15,7 +15,7 @@ import { useRouter, useLocalSearchParams } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Colors, FontSize, Spacing, BorderRadius, Shadow } from '../../src/constants/theme';
-import { productsAPI } from '../../src/services/api';
+import { productsAPI, favoritesAPI } from '../../src/services/api';
 import { useStore } from '../../src/store/useStore';
 import { useTranslation } from '../../src/hooks/useTranslation';
 
@@ -40,7 +40,7 @@ export default function ProductDetailScreen() {
   const router = useRouter();
   const { id } = useLocalSearchParams<{ id: string }>();
   const { t, isRTL } = useTranslation();
-  const { addToCart, cart } = useStore();
+  const { addToCart, cart, isAuthenticated } = useStore();
   
   const [product, setProduct] = useState<Product | null>(null);
   const [loading, setLoading] = useState(true);
@@ -51,12 +51,22 @@ export default function ProductDetailScreen() {
 
   useEffect(() => {
     loadProduct();
-  }, [id]);
+  }, [id, isAuthenticated]);
 
   const loadProduct = async () => {
     try {
       const response = await productsAPI.getById(id as string);
       setProduct(response.data);
+
+      if (isAuthenticated) {
+        try {
+          const favRes = await favoritesAPI.getAll({ item_type: 'product' });
+          const exists = (favRes.data || []).some((f: any) => (f.item_id || f.product_id) === response.data.id);
+          setIsFavorite(exists);
+        } catch (e) {
+          setIsFavorite(false);
+        }
+      }
     } catch (error) {
       console.error('Error loading product:', error);
       Alert.alert('Error', 'Failed to load product details');
@@ -84,6 +94,27 @@ export default function ProductDetailScreen() {
         { text: 'View Cart', onPress: () => router.push('/cart') },
       ]
     );
+  };
+
+  const handleToggleFavorite = async () => {
+    if (!product) return;
+    if (!isAuthenticated) {
+      Alert.alert('Login Required', 'Please login to manage favorites');
+      return;
+    }
+
+    const next = !isFavorite;
+    setIsFavorite(next);
+    try {
+      if (next) {
+        await favoritesAPI.add('product', product.id);
+      } else {
+        await favoritesAPI.remove('product', product.id);
+      }
+    } catch (e) {
+      setIsFavorite(!next);
+      Alert.alert('Error', 'Failed to update favorites');
+    }
   };
 
   const getCategoryImage = () => {
@@ -173,7 +204,7 @@ export default function ProductDetailScreen() {
           )}
           <TouchableOpacity
             style={styles.favoriteButton}
-            onPress={() => setIsFavorite(!isFavorite)}
+            onPress={handleToggleFavorite}
           >
             <Ionicons
               name={isFavorite ? 'heart' : 'heart-outline'}
