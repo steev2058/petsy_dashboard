@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { View, Text, StyleSheet, FlatList, TouchableOpacity, RefreshControl, ActivityIndicator } from 'react-native';
+import { View, Text, StyleSheet, FlatList, TouchableOpacity, RefreshControl, ActivityIndicator, Image } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
@@ -101,7 +101,7 @@ export default function AdoptionScreen() {
         contentContainerStyle={styles.filterRow}
         renderItem={({ item }) => (
           <TouchableOpacity style={[styles.filterChip, filter === item.id && styles.filterChipActive]} onPress={() => setFilter(item.id)}>
-            <Text style={[styles.filterChipText, filter === item.id && styles.filterChipTextActive]}>{item.label}</Text>
+            <Text numberOfLines={1} style={[styles.filterChipText, filter === item.id && styles.filterChipTextActive]}>{item.label}</Text>
           </TouchableOpacity>
         )}
       />
@@ -127,15 +127,24 @@ export default function AdoptionScreen() {
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={[Colors.primary]} />}
         renderItem={({ item }) => (
           <TouchableOpacity style={[styles.card, Shadow.small]} onPress={() => router.push(`/pet/${item.id}`)}>
-            <View style={styles.cardTop}>
-              <Text style={styles.name}>{item.name || 'Pet'}</Text>
-              <View style={[styles.badge, { backgroundColor: item.status === 'for_sale' ? Colors.primary : Colors.success }]}>
-                <Text style={styles.badgeText}>{item.status === 'for_sale' ? 'For Sale' : 'Adoption'}</Text>
+            <View style={styles.cardRow}>
+              {item.image ? (
+                <Image source={{ uri: item.image }} style={styles.petImage} />
+              ) : (
+                <View style={styles.petImagePlaceholder}><Ionicons name='paw' size={24} color={Colors.textLight} /></View>
+              )}
+              <View style={{ flex: 1 }}>
+                <View style={styles.cardTop}>
+                  <Text style={styles.name}>{item.name || 'Pet'}</Text>
+                  <View style={[styles.badge, { backgroundColor: item.status === 'for_sale' ? Colors.primary : Colors.success }]}>
+                    <Text style={styles.badgeText}>{item.status === 'for_sale' ? 'For Sale' : 'Adoption'}</Text>
+                  </View>
+                </View>
+                <Text style={styles.meta}>{(item.species || 'unknown').toUpperCase()} • {item.breed || 'Mixed'}</Text>
+                <Text style={styles.meta}>Age: {item.age || 'N/A'} • Vaccinated: {item.vaccinated ? 'Yes' : 'No'}</Text>
+                <Text style={styles.meta}>Location: {item.location || 'N/A'}</Text>
               </View>
             </View>
-            <Text style={styles.meta}>{(item.species || 'unknown').toUpperCase()} • {item.breed || 'Mixed'}</Text>
-            <Text style={styles.meta}>Age: {item.age || 'N/A'} • Vaccinated: {item.vaccinated ? 'Yes' : 'No'} • Health: {item.health_status || 'Not specified'}</Text>
-            <Text style={styles.meta}>Location: {item.location || 'N/A'}</Text>
             {isDog(item.species) && <Text style={styles.dogNote}>Dog listing: adoption/rehoming only. Allowed uses include guarding, farming, or service support.</Text>}
           </TouchableOpacity>
         )}
@@ -153,14 +162,14 @@ const styles = StyleSheet.create({
   noticeBox: { flexDirection: 'row', gap: 8, alignItems: 'flex-start', backgroundColor: '#EEF6FF', borderRadius: BorderRadius.md, marginHorizontal: Spacing.md, marginTop: Spacing.sm, padding: Spacing.sm },
   noticeText: { flex: 1, color: Colors.textSecondary, fontSize: FontSize.sm },
   txRow: { flexDirection: 'row', gap: Spacing.sm, paddingHorizontal: Spacing.md, marginTop: Spacing.sm },
-  txBtn: { flex: 1, borderRadius: BorderRadius.full, backgroundColor: Colors.white, borderWidth: 1, borderColor: Colors.border, paddingVertical: 10, alignItems: 'center' },
+  txBtn: { flex: 1, height: 44, borderRadius: BorderRadius.full, backgroundColor: Colors.white, borderWidth: 1, borderColor: Colors.border, alignItems: 'center', justifyContent: 'center' },
   txBtnActive: { backgroundColor: Colors.primary, borderColor: Colors.primary },
   txText: { color: Colors.text, fontWeight: '600' },
   txTextActive: { color: Colors.white },
   ruleText: { paddingHorizontal: Spacing.md, marginTop: 6, color: Colors.textSecondary, fontSize: FontSize.xs },
-  filterRow: { paddingHorizontal: Spacing.md, paddingTop: Spacing.sm, gap: Spacing.sm },
-  filterChip: { paddingHorizontal: Spacing.md, paddingVertical: 8, borderRadius: BorderRadius.full, backgroundColor: Colors.white, borderWidth: 1, borderColor: Colors.border },
-  filterChipActive: { backgroundColor: Colors.primary },
+  filterRow: { paddingHorizontal: Spacing.md, paddingTop: Spacing.sm, gap: Spacing.sm, alignItems: 'center' },
+  filterChip: { height: 38, minWidth: 96, maxWidth: 220, paddingHorizontal: Spacing.md, borderRadius: BorderRadius.full, backgroundColor: Colors.white, borderWidth: 1, borderColor: Colors.border, alignItems: 'center', justifyContent: 'center' },
+  filterChipActive: { backgroundColor: Colors.primary, borderColor: Colors.primary },
   filterChipText: { color: Colors.textSecondary, fontSize: FontSize.sm, fontWeight: '600' },
   filterChipTextActive: { color: Colors.white },
   infoPanel: { margin: Spacing.md, marginTop: Spacing.sm, padding: Spacing.sm, borderRadius: BorderRadius.md, backgroundColor: Colors.white, borderWidth: 1, borderColor: Colors.border },
@@ -171,6 +180,9 @@ const styles = StyleSheet.create({
   sortText: { color: Colors.primary, fontWeight: '600', fontSize: FontSize.sm },
   listContent: { paddingHorizontal: Spacing.md, paddingBottom: 110 },
   card: { backgroundColor: Colors.white, borderRadius: BorderRadius.lg, padding: Spacing.md, marginBottom: Spacing.sm },
+  cardRow: { flexDirection: 'row', gap: Spacing.md },
+  petImage: { width: 84, height: 84, borderRadius: BorderRadius.md },
+  petImagePlaceholder: { width: 84, height: 84, borderRadius: BorderRadius.md, backgroundColor: Colors.backgroundDark, alignItems: 'center', justifyContent: 'center' },
   cardTop: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
   name: { fontSize: FontSize.lg, fontWeight: '700', color: Colors.text },
   badge: { paddingHorizontal: 10, paddingVertical: 4, borderRadius: BorderRadius.full },
