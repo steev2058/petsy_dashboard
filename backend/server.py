@@ -1906,7 +1906,7 @@ async def get_marketplace_listings(
     max_price: Optional[float] = None,
     current_user: Optional[dict] = Depends(get_current_user_optional),
 ):
-    query: dict = {"status": "active"}
+    query: dict = {"status": {"$in": ["active", "sold"]}}
     if category and category != "all":
         query["category"] = category
     if city:
