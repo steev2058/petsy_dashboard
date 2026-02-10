@@ -289,6 +289,7 @@ export default function HomeScreen() {
                 { icon: 'chatbubbles', label: t('messages'), route: '/(tabs)/profile' },
                 { icon: 'search', label: t('lost_found'), route: '/lost-found' },
                 { icon: 'people', label: t('community'), route: '/community' },
+                { icon: 'ribbon', label: 'Sponsorship', route: '/sponsorships' },
                 { icon: 'settings', label: t('settings'), route: '/(tabs)/profile' },
               ].map((item) => (
                 <TouchableOpacity 

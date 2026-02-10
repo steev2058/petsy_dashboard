@@ -64,6 +64,7 @@ export default function RootLayout() {
       'chat-preferences',
       'delete-account',
       'create-adoption-post',
+      'sponsorships',
     ]);
 
     const protectedTabRoutes = new Set(['profile']);
@@ -125,6 +126,7 @@ export default function RootLayout() {
         <Stack.Screen name="about" />
         <Stack.Screen name="delete-account" />
         <Stack.Screen name="create-adoption-post" options={{ presentation: 'modal' }} />
+        <Stack.Screen name="sponsorships" />
         <Stack.Screen name="edit-profile" options={{ presentation: 'card' }} />
         <Stack.Screen name="help-support" />
         <Stack.Screen name="product/[id]" options={{ presentation: 'card' }} />
