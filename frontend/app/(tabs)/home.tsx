@@ -290,6 +290,7 @@ export default function HomeScreen() {
                 { icon: 'search', label: t('lost_found'), route: '/lost-found' },
                 { icon: 'people', label: t('community'), route: '/community' },
                 { icon: 'ribbon', label: 'Sponsorship', route: '/sponsorships' },
+                { icon: 'storefront', label: 'Marketplace', route: '/marketplace' },
                 { icon: 'settings', label: t('settings'), route: '/(tabs)/profile' },
               ].map((item) => (
                 <TouchableOpacity 

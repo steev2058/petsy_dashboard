@@ -106,6 +106,17 @@ export const sponsorshipAPI = {
   getMy: () => api.get('/sponsorships/my'),
 };
 
+// Marketplace API
+export const marketplaceAPI = {
+  create: (data: any) => api.post('/marketplace/listings', data),
+  getAll: (params?: { category?: string; q?: string; city?: string; min_price?: number; max_price?: number }) =>
+    api.get('/marketplace/listings', { params }),
+  getById: (id: string) => api.get(`/marketplace/listings/${id}`),
+  getMy: () => api.get('/marketplace/listings/my'),
+  report: (id: string, reason?: string, notes?: string) =>
+    api.post(`/marketplace/listings/${id}/report`, { reason, notes }),
+};
+
 // Vets API
 export const vetsAPI = {
   getAll: (params?: { city?: string; specialty?: string }) =>

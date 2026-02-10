@@ -1832,6 +1832,32 @@ class Sponsorship(BaseModel):
     status: str = "pending"  # pending, completed, cancelled
     created_at: datetime = Field(default_factory=datetime.utcnow)
 
+class MarketplaceListingCreate(BaseModel):
+    title: str
+    description: str
+    category: str  # pets, accessories, services
+    price: float
+    location: str
+    image: Optional[str] = None
+    pet_type: Optional[str] = None
+    condition: Optional[str] = None
+
+class MarketplaceListing(BaseModel):
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    user_id: str
+    user_name: str
+    user_avatar: Optional[str] = None
+    title: str
+    description: str
+    category: str
+    price: float
+    location: str
+    image: Optional[str] = None
+    pet_type: Optional[str] = None
+    condition: Optional[str] = None
+    status: str = "active"  # active, sold, archived
+    created_at: datetime = Field(default_factory=datetime.utcnow)
+
 @api_router.post("/sponsorships")
 async def create_sponsorship(sponsorship: SponsorshipCreate, current_user: dict = Depends(get_current_user)):
     new_sponsorship = Sponsorship(
@@ -1857,6 +1883,90 @@ async def get_pet_sponsorships(pet_id: str):
 async def get_my_sponsorships(current_user: dict = Depends(get_current_user)):
     sponsorships = await db.sponsorships.find({"user_id": current_user["id"]}).sort("created_at", -1).to_list(100)
     return [Sponsorship(**s) for s in sponsorships]
+
+# ========================= MARKETPLACE =========================
+
+@api_router.post("/marketplace/listings", response_model=MarketplaceListing)
+async def create_marketplace_listing(payload: MarketplaceListingCreate, current_user: dict = Depends(get_current_user)):
+    listing = MarketplaceListing(
+        **payload.dict(),
+        user_id=current_user["id"],
+        user_name=current_user.get("name", "User"),
+        user_avatar=current_user.get("avatar")
+    )
+    await db.marketplace_listings.insert_one(listing.dict())
+    return listing
+
+@api_router.get("/marketplace/listings", response_model=List[MarketplaceListing])
+async def get_marketplace_listings(
+    category: Optional[str] = None,
+    q: Optional[str] = None,
+    city: Optional[str] = None,
+    min_price: Optional[float] = None,
+    max_price: Optional[float] = None,
+    current_user: Optional[dict] = Depends(get_current_user_optional),
+):
+    query: dict = {"status": "active"}
+    if category and category != "all":
+        query["category"] = category
+    if city:
+        query["location"] = {"$regex": city, "$options": "i"}
+    if min_price is not None or max_price is not None:
+        rng = {}
+        if min_price is not None:
+            rng["$gte"] = min_price
+        if max_price is not None:
+            rng["$lte"] = max_price
+        query["price"] = rng
+
+    if current_user:
+        blocked_rows = await db.blocked_users.find({"user_id": current_user["id"]}).to_list(1000)
+        blocked_ids = [r.get("blocked_user_id") for r in blocked_rows if r.get("blocked_user_id")]
+        if blocked_ids:
+            query["user_id"] = {"$nin": blocked_ids}
+
+    rows = await db.marketplace_listings.find(query).sort("created_at", -1).to_list(200)
+
+    if q:
+        ql = q.lower().strip()
+        rows = [
+            r for r in rows
+            if ql in f"{r.get('title','')} {r.get('description','')} {r.get('location','')}".lower()
+        ]
+
+    clean_rows = [{k: v for k, v in r.items() if k != "_id"} for r in rows]
+    return [MarketplaceListing(**r) for r in clean_rows]
+
+@api_router.get("/marketplace/listings/my", response_model=List[MarketplaceListing])
+async def get_my_marketplace_listings(current_user: dict = Depends(get_current_user)):
+    rows = await db.marketplace_listings.find({"user_id": current_user["id"]}).sort("created_at", -1).to_list(200)
+    clean_rows = [{k: v for k, v in r.items() if k != "_id"} for r in rows]
+    return [MarketplaceListing(**r) for r in clean_rows]
+
+@api_router.get("/marketplace/listings/{listing_id}", response_model=MarketplaceListing)
+async def get_marketplace_listing_by_id(listing_id: str):
+    row = await db.marketplace_listings.find_one({"id": listing_id})
+    if not row:
+        raise HTTPException(status_code=404, detail="Listing not found")
+    clean_row = {k: v for k, v in row.items() if k != "_id"}
+    return MarketplaceListing(**clean_row)
+
+@api_router.post("/marketplace/listings/{listing_id}/report")
+async def report_marketplace_listing(listing_id: str, data: dict = {}, current_user: dict = Depends(get_current_user)):
+    row = await db.marketplace_listings.find_one({"id": listing_id})
+    if not row:
+        raise HTTPException(status_code=404, detail="Listing not found")
+
+    await db.marketplace_reports.insert_one({
+        "id": str(uuid.uuid4()),
+        "listing_id": listing_id,
+        "reported_by": current_user["id"],
+        "listing_owner_id": row.get("user_id"),
+        "reason": data.get("reason", "inappropriate"),
+        "notes": data.get("notes"),
+        "created_at": datetime.utcnow(),
+    })
+    return {"message": "Report submitted"}
 
 # ========================= PET TRACKING (PETSY TAG) =========================
 
