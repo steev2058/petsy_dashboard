@@ -73,6 +73,7 @@ export default function RootLayout() {
       'clinic-care-management',
       'market-owner-dashboard',
       'role-request',
+      'my-role-requests',
       'admin',
     ]);
 
@@ -146,6 +147,7 @@ export default function RootLayout() {
         <Stack.Screen name="clinic-care-management" />
         <Stack.Screen name="market-owner-dashboard" />
         <Stack.Screen name="role-request" options={{ presentation: 'modal' }} />
+        <Stack.Screen name="my-role-requests" />
         <Stack.Screen name="admin" />
         <Stack.Screen name="edit-profile" options={{ presentation: 'card' }} />
         <Stack.Screen name="help-support" />

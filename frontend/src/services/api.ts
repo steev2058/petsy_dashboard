@@ -145,6 +145,7 @@ export const marketOwnerAPI = {
 export const roleRequestAPI = {
   create: (target_role: 'vet' | 'market_owner' | 'care_clinic', reason?: string) =>
     api.post('/role-requests', { target_role, reason }),
+  getMy: () => api.get('/role-requests/my'),
   getAdminAll: () => api.get('/admin/role-requests'),
   review: (id: string, action: 'approve' | 'reject') =>
     api.put(`/admin/role-requests/${id}`, { action }),

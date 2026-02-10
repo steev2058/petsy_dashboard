@@ -2995,6 +2995,11 @@ async def create_role_request(data: dict, current_user: dict = Depends(get_curre
     await db.role_requests.insert_one(row)
     return row
 
+@api_router.get("/role-requests/my")
+async def get_my_role_requests(current_user: dict = Depends(get_current_user)):
+    rows = await db.role_requests.find({"user_id": current_user["id"]}).sort("created_at", -1).to_list(200)
+    return [{k: v for k, v in r.items() if k != "_id"} for r in rows]
+
 @api_router.get("/admin/role-requests")
 async def get_role_requests_admin(admin_user: dict = Depends(get_admin_user)):
     rows = await db.role_requests.find({}).sort("created_at", -1).to_list(1000)
