@@ -259,53 +259,58 @@ export default function HomeScreen() {
           onPress={() => setDrawerOpen(false)}
         >
           <View style={styles.drawer}>
-            <TouchableOpacity
-              style={styles.drawerHeader}
-              activeOpacity={0.85}
-              onPress={() => {
-                setDrawerOpen(false);
-                if (user) {
-                  router.push('/edit-profile');
-                } else {
-                  router.push('/(auth)/login');
-                }
-              }}
+            <ScrollView
+              showsVerticalScrollIndicator={false}
+              contentContainerStyle={styles.drawerScrollContent}
             >
-              <View style={styles.drawerAvatar}>
-                {user?.avatar ? (
-                  <Image source={{ uri: user.avatar }} style={styles.drawerAvatarImage} />
-                ) : (
-                  <Ionicons name="person" size={40} color={Colors.white} />
-                )}
+              <TouchableOpacity
+                style={styles.drawerHeader}
+                activeOpacity={0.85}
+                onPress={() => {
+                  setDrawerOpen(false);
+                  if (user) {
+                    router.push('/edit-profile');
+                  } else {
+                    router.push('/(auth)/login');
+                  }
+                }}
+              >
+                <View style={styles.drawerAvatar}>
+                  {user?.avatar ? (
+                    <Image source={{ uri: user.avatar }} style={styles.drawerAvatarImage} />
+                  ) : (
+                    <Ionicons name="person" size={40} color={Colors.white} />
+                  )}
+                </View>
+                <Text style={styles.drawerName}>{user?.name || 'Guest'}</Text>
+                <Text style={styles.drawerEmail}>{user?.email || 'Login to continue'}</Text>
+              </TouchableOpacity>
+              
+              <View style={styles.drawerMenu}>
+                {[
+                  { icon: 'paw', label: t('my_pets'), route: '/my-pets' },
+                  { icon: 'heart', label: t('favorites'), route: '/(tabs)/adoption' },
+                  { icon: 'chatbubbles', label: t('messages'), route: '/(tabs)/profile' },
+                  { icon: 'search', label: t('lost_found'), route: '/lost-found' },
+                  { icon: 'people', label: t('community'), route: '/community' },
+                  { icon: 'ribbon', label: 'Sponsorship', route: '/sponsorships' },
+                  { icon: 'storefront', label: 'Marketplace', route: '/marketplace' },
+                  { icon: 'settings', label: t('settings'), route: '/(tabs)/profile' },
+                ].map((item) => (
+                  <TouchableOpacity 
+                    key={item.label}
+                    style={styles.drawerItem}
+                    onPress={() => {
+                      setDrawerOpen(false);
+                      router.push(item.route as any);
+                    }}
+                  >
+                    <Ionicons name={item.icon as any} size={22} color={Colors.text} />
+                    <Text style={styles.drawerItemText}>{item.label}</Text>
+                  </TouchableOpacity>
+                ))}
               </View>
-              <Text style={styles.drawerName}>{user?.name || 'Guest'}</Text>
-              <Text style={styles.drawerEmail}>{user?.email || 'Login to continue'}</Text>
-            </TouchableOpacity>
-            
-            <View style={styles.drawerMenu}>
-              {[
-                { icon: 'paw', label: t('my_pets'), route: '/my-pets' },
-                { icon: 'heart', label: t('favorites'), route: '/(tabs)/adoption' },
-                { icon: 'chatbubbles', label: t('messages'), route: '/(tabs)/profile' },
-                { icon: 'search', label: t('lost_found'), route: '/lost-found' },
-                { icon: 'people', label: t('community'), route: '/community' },
-                { icon: 'ribbon', label: 'Sponsorship', route: '/sponsorships' },
-                { icon: 'storefront', label: 'Marketplace', route: '/marketplace' },
-                { icon: 'settings', label: t('settings'), route: '/(tabs)/profile' },
-              ].map((item) => (
-                <TouchableOpacity 
-                  key={item.label}
-                  style={styles.drawerItem}
-                  onPress={() => {
-                    setDrawerOpen(false);
-                    router.push(item.route as any);
-                  }}
-                >
-                  <Ionicons name={item.icon as any} size={22} color={Colors.text} />
-                  <Text style={styles.drawerItemText}>{item.label}</Text>
-                </TouchableOpacity>
-              ))}
-            </View>
+            </ScrollView>
           </View>
         </TouchableOpacity>
       )}
@@ -475,6 +480,9 @@ const styles = StyleSheet.create({
     width: width * 0.75,
     height: '100%',
     backgroundColor: Colors.white,
+  },
+  drawerScrollContent: {
+    paddingBottom: 28,
   },
   drawerHeader: {
     backgroundColor: Colors.primary,
