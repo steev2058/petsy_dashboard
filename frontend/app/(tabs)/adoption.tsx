@@ -77,7 +77,12 @@ export default function AdoptionScreen() {
 
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
-      <View style={styles.header}><Text style={styles.title}>{t('adoption')}</Text></View>
+      <View style={styles.header}>
+        <Text style={styles.title}>{t('adoption')}</Text>
+        <TouchableOpacity style={styles.addBtn} onPress={() => router.push('/create-adoption-post')}>
+          <Ionicons name='add' size={22} color={Colors.white} />
+        </TouchableOpacity>
+      </View>
 
       <View style={styles.noticeBox}><Ionicons name='information-circle' size={16} color={Colors.primary} /><Text style={styles.noticeText}>Kindness to animals is a core value in Islam. Listings are moderated for ethical treatment and transparency.</Text></View>
 
@@ -156,7 +161,8 @@ export default function AdoptionScreen() {
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#F8F9FA' },
   center: { flex: 1, justifyContent: 'center', alignItems: 'center' },
-  header: { paddingHorizontal: Spacing.md, paddingVertical: Spacing.sm, backgroundColor: Colors.white },
+  header: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: Spacing.md, paddingVertical: Spacing.sm, backgroundColor: Colors.white },
+  addBtn: { width: 40, height: 40, borderRadius: 12, backgroundColor: Colors.primary, alignItems: 'center', justifyContent: 'center' },
   title: { fontSize: FontSize.xxl, fontWeight: '800', color: Colors.text },
   noticeBox: { flexDirection: 'row', gap: 8, alignItems: 'flex-start', backgroundColor: '#EEF6FF', borderRadius: BorderRadius.md, marginHorizontal: Spacing.md, marginTop: Spacing.sm, padding: Spacing.sm },
   noticeText: { flex: 1, color: Colors.textSecondary, fontSize: FontSize.sm },
