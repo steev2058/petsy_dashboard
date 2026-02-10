@@ -123,6 +123,7 @@ export const marketplaceAPI = {
 
 export const careAPI = {
   createRequest: (data: any) => api.post('/care-requests', data),
+  getTimeline: (id: string) => api.get(`/care-requests/${id}/timeline`),
   getVetQueue: (params?: { status?: string }) => api.get('/vet/care-requests', { params }),
   updateVetRequest: (id: string, data: any) => api.put(`/vet/care-requests/${id}`, data),
   getClinicQueue: () => api.get('/clinic/care-requests'),
@@ -139,6 +140,14 @@ export const adminMarketplaceAPI = {
 
 export const marketOwnerAPI = {
   getOverview: () => api.get('/market-owner/overview'),
+};
+
+export const roleRequestAPI = {
+  create: (target_role: 'vet' | 'market_owner' | 'care_clinic', reason?: string) =>
+    api.post('/role-requests', { target_role, reason }),
+  getAdminAll: () => api.get('/admin/role-requests'),
+  review: (id: string, action: 'approve' | 'reject') =>
+    api.put(`/admin/role-requests/${id}`, { action }),
 };
 
 // Vets API

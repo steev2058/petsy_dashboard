@@ -2027,6 +2027,7 @@ async def report_marketplace_listing(listing_id: str, data: dict = {}, current_u
 
 @api_router.post("/care-requests")
 async def create_care_request(data: dict, current_user: dict = Depends(get_current_user)):
+    now = datetime.utcnow()
     row = {
         "id": str(uuid.uuid4()),
         "pet_id": data.get("pet_id"),
@@ -2036,12 +2037,24 @@ async def create_care_request(data: dict, current_user: dict = Depends(get_curre
         "priority": data.get("priority", "normal"),
         "status": "pending",  # pending, accepted, in_progress, completed, cancelled
         "requested_by": current_user["id"],
+        "requested_by_name": current_user.get("name"),
         "assigned_vet_id": None,
         "assigned_clinic_id": None,
-        "created_at": datetime.utcnow(),
-        "updated_at": datetime.utcnow(),
+        "created_at": now,
+        "updated_at": now,
     }
     await db.care_requests.insert_one(row)
+    await db.care_request_events.insert_one({
+        "id": str(uuid.uuid4()),
+        "request_id": row["id"],
+        "actor_id": current_user["id"],
+        "actor_name": current_user.get("name"),
+        "actor_role": current_user.get("role", "user"),
+        "event_type": "created",
+        "status": "pending",
+        "notes": row.get("description"),
+        "created_at": now,
+    })
     return row
 
 @api_router.get("/vet/care-requests")
@@ -2063,19 +2076,33 @@ async def update_vet_care_request(request_id: str, data: dict, current_user: dic
 
     updates = {"updated_at": datetime.utcnow()}
     action = data.get("action")
+    event_type = action or "status_update"
     if action == "accept":
         updates.update({"status": "accepted", "assigned_vet_id": current_user["id"]})
     elif action == "start":
         updates.update({"status": "in_progress", "assigned_vet_id": current_user["id"]})
     elif action == "complete":
         vet_notes = data.get("vet_notes")
-        updates.update({"status": "completed", "assigned_vet_id": current_user["id"], "vet_notes": vet_notes})
+        diagnosis = data.get("diagnosis")
+        prescription = data.get("prescription")
+        updates.update({
+            "status": "completed",
+            "assigned_vet_id": current_user["id"],
+            "vet_notes": vet_notes,
+            "diagnosis": diagnosis,
+            "prescription": prescription,
+        })
 
         # Sync completion into pet health timeline when pet exists
         pet_id = existing.get("pet_id")
         if pet_id:
             pet = await db.pets.find_one({"id": pet_id})
             if pet:
+                merged_notes = "\n".join([
+                    f"Diagnosis: {diagnosis}" if diagnosis else "",
+                    f"Prescription: {prescription}" if prescription else "",
+                    f"Notes: {vet_notes}" if vet_notes else "",
+                ]).strip()
                 await db.health_records.insert_one({
                     "id": str(uuid.uuid4()),
                     "pet_id": pet_id,
@@ -2086,7 +2113,7 @@ async def update_vet_care_request(request_id: str, data: dict, current_user: dic
                     "date": datetime.utcnow().strftime("%Y-%m-%d"),
                     "vet_name": current_user.get("name"),
                     "clinic_name": data.get("clinic_name") or existing.get("clinic_name"),
-                    "notes": vet_notes,
+                    "notes": merged_notes,
                     "attachments": [],
                     "created_at": datetime.utcnow(),
                 })
@@ -2094,6 +2121,18 @@ async def update_vet_care_request(request_id: str, data: dict, current_user: dic
         updates["status"] = data.get("status")
 
     await db.care_requests.update_one({"id": request_id}, {"$set": updates})
+    await db.care_request_events.insert_one({
+        "id": str(uuid.uuid4()),
+        "request_id": request_id,
+        "actor_id": current_user["id"],
+        "actor_name": current_user.get("name"),
+        "actor_role": current_user.get("role", "vet"),
+        "event_type": event_type,
+        "status": updates.get("status", existing.get("status")),
+        "notes": data.get("vet_notes") or data.get("notes") or data.get("diagnosis"),
+        "created_at": datetime.utcnow(),
+    })
+
     row = await db.care_requests.find_one({"id": request_id})
     return {k: v for k, v in row.items() if k != "_id"} if row else {"success": True}
 
@@ -2129,8 +2168,40 @@ async def update_clinic_care_request(request_id: str, data: dict, current_user: 
       updates["clinic_notes"] = data.get("clinic_notes")
 
     await db.care_requests.update_one({"id": request_id}, {"$set": updates})
+    await db.care_request_events.insert_one({
+        "id": str(uuid.uuid4()),
+        "request_id": request_id,
+        "actor_id": current_user["id"],
+        "actor_name": current_user.get("name"),
+        "actor_role": current_user.get("role", "care_clinic"),
+        "event_type": "clinic_update",
+        "status": updates.get("status"),
+        "notes": data.get("clinic_notes") or (f"assigned_vet_id={data.get('assigned_vet_id')}" if data.get("assigned_vet_id") else None),
+        "created_at": datetime.utcnow(),
+    })
+
     row = await db.care_requests.find_one({"id": request_id})
     return {k: v for k, v in row.items() if k != "_id"} if row else {"success": True}
+
+@api_router.get("/care-requests/{request_id}/timeline")
+async def get_care_request_timeline(request_id: str, current_user: dict = Depends(get_current_user)):
+    req = await db.care_requests.find_one({"id": request_id})
+    if not req:
+        raise HTTPException(status_code=404, detail="Care request not found")
+
+    # basic access: requester, assigned vet/clinic, or admin
+    uid = current_user["id"]
+    if not current_user.get("is_admin", False) and current_user.get("role") != "admin":
+        allowed = {
+            req.get("requested_by"),
+            req.get("assigned_vet_id"),
+            req.get("assigned_clinic_id"),
+        }
+        if uid not in allowed:
+            raise HTTPException(status_code=403, detail="Access denied")
+
+    events = await db.care_request_events.find({"request_id": request_id}).sort("created_at", 1).to_list(300)
+    return [{k: v for k, v in e.items() if k != "_id"} for e in events]
 
 @api_router.get("/market-owner/overview")
 async def get_market_owner_overview(current_user: dict = Depends(require_roles("market_owner"))):
@@ -2892,6 +2963,61 @@ async def set_marketplace_listing_status_admin(listing_id: str, data: dict, admi
     if status not in ["active", "sold", "archived"]:
         raise HTTPException(status_code=400, detail="Invalid status")
     await db.marketplace_listings.update_one({"id": listing_id}, {"$set": {"status": status, "updated_at": datetime.utcnow()}})
+    return {"success": True}
+
+@api_router.post("/role-requests")
+async def create_role_request(data: dict, current_user: dict = Depends(get_current_user)):
+    target_role = str(data.get("target_role") or "").strip()
+    if target_role not in {"vet", "market_owner", "care_clinic"}:
+        raise HTTPException(status_code=400, detail="Invalid target role")
+
+    existing = await db.role_requests.find_one({
+        "user_id": current_user["id"],
+        "target_role": target_role,
+        "status": "pending"
+    })
+    if existing:
+        return {"message": "Request already pending", "id": existing.get("id")}
+
+    row = {
+        "id": str(uuid.uuid4()),
+        "user_id": current_user["id"],
+        "user_name": current_user.get("name"),
+        "user_email": current_user.get("email"),
+        "target_role": target_role,
+        "reason": data.get("reason"),
+        "status": "pending",
+        "created_at": datetime.utcnow(),
+        "updated_at": datetime.utcnow(),
+    }
+    await db.role_requests.insert_one(row)
+    return row
+
+@api_router.get("/admin/role-requests")
+async def get_role_requests_admin(admin_user: dict = Depends(get_admin_user)):
+    rows = await db.role_requests.find({}).sort("created_at", -1).to_list(1000)
+    return [{k: v for k, v in r.items() if k != "_id"} for r in rows]
+
+@api_router.put("/admin/role-requests/{request_id}")
+async def handle_role_request_admin(request_id: str, data: dict, admin_user: dict = Depends(get_admin_user)):
+    req = await db.role_requests.find_one({"id": request_id})
+    if not req:
+        raise HTTPException(status_code=404, detail="Role request not found")
+
+    action = data.get("action")  # approve|reject
+    if action not in {"approve", "reject"}:
+        raise HTTPException(status_code=400, detail="Invalid action")
+
+    if action == "approve":
+        role = req.get("target_role", "user")
+        if role not in ALLOWED_ROLES:
+            raise HTTPException(status_code=400, detail="Invalid role in request")
+        await db.users.update_one({"id": req.get("user_id")}, {"$set": {"role": role, "is_admin": role == "admin"}})
+
+    await db.role_requests.update_one(
+        {"id": request_id},
+        {"$set": {"status": "approved" if action == "approve" else "rejected", "updated_at": datetime.utcnow(), "reviewed_by": admin_user["id"]}}
+    )
     return {"success": True}
 
 @api_router.get("/admin/orders")
