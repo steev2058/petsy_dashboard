@@ -95,19 +95,21 @@ export default function AdoptionScreen() {
         <SearchBar value={query} onChangeText={setQuery} placeholder='Search by name, breed, location...' />
       </View>
 
-      <FlatList
-        horizontal
-        showsHorizontalScrollIndicator={false}
-        data={FILTERS}
-        keyExtractor={(i) => i.id}
-        style={styles.filterList}
-        contentContainerStyle={styles.filterRow}
-        renderItem={({ item }) => (
-          <TouchableOpacity style={[styles.filterChip, filter === item.id && styles.filterChipActive]} onPress={() => setFilter(item.id)}>
-            <Text numberOfLines={1} style={[styles.filterChipText, filter === item.id && styles.filterChipTextActive]}>{item.label}</Text>
-          </TouchableOpacity>
-        )}
-      />
+      <View style={styles.filterWrap}>
+        <FlatList
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          data={FILTERS}
+          keyExtractor={(i) => i.id}
+          style={styles.filterList}
+          contentContainerStyle={styles.filterRow}
+          renderItem={({ item }) => (
+            <TouchableOpacity style={[styles.filterChip, filter === item.id && styles.filterChipActive]} onPress={() => setFilter(item.id)}>
+              <Text numberOfLines={1} style={[styles.filterChipText, filter === item.id && styles.filterChipTextActive]}>{item.label}</Text>
+            </TouchableOpacity>
+          )}
+        />
+      </View>
 
       <View style={styles.infoPanel}>
         <Text style={styles.infoTitle}>Islamic Pet Ownership Notes</Text>
@@ -171,8 +173,9 @@ const styles = StyleSheet.create({
   txTextActive: { color: Colors.white },
   searchWrap: { paddingTop: 2, paddingBottom: 8 },
   ruleText: { paddingHorizontal: Spacing.md, marginTop: 4, marginBottom: 6, color: Colors.textSecondary, fontSize: FontSize.xs },
-  filterList: { marginBottom: Spacing.xs },
-  filterRow: { paddingHorizontal: Spacing.md, paddingTop: Spacing.md, paddingBottom: Spacing.sm, gap: Spacing.sm, alignItems: 'center' },
+  filterWrap: { marginBottom: Spacing.sm },
+  filterList: { overflow: 'visible' },
+  filterRow: { paddingHorizontal: Spacing.md, paddingTop: Spacing.md, paddingBottom: Spacing.md, gap: Spacing.sm, alignItems: 'center' },
   filterChip: { height: 38, minWidth: 96, maxWidth: 220, paddingHorizontal: Spacing.md, borderRadius: BorderRadius.full, backgroundColor: Colors.white, borderWidth: 1, borderColor: Colors.border, alignItems: 'center', justifyContent: 'center' },
   filterChipActive: { backgroundColor: Colors.primary, borderColor: Colors.primary },
   filterChipText: { color: Colors.textSecondary, fontSize: FontSize.sm, fontWeight: '600' },
