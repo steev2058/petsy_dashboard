@@ -1,7 +1,8 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { View, Text, StyleSheet, FlatList, TouchableOpacity, RefreshControl, ActivityIndicator, Image, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
+import { useFocusEffect } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
 import { SearchBar } from '../../src/components';
 import { Colors, FontSize, Spacing, BorderRadius, Shadow } from '../../src/constants/theme';
@@ -51,6 +52,12 @@ export default function AdoptionScreen() {
   };
 
   useEffect(() => { load(); }, [tx]);
+
+  useFocusEffect(
+    useCallback(() => {
+      load();
+    }, [tx, species])
+  );
 
   const list = useMemo(() => {
     let rows = [...pets];

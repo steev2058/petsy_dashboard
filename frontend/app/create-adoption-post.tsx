@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, TextInput, Alert, Image, ActivityIndicator } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
@@ -13,10 +13,22 @@ export default function CreateAdoptionPostScreen() {
   const router = useRouter();
   const [saving, setSaving] = useState(false);
   const [image, setImage] = useState<string | null>(null);
+  const [toast, setToast] = useState<{ visible: boolean; message: string; type: 'success' | 'error' }>({ visible: false, message: '', type: 'success' });
+  const toastTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [species, setSpecies] = useState('cat');
   const [form, setForm] = useState({
     name: '', breed: '', age: '', gender: 'male', location: '', description: '', vaccinated: true,
   });
+
+  useEffect(() => {
+    return () => { if (toastTimerRef.current) clearTimeout(toastTimerRef.current); };
+  }, []);
+
+  const showToast = (message: string, type: 'success' | 'error' = 'success') => {
+    if (toastTimerRef.current) clearTimeout(toastTimerRef.current);
+    setToast({ visible: true, message, type });
+    toastTimerRef.current = setTimeout(() => setToast((p) => ({ ...p, visible: false })), 1800);
+  };
 
   const pickImage = async () => {
     const result = await ImagePicker.launchImageLibraryAsync({ mediaTypes: ['images'], allowsEditing: true, quality: 0.6, base64: true });
@@ -42,9 +54,12 @@ export default function CreateAdoptionPostScreen() {
         image,
         status: 'for_adoption',
       });
-      Alert.alert('Success', 'Adoption post created successfully', [{ text: 'OK', onPress: () => router.replace('/(tabs)/adoption') }]);
+      showToast('Adoption post created successfully', 'success');
+      setTimeout(() => {
+        router.replace('/(tabs)/adoption');
+      }, 700);
     } catch (e: any) {
-      Alert.alert('Error', e?.response?.data?.detail || 'Failed to create adoption post');
+      showToast(e?.response?.data?.detail || 'Failed to create adoption post', 'error');
     } finally {
       setSaving(false);
     }
@@ -52,6 +67,12 @@ export default function CreateAdoptionPostScreen() {
 
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
+      {toast.visible && (
+        <View style={[styles.toast, toast.type === 'success' ? styles.toastSuccess : styles.toastError]}>
+          <Ionicons name={toast.type === 'success' ? 'checkmark-circle' : 'alert-circle'} size={16} color={Colors.white} />
+          <Text style={styles.toastText}>{toast.message}</Text>
+        </View>
+      )}
       <View style={styles.header}>
         <TouchableOpacity onPress={() => router.back()} style={styles.back}><Ionicons name='arrow-back' size={22} color={Colors.text} /></TouchableOpacity>
         <Text style={styles.title}>Create Adoption Post</Text>
@@ -104,4 +125,8 @@ const styles = StyleSheet.create({
   spTextActive:{color:Colors.white},
   submit:{marginTop:6,backgroundColor:Colors.primary,borderRadius:BorderRadius.lg,paddingVertical:14,alignItems:'center'},
   submitText:{color:Colors.white,fontWeight:'700',fontSize:FontSize.md},
+  toast:{position:'absolute',top:16,left:16,right:16,zIndex:100,borderRadius:BorderRadius.md,paddingVertical:10,paddingHorizontal:12,flexDirection:'row',alignItems:'center',gap:8,...Shadow.small},
+  toastSuccess:{backgroundColor:Colors.success},
+  toastError:{backgroundColor:Colors.error},
+  toastText:{color:Colors.white,fontWeight:'600',fontSize:FontSize.sm,flex:1},
 });
