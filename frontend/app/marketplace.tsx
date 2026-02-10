@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, FlatList, TextInput, ActivityIndicator, Image, RefreshControl, Alert } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, FlatList, TextInput, ActivityIndicator, Image, RefreshControl, Alert, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
@@ -84,18 +84,17 @@ export default function MarketplaceScreen() {
         <TextInput value={q} onChangeText={setQ} placeholder='Search listings...' style={styles.searchInput} onSubmitEditing={load} />
       </View>
 
-      <FlatList
+      <ScrollView
         horizontal
         showsHorizontalScrollIndicator={false}
-        data={CATS}
-        keyExtractor={(item) => item}
-        contentContainerStyle={{ paddingHorizontal: Spacing.md, gap: 8, paddingBottom: Spacing.sm }}
-        renderItem={({ item }) => (
-          <TouchableOpacity onPress={() => setCat(item)} style={[styles.chip, cat === item && styles.chipActive]}>
+        contentContainerStyle={styles.chipsRow}
+      >
+        {CATS.map((item) => (
+          <TouchableOpacity key={item} onPress={() => setCat(item)} style={[styles.chip, cat === item && styles.chipActive]}>
             <Text style={[styles.chipText, cat === item && styles.chipTextActive]}>{item}</Text>
           </TouchableOpacity>
-        )}
-      />
+        ))}
+      </ScrollView>
 
       <FlatList
         data={list}
@@ -129,6 +128,6 @@ const styles = StyleSheet.create({
   iconBtn:{width:40,height:40,borderRadius:12,backgroundColor:Colors.backgroundDark,alignItems:'center',justifyContent:'center'},
   addBtn:{backgroundColor:Colors.primary}, headerActions:{flexDirection:'row',gap:8}, title:{fontSize:FontSize.xl,fontWeight:'700',color:Colors.text},
   searchWrap:{margin:Spacing.md,marginBottom:Spacing.sm,backgroundColor:Colors.white,borderRadius:BorderRadius.lg,paddingHorizontal:12,paddingVertical:10,flexDirection:'row',alignItems:'center',gap:8,borderWidth:1,borderColor:Colors.border},
-  searchInput:{flex:1,color:Colors.text}, chip:{paddingHorizontal:14,paddingVertical:8,borderRadius:BorderRadius.full,backgroundColor:Colors.white,borderWidth:1,borderColor:Colors.border}, chipActive:{backgroundColor:Colors.primary,borderColor:Colors.primary}, chipText:{textTransform:'capitalize',color:Colors.textSecondary,fontWeight:'600'}, chipTextActive:{color:Colors.white},
-  list:{paddingHorizontal:Spacing.md,paddingBottom:110}, card:{backgroundColor:Colors.white,borderRadius:BorderRadius.lg,padding:Spacing.sm,marginBottom:Spacing.sm}, img:{width:'100%',height:160,borderRadius:BorderRadius.md,backgroundColor:Colors.backgroundDark}, imgPh:{width:'100%',height:160,borderRadius:BorderRadius.md,backgroundColor:Colors.backgroundDark,alignItems:'center',justifyContent:'center'}, itemTitle:{marginTop:8,fontSize:FontSize.md,fontWeight:'700',color:Colors.text}, meta:{marginTop:4,color:Colors.textSecondary,fontSize:FontSize.sm}, desc:{marginTop:4,color:Colors.textSecondary,fontSize:FontSize.sm}, actions:{marginTop:10,flexDirection:'row',justifyContent:'space-between'}, actionBtn:{flexDirection:'row',alignItems:'center',gap:5,paddingVertical:6,paddingHorizontal:8,borderRadius:BorderRadius.md,backgroundColor:Colors.backgroundDark}, actionText:{fontSize:FontSize.xs,color:Colors.text}, empty:{color:Colors.textSecondary}
+  searchInput:{flex:1,color:Colors.text}, chipsRow:{paddingHorizontal:Spacing.md,gap:8,paddingBottom:Spacing.sm}, chip:{paddingHorizontal:14,paddingVertical:8,borderRadius:BorderRadius.full,backgroundColor:Colors.white,borderWidth:1,borderColor:Colors.border}, chipActive:{backgroundColor:Colors.primary,borderColor:Colors.primary}, chipText:{textTransform:'capitalize',color:Colors.textSecondary,fontWeight:'600'}, chipTextActive:{color:Colors.white},
+  list:{paddingHorizontal:Spacing.md,paddingTop:4,paddingBottom:110}, card:{backgroundColor:Colors.white,borderRadius:BorderRadius.lg,padding:Spacing.sm,marginBottom:Spacing.sm}, img:{width:'100%',height:160,borderRadius:BorderRadius.md,backgroundColor:Colors.backgroundDark}, imgPh:{width:'100%',height:160,borderRadius:BorderRadius.md,backgroundColor:Colors.backgroundDark,alignItems:'center',justifyContent:'center'}, itemTitle:{marginTop:8,fontSize:FontSize.md,fontWeight:'700',color:Colors.text}, meta:{marginTop:4,color:Colors.textSecondary,fontSize:FontSize.sm}, desc:{marginTop:4,color:Colors.textSecondary,fontSize:FontSize.sm}, actions:{marginTop:10,flexDirection:'row',justifyContent:'space-between'}, actionBtn:{flexDirection:'row',alignItems:'center',gap:5,paddingVertical:6,paddingHorizontal:8,borderRadius:BorderRadius.md,backgroundColor:Colors.backgroundDark}, actionText:{fontSize:FontSize.xs,color:Colors.text}, empty:{color:Colors.textSecondary}
 });
