@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import { View, Text, StyleSheet, FlatList, TouchableOpacity, Image, ActivityIndicator, RefreshControl, Alert } from 'react-native';
+import { View, Text, StyleSheet, FlatList, TouchableOpacity, Image, ActivityIndicator, RefreshControl, Alert, Platform } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
@@ -30,20 +30,24 @@ export default function MyMarketplaceListings() {
   };
 
   const onDelete = (id: string) => {
+    const performDelete = async () => {
+      try {
+        await marketplaceAPI.remove(id);
+        await load();
+      } catch {
+        Alert.alert('Error', 'Failed to delete listing');
+      }
+    };
+
+    if (Platform.OS === 'web') {
+      const ok = typeof window !== 'undefined' ? window.confirm('Delete this listing?') : false;
+      if (ok) performDelete();
+      return;
+    }
+
     Alert.alert('Delete listing', 'Are you sure you want to delete this listing?', [
       { text: 'Cancel', style: 'cancel' },
-      {
-        text: 'Delete',
-        style: 'destructive',
-        onPress: async () => {
-          try {
-            await marketplaceAPI.remove(id);
-            await load();
-          } catch {
-            Alert.alert('Error', 'Failed to delete listing');
-          }
-        }
-      }
+      { text: 'Delete', style: 'destructive', onPress: performDelete }
     ]);
   };
 
