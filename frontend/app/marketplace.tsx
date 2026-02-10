@@ -84,23 +84,20 @@ export default function MarketplaceScreen() {
         <TextInput value={q} onChangeText={setQ} placeholder='Search listings...' style={styles.searchInput} onSubmitEditing={load} />
       </View>
 
-      <ScrollView
-        horizontal
-        showsHorizontalScrollIndicator={false}
-        contentContainerStyle={styles.chipsRow}
-      >
-        {CATS.map((item) => (
-          <TouchableOpacity key={item} onPress={() => setCat(item)} style={[styles.chip, cat === item && styles.chipActive]}>
-            <Text style={[styles.chipText, cat === item && styles.chipTextActive]}>{item}</Text>
-          </TouchableOpacity>
-        ))}
-      </ScrollView>
-
       <FlatList
         data={list}
         keyExtractor={(item) => item.id}
         contentContainerStyle={styles.list}
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={[Colors.primary]} />}
+        ListHeaderComponent={(
+          <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.chipsRow}>
+            {CATS.map((item) => (
+              <TouchableOpacity key={item} onPress={() => setCat(item)} style={[styles.chip, cat === item && styles.chipActive]}>
+                <Text style={[styles.chipText, cat === item && styles.chipTextActive]}>{item}</Text>
+              </TouchableOpacity>
+            ))}
+          </ScrollView>
+        )}
         renderItem={({ item }) => (
           <View style={[styles.card, Shadow.small]}>
             <TouchableOpacity onPress={() => router.push(`/marketplace/${item.id}`)}>
