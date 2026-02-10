@@ -56,7 +56,7 @@ export default function AdoptionScreen() {
   useFocusEffect(
     useCallback(() => {
       load();
-    }, [tx, species])
+    }, [tx])
   );
 
   const list = useMemo(() => {
