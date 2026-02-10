@@ -73,7 +73,12 @@ export default function MyMarketplaceListings() {
         renderItem={({ item }) => (
           <View style={[styles.card, Shadow.small]}>
             <TouchableOpacity style={{ flexDirection: 'row', alignItems: 'center' }} onPress={() => router.push(`/marketplace/${item.id}`)}>
-              {item.image ? <Image source={{ uri: item.image }} style={styles.img} /> : <View style={styles.imgPh}><Ionicons name='image' size={20} color={Colors.textLight} /></View>}
+              <View style={styles.thumbWrap}>
+                {item.image ? <Image source={{ uri: item.image }} style={styles.img} /> : <View style={styles.imgPh}><Ionicons name='image' size={20} color={Colors.textLight} /></View>}
+                {item.status === 'sold' && (
+                  <View style={styles.soldBadge}><Text style={styles.soldBadgeText}>SOLD</Text></View>
+                )}
+              </View>
               <View style={{ flex: 1, marginLeft: Spacing.md }}>
                 <Text style={styles.name}>{item.title}</Text>
                 <Text style={styles.meta}>${Number(item.price || 0).toFixed(2)} • {item.location}</Text>
@@ -94,5 +99,5 @@ export default function MyMarketplaceListings() {
 }
 
 const styles = StyleSheet.create({
-  container:{flex:1,backgroundColor:'#F8F9FA'}, center:{flex:1,justifyContent:'center',alignItems:'center'}, header:{flexDirection:'row',alignItems:'center',justifyContent:'space-between',paddingHorizontal:Spacing.md,paddingVertical:Spacing.sm,backgroundColor:Colors.white}, iconBtn:{width:40,height:40,borderRadius:12,backgroundColor:Colors.backgroundDark,alignItems:'center',justifyContent:'center'}, title:{fontSize:FontSize.xl,fontWeight:'700',color:Colors.text}, list:{padding:Spacing.md,paddingBottom:110}, card:{backgroundColor:Colors.white,borderRadius:BorderRadius.lg,padding:Spacing.md,marginBottom:Spacing.sm}, img:{width:70,height:70,borderRadius:BorderRadius.md}, imgPh:{width:70,height:70,borderRadius:BorderRadius.md,backgroundColor:Colors.backgroundDark,alignItems:'center',justifyContent:'center'}, name:{fontSize:FontSize.md,fontWeight:'700',color:Colors.text}, meta:{fontSize:FontSize.sm,color:Colors.textSecondary,marginTop:2}, actionsRow:{marginTop:10,flexDirection:'row',gap:8}, actionBtn:{paddingHorizontal:10,paddingVertical:7,borderRadius:BorderRadius.md,backgroundColor:Colors.backgroundDark}, actionText:{fontSize:FontSize.xs,fontWeight:'700',color:Colors.text}, deleteBtn:{backgroundColor:'#FEE2E2'}, deleteText:{color:Colors.error}, empty:{color:Colors.textSecondary}
+  container:{flex:1,backgroundColor:'#F8F9FA'}, center:{flex:1,justifyContent:'center',alignItems:'center'}, header:{flexDirection:'row',alignItems:'center',justifyContent:'space-between',paddingHorizontal:Spacing.md,paddingVertical:Spacing.sm,backgroundColor:Colors.white}, iconBtn:{width:40,height:40,borderRadius:12,backgroundColor:Colors.backgroundDark,alignItems:'center',justifyContent:'center'}, title:{fontSize:FontSize.xl,fontWeight:'700',color:Colors.text}, list:{padding:Spacing.md,paddingBottom:110}, card:{backgroundColor:Colors.white,borderRadius:BorderRadius.lg,padding:Spacing.md,marginBottom:Spacing.sm}, thumbWrap:{position:'relative'}, img:{width:70,height:70,borderRadius:BorderRadius.md}, imgPh:{width:70,height:70,borderRadius:BorderRadius.md,backgroundColor:Colors.backgroundDark,alignItems:'center',justifyContent:'center'}, soldBadge:{position:'absolute',top:-6,right:-6,backgroundColor:'#16A34A',paddingHorizontal:8,paddingVertical:3,borderRadius:BorderRadius.full}, soldBadgeText:{color:Colors.white,fontSize:10,fontWeight:'800'}, name:{fontSize:FontSize.md,fontWeight:'700',color:Colors.text}, meta:{fontSize:FontSize.sm,color:Colors.textSecondary,marginTop:2}, actionsRow:{marginTop:10,flexDirection:'row',gap:8}, actionBtn:{paddingHorizontal:10,paddingVertical:7,borderRadius:BorderRadius.md,backgroundColor:Colors.backgroundDark}, actionText:{fontSize:FontSize.xs,fontWeight:'700',color:Colors.text}, deleteBtn:{backgroundColor:'#FEE2E2'}, deleteText:{color:Colors.error}, empty:{color:Colors.textSecondary}
 });
