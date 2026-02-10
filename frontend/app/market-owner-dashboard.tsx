@@ -33,6 +33,10 @@ export default function MarketOwnerDashboardScreen() {
         <View style={[styles.stat, Shadow.small]}><Text style={styles.statVal}>{data?.sold_listings || 0}</Text><Text style={styles.statLbl}>Sold</Text></View>
       </View>
       <View style={[styles.revenue, Shadow.small]}><Text style={styles.revLabel}>Estimated Revenue</Text><Text style={styles.revValue}>${Number(data?.estimated_revenue || 0).toFixed(2)}</Text></View>
+      <View style={styles.quickActions}>
+        <TouchableOpacity style={styles.quickBtn} onPress={() => router.push('/create-marketplace-listing')}><Ionicons name='add-circle' size={16} color={Colors.primary} /><Text style={styles.quickText}>New Listing</Text></TouchableOpacity>
+        <TouchableOpacity style={styles.quickBtn} onPress={() => router.push('/my-marketplace-listings')}><Ionicons name='list' size={16} color={Colors.primary} /><Text style={styles.quickText}>Manage Listings</Text></TouchableOpacity>
+      </View>
       <FlatList
         data={data?.recent_listings || []}
         keyExtractor={(item) => item.id}
@@ -53,5 +57,6 @@ const styles = StyleSheet.create({
   container:{flex:1,backgroundColor:'#F8F9FA'}, center:{flex:1,justifyContent:'center',alignItems:'center'}, header:{flexDirection:'row',alignItems:'center',justifyContent:'space-between',paddingHorizontal:Spacing.md,paddingVertical:Spacing.sm,backgroundColor:Colors.white}, iconBtn:{width:40,height:40,borderRadius:12,backgroundColor:Colors.backgroundDark,justifyContent:'center',alignItems:'center'}, title:{fontSize:FontSize.xl,fontWeight:'700',color:Colors.text},
   statsRow:{flexDirection:'row',gap:8,padding:Spacing.md}, stat:{flex:1,backgroundColor:Colors.white,borderRadius:BorderRadius.lg,padding:Spacing.md,alignItems:'center'}, statVal:{fontSize:FontSize.xl,fontWeight:'800',color:Colors.primary}, statLbl:{fontSize:FontSize.sm,color:Colors.textSecondary},
   revenue:{marginHorizontal:Spacing.md,marginBottom:Spacing.sm,backgroundColor:Colors.white,borderRadius:BorderRadius.lg,padding:Spacing.md}, revLabel:{fontSize:FontSize.sm,color:Colors.textSecondary}, revValue:{fontSize:FontSize.xxl,fontWeight:'800',color:Colors.success,marginTop:4},
+  quickActions:{flexDirection:'row',gap:8,paddingHorizontal:Spacing.md,paddingBottom:Spacing.sm}, quickBtn:{flex:1,backgroundColor:Colors.white,borderRadius:BorderRadius.md,paddingVertical:10,paddingHorizontal:10,flexDirection:'row',alignItems:'center',justifyContent:'center',gap:6}, quickText:{fontSize:FontSize.sm,fontWeight:'700',color:Colors.text},
   list:{paddingHorizontal:Spacing.md,paddingBottom:110}, card:{backgroundColor:Colors.white,borderRadius:BorderRadius.lg,padding:Spacing.md,marginBottom:Spacing.sm}, cardTitle:{fontSize:FontSize.md,fontWeight:'700',color:Colors.text}, meta:{fontSize:FontSize.sm,color:Colors.textSecondary,marginTop:4}
 });

@@ -126,7 +126,15 @@ export const careAPI = {
   getVetQueue: (params?: { status?: string }) => api.get('/vet/care-requests', { params }),
   updateVetRequest: (id: string, data: any) => api.put(`/vet/care-requests/${id}`, data),
   getClinicQueue: () => api.get('/clinic/care-requests'),
+  getClinicVets: () => api.get('/clinic/vets'),
   updateClinicRequest: (id: string, data: any) => api.put(`/clinic/care-requests/${id}`, data),
+};
+
+export const adminMarketplaceAPI = {
+  getListings: () => api.get('/admin/marketplace/listings'),
+  getReports: () => api.get('/admin/marketplace/reports'),
+  setListingStatus: (id: string, status: 'active' | 'sold' | 'archived') =>
+    api.put(`/admin/marketplace/listings/${id}/status`, { status }),
 };
 
 export const marketOwnerAPI = {

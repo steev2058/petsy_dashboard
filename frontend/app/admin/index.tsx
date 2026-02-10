@@ -47,6 +47,7 @@ const MENU_ITEMS = [
   { id: 'community', label: 'Community', icon: 'chatbubbles', color: '#06B6D4', route: '/admin/community' },
   { id: 'locations', label: 'Map Locations', icon: 'location', color: '#84CC16', route: '/admin/locations' },
   { id: 'sponsorships', label: 'Sponsorships', icon: 'heart', color: '#F43F5E', route: '/admin/sponsorships' },
+  { id: 'marketplace', label: 'Marketplace', icon: 'storefront', color: '#22C55E', route: '/admin/marketplace' },
   { id: 'payments', label: 'Payments', icon: 'card', color: '#0EA5E9', route: '/admin/payments' },
   { id: 'settings', label: 'Settings', icon: 'settings', color: '#64748B', route: '/admin/settings' },
 ];

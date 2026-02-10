@@ -11,13 +11,16 @@ export default function ClinicCareManagementScreen() {
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [rows, setRows] = useState<any[]>([]);
+  const [vets, setVets] = useState<any[]>([]);
 
   const load = useCallback(async () => {
     try {
-      const res = await careAPI.getClinicQueue();
+      const [res, vetsRes] = await Promise.all([careAPI.getClinicQueue(), careAPI.getClinicVets()]);
       setRows(res.data || []);
+      setVets(vetsRes.data || []);
     } catch {
       setRows([]);
+      setVets([]);
     } finally {
       setLoading(false);
       setRefreshing(false);
@@ -32,6 +35,15 @@ export default function ClinicCareManagementScreen() {
       await load();
     } catch {
       Alert.alert('Error', 'Update failed');
+    }
+  };
+
+  const assignVet = async (requestId: string, vetId: string) => {
+    try {
+      await careAPI.updateClinicRequest(requestId, { assigned_vet_id: vetId });
+      await load();
+    } catch {
+      Alert.alert('Error', 'Failed to assign vet');
     }
   };
 
@@ -54,6 +66,13 @@ export default function ClinicCareManagementScreen() {
               <TouchableOpacity style={styles.btn} onPress={() => setStatus(item.id, 'in_progress')}><Text style={styles.btnText}>In Progress</Text></TouchableOpacity>
               <TouchableOpacity style={styles.btn} onPress={() => setStatus(item.id, 'completed')}><Text style={styles.btnText}>Complete</Text></TouchableOpacity>
             </View>
+            <View style={styles.vetsRow}>
+              {vets.slice(0, 4).map((v) => (
+                <TouchableOpacity key={v.id} style={styles.vetChip} onPress={() => assignVet(item.id, v.id)}>
+                  <Text style={styles.vetChipText}>{v.name || 'Vet'}</Text>
+                </TouchableOpacity>
+              ))}
+            </View>
           </View>
         )}
         ListEmptyComponent={<View style={styles.center}><Text style={styles.empty}>No clinic cases</Text></View>}
@@ -63,5 +82,5 @@ export default function ClinicCareManagementScreen() {
 }
 
 const styles = StyleSheet.create({
-  container:{flex:1,backgroundColor:'#F8F9FA'}, center:{flex:1,justifyContent:'center',alignItems:'center'}, header:{flexDirection:'row',alignItems:'center',justifyContent:'space-between',paddingHorizontal:Spacing.md,paddingVertical:Spacing.sm,backgroundColor:Colors.white}, iconBtn:{width:40,height:40,borderRadius:12,backgroundColor:Colors.backgroundDark,justifyContent:'center',alignItems:'center'}, title:{fontSize:FontSize.xl,fontWeight:'700',color:Colors.text}, list:{padding:Spacing.md,paddingBottom:110}, card:{backgroundColor:Colors.white,borderRadius:BorderRadius.lg,padding:Spacing.md,marginBottom:Spacing.sm}, cardTitle:{fontSize:FontSize.md,fontWeight:'700',color:Colors.text}, meta:{fontSize:FontSize.sm,color:Colors.textSecondary,marginTop:4}, row:{marginTop:10,flexDirection:'row',gap:8}, btn:{backgroundColor:Colors.primary,borderRadius:BorderRadius.md,paddingHorizontal:10,paddingVertical:8}, btnText:{color:Colors.white,fontSize:FontSize.xs,fontWeight:'700'}, empty:{color:Colors.textSecondary}
+  container:{flex:1,backgroundColor:'#F8F9FA'}, center:{flex:1,justifyContent:'center',alignItems:'center'}, header:{flexDirection:'row',alignItems:'center',justifyContent:'space-between',paddingHorizontal:Spacing.md,paddingVertical:Spacing.sm,backgroundColor:Colors.white}, iconBtn:{width:40,height:40,borderRadius:12,backgroundColor:Colors.backgroundDark,justifyContent:'center',alignItems:'center'}, title:{fontSize:FontSize.xl,fontWeight:'700',color:Colors.text}, list:{padding:Spacing.md,paddingBottom:110}, card:{backgroundColor:Colors.white,borderRadius:BorderRadius.lg,padding:Spacing.md,marginBottom:Spacing.sm}, cardTitle:{fontSize:FontSize.md,fontWeight:'700',color:Colors.text}, meta:{fontSize:FontSize.sm,color:Colors.textSecondary,marginTop:4}, row:{marginTop:10,flexDirection:'row',gap:8}, vetsRow:{marginTop:8,flexDirection:'row',gap:6,flexWrap:'wrap'}, vetChip:{backgroundColor:Colors.backgroundDark,borderRadius:BorderRadius.full,paddingHorizontal:10,paddingVertical:6}, vetChipText:{fontSize:FontSize.xs,color:Colors.text,fontWeight:'600'}, btn:{backgroundColor:Colors.primary,borderRadius:BorderRadius.md,paddingHorizontal:10,paddingVertical:8}, btnText:{color:Colors.white,fontSize:FontSize.xs,fontWeight:'700'}, empty:{color:Colors.textSecondary}
 });

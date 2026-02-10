@@ -2057,6 +2057,10 @@ async def get_vet_care_requests(
 
 @api_router.put("/vet/care-requests/{request_id}")
 async def update_vet_care_request(request_id: str, data: dict, current_user: dict = Depends(require_roles("vet"))):
+    existing = await db.care_requests.find_one({"id": request_id})
+    if not existing:
+        raise HTTPException(status_code=404, detail="Care request not found")
+
     updates = {"updated_at": datetime.utcnow()}
     action = data.get("action")
     if action == "accept":
@@ -2064,7 +2068,28 @@ async def update_vet_care_request(request_id: str, data: dict, current_user: dic
     elif action == "start":
         updates.update({"status": "in_progress", "assigned_vet_id": current_user["id"]})
     elif action == "complete":
-        updates.update({"status": "completed", "assigned_vet_id": current_user["id"], "vet_notes": data.get("vet_notes")})
+        vet_notes = data.get("vet_notes")
+        updates.update({"status": "completed", "assigned_vet_id": current_user["id"], "vet_notes": vet_notes})
+
+        # Sync completion into pet health timeline when pet exists
+        pet_id = existing.get("pet_id")
+        if pet_id:
+            pet = await db.pets.find_one({"id": pet_id})
+            if pet:
+                await db.health_records.insert_one({
+                    "id": str(uuid.uuid4()),
+                    "pet_id": pet_id,
+                    "user_id": pet.get("owner_id"),
+                    "record_type": "vet_visit",
+                    "title": existing.get("title") or "Care Request Visit",
+                    "description": existing.get("description") or "Care request was completed by vet",
+                    "date": datetime.utcnow().strftime("%Y-%m-%d"),
+                    "vet_name": current_user.get("name"),
+                    "clinic_name": data.get("clinic_name") or existing.get("clinic_name"),
+                    "notes": vet_notes,
+                    "attachments": [],
+                    "created_at": datetime.utcnow(),
+                })
     elif data.get("status"):
         updates["status"] = data.get("status")
 
@@ -2076,6 +2101,19 @@ async def update_vet_care_request(request_id: str, data: dict, current_user: dic
 async def get_clinic_care_requests(current_user: dict = Depends(require_roles("care_clinic"))):
     rows = await db.care_requests.find({}).sort("created_at", -1).to_list(300)
     return [{k: v for k, v in r.items() if k != "_id"} for r in rows]
+
+@api_router.get("/clinic/vets")
+async def get_clinic_vets(current_user: dict = Depends(require_roles("care_clinic"))):
+    users = await db.users.find({"role": "vet"}).to_list(300)
+    return [
+        {
+            "id": u.get("id"),
+            "name": u.get("name"),
+            "email": u.get("email"),
+            "city": u.get("city"),
+        }
+        for u in users
+    ]
 
 @api_router.put("/clinic/care-requests/{request_id}")
 async def update_clinic_care_request(request_id: str, data: dict, current_user: dict = Depends(require_roles("care_clinic"))):
@@ -2836,6 +2874,24 @@ async def make_user_admin(user_id: str, admin_user: dict = Depends(get_admin_use
 async def remove_user_admin(user_id: str, admin_user: dict = Depends(get_admin_user)):
     """Remove admin privileges from user"""
     await db.users.update_one({"id": user_id}, {"$set": {"is_admin": False, "role": "user"}})
+    return {"success": True}
+
+@api_router.get("/admin/marketplace/listings")
+async def get_marketplace_listings_admin(admin_user: dict = Depends(get_admin_user)):
+    rows = await db.marketplace_listings.find({}).sort("created_at", -1).to_list(1000)
+    return [{k: v for k, v in r.items() if k != "_id"} for r in rows]
+
+@api_router.get("/admin/marketplace/reports")
+async def get_marketplace_reports_admin(admin_user: dict = Depends(get_admin_user)):
+    rows = await db.marketplace_reports.find({}).sort("created_at", -1).to_list(1000)
+    return [{k: v for k, v in r.items() if k != "_id"} for r in rows]
+
+@api_router.put("/admin/marketplace/listings/{listing_id}/status")
+async def set_marketplace_listing_status_admin(listing_id: str, data: dict, admin_user: dict = Depends(get_admin_user)):
+    status = data.get("status", "active")
+    if status not in ["active", "sold", "archived"]:
+        raise HTTPException(status_code=400, detail="Invalid status")
+    await db.marketplace_listings.update_one({"id": listing_id}, {"$set": {"status": status, "updated_at": datetime.utcnow()}})
     return {"success": True}
 
 @api_router.get("/admin/orders")
