@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   View,
   Text,
@@ -50,10 +50,24 @@ export default function SponsorPetScreen() {
   const [step, setStep] = useState(1);
   const [paymentMethod, setPaymentMethod] = useState('stripe');
   const [cardDetails, setCardDetails] = useState({ number: '', expiry: '', cvc: '' });
+  const [toast, setToast] = useState<{ visible: boolean; message: string; type: 'success' | 'error' }>({ visible: false, message: '', type: 'success' });
+  const toastTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
     loadPet();
   }, [petId]);
+
+  useEffect(() => {
+    return () => {
+      if (toastTimerRef.current) clearTimeout(toastTimerRef.current);
+    };
+  }, []);
+
+  const showToast = (message: string, type: 'success' | 'error' = 'success') => {
+    if (toastTimerRef.current) clearTimeout(toastTimerRef.current);
+    setToast({ visible: true, message, type });
+    toastTimerRef.current = setTimeout(() => setToast((p) => ({ ...p, visible: false })), 1800);
+  };
 
   const loadPet = async () => {
     try {
@@ -129,16 +143,12 @@ export default function SponsorPetScreen() {
         }),
       });
 
-      Alert.alert(
-        '💝 Thank You!',
-        `Your sponsorship of $${finalAmount.toFixed(2)} for ${pet?.name} has been received. You're making a real difference! You also earned ${Math.floor(finalAmount)} Petsy Points! 🎉`,
-        [
-          { text: 'View Pet', onPress: () => router.replace(`/pet/${petId}`) },
-          { text: 'Done', onPress: () => router.back() },
-        ]
-      );
+      showToast(`Sponsorship successful! $${finalAmount.toFixed(2)} added.`, 'success');
+      setTimeout(() => {
+        router.replace('/my-sponsorships');
+      }, 700);
     } catch (error: any) {
-      Alert.alert('Error', error.response?.data?.detail || 'Failed to process sponsorship');
+      showToast(error.response?.data?.detail || 'Failed to process sponsorship', 'error');
     } finally {
       setSubmitting(false);
     }
@@ -193,6 +203,12 @@ export default function SponsorPetScreen() {
 
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
+      {toast.visible && (
+        <View style={[styles.toast, toast.type === 'success' ? styles.toastSuccess : styles.toastError]}>
+          <Ionicons name={toast.type === 'success' ? 'checkmark-circle' : 'alert-circle'} size={16} color={Colors.white} />
+          <Text style={styles.toastText}>{toast.message}</Text>
+        </View>
+      )}
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         style={{ flex: 1 }}
@@ -449,6 +465,23 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#F8F9FA',
   },
+  toast: {
+    position: 'absolute',
+    top: 16,
+    left: 16,
+    right: 16,
+    zIndex: 200,
+    borderRadius: BorderRadius.md,
+    paddingVertical: 10,
+    paddingHorizontal: 12,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    ...Shadow.small,
+  },
+  toastSuccess: { backgroundColor: Colors.success },
+  toastError: { backgroundColor: Colors.error },
+  toastText: { color: Colors.white, fontSize: FontSize.sm, fontWeight: '600', flex: 1 },
   header: {
     flexDirection: 'row',
     alignItems: 'center',

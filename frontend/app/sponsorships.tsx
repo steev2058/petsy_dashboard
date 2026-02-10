@@ -36,7 +36,10 @@ export default function SponsorshipsScreen() {
       <View style={styles.header}>
         <TouchableOpacity onPress={() => router.back()} style={styles.backBtn}><Ionicons name='arrow-back' size={22} color={Colors.text} /></TouchableOpacity>
         <Text style={styles.title}>Sponsorship</Text>
-        <TouchableOpacity onPress={() => router.push('/create-sponsorship-post')} style={styles.addBtn}><Ionicons name='add' size={22} color={Colors.white} /></TouchableOpacity>
+        <View style={styles.headerActions}>
+          <TouchableOpacity onPress={() => router.push('/my-sponsorships')} style={styles.historyBtn}><Ionicons name='list' size={20} color={Colors.primary} /></TouchableOpacity>
+          <TouchableOpacity onPress={() => router.push('/create-sponsorship-post')} style={styles.addBtn}><Ionicons name='add' size={22} color={Colors.white} /></TouchableOpacity>
+        </View>
       </View>
 
       <FlatList
@@ -65,6 +68,8 @@ const styles = StyleSheet.create({
   center:{flex:1,justifyContent:'center',alignItems:'center'},
   header:{flexDirection:'row',alignItems:'center',justifyContent:'space-between',paddingHorizontal:Spacing.md,paddingVertical:Spacing.sm,backgroundColor:Colors.white},
   backBtn:{width:40,height:40,borderRadius:12,backgroundColor:Colors.backgroundDark,alignItems:'center',justifyContent:'center'},
+  headerActions:{flexDirection:'row',alignItems:'center',gap:8},
+  historyBtn:{width:40,height:40,borderRadius:12,backgroundColor:Colors.white,borderWidth:1,borderColor:Colors.border,alignItems:'center',justifyContent:'center'},
   addBtn:{width:40,height:40,borderRadius:12,backgroundColor:Colors.primary,alignItems:'center',justifyContent:'center'},
   title:{fontSize:FontSize.xl,fontWeight:'700',color:Colors.text},
   list:{padding:Spacing.md,paddingBottom:100},
