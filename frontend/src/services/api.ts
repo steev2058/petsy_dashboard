@@ -121,6 +121,18 @@ export const marketplaceAPI = {
     api.post(`/marketplace/listings/${id}/report`, { reason, notes }),
 };
 
+export const careAPI = {
+  createRequest: (data: any) => api.post('/care-requests', data),
+  getVetQueue: (params?: { status?: string }) => api.get('/vet/care-requests', { params }),
+  updateVetRequest: (id: string, data: any) => api.put(`/vet/care-requests/${id}`, data),
+  getClinicQueue: () => api.get('/clinic/care-requests'),
+  updateClinicRequest: (id: string, data: any) => api.put(`/clinic/care-requests/${id}`, data),
+};
+
+export const marketOwnerAPI = {
+  getOverview: () => api.get('/market-owner/overview'),
+};
+
 // Vets API
 export const vetsAPI = {
   getAll: (params?: { city?: string; specialty?: string }) =>

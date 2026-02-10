@@ -99,6 +99,17 @@ export default function AdminUsersScreen() {
     }
   };
 
+  const handleSetRole = async (user: any, role: string) => {
+    try {
+      await api.put(`/admin/users/${user.id}`, { role });
+      setUsers(users.map(u => u.id === user.id ? { ...u, role, is_admin: role === 'admin' } : u));
+      setSelectedUser({ ...user, role, is_admin: role === 'admin' });
+      Alert.alert('Success', `Role updated to ${role}`);
+    } catch {
+      Alert.alert('Error', 'Failed to update role');
+    }
+  };
+
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
     return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
@@ -238,9 +249,21 @@ export default function AdminUsersScreen() {
                     <Ionicons name={selectedUser.is_verified ? 'close-circle' : 'checkmark-circle'} size={24} color={selectedUser.is_verified ? Colors.error : Colors.success} />
                     <Text style={styles.modalActionText}>{selectedUser.is_verified ? 'Unverify' : 'Verify'}</Text>
                   </TouchableOpacity>
-                  <TouchableOpacity style={styles.modalAction}>
-                    <Ionicons name="mail" size={24} color={Colors.primary} />
-                    <Text style={styles.modalActionText}>Email</Text>
+                  <TouchableOpacity style={styles.modalAction} onPress={() => handleSetRole(selectedUser, 'vet')}>
+                    <Ionicons name="medical" size={24} color={Colors.primary} />
+                    <Text style={styles.modalActionText}>Set Vet</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity style={styles.modalAction} onPress={() => handleSetRole(selectedUser, 'market_owner')}>
+                    <Ionicons name="storefront" size={24} color={Colors.primary} />
+                    <Text style={styles.modalActionText}>Set Market</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity style={styles.modalAction} onPress={() => handleSetRole(selectedUser, 'care_clinic')}>
+                    <Ionicons name="business" size={24} color={Colors.primary} />
+                    <Text style={styles.modalActionText}>Set Clinic</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity style={styles.modalAction} onPress={() => handleSetRole(selectedUser, 'admin')}>
+                    <Ionicons name="shield-checkmark" size={24} color={Colors.primary} />
+                    <Text style={styles.modalActionText}>Set Admin</Text>
                   </TouchableOpacity>
                   <TouchableOpacity style={[styles.modalAction, { backgroundColor: Colors.error + '20' }]} onPress={() => { setShowModal(false); handleDeleteUser(selectedUser.id); }}>
                     <Ionicons name="trash" size={24} color={Colors.error} />
@@ -294,8 +317,8 @@ const styles = StyleSheet.create({
   modalAvatarText: { fontSize: 32, fontWeight: '700', color: Colors.white },
   modalUserName: { fontSize: FontSize.xl, fontWeight: '700', color: Colors.text, marginTop: Spacing.md },
   modalUserEmail: { fontSize: FontSize.md, color: Colors.textSecondary, marginTop: Spacing.xs },
-  modalActions: { flexDirection: 'row', gap: Spacing.md },
-  modalAction: { flex: 1, alignItems: 'center', backgroundColor: Colors.backgroundDark, padding: Spacing.md, borderRadius: BorderRadius.lg },
+  modalActions: { flexDirection: 'row', gap: Spacing.sm, flexWrap: 'wrap' },
+  modalAction: { width: '31%', alignItems: 'center', backgroundColor: Colors.backgroundDark, padding: Spacing.sm, borderRadius: BorderRadius.lg },
   modalActionText: { fontSize: FontSize.sm, fontWeight: '600', color: Colors.text, marginTop: Spacing.xs },
   loaderBox: {
     flex: 1,

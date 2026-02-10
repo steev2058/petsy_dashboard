@@ -69,6 +69,10 @@ export default function RootLayout() {
       'my-sponsorships',
       'create-marketplace-listing',
       'my-marketplace-listings',
+      'vet-care-requests',
+      'clinic-care-management',
+      'market-owner-dashboard',
+      'admin',
     ]);
 
     const protectedTabRoutes = new Set(['profile']);
@@ -137,6 +141,10 @@ export default function RootLayout() {
         <Stack.Screen name="marketplace/[id]" options={{ presentation: 'card' }} />
         <Stack.Screen name="create-marketplace-listing" options={{ presentation: 'modal' }} />
         <Stack.Screen name="my-marketplace-listings" />
+        <Stack.Screen name="vet-care-requests" />
+        <Stack.Screen name="clinic-care-management" />
+        <Stack.Screen name="market-owner-dashboard" />
+        <Stack.Screen name="admin" />
         <Stack.Screen name="edit-profile" options={{ presentation: 'card' }} />
         <Stack.Screen name="help-support" />
         <Stack.Screen name="product/[id]" options={{ presentation: 'card' }} />

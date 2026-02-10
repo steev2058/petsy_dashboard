@@ -588,11 +588,21 @@ async def get_current_user_optional(credentials: Optional[HTTPAuthorizationCrede
     except Exception:
         return None
 
+ALLOWED_ROLES = {"user", "admin", "vet", "market_owner", "care_clinic"}
+
 async def get_admin_user(current_user: dict = Depends(get_current_user)) -> dict:
     """Verify user has admin privileges"""
     if not current_user.get("is_admin", False) and current_user.get("role") != "admin":
         raise HTTPException(status_code=403, detail="Admin access required")
     return current_user
+
+def require_roles(*roles: str):
+    async def _guard(current_user: dict = Depends(get_current_user)) -> dict:
+        role = (current_user.get("role") or "user").strip()
+        if role not in roles and not current_user.get("is_admin", False):
+            raise HTTPException(status_code=403, detail="Access denied for this role")
+        return current_user
+    return _guard
 
 # ========================= REALTIME ROUTES =========================
 
@@ -2013,6 +2023,93 @@ async def report_marketplace_listing(listing_id: str, data: dict = {}, current_u
     })
     return {"message": "Report submitted"}
 
+# ========================= CARE REQUESTS / ROLE MODULES =========================
+
+@api_router.post("/care-requests")
+async def create_care_request(data: dict, current_user: dict = Depends(get_current_user)):
+    row = {
+        "id": str(uuid.uuid4()),
+        "pet_id": data.get("pet_id"),
+        "title": data.get("title", "Care Request"),
+        "description": data.get("description"),
+        "location": data.get("location"),
+        "priority": data.get("priority", "normal"),
+        "status": "pending",  # pending, accepted, in_progress, completed, cancelled
+        "requested_by": current_user["id"],
+        "assigned_vet_id": None,
+        "assigned_clinic_id": None,
+        "created_at": datetime.utcnow(),
+        "updated_at": datetime.utcnow(),
+    }
+    await db.care_requests.insert_one(row)
+    return row
+
+@api_router.get("/vet/care-requests")
+async def get_vet_care_requests(
+    status: Optional[str] = None,
+    current_user: dict = Depends(require_roles("vet"))
+):
+    query: dict = {"$or": [{"assigned_vet_id": None}, {"assigned_vet_id": current_user["id"]}]}
+    if status:
+        query["status"] = status
+    rows = await db.care_requests.find(query).sort("created_at", -1).to_list(200)
+    return [{k: v for k, v in r.items() if k != "_id"} for r in rows]
+
+@api_router.put("/vet/care-requests/{request_id}")
+async def update_vet_care_request(request_id: str, data: dict, current_user: dict = Depends(require_roles("vet"))):
+    updates = {"updated_at": datetime.utcnow()}
+    action = data.get("action")
+    if action == "accept":
+        updates.update({"status": "accepted", "assigned_vet_id": current_user["id"]})
+    elif action == "start":
+        updates.update({"status": "in_progress", "assigned_vet_id": current_user["id"]})
+    elif action == "complete":
+        updates.update({"status": "completed", "assigned_vet_id": current_user["id"], "vet_notes": data.get("vet_notes")})
+    elif data.get("status"):
+        updates["status"] = data.get("status")
+
+    await db.care_requests.update_one({"id": request_id}, {"$set": updates})
+    row = await db.care_requests.find_one({"id": request_id})
+    return {k: v for k, v in row.items() if k != "_id"} if row else {"success": True}
+
+@api_router.get("/clinic/care-requests")
+async def get_clinic_care_requests(current_user: dict = Depends(require_roles("care_clinic"))):
+    rows = await db.care_requests.find({}).sort("created_at", -1).to_list(300)
+    return [{k: v for k, v in r.items() if k != "_id"} for r in rows]
+
+@api_router.put("/clinic/care-requests/{request_id}")
+async def update_clinic_care_request(request_id: str, data: dict, current_user: dict = Depends(require_roles("care_clinic"))):
+    updates = {
+        "updated_at": datetime.utcnow(),
+        "assigned_clinic_id": current_user["id"],
+    }
+    if data.get("status"):
+      updates["status"] = data.get("status")
+    if data.get("assigned_vet_id"):
+      updates["assigned_vet_id"] = data.get("assigned_vet_id")
+    if data.get("clinic_notes") is not None:
+      updates["clinic_notes"] = data.get("clinic_notes")
+
+    await db.care_requests.update_one({"id": request_id}, {"$set": updates})
+    row = await db.care_requests.find_one({"id": request_id})
+    return {k: v for k, v in row.items() if k != "_id"} if row else {"success": True}
+
+@api_router.get("/market-owner/overview")
+async def get_market_owner_overview(current_user: dict = Depends(require_roles("market_owner"))):
+    listings = await db.marketplace_listings.find({"user_id": current_user["id"]}).sort("created_at", -1).to_list(500)
+    total = len(listings)
+    active = len([l for l in listings if l.get("status") == "active"])
+    sold = len([l for l in listings if l.get("status") == "sold"])
+    revenue = sum(float(l.get("price", 0) or 0) for l in listings if l.get("status") == "sold")
+    clean = [{k: v for k, v in l.items() if k != "_id"} for l in listings[:50]]
+    return {
+        "total_listings": total,
+        "active_listings": active,
+        "sold_listings": sold,
+        "estimated_revenue": revenue,
+        "recent_listings": clean,
+    }
+
 # ========================= PET TRACKING (PETSY TAG) =========================
 
 class PetTagCreate(BaseModel):
@@ -2715,6 +2812,11 @@ async def get_all_users(admin_user: dict = Depends(get_admin_user)):
 @api_router.put("/admin/users/{user_id}")
 async def update_user_admin(user_id: str, data: dict, admin_user: dict = Depends(get_admin_user)):
     """Update user (admin)"""
+    if "role" in data:
+      role = str(data.get("role") or "").strip()
+      if role not in ALLOWED_ROLES:
+          raise HTTPException(status_code=400, detail=f"Invalid role. Allowed: {', '.join(sorted(ALLOWED_ROLES))}")
+      data["is_admin"] = role == "admin"
     await db.users.update_one({"id": user_id}, {"$set": data})
     return {"success": True}
 

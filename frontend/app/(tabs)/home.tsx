@@ -295,6 +295,10 @@ export default function HomeScreen() {
                   { icon: 'people', label: t('community'), route: '/community' },
                   { icon: 'ribbon', label: 'Sponsorship', route: '/sponsorships' },
                   { icon: 'storefront', label: 'Marketplace', route: '/marketplace' },
+                  ...((user?.role === 'vet' || user?.is_admin) ? [{ icon: 'medkit', label: 'Vet Requests', route: '/vet-care-requests' }] : []),
+                  ...((user?.role === 'care_clinic' || user?.is_admin) ? [{ icon: 'business', label: 'Clinic Care', route: '/clinic-care-management' }] : []),
+                  ...((user?.role === 'market_owner' || user?.is_admin) ? [{ icon: 'stats-chart', label: 'Market Owner', route: '/market-owner-dashboard' }] : []),
+                  ...((user?.role === 'admin' || user?.is_admin) ? [{ icon: 'shield-checkmark', label: 'Admin Panel', route: '/admin' }] : []),
                   { icon: 'settings', label: t('settings'), route: '/(tabs)/profile' },
                 ].map((item) => (
                   <TouchableOpacity 
