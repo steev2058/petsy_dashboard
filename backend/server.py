@@ -1951,6 +1951,51 @@ async def get_marketplace_listing_by_id(listing_id: str):
     clean_row = {k: v for k, v in row.items() if k != "_id"}
     return MarketplaceListing(**clean_row)
 
+@api_router.put("/marketplace/listings/{listing_id}", response_model=MarketplaceListing)
+async def update_marketplace_listing(listing_id: str, payload: MarketplaceListingCreate, current_user: dict = Depends(get_current_user)):
+    row = await db.marketplace_listings.find_one({"id": listing_id})
+    if not row:
+        raise HTTPException(status_code=404, detail="Listing not found")
+    if row.get("user_id") != current_user["id"]:
+        raise HTTPException(status_code=403, detail="Not allowed")
+
+    update_data = payload.dict()
+    await db.marketplace_listings.update_one(
+        {"id": listing_id},
+        {"$set": {**update_data, "updated_at": datetime.utcnow()}}
+    )
+    updated = await db.marketplace_listings.find_one({"id": listing_id})
+    return MarketplaceListing(**{k: v for k, v in updated.items() if k != "_id"})
+
+@api_router.put("/marketplace/listings/{listing_id}/status")
+async def set_marketplace_listing_status(listing_id: str, data: dict = {}, current_user: dict = Depends(get_current_user)):
+    row = await db.marketplace_listings.find_one({"id": listing_id})
+    if not row:
+        raise HTTPException(status_code=404, detail="Listing not found")
+    if row.get("user_id") != current_user["id"]:
+        raise HTTPException(status_code=403, detail="Not allowed")
+
+    status = data.get("status", "active")
+    if status not in ["active", "sold", "archived"]:
+        raise HTTPException(status_code=400, detail="Invalid status")
+
+    await db.marketplace_listings.update_one(
+        {"id": listing_id},
+        {"$set": {"status": status, "updated_at": datetime.utcnow()}}
+    )
+    return {"message": "Status updated", "status": status}
+
+@api_router.delete("/marketplace/listings/{listing_id}")
+async def delete_marketplace_listing(listing_id: str, current_user: dict = Depends(get_current_user)):
+    row = await db.marketplace_listings.find_one({"id": listing_id})
+    if not row:
+        raise HTTPException(status_code=404, detail="Listing not found")
+    if row.get("user_id") != current_user["id"]:
+        raise HTTPException(status_code=403, detail="Not allowed")
+
+    await db.marketplace_listings.delete_one({"id": listing_id})
+    return {"message": "Listing deleted"}
+
 @api_router.post("/marketplace/listings/{listing_id}/report")
 async def report_marketplace_listing(listing_id: str, data: dict = {}, current_user: dict = Depends(get_current_user)):
     row = await db.marketplace_listings.find_one({"id": listing_id})

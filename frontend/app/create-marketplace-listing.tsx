@@ -1,7 +1,7 @@
-import React, { useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, TextInput, ScrollView, Image, ActivityIndicator } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useRouter } from 'expo-router';
+import { useLocalSearchParams, useRouter } from 'expo-router';
 import * as ImagePicker from 'expo-image-picker';
 import { Ionicons } from '@expo/vector-icons';
 import { Colors, FontSize, Spacing, BorderRadius, Shadow } from '../src/constants/theme';
@@ -11,11 +11,35 @@ const CATEGORIES = ['pets', 'accessories', 'services'];
 
 export default function CreateMarketplaceListing() {
   const router = useRouter();
+  const { editId } = useLocalSearchParams<{ editId?: string }>();
   const [saving, setSaving] = useState(false);
   const [image, setImage] = useState<string | null>(null);
   const [toast, setToast] = useState<{visible:boolean;message:string;type:'success'|'error'}>({visible:false,message:'',type:'success'});
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [form, setForm] = useState({ title: '', description: '', category: 'pets', price: '', location: '', pet_type: '', condition: '' });
+
+  useEffect(() => {
+    const loadEdit = async () => {
+      if (!editId) return;
+      try {
+        const res = await marketplaceAPI.getById(editId);
+        const item = res.data;
+        setForm({
+          title: item.title || '',
+          description: item.description || '',
+          category: item.category || 'pets',
+          price: String(item.price ?? ''),
+          location: item.location || '',
+          pet_type: item.pet_type || '',
+          condition: item.condition || '',
+        });
+        setImage(item.image || null);
+      } catch {
+        showToast('Failed to load listing', 'error');
+      }
+    };
+    loadEdit();
+  }, [editId]);
 
   const showToast = (message: string, type: 'success'|'error'='success') => {
     if (timerRef.current) clearTimeout(timerRef.current);
@@ -35,18 +59,23 @@ export default function CreateMarketplaceListing() {
     }
     setSaving(true);
     try {
-      await marketplaceAPI.create({ ...form, price: Number(form.price), image });
-      showToast('Listing posted successfully', 'success');
-      setTimeout(() => router.replace('/marketplace'), 700);
+      if (editId) {
+        await marketplaceAPI.update(editId, { ...form, price: Number(form.price), image });
+        showToast('Listing updated successfully', 'success');
+      } else {
+        await marketplaceAPI.create({ ...form, price: Number(form.price), image });
+        showToast('Listing posted successfully', 'success');
+      }
+      setTimeout(() => router.replace('/my-marketplace-listings'), 700);
     } catch (e: any) {
-      showToast(e?.response?.data?.detail || 'Failed to create listing', 'error');
+      showToast(e?.response?.data?.detail || (editId ? 'Failed to update listing' : 'Failed to create listing'), 'error');
     } finally { setSaving(false); }
   };
 
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
       {toast.visible && <View style={[styles.toast, toast.type === 'success' ? styles.ok : styles.err]}><Ionicons name={toast.type==='success'?'checkmark-circle':'alert-circle'} size={16} color={Colors.white}/><Text style={styles.toastText}>{toast.message}</Text></View>}
-      <View style={styles.header}><TouchableOpacity style={styles.iconBtn} onPress={() => router.back()}><Ionicons name='arrow-back' size={22} color={Colors.text} /></TouchableOpacity><Text style={styles.title}>Create Listing</Text><View style={{ width: 40 }} /></View>
+      <View style={styles.header}><TouchableOpacity style={styles.iconBtn} onPress={() => router.back()}><Ionicons name='arrow-back' size={22} color={Colors.text} /></TouchableOpacity><Text style={styles.title}>{editId ? 'Edit Listing' : 'Create Listing'}</Text><View style={{ width: 40 }} /></View>
 
       <ScrollView contentContainerStyle={styles.content}>
         <TouchableOpacity style={[styles.imageBox, Shadow.small]} onPress={pickImage}>{image ? <Image source={{ uri: image }} style={styles.image} /> : <Text style={styles.hint}>Tap to add photo</Text>}</TouchableOpacity>
@@ -57,7 +86,7 @@ export default function CreateMarketplaceListing() {
         <TextInput style={styles.input} placeholder='Location *' value={form.location} onChangeText={(v)=>setForm({...form,location:v})} />
         <TextInput style={styles.input} placeholder='Pet Type (optional)' value={form.pet_type} onChangeText={(v)=>setForm({...form,pet_type:v})} />
         <TextInput style={styles.input} placeholder='Condition (optional)' value={form.condition} onChangeText={(v)=>setForm({...form,condition:v})} />
-        <TouchableOpacity style={styles.submit} onPress={submit} disabled={saving}>{saving ? <ActivityIndicator size='small' color={Colors.white} /> : <Text style={styles.submitText}>Publish Listing</Text>}</TouchableOpacity>
+        <TouchableOpacity style={styles.submit} onPress={submit} disabled={saving}>{saving ? <ActivityIndicator size='small' color={Colors.white} /> : <Text style={styles.submitText}>{editId ? 'Save Changes' : 'Publish Listing'}</Text>}</TouchableOpacity>
       </ScrollView>
     </SafeAreaView>
   );

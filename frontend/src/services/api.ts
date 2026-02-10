@@ -109,6 +109,10 @@ export const sponsorshipAPI = {
 // Marketplace API
 export const marketplaceAPI = {
   create: (data: any) => api.post('/marketplace/listings', data),
+  update: (id: string, data: any) => api.put(`/marketplace/listings/${id}`, data),
+  remove: (id: string) => api.delete(`/marketplace/listings/${id}`),
+  setStatus: (id: string, status: 'active' | 'sold' | 'archived') =>
+    api.put(`/marketplace/listings/${id}/status`, { status }),
   getAll: (params?: { category?: string; q?: string; city?: string; min_price?: number; max_price?: number }) =>
     api.get('/marketplace/listings', { params }),
   getById: (id: string) => api.get(`/marketplace/listings/${id}`),
