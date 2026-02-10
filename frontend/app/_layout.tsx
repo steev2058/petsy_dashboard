@@ -72,6 +72,7 @@ export default function RootLayout() {
       'vet-care-requests',
       'clinic-care-management',
       'market-owner-dashboard',
+      'role-request',
       'admin',
     ]);
 
@@ -144,6 +145,7 @@ export default function RootLayout() {
         <Stack.Screen name="vet-care-requests" />
         <Stack.Screen name="clinic-care-management" />
         <Stack.Screen name="market-owner-dashboard" />
+        <Stack.Screen name="role-request" options={{ presentation: 'modal' }} />
         <Stack.Screen name="admin" />
         <Stack.Screen name="edit-profile" options={{ presentation: 'card' }} />
         <Stack.Screen name="help-support" />

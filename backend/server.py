@@ -2085,6 +2085,8 @@ async def update_vet_care_request(request_id: str, data: dict, current_user: dic
         vet_notes = data.get("vet_notes")
         diagnosis = data.get("diagnosis")
         prescription = data.get("prescription")
+        if not diagnosis or not str(diagnosis).strip() or not prescription or not str(prescription).strip():
+            raise HTTPException(status_code=400, detail="Diagnosis and prescription are required to complete the case")
         updates.update({
             "status": "completed",
             "assigned_vet_id": current_user["id"],

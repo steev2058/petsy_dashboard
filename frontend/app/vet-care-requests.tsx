@@ -33,14 +33,20 @@ export default function VetCareRequestsScreen() {
     try {
       const payload: any = { action };
       if (action === 'complete') {
+        const diagnosis = (diagnosisById[id] || '').trim();
+        const prescription = (prescriptionById[id] || '').trim();
+        if (!diagnosis || !prescription) {
+          Alert.alert('Required', 'Diagnosis and prescription are required to complete the case');
+          return;
+        }
         payload.vet_notes = notesById[id] || undefined;
-        payload.diagnosis = diagnosisById[id] || undefined;
-        payload.prescription = prescriptionById[id] || undefined;
+        payload.diagnosis = diagnosis;
+        payload.prescription = prescription;
       }
       await careAPI.updateVetRequest(id, payload);
       await load();
-    } catch {
-      Alert.alert('Error', 'Action failed');
+    } catch (e: any) {
+      Alert.alert('Error', e?.response?.data?.detail || 'Action failed');
     }
   };
 
