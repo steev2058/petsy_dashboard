@@ -18,6 +18,7 @@ import Animated, { FadeInDown, FadeIn } from 'react-native-reanimated';
 import { Colors, FontSize, Spacing, BorderRadius, Shadow } from '../../src/constants/theme';
 import { useStore } from '../../src/store/useStore';
 import api from '../../src/services/api';
+import { useTranslation } from '../../src/hooks/useTranslation';
 
 const { width } = Dimensions.get('window');
 const isWeb = Platform.OS === 'web';
@@ -60,7 +61,55 @@ const MENU_ITEMS = [
 
 export default function AdminDashboard() {
   const router = useRouter();
+  const { language, isRTL } = useTranslation();
   const { isAuthenticated, user } = useStore();
+  const L = {
+    loading: language === 'ar' ? 'جاري تحميل البيانات...' : 'Loading data...',
+    revenueOverview: language === 'ar' ? 'نظرة عامة على الإيرادات (آخر 6 أشهر)' : 'Revenue Overview (Last 6 Months)',
+    adminAccess: language === 'ar' ? 'مطلوب صلاحية المشرف' : 'Admin Access Required',
+    loginPrompt: language === 'ar' ? 'يرجى تسجيل الدخول بحساب المشرف للوصول إلى لوحة التحكم.' : 'Please login with your admin account to access the dashboard.',
+    loginContinue: language === 'ar' ? 'تسجيل الدخول للمتابعة' : 'Login to Continue',
+    accessDenied: language === 'ar' ? 'تم رفض الوصول' : 'Access Denied',
+    noPrivilege: language === 'ar' ? 'ليس لديك صلاحيات المشرف. تواصل مع مسؤول النظام لطلب الوصول.' : "You don't have administrator privileges. Contact your system administrator to request access.",
+    loggedInAs: language === 'ar' ? 'مسجل الدخول باسم:' : 'Logged in as:',
+    backHome: language === 'ar' ? 'العودة للرئيسية' : 'Back to Home',
+    adminDashboard: language === 'ar' ? 'لوحة تحكم الإدارة' : 'Admin Dashboard',
+    controlPanel: language === 'ar' ? 'لوحة تحكم بيتسي' : 'Petsy Control Panel',
+    overview: language === 'ar' ? 'نظرة عامة' : 'Overview',
+    totalUsers: language === 'ar' ? 'إجمالي المستخدمين' : 'Total Users',
+    totalPets: language === 'ar' ? 'إجمالي الحيوانات' : 'Total Pets',
+    orders: language === 'ar' ? 'الطلبات' : 'Orders',
+    revenue: language === 'ar' ? 'الإيرادات' : 'Revenue',
+    pendingActions: language === 'ar' ? 'إجراءات معلّقة' : 'Pending Actions',
+    pendingOrders: language === 'ar' ? 'طلبات معلّقة' : 'Pending Orders',
+    ordersNeedAttention: language === 'ar' ? 'طلب يحتاج متابعة' : 'orders need attention',
+    todayAppointments: language === 'ar' ? 'مواعيد اليوم' : "Today's Appointments",
+    appointmentsScheduled: language === 'ar' ? 'موعد مجدول' : 'appointments scheduled',
+    marketplaceReports: language === 'ar' ? 'بلاغات السوق' : 'Marketplace Reports',
+    reportsToReview: language === 'ar' ? 'بلاغات للمراجعة' : 'reports to review',
+    roleRequests: language === 'ar' ? 'طلبات الأدوار' : 'Role Requests',
+    pendingApprovals: language === 'ar' ? 'موافقات معلّقة' : 'pending approvals',
+    friendReports: language === 'ar' ? 'بلاغات الأصدقاء' : 'Friend Reports',
+    openCases: language === 'ar' ? 'حالات إشراف مفتوحة' : 'open moderation cases',
+    management: language === 'ar' ? 'الإدارة' : 'Management',
+  };
+  const menuLabelMap: Record<string, string> = {
+    users: language === 'ar' ? 'المستخدمون' : 'Users',
+    pets: language === 'ar' ? 'الحيوانات' : 'Pets',
+    orders: language === 'ar' ? 'الطلبات' : 'Orders',
+    products: language === 'ar' ? 'المنتجات' : 'Products',
+    appointments: language === 'ar' ? 'المواعيد' : 'Appointments',
+    vets: language === 'ar' ? 'الأطباء البيطريون' : 'Veterinarians',
+    community: language === 'ar' ? 'المجتمع' : 'Community',
+    locations: language === 'ar' ? 'المواقع على الخريطة' : 'Map Locations',
+    sponsorships: language === 'ar' ? 'الكفالات' : 'Sponsorships',
+    marketplace: language === 'ar' ? 'السوق' : 'Marketplace',
+    'role-requests': language === 'ar' ? 'طلبات الأدوار' : 'Role Requests',
+    'friend-reports': language === 'ar' ? 'بلاغات الأصدقاء' : 'Friend Reports',
+    'audit-logs': language === 'ar' ? 'سجلات التدقيق' : 'Audit Logs',
+    payments: language === 'ar' ? 'المدفوعات' : 'Payments',
+    settings: language === 'ar' ? 'الإعدادات' : 'Settings',
+  };
   const [stats, setStats] = useState<DashboardStats>({
     users: 0,
     pets: 0,
@@ -149,7 +198,7 @@ export default function AdminDashboard() {
       <SafeAreaView style={styles.container} edges={['top']}>
         <View style={styles.loaderBox}>
           <ActivityIndicator size="small" color={Colors.primary} />
-          <Text style={styles.loaderText}>Loading data...</Text>
+          <Text style={[styles.loaderText, isRTL && styles.rtlText]}>{L.loading}</Text>
         </View>
       </SafeAreaView>
     );
@@ -157,7 +206,7 @@ export default function AdminDashboard() {
 
   return (
       <View style={styles.chartContainer}>
-        <Text style={styles.chartTitle}>Revenue Overview (Last 6 Months)</Text>
+        <Text style={[styles.chartTitle, isRTL && styles.rtlText]}>{L.revenueOverview}</Text>
         <View style={styles.chartBars}>
           {data.map((item, index) => (
             <View key={index} style={styles.barWrapper}>
@@ -202,12 +251,12 @@ export default function AdminDashboard() {
           <View style={styles.accessDeniedIcon}>
             <Ionicons name="lock-closed" size={64} color={Colors.error} />
           </View>
-          <Text style={styles.accessDeniedTitle}>Admin Access Required</Text>
-          <Text style={styles.accessDeniedText}>Please login with your admin account to access the dashboard.</Text>
+          <Text style={[styles.accessDeniedTitle, isRTL && styles.rtlText]}>{L.adminAccess}</Text>
+          <Text style={[styles.accessDeniedText, isRTL && styles.rtlText]}>{L.loginPrompt}</Text>
           <TouchableOpacity style={styles.loginButton} onPress={() => router.push('/(auth)/login')}>
             <LinearGradient colors={[Colors.primary, Colors.primaryDark]} style={styles.loginGradient}>
               <Ionicons name="log-in" size={20} color={Colors.white} />
-              <Text style={styles.loginButtonText}>Login to Continue</Text>
+              <Text style={styles.loginButtonText}>{L.loginContinue}</Text>
             </LinearGradient>
           </TouchableOpacity>
         </View>
@@ -223,17 +272,15 @@ export default function AdminDashboard() {
           <View style={[styles.accessDeniedIcon, { backgroundColor: Colors.error + '15' }]}>
             <Ionicons name="shield-checkmark" size={64} color={Colors.error} />
           </View>
-          <Text style={styles.accessDeniedTitle}>Access Denied</Text>
-          <Text style={styles.accessDeniedText}>
-            You don't have administrator privileges. Contact your system administrator to request access.
-          </Text>
+          <Text style={[styles.accessDeniedTitle, isRTL && styles.rtlText]}>{L.accessDenied}</Text>
+          <Text style={[styles.accessDeniedText, isRTL && styles.rtlText]}>{L.noPrivilege}</Text>
           <View style={styles.userInfo}>
-            <Text style={styles.userInfoLabel}>Logged in as:</Text>
+            <Text style={[styles.userInfoLabel, isRTL && styles.rtlText]}>{L.loggedInAs}</Text>
             <Text style={styles.userInfoValue}>{user?.email}</Text>
           </View>
           <TouchableOpacity style={styles.backButton} onPress={() => router.replace('/(tabs)/home')}>
             <Ionicons name="arrow-back" size={20} color={Colors.text} />
-            <Text style={styles.backButtonText}>Back to Home</Text>
+            <Text style={styles.backButtonText}>{L.backHome}</Text>
           </TouchableOpacity>
         </View>
       </SafeAreaView>
@@ -249,8 +296,8 @@ export default function AdminDashboard() {
             <Ionicons name="arrow-back" size={24} color={Colors.white} />
           </TouchableOpacity>
           <View style={styles.headerTitle}>
-            <Text style={styles.headerTitleText}>Admin Dashboard</Text>
-            <Text style={styles.headerSubtitle}>Petsy Control Panel</Text>
+            <Text style={[styles.headerTitleText, isRTL && styles.rtlText]}>{L.adminDashboard}</Text>
+            <Text style={[styles.headerSubtitle, isRTL && styles.rtlText]}>{L.controlPanel}</Text>
           </View>
           <TouchableOpacity style={styles.headerButton}>
             <Ionicons name="notifications" size={24} color={Colors.white} />
@@ -270,12 +317,12 @@ export default function AdminDashboard() {
       >
         {/* Quick Stats */}
         <Animated.View entering={FadeIn.delay(200)} style={styles.statsSection}>
-          <Text style={styles.sectionTitle}>Overview</Text>
+          <Text style={[styles.sectionTitle, isRTL && styles.rtlText]}>{L.overview}</Text>
           <View style={[styles.statsGrid, isWeb && styles.webStatsGrid]}>
-            <StatCard label="Total Users" value={stats.users} icon="people" color="#6366F1" trend={12} />
-            <StatCard label="Total Pets" value={stats.pets} icon="paw" color="#EC4899" trend={8} />
-            <StatCard label="Orders" value={stats.orders} icon="bag-handle" color="#F59E0B" trend={-3} />
-            <StatCard label="Revenue" value={`$${stats.revenue}`} icon="cash" color="#10B981" trend={15} />
+            <StatCard label={L.totalUsers} value={stats.users} icon="people" color="#6366F1" trend={12} />
+            <StatCard label={L.totalPets} value={stats.pets} icon="paw" color="#EC4899" trend={8} />
+            <StatCard label={L.orders} value={stats.orders} icon="bag-handle" color="#F59E0B" trend={-3} />
+            <StatCard label={L.revenue} value={`$${stats.revenue}`} icon="cash" color="#10B981" trend={15} />
           </View>
         </Animated.View>
 
@@ -286,15 +333,15 @@ export default function AdminDashboard() {
 
         {/* Pending Actions */}
         <Animated.View entering={FadeIn.delay(400)} style={styles.pendingSection}>
-          <Text style={styles.sectionTitle}>Pending Actions</Text>
+          <Text style={[styles.sectionTitle, isRTL && styles.rtlText]}>{L.pendingActions}</Text>
           <View style={[styles.pendingCard, Shadow.small]}>
             <TouchableOpacity style={styles.pendingItem} onPress={() => router.push('/admin/orders')}>
               <View style={[styles.pendingIcon, { backgroundColor: Colors.warning + '20' }]}>
                 <Ionicons name="bag-handle" size={20} color={Colors.warning} />
               </View>
               <View style={styles.pendingInfo}>
-                <Text style={styles.pendingLabel}>Pending Orders</Text>
-                <Text style={styles.pendingValue}>{stats.pendingOrders} orders need attention</Text>
+                <Text style={[styles.pendingLabel, isRTL && styles.rtlText]}>{L.pendingOrders}</Text>
+                <Text style={[styles.pendingValue, isRTL && styles.rtlText]}>{stats.pendingOrders} {L.ordersNeedAttention}</Text>
               </View>
               <Ionicons name="chevron-forward" size={20} color={Colors.textSecondary} />
             </TouchableOpacity>
@@ -304,8 +351,8 @@ export default function AdminDashboard() {
                 <Ionicons name="calendar" size={20} color={Colors.primary} />
               </View>
               <View style={styles.pendingInfo}>
-                <Text style={styles.pendingLabel}>Today's Appointments</Text>
-                <Text style={styles.pendingValue}>{stats.appointments} appointments scheduled</Text>
+                <Text style={[styles.pendingLabel, isRTL && styles.rtlText]}>{L.todayAppointments}</Text>
+                <Text style={[styles.pendingValue, isRTL && styles.rtlText]}>{stats.appointments} {L.appointmentsScheduled}</Text>
               </View>
               <Ionicons name="chevron-forward" size={20} color={Colors.textSecondary} />
             </TouchableOpacity>
@@ -315,8 +362,8 @@ export default function AdminDashboard() {
                 <Ionicons name="alert-circle" size={20} color={Colors.error} />
               </View>
               <View style={styles.pendingInfo}>
-                <Text style={styles.pendingLabel}>Marketplace Reports</Text>
-                <Text style={styles.pendingValue}>{stats.openMarketplaceReports || 0} reports to review</Text>
+                <Text style={[styles.pendingLabel, isRTL && styles.rtlText]}>{L.marketplaceReports}</Text>
+                <Text style={[styles.pendingValue, isRTL && styles.rtlText]}>{stats.openMarketplaceReports || 0} {L.reportsToReview}</Text>
               </View>
               <Ionicons name="chevron-forward" size={20} color={Colors.textSecondary} />
             </TouchableOpacity>
@@ -326,8 +373,8 @@ export default function AdminDashboard() {
                 <Ionicons name="git-pull-request" size={20} color={Colors.primary} />
               </View>
               <View style={styles.pendingInfo}>
-                <Text style={styles.pendingLabel}>Role Requests</Text>
-                <Text style={styles.pendingValue}>{stats.pendingRoleRequests || 0} pending approvals</Text>
+                <Text style={[styles.pendingLabel, isRTL && styles.rtlText]}>{L.roleRequests}</Text>
+                <Text style={[styles.pendingValue, isRTL && styles.rtlText]}>{stats.pendingRoleRequests || 0} {L.pendingApprovals}</Text>
               </View>
               <Ionicons name="chevron-forward" size={20} color={Colors.textSecondary} />
             </TouchableOpacity>
@@ -337,8 +384,8 @@ export default function AdminDashboard() {
                 <Ionicons name="flag" size={20} color={Colors.warning} />
               </View>
               <View style={styles.pendingInfo}>
-                <Text style={styles.pendingLabel}>Friend Reports</Text>
-                <Text style={styles.pendingValue}>{stats.openFriendReports || 0} open moderation cases</Text>
+                <Text style={[styles.pendingLabel, isRTL && styles.rtlText]}>{L.friendReports}</Text>
+                <Text style={[styles.pendingValue, isRTL && styles.rtlText]}>{stats.openFriendReports || 0} {L.openCases}</Text>
               </View>
               <Ionicons name="chevron-forward" size={20} color={Colors.textSecondary} />
             </TouchableOpacity>
@@ -347,7 +394,7 @@ export default function AdminDashboard() {
 
         {/* Management Menu */}
         <Animated.View entering={FadeIn.delay(500)} style={styles.menuSection}>
-          <Text style={styles.sectionTitle}>Management</Text>
+          <Text style={[styles.sectionTitle, isRTL && styles.rtlText]}>{L.management}</Text>
           <View style={[styles.menuGrid, isWeb && styles.webMenuGrid]}>
             {MENU_ITEMS.map((item, index) => (
               <Animated.View key={item.id} entering={FadeInDown.delay(index * 50)}>
@@ -358,7 +405,7 @@ export default function AdminDashboard() {
                   <View style={[styles.menuIcon, { backgroundColor: item.color + '20' }]}>
                     <Ionicons name={item.icon as any} size={28} color={item.color} />
                   </View>
-                  <Text style={styles.menuLabel}>{item.label}</Text>
+                  <Text style={[styles.menuLabel, isRTL && styles.rtlText]}>{menuLabelMap[item.id] || item.label}</Text>
                 </TouchableOpacity>
               </Animated.View>
             ))}
@@ -696,4 +743,5 @@ const styles = StyleSheet.create({
     color: Colors.textSecondary,
     fontSize: FontSize.sm,
   },
+  rtlText: { textAlign: 'right' },
 });
