@@ -8,6 +8,7 @@ import {
   Image,
   Alert,
   Dimensions,
+  Platform,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
@@ -34,6 +35,12 @@ export default function CartScreen() {
   };
 
   const handleRemoveItem = (productId: string, name: string) => {
+    if (Platform.OS === 'web') {
+      const ok = typeof window !== 'undefined' ? window.confirm(`Remove ${name} from cart?`) : false;
+      if (ok) removeFromCart(productId);
+      return;
+    }
+
     Alert.alert(
       'Remove Item',
       `Remove ${name} from cart?`,
@@ -64,6 +71,12 @@ export default function CartScreen() {
           <TouchableOpacity
             style={styles.clearButton}
             onPress={() => {
+              if (Platform.OS === 'web') {
+                const ok = typeof window !== 'undefined' ? window.confirm('Remove all items from cart?') : false;
+                if (ok) clearCart();
+                return;
+              }
+
               Alert.alert('Clear Cart', 'Remove all items from cart?', [
                 { text: 'Cancel', style: 'cancel' },
                 { text: 'Clear All', style: 'destructive', onPress: clearCart },
