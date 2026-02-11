@@ -5,12 +5,51 @@ import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { Colors, FontSize, Spacing, BorderRadius, Shadow } from '../src/constants/theme';
 import { friendsAPI, conversationsAPI, settingsAPI } from '../src/services/api';
+import { useTranslation } from '../src/hooks/useTranslation';
 
 type FriendUser = { id: string; name: string; username?: string; user_code?: string; is_online?: boolean; friendship_status?: string; mutual_count?: number };
 type FriendRequest = { id: string; message?: string; user: FriendUser; created_at?: string };
 
 export default function FriendsScreen() {
   const router = useRouter();
+  const { language, isRTL } = useTranslation();
+  const L = {
+    friends: language === 'ar' ? 'الأصدقاء' : 'Friends',
+    requests: language === 'ar' ? 'الطلبات' : 'Requests',
+    findUsers: language === 'ar' ? 'البحث عن مستخدمين' : 'Find Users',
+    blocked: language === 'ar' ? 'المحظورون' : 'Blocked',
+    message: language === 'ar' ? 'مراسلة' : 'Message',
+    reject: language === 'ar' ? 'رفض' : 'Reject',
+    accept: language === 'ar' ? 'قبول' : 'Accept',
+    addFriend: language === 'ar' ? 'إضافة صديق' : 'Add Friend',
+    pending: language === 'ar' ? 'قيد الانتظار' : 'Pending',
+    requestedYou: language === 'ar' ? 'أرسل لك طلبًا' : 'Requested you',
+    unblock: language === 'ar' ? 'إلغاء الحظر' : 'Unblock',
+    mutualFriends: language === 'ar' ? 'أصدقاء مشتركون' : 'mutual friends',
+    friendRequests: language === 'ar' ? 'طلبات الصداقة' : 'Friend requests',
+    directMessages: language === 'ar' ? 'الرسائل المباشرة' : 'Direct messages',
+    everyone: language === 'ar' ? 'الجميع' : 'Everyone',
+    nobody: language === 'ar' ? 'لا أحد' : 'Nobody',
+    friendsOnly: language === 'ar' ? 'الأصدقاء فقط' : 'Friends only',
+    requestsShort: language === 'ar' ? 'الطلبات' : 'Requests',
+    messagesShort: language === 'ar' ? 'الرسائل' : 'Messages',
+    searchPlaceholder: language === 'ar' ? 'ابحث بالاسم أو اسم المستخدم أو كود PET' : 'Search by name, username, or PET code',
+    noFriends: language === 'ar' ? 'لا يوجد أصدقاء بعد' : 'No friends yet',
+    noIncoming: language === 'ar' ? 'لا توجد طلبات واردة' : 'No incoming requests',
+    noBlocked: language === 'ar' ? 'لا يوجد مستخدمون محظورون' : 'No blocked users',
+    searchToAdd: language === 'ar' ? 'ابحث عن مستخدمين لإضافة أصدقاء' : 'Search users to add friends',
+    outgoingRequests: language === 'ar' ? 'الطلبات الصادرة' : 'Outgoing Requests',
+    blockUser: language === 'ar' ? 'حظر المستخدم' : 'Block user',
+    blockConfirm: language === 'ar' ? 'حظر هذا المستخدم وإزالة الصداقة/الطلبات؟' : 'Block this user and remove friendship/requests?',
+    reportUser: language === 'ar' ? 'الإبلاغ عن المستخدم' : 'Report user',
+    reportConfirm: language === 'ar' ? 'الإبلاغ عن هذا الحساب بسبب إساءة؟' : 'Report this profile for abuse?',
+    unblockUser: language === 'ar' ? 'إلغاء حظر المستخدم' : 'Unblock user',
+    unblockConfirm: language === 'ar' ? 'إلغاء حظر هذا المستخدم؟' : 'Unblock this user?',
+    cancel: language === 'ar' ? 'إلغاء' : 'Cancel',
+    block: language === 'ar' ? 'حظر' : 'Block',
+    report: language === 'ar' ? 'إبلاغ' : 'Report',
+    userFallback: language === 'ar' ? 'مستخدم' : 'user',
+  };
   const [tab, setTab] = useState<'friends' | 'requests' | 'find' | 'blocked'>('friends');
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -108,9 +147,9 @@ export default function FriendsScreen() {
   };
 
   const blockUser = (userId: string) => {
-    Alert.alert('Block user', 'Block this user and remove friendship/requests?', [
-      { text: 'Cancel', style: 'cancel' },
-      { text: 'Block', style: 'destructive', onPress: async () => {
+    Alert.alert(L.blockUser, L.blockConfirm, [
+      { text: L.cancel, style: 'cancel' },
+      { text: L.block, style: 'destructive', onPress: async () => {
         try {
           await friendsAPI.blockUser(userId);
           await load();
@@ -123,9 +162,9 @@ export default function FriendsScreen() {
   };
 
   const reportUser = (userId: string) => {
-    Alert.alert('Report user', 'Report this profile for abuse?', [
-      { text: 'Cancel', style: 'cancel' },
-      { text: 'Report', style: 'destructive', onPress: async () => {
+    Alert.alert(L.reportUser, L.reportConfirm, [
+      { text: L.cancel, style: 'cancel' },
+      { text: L.report, style: 'destructive', onPress: async () => {
         try {
           await friendsAPI.reportUser(userId, 'abuse', 'Reported from friends flow');
         } catch (e) {
@@ -136,9 +175,9 @@ export default function FriendsScreen() {
   };
 
   const unblockUser = (userId: string) => {
-    Alert.alert('Unblock user', 'Unblock this user?', [
-      { text: 'Cancel', style: 'cancel' },
-      { text: 'Unblock', onPress: async () => {
+    Alert.alert(L.unblockUser, L.unblockConfirm, [
+      { text: L.cancel, style: 'cancel' },
+      { text: L.unblock, onPress: async () => {
         try {
           await friendsAPI.unblockUser(userId);
           await load();
@@ -152,13 +191,13 @@ export default function FriendsScreen() {
   const renderFriend = ({ item }: { item: FriendUser }) => (
     <View style={styles.card}>
       <View style={{ flex: 1 }}>
-        <Text style={styles.name}>{item.name}</Text>
-        <Text style={styles.meta}>@{item.username || 'user'} • {item.user_code || item.id?.slice(0, 8)}</Text>
-        <Text style={styles.meta}>{item.mutual_count || 0} mutual friends</Text>
+        <Text style={[styles.name, isRTL && styles.rtlText]}>{item.name}</Text>
+        <Text style={[styles.meta, isRTL && styles.rtlText]}>@{item.username || L.userFallback} • {item.user_code || item.id?.slice(0, 8)}</Text>
+        <Text style={[styles.meta, isRTL && styles.rtlText]}>{item.mutual_count || 0} {L.mutualFriends}</Text>
       </View>
       <View style={{ gap: 8, alignItems: 'flex-end' }}>
         <TouchableOpacity style={styles.primaryBtn} onPress={() => startChat(item.id)}>
-          <Text style={styles.primaryBtnText}>Message</Text>
+          <Text style={styles.primaryBtnText}>{L.message}</Text>
         </TouchableOpacity>
         <View style={{ flexDirection: 'row', gap: 8 }}>
           <TouchableOpacity style={styles.iconAction} onPress={() => reportUser(item.id)}><Ionicons name="flag-outline" size={14} color={Colors.error} /></TouchableOpacity>
@@ -171,12 +210,12 @@ export default function FriendsScreen() {
   const renderIncoming = ({ item }: { item: FriendRequest }) => (
     <View style={styles.card}>
       <View style={{ flex: 1 }}>
-        <Text style={styles.name}>{item.user?.name}</Text>
-        <Text style={styles.meta}>@{item.user?.username || 'user'} • {item.user?.user_code || item.user?.id?.slice(0, 8)}</Text>
+        <Text style={[styles.name, isRTL && styles.rtlText]}>{item.user?.name}</Text>
+        <Text style={[styles.meta, isRTL && styles.rtlText]}>@{item.user?.username || L.userFallback} • {item.user?.user_code || item.user?.id?.slice(0, 8)}</Text>
       </View>
       <View style={{ flexDirection: 'row', gap: 8 }}>
-        <TouchableOpacity style={styles.secondaryBtn} onPress={() => review(item.id, 'reject')}><Text style={styles.secondaryBtnText}>Reject</Text></TouchableOpacity>
-        <TouchableOpacity style={styles.primaryBtn} onPress={() => review(item.id, 'accept')}><Text style={styles.primaryBtnText}>Accept</Text></TouchableOpacity>
+        <TouchableOpacity style={styles.secondaryBtn} onPress={() => review(item.id, 'reject')}><Text style={styles.secondaryBtnText}>{L.reject}</Text></TouchableOpacity>
+        <TouchableOpacity style={styles.primaryBtn} onPress={() => review(item.id, 'accept')}><Text style={styles.primaryBtnText}>{L.accept}</Text></TouchableOpacity>
       </View>
     </View>
   );
@@ -184,19 +223,19 @@ export default function FriendsScreen() {
   const renderSearch = ({ item }: { item: FriendUser }) => (
     <View style={styles.card}>
       <View style={{ flex: 1 }}>
-        <Text style={styles.name}>{item.name}</Text>
-        <Text style={styles.meta}>@{item.username || 'user'} • {item.user_code || item.id?.slice(0, 8)}</Text>
-        <Text style={styles.meta}>{item.mutual_count || 0} mutual friends</Text>
+        <Text style={[styles.name, isRTL && styles.rtlText]}>{item.name}</Text>
+        <Text style={[styles.meta, isRTL && styles.rtlText]}>@{item.username || L.userFallback} • {item.user_code || item.id?.slice(0, 8)}</Text>
+        <Text style={[styles.meta, isRTL && styles.rtlText]}>{item.mutual_count || 0} {L.mutualFriends}</Text>
       </View>
       <View style={{ gap: 8, alignItems: 'flex-end' }}>
         {item.friendship_status === 'friends' ? (
-          <TouchableOpacity style={styles.primaryBtn} onPress={() => startChat(item.id)}><Text style={styles.primaryBtnText}>Message</Text></TouchableOpacity>
+          <TouchableOpacity style={styles.primaryBtn} onPress={() => startChat(item.id)}><Text style={styles.primaryBtnText}>{L.message}</Text></TouchableOpacity>
         ) : item.friendship_status === 'incoming_pending' ? (
-          <Text style={styles.pending}>Requested you</Text>
+          <Text style={styles.pending}>{L.requestedYou}</Text>
         ) : item.friendship_status === 'outgoing_pending' ? (
-          <Text style={styles.pending}>Pending</Text>
+          <Text style={styles.pending}>{L.pending}</Text>
         ) : (
-          <TouchableOpacity style={styles.primaryBtn} onPress={() => sendRequest(item.id)}><Text style={styles.primaryBtnText}>Add Friend</Text></TouchableOpacity>
+          <TouchableOpacity style={styles.primaryBtn} onPress={() => sendRequest(item.id)}><Text style={styles.primaryBtnText}>{L.addFriend}</Text></TouchableOpacity>
         )}
         <View style={{ flexDirection: 'row', gap: 8 }}>
           <TouchableOpacity style={styles.iconAction} onPress={() => reportUser(item.id)}><Ionicons name="flag-outline" size={14} color={Colors.error} /></TouchableOpacity>
@@ -209,11 +248,11 @@ export default function FriendsScreen() {
   const renderBlocked = ({ item }: { item: FriendUser }) => (
     <View style={styles.card}>
       <View style={{ flex: 1 }}>
-        <Text style={styles.name}>{item.name}</Text>
-        <Text style={styles.meta}>@{item.username || 'user'} • {item.user_code || item.id?.slice(0, 8)}</Text>
+        <Text style={[styles.name, isRTL && styles.rtlText]}>{item.name}</Text>
+        <Text style={[styles.meta, isRTL && styles.rtlText]}>@{item.username || L.userFallback} • {item.user_code || item.id?.slice(0, 8)}</Text>
       </View>
       <TouchableOpacity style={styles.secondaryBtn} onPress={() => unblockUser(item.id)}>
-        <Text style={styles.secondaryBtnText}>Unblock</Text>
+        <Text style={styles.secondaryBtnText}>{L.unblock}</Text>
       </TouchableOpacity>
     </View>
   );
@@ -226,14 +265,14 @@ export default function FriendsScreen() {
     <SafeAreaView style={styles.container} edges={['top']}>
       <View style={styles.header}>
         <TouchableOpacity style={styles.iconBtn} onPress={() => router.back()}><Ionicons name="chevron-back" size={22} color={Colors.text} /></TouchableOpacity>
-        <Text style={styles.title}>Friends</Text>
+        <Text style={styles.title}>{L.friends}</Text>
         <View style={{ width: 36 }} />
       </View>
 
       <View style={styles.tabsRow}>
         {['friends','requests','find','blocked'].map((key) => (
           <TouchableOpacity key={key} style={[styles.tabChip, tab === key && styles.tabChipActive]} onPress={() => setTab(key as any)}>
-            <Text style={[styles.tabText, tab === key && styles.tabTextActive]}>{key === 'friends' ? 'Friends' : key === 'requests' ? `Requests (${incoming.length})` : key === 'blocked' ? `Blocked (${blockedUsers.length})` : 'Find Users'}</Text>
+            <Text style={[styles.tabText, tab === key && styles.tabTextActive]}>{key === 'friends' ? L.friends : key === 'requests' ? `${L.requests} (${incoming.length})` : key === 'blocked' ? `${L.blocked} (${blockedUsers.length})` : L.findUsers}</Text>
           </TouchableOpacity>
         ))}
       </View>
@@ -241,15 +280,15 @@ export default function FriendsScreen() {
       <View style={styles.privacyRow}>
         <Ionicons name="shield-checkmark-outline" size={16} color={Colors.textSecondary} />
         <View style={{ flex: 1 }}>
-          <Text style={styles.privacyText}>Friend requests: {allowFriendRequests === 'everyone' ? 'Everyone' : 'Nobody'}</Text>
-          <Text style={styles.privacyText}>Direct messages: {allowDirectMessages === 'everyone' ? 'Everyone' : 'Friends only'}</Text>
+          <Text style={[styles.privacyText, isRTL && styles.rtlText]}>{L.friendRequests}: {allowFriendRequests === 'everyone' ? L.everyone : L.nobody}</Text>
+          <Text style={[styles.privacyText, isRTL && styles.rtlText]}>{L.directMessages}: {allowDirectMessages === 'everyone' ? L.everyone : L.friendsOnly}</Text>
         </View>
         <View style={{ gap: 6 }}>
           <TouchableOpacity style={styles.secondaryBtn} onPress={togglePrivacy}>
-            <Text style={styles.secondaryBtnText}>Requests</Text>
+            <Text style={styles.secondaryBtnText}>{L.requestsShort}</Text>
           </TouchableOpacity>
           <TouchableOpacity style={styles.secondaryBtn} onPress={toggleMessagePrivacy}>
-            <Text style={styles.secondaryBtnText}>Messages</Text>
+            <Text style={styles.secondaryBtnText}>{L.messagesShort}</Text>
           </TouchableOpacity>
         </View>
       </View>
@@ -257,7 +296,7 @@ export default function FriendsScreen() {
       {tab === 'find' && (
         <View style={styles.searchWrap}>
           <Ionicons name="search" size={18} color={Colors.textSecondary} />
-          <TextInput style={styles.searchInput} placeholder="Search by name, username, or PET code" value={query} onChangeText={doSearch} />
+          <TextInput style={[styles.searchInput, isRTL && styles.rtlText]} placeholder={L.searchPlaceholder} value={query} onChangeText={doSearch} />
         </View>
       )}
 
@@ -266,12 +305,12 @@ export default function FriendsScreen() {
         data={tab === 'friends' ? friends : tab === 'requests' ? incoming : tab === 'blocked' ? blockedUsers : searchResult}
         keyExtractor={(item: any) => item.id}
         contentContainerStyle={(tab === 'requests' ? incoming.length : (tab === 'friends' ? friends.length : tab === 'blocked' ? blockedUsers.length : searchResult.length)) === 0 ? styles.center : styles.list}
-        ListEmptyComponent={<Text style={styles.emptyText}>{tab === 'friends' ? 'No friends yet' : tab === 'requests' ? 'No incoming requests' : tab === 'blocked' ? 'No blocked users' : 'Search users to add friends'}</Text>}
+        ListEmptyComponent={<Text style={styles.emptyText}>{tab === 'friends' ? L.noFriends : tab === 'requests' ? L.noIncoming : tab === 'blocked' ? L.noBlocked : L.searchToAdd}</Text>}
         renderItem={tab === 'friends' ? renderFriend : tab === 'requests' ? renderIncoming : tab === 'blocked' ? renderBlocked : renderSearch}
         ListHeaderComponent={tab === 'requests' && outgoing.length > 0 ? (
           <View style={styles.outgoingBox}>
-            <Text style={styles.outgoingTitle}>Outgoing Requests</Text>
-            {outgoing.map((r) => <Text key={r.id} style={styles.outgoingItem}>• {r.user?.name} (@{r.user?.username || 'user'})</Text>)}
+            <Text style={[styles.outgoingTitle, isRTL && styles.rtlText]}>{L.outgoingRequests}</Text>
+            {outgoing.map((r) => <Text key={r.id} style={[styles.outgoingItem, isRTL && styles.rtlText]}>• {r.user?.name} (@{r.user?.username || L.userFallback})</Text>)}
           </View>
         ) : null}
       />
@@ -308,4 +347,5 @@ const styles = StyleSheet.create({
   outgoingBox: { marginHorizontal: Spacing.md, backgroundColor: Colors.white, borderRadius: BorderRadius.lg, padding: Spacing.md, marginBottom: 8, borderWidth: 1, borderColor: Colors.border },
   outgoingTitle: { fontWeight: '700', color: Colors.text, marginBottom: 6 },
   outgoingItem: { color: Colors.textSecondary, fontSize: 12, marginBottom: 2 },
+  rtlText: { textAlign: 'right' },
 });

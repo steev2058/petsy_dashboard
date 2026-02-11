@@ -14,6 +14,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { Colors, FontSize, Spacing, BorderRadius, Shadow } from '../../src/constants/theme';
 import api from '../../src/services/api';
+import { useTranslation } from '../../src/hooks/useTranslation';
 
 type AuditLog = {
   id: string;
@@ -30,6 +31,22 @@ const ACTION_FILTERS = ['all', 'review_friend_report', 'review_role_request', 'b
 
 export default function AdminAuditLogsScreen() {
   const router = useRouter();
+  const { language, isRTL } = useTranslation();
+  const L = {
+    title: language === 'ar' ? 'سجلات التدقيق الإدارية' : 'Admin Audit Logs',
+    all: language === 'ar' ? 'الكل' : 'All',
+    search: language === 'ar' ? 'ابحث في الإجراء أو بريد المشرف أو الهدف...' : 'Search action, admin email, target...',
+    from: language === 'ar' ? 'من YYYY-MM-DD' : 'From YYYY-MM-DD',
+    to: language === 'ar' ? 'إلى YYYY-MM-DD' : 'To YYYY-MM-DD',
+    apply: language === 'ar' ? 'تطبيق' : 'Apply',
+    clear: language === 'ar' ? 'مسح' : 'Clear',
+    showing: language === 'ar' ? 'عرض حتى' : 'Showing up to',
+    loadMore: language === 'ar' ? 'تحميل المزيد' : 'Load more',
+    noLogs: language === 'ar' ? 'لا توجد سجلات تدقيق' : 'No audit logs found',
+    admin: language === 'ar' ? 'المشرف' : 'Admin',
+    target: language === 'ar' ? 'الهدف' : 'Target',
+    unknown: language === 'ar' ? 'غير معروف' : 'unknown',
+  };
   const [items, setItems] = useState<AuditLog[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -86,7 +103,7 @@ export default function AdminAuditLogsScreen() {
         <TouchableOpacity style={styles.iconBtn} onPress={() => router.back()}>
           <Ionicons name="chevron-back" size={22} color={Colors.text} />
         </TouchableOpacity>
-        <Text style={styles.title}>Admin Audit Logs</Text>
+        <Text style={[styles.title, isRTL && styles.rtlText]}>{L.title}</Text>
         <TouchableOpacity style={styles.iconBtn} onPress={onRefresh}>
           <Ionicons name="refresh" size={18} color={Colors.text} />
         </TouchableOpacity>
@@ -99,7 +116,7 @@ export default function AdminAuditLogsScreen() {
             style={[styles.filterChip, filter === f && styles.filterChipActive]}
             onPress={() => setFilter(f)}
           >
-            <Text style={[styles.filterText, filter === f && styles.filterTextActive]}>{f === 'all' ? 'All' : f.replaceAll('_', ' ')}</Text>
+            <Text style={[styles.filterText, filter === f && styles.filterTextActive]}>{f === 'all' ? L.all : f.replaceAll('_', ' ')}</Text>
           </TouchableOpacity>
         ))}
       </View>
@@ -108,7 +125,7 @@ export default function AdminAuditLogsScreen() {
         <TextInput
           value={query}
           onChangeText={setQuery}
-          placeholder="Search action, admin email, target..."
+          placeholder={L.search}
           placeholderTextColor={Colors.textLight}
           style={styles.searchInput}
           autoCapitalize="none"
@@ -117,7 +134,7 @@ export default function AdminAuditLogsScreen() {
           <TextInput
             value={fromDate}
             onChangeText={setFromDate}
-            placeholder="From YYYY-MM-DD"
+            placeholder={L.from}
             placeholderTextColor={Colors.textLight}
             style={styles.dateInput}
             autoCapitalize="none"
@@ -125,7 +142,7 @@ export default function AdminAuditLogsScreen() {
           <TextInput
             value={toDate}
             onChangeText={setToDate}
-            placeholder="To YYYY-MM-DD"
+            placeholder={L.to}
             placeholderTextColor={Colors.textLight}
             style={styles.dateInput}
             autoCapitalize="none"
@@ -133,7 +150,7 @@ export default function AdminAuditLogsScreen() {
         </View>
         <View style={styles.queryActions}>
           <TouchableOpacity style={styles.applyBtn} onPress={load}>
-            <Text style={styles.applyBtnText}>Apply</Text>
+            <Text style={styles.applyBtnText}>{L.apply}</Text>
           </TouchableOpacity>
           <TouchableOpacity
             style={styles.clearBtn}
@@ -144,15 +161,15 @@ export default function AdminAuditLogsScreen() {
               setTimeout(() => load(), 0);
             }}
           >
-            <Text style={styles.clearBtnText}>Clear</Text>
+            <Text style={styles.clearBtnText}>{L.clear}</Text>
           </TouchableOpacity>
         </View>
       </View>
 
       <View style={styles.limitRow}>
-        <Text style={styles.limitText}>Showing up to {limit} logs</Text>
+        <Text style={[styles.limitText, isRTL && styles.rtlText]}>{L.showing} {limit} {language === 'ar' ? 'سجل' : 'logs'}</Text>
         <TouchableOpacity style={styles.moreBtn} onPress={() => setLimit((v) => Math.min(v + 200, 1000))}>
-          <Text style={styles.moreBtnText}>Load more</Text>
+          <Text style={styles.moreBtnText}>{L.loadMore}</Text>
         </TouchableOpacity>
       </View>
 
@@ -161,16 +178,16 @@ export default function AdminAuditLogsScreen() {
         keyExtractor={(item) => item.id}
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={[Colors.primary]} />}
         contentContainerStyle={filteredItems.length === 0 ? styles.center : styles.list}
-        ListEmptyComponent={<Text style={styles.empty}>No audit logs found</Text>}
+        ListEmptyComponent={<Text style={[styles.empty, isRTL && styles.rtlText]}>{L.noLogs}</Text>}
         renderItem={({ item }) => (
           <View style={[styles.card, Shadow.small]}>
             <View style={styles.rowBetween}>
-              <Text style={styles.action}>{(item.action || 'unknown').replaceAll('_', ' ')}</Text>
+              <Text style={[styles.action, isRTL && styles.rtlText]}>{(item.action || L.unknown).replaceAll('_', ' ')}</Text>
               <Text style={styles.time}>{item.created_at ? new Date(item.created_at).toLocaleString() : '—'}</Text>
             </View>
-            <Text style={styles.meta}>Admin: {item.admin_email || item.admin_user_id || '—'}</Text>
-            <Text style={styles.meta}>Target: {item.target_type || '—'} {item.target_id ? `(${item.target_id})` : ''}</Text>
-            <Text style={styles.payload}>{renderPayload(item.payload)}</Text>
+            <Text style={[styles.meta, isRTL && styles.rtlText]}>{L.admin}: {item.admin_email || item.admin_user_id || '—'}</Text>
+            <Text style={[styles.meta, isRTL && styles.rtlText]}>{L.target}: {item.target_type || '—'} {item.target_id ? `(${item.target_id})` : ''}</Text>
+            <Text style={[styles.payload, isRTL && styles.rtlText]}>{renderPayload(item.payload)}</Text>
           </View>
         )}
       />
@@ -284,4 +301,5 @@ const styles = StyleSheet.create({
   time: { color: Colors.textSecondary, fontSize: 11 },
   meta: { color: Colors.textSecondary, fontSize: 12, marginTop: 4 },
   payload: { color: Colors.text, marginTop: 8, fontSize: 12 },
+  rtlText: { textAlign: 'right' },
 });

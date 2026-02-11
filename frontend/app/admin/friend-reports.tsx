@@ -5,6 +5,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Colors, FontSize, Spacing, BorderRadius, Shadow } from '../../src/constants/theme';
 import api from '../../src/services/api';
+import { useTranslation } from '../../src/hooks/useTranslation';
 
 type FriendReport = {
   id: string;
@@ -18,6 +19,25 @@ type FriendReport = {
 
 export default function AdminFriendReportsScreen() {
   const router = useRouter();
+  const { language, isRTL } = useTranslation();
+  const L = {
+    title: language === 'ar' ? 'بلاغات الأصدقاء' : 'Friend Reports',
+    noReports: language === 'ar' ? 'لا توجد بلاغات' : 'No reports found',
+    reason: language === 'ar' ? 'السبب' : 'Reason',
+    reporter: language === 'ar' ? 'المبلّغ' : 'Reporter',
+    target: language === 'ar' ? 'المستهدف' : 'Target',
+    na: language === 'ar' ? 'غير متاح' : 'n/a',
+    open: language === 'ar' ? 'مفتوح' : 'open',
+    cancel: language === 'ar' ? 'إلغاء' : 'Cancel',
+    confirm: language === 'ar' ? 'تأكيد' : 'Confirm',
+    resolve: language === 'ar' ? 'حلّ' : 'Resolve',
+    blockTarget: language === 'ar' ? 'حظر المستهدف' : 'Block Target',
+    reject: language === 'ar' ? 'رفض' : 'Reject',
+    resolveTitle: language === 'ar' ? 'حل البلاغ' : 'Resolve report',
+    blockTitle: language === 'ar' ? 'حظر المستهدف للمبلّغ' : 'Block target for reporter',
+    rejectTitle: language === 'ar' ? 'رفض البلاغ' : 'Reject report',
+    applyAction: language === 'ar' ? 'تطبيق الإجراء' : 'Apply action',
+  };
   const params = useLocalSearchParams<{ target_user_id?: string; status?: string }>();
   const [items, setItems] = useState<FriendReport[]>([]);
   const [loading, setLoading] = useState(true);
@@ -49,9 +69,9 @@ export default function AdminFriendReportsScreen() {
   };
 
   const confirmAction = (id: string, action: 'resolve' | 'reject' | 'block_target', title: string) => {
-    Alert.alert(title, `Apply action: ${action.replace('_', ' ')} ?`, [
-      { text: 'Cancel', style: 'cancel' },
-      { text: 'Confirm', style: action === 'reject' ? 'destructive' : 'default', onPress: () => review(id, action) }
+    Alert.alert(title, `${L.applyAction}: ${action.replace('_', ' ')} ?`, [
+      { text: L.cancel, style: 'cancel' },
+      { text: L.confirm, style: action === 'reject' ? 'destructive' : 'default', onPress: () => review(id, action) }
     ]);
   };
 
@@ -67,7 +87,7 @@ export default function AdminFriendReportsScreen() {
     <SafeAreaView style={styles.container} edges={['top']}>
       <View style={styles.header}>
         <TouchableOpacity style={styles.iconBtn} onPress={() => router.back()}><Ionicons name="chevron-back" size={22} color={Colors.text} /></TouchableOpacity>
-        <Text style={styles.title}>Friend Reports</Text>
+        <Text style={[styles.title, isRTL && styles.rtlText]}>{L.title}</Text>
         <View style={{ width: 36 }} />
       </View>
 
@@ -76,28 +96,28 @@ export default function AdminFriendReportsScreen() {
         keyExtractor={(item) => item.id}
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={[Colors.primary]} />}
         contentContainerStyle={items.length === 0 ? styles.center : styles.list}
-        ListEmptyComponent={<Text style={styles.empty}>No reports found</Text>}
+        ListEmptyComponent={<Text style={[styles.empty, isRTL && styles.rtlText]}>{L.noReports}</Text>}
         renderItem={({ item }) => (
           <View style={[styles.card, Shadow.small]}>
             <View style={styles.rowBetween}>
-              <Text style={styles.cardTitle}>Reason: {item.reason || 'n/a'}</Text>
-              <Text style={[styles.status, item.status === 'open' ? styles.open : styles.closed]}>{item.status || 'open'}</Text>
+              <Text style={[styles.cardTitle, isRTL && styles.rtlText]}>{L.reason}: {item.reason || L.na}</Text>
+              <Text style={[styles.status, item.status === 'open' ? styles.open : styles.closed]}>{item.status || L.open}</Text>
             </View>
-            <Text style={styles.meta}>Reporter: {item.reported_by?.name} ({item.reported_by?.email || 'n/a'})</Text>
-            <Text style={styles.meta}>Target: {item.target_user?.name} ({item.target_user?.email || 'n/a'})</Text>
-            {!!item.notes && <Text style={styles.notes}>{item.notes}</Text>}
+            <Text style={[styles.meta, isRTL && styles.rtlText]}>{L.reporter}: {item.reported_by?.name} ({item.reported_by?.email || L.na})</Text>
+            <Text style={[styles.meta, isRTL && styles.rtlText]}>{L.target}: {item.target_user?.name} ({item.target_user?.email || L.na})</Text>
+            {!!item.notes && <Text style={[styles.notes, isRTL && styles.rtlText]}>{item.notes}</Text>}
             {!!item.created_at && <Text style={styles.time}>{new Date(item.created_at).toLocaleString()}</Text>}
 
             {item.status === 'open' ? (
               <View style={styles.actions}>
-                <TouchableOpacity style={styles.actionBtn} onPress={() => confirmAction(item.id, 'resolve', 'Resolve report')}>
-                  <Text style={styles.actionText}>Resolve</Text>
+                <TouchableOpacity style={styles.actionBtn} onPress={() => confirmAction(item.id, 'resolve', L.resolveTitle)}>
+                  <Text style={styles.actionText}>{L.resolve}</Text>
                 </TouchableOpacity>
-                <TouchableOpacity style={[styles.actionBtn, styles.warnBtn]} onPress={() => confirmAction(item.id, 'block_target', 'Block target for reporter')}>
-                  <Text style={styles.warnText}>Block Target</Text>
+                <TouchableOpacity style={[styles.actionBtn, styles.warnBtn]} onPress={() => confirmAction(item.id, 'block_target', L.blockTitle)}>
+                  <Text style={styles.warnText}>{L.blockTarget}</Text>
                 </TouchableOpacity>
-                <TouchableOpacity style={[styles.actionBtn, styles.rejectBtn]} onPress={() => confirmAction(item.id, 'reject', 'Reject report')}>
-                  <Text style={styles.rejectText}>Reject</Text>
+                <TouchableOpacity style={[styles.actionBtn, styles.rejectBtn]} onPress={() => confirmAction(item.id, 'reject', L.rejectTitle)}>
+                  <Text style={styles.rejectText}>{L.reject}</Text>
                 </TouchableOpacity>
               </View>
             ) : null}
@@ -132,4 +152,5 @@ const styles = StyleSheet.create({
   warnText: { color: Colors.warning, fontWeight: '700', fontSize: 12 },
   rejectBtn: { backgroundColor: Colors.error + '18' },
   rejectText: { color: Colors.error, fontWeight: '700', fontSize: 12 },
+  rtlText: { textAlign: 'right' },
 });

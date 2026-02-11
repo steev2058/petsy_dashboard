@@ -5,6 +5,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { Colors, FontSize, Spacing, BorderRadius, Shadow } from '../src/constants/theme';
 import { notificationsAPI } from '../src/services/api';
+import { useTranslation } from '../src/hooks/useTranslation';
 
 type AppNotification = {
   id: string;
@@ -22,6 +23,22 @@ const PAGE_SIZE = 20;
 
 export default function NotificationsScreen() {
   const router = useRouter();
+  const { language, isRTL } = useTranslation();
+  const L = {
+    title: language === 'ar' ? 'الإشعارات' : 'Notifications',
+    all: language === 'ar' ? 'الكل' : 'All',
+    unread: language === 'ar' ? 'غير مقروء' : 'Unread',
+    care: language === 'ar' ? 'الرعاية' : 'Care',
+    roles: language === 'ar' ? 'الأدوار' : 'Roles',
+    market: language === 'ar' ? 'السوق' : 'Market',
+    admin: language === 'ar' ? 'الإدارة' : 'Admin',
+    loading: language === 'ar' ? 'جاري تحميل الإشعارات...' : 'Loading notifications...',
+    empty: language === 'ar' ? 'لا توجد إشعارات' : 'No notifications found',
+    clearTitle: language === 'ar' ? 'مسح الإشعارات' : 'Clear notifications',
+    clearBody: language === 'ar' ? 'حذف كل سجل الإشعارات؟' : 'Delete all notifications history?',
+    cancel: language === 'ar' ? 'إلغاء' : 'Cancel',
+    clearAll: language === 'ar' ? 'مسح الكل' : 'Clear All',
+  };
   const [items, setItems] = useState<AppNotification[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -35,13 +52,13 @@ export default function NotificationsScreen() {
   const liveTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   const filterMeta = useMemo(() => ([
-    { key: 'all' as FilterKey, label: 'All' },
-    { key: 'unread' as FilterKey, label: 'Unread' },
-    { key: 'care_request' as FilterKey, label: 'Care' },
-    { key: 'role_request' as FilterKey, label: 'Roles' },
-    { key: 'marketplace' as FilterKey, label: 'Market' },
-    { key: 'admin' as FilterKey, label: 'Admin' },
-  ]), []);
+    { key: 'all' as FilterKey, label: L.all },
+    { key: 'unread' as FilterKey, label: L.unread },
+    { key: 'care_request' as FilterKey, label: L.care },
+    { key: 'role_request' as FilterKey, label: L.roles },
+    { key: 'marketplace' as FilterKey, label: L.market },
+    { key: 'admin' as FilterKey, label: L.admin },
+  ]), [language]);
 
   const load = useCallback(async (opts?: { reset?: boolean; silent?: boolean }) => {
     const reset = !!opts?.reset;
@@ -147,10 +164,10 @@ export default function NotificationsScreen() {
   };
 
   const clearAll = async () => {
-    Alert.alert('Clear notifications', 'Delete all notifications history?', [
-      { text: 'Cancel', style: 'cancel' },
+    Alert.alert(L.clearTitle, L.clearBody, [
+      { text: L.cancel, style: 'cancel' },
       {
-        text: 'Clear All',
+        text: L.clearAll,
         style: 'destructive',
         onPress: async () => {
           setClearingAll(true);
@@ -175,7 +192,7 @@ export default function NotificationsScreen() {
         <TouchableOpacity style={styles.iconBtn} onPress={() => router.back()}>
           <Ionicons name="chevron-back" size={22} color={Colors.text} />
         </TouchableOpacity>
-        <Text style={styles.title}>Notifications</Text>
+        <Text style={[styles.title, isRTL && styles.rtlText]}>{L.title}</Text>
         <View style={styles.headerActions}>
           <TouchableOpacity style={styles.iconBtn} onPress={markAllRead} disabled={markingAll || clearingAll}>
             {markingAll ? <ActivityIndicator size="small" color={Colors.primary} /> : <Ionicons name="checkmark-done-outline" size={20} color={Colors.primary} />}
@@ -197,7 +214,7 @@ export default function NotificationsScreen() {
       {loading ? (
         <View style={styles.center}>
           <ActivityIndicator size="small" color={Colors.primary} />
-          <Text style={styles.emptyText}>Loading notifications...</Text>
+          <Text style={[styles.emptyText, isRTL && styles.rtlText]}>{L.loading}</Text>
         </View>
       ) : (
         <FlatList
@@ -205,17 +222,17 @@ export default function NotificationsScreen() {
           keyExtractor={(item) => item.id}
           refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={[Colors.primary]} />}
           contentContainerStyle={items.length === 0 ? styles.center : styles.list}
-          ListEmptyComponent={<Text style={styles.emptyText}>No notifications found</Text>}
+          ListEmptyComponent={<Text style={[styles.emptyText, isRTL && styles.rtlText]}>{L.empty}</Text>}
           onEndReachedThreshold={0.2}
           onEndReached={() => load({ reset: false })}
           ListFooterComponent={loadingMore ? <ActivityIndicator size="small" color={Colors.primary} /> : null}
           renderItem={({ item }) => (
             <TouchableOpacity style={[styles.card, !item.is_read && styles.unreadCard]} onPress={() => markReadAndOpen(item)}>
               <View style={styles.cardTop}>
-                <Text style={styles.cardTitle}>{item.title}</Text>
+                <Text style={[styles.cardTitle, isRTL && styles.rtlText]}>{item.title}</Text>
                 {!item.is_read && <View style={styles.dot} />}
               </View>
-              <Text style={styles.cardBody}>{item.body}</Text>
+              <Text style={[styles.cardBody, isRTL && styles.rtlText]}>{item.body}</Text>
               <View style={styles.metaRow}>
                 <Text style={styles.typeText}>{item.type}</Text>
                 {!!item.created_at && <Text style={styles.time}>{new Date(item.created_at).toLocaleString()}</Text>}
@@ -258,4 +275,5 @@ const styles = StyleSheet.create({
   typeText: { color: Colors.primary, fontSize: 11, fontWeight: '700', textTransform: 'uppercase' },
   time: { fontSize: 12, color: Colors.textSecondary },
   dot: { width: 8, height: 8, borderRadius: 4, backgroundColor: Colors.primary, marginLeft: 10 },
+  rtlText: { textAlign: 'right' },
 });
