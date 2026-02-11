@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   View,
   Text,
@@ -25,6 +25,20 @@ export default function CartScreen() {
   const router = useRouter();
   const { t } = useTranslation();
   const { cart, cartTotal, updateCartQuantity, removeFromCart, clearCart } = useStore();
+  const [promoCode, setPromoCode] = useState('');
+  const [promoDiscount, setPromoDiscount] = useState(0);
+  const [freeShippingPromo, setFreeShippingPromo] = useState(false);
+
+  useEffect(() => {
+    if (cart.length === 0) {
+      setPromoCode('');
+      setPromoDiscount(0);
+      setFreeShippingPromo(false);
+      return;
+    }
+    if (promoCode === 'SAVE10') setPromoDiscount(Number((cartTotal * 0.1).toFixed(2)));
+    if (promoCode === 'PETSY5') setPromoDiscount(Math.min(5, cartTotal));
+  }, [cartTotal, cart.length, promoCode]);
 
   const handleCheckout = () => {
     if (cart.length === 0) {
@@ -51,8 +65,49 @@ export default function CartScreen() {
     );
   };
 
-  const shippingCost = cartTotal > 50 ? 0 : 5.99;
-  const totalWithShipping = cartTotal + shippingCost;
+  const applyPromoCode = (rawCode: string) => {
+    const code = (rawCode || '').trim().toUpperCase();
+    if (!code) return;
+
+    if (code === 'SAVE10') {
+      setPromoDiscount(Number((cartTotal * 0.1).toFixed(2)));
+      setFreeShippingPromo(false);
+      setPromoCode(code);
+      Alert.alert('Promo Applied', 'SAVE10 applied (10% off).');
+      return;
+    }
+
+    if (code === 'PETSY5') {
+      setPromoDiscount(Math.min(5, cartTotal));
+      setFreeShippingPromo(false);
+      setPromoCode(code);
+      Alert.alert('Promo Applied', 'PETSY5 applied ($5 off).');
+      return;
+    }
+
+    if (code === 'FREESHIP') {
+      setPromoDiscount(0);
+      setFreeShippingPromo(true);
+      setPromoCode(code);
+      Alert.alert('Promo Applied', 'FREESHIP applied.');
+      return;
+    }
+
+    Alert.alert('Invalid Code', 'Promo code is not valid. Try: SAVE10, PETSY5, FREESHIP');
+  };
+
+  const handlePromoTap = () => {
+    if (Platform.OS === 'web') {
+      const code = typeof window !== 'undefined' ? window.prompt('Enter promo code (SAVE10, PETSY5, FREESHIP)') : '';
+      if (code) applyPromoCode(code);
+      return;
+    }
+    Alert.alert('Promo Code', 'Use one of: SAVE10, PETSY5, FREESHIP');
+  };
+
+  const discountedSubtotal = Math.max(0, Number((cartTotal - promoDiscount).toFixed(2)));
+  const shippingCost = freeShippingPromo || discountedSubtotal > 50 ? 0 : 5.99;
+  const totalWithShipping = discountedSubtotal + shippingCost;
 
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
@@ -189,7 +244,7 @@ export default function CartScreen() {
             ))}
 
             {/* Promo Code Section */}
-            <TouchableOpacity style={[styles.promoSection, Shadow.small]}>
+            <TouchableOpacity style={[styles.promoSection, Shadow.small]} onPress={handlePromoTap}>
               <Ionicons name="pricetag" size={20} color={Colors.primary} />
               <Text style={styles.promoText}>Apply Promo Code</Text>
               <Ionicons name="chevron-forward" size={20} color={Colors.textSecondary} />
@@ -205,6 +260,12 @@ export default function CartScreen() {
                 <Text style={styles.summaryLabel}>Subtotal</Text>
                 <Text style={styles.summaryValue}>${cartTotal.toFixed(2)}</Text>
               </View>
+              {(promoDiscount > 0 || promoCode) && (
+                <View style={styles.summaryRow}>
+                  <Text style={styles.summaryLabel}>Promo {promoCode ? `(${promoCode})` : ''}</Text>
+                  <Text style={[styles.summaryValue, { color: Colors.success }]}>-{promoDiscount.toFixed(2)}{freeShippingPromo && promoDiscount === 0 ? ' + Free Shipping' : ''}</Text>
+                </View>
+              )}
               <View style={styles.summaryRow}>
                 <Text style={styles.summaryLabel}>Shipping</Text>
                 {shippingCost === 0 ? (
