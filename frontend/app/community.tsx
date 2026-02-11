@@ -518,23 +518,7 @@ export default function CommunityScreen() {
         data={POST_TYPES}
         keyExtractor={(item) => item.id}
         showsHorizontalScrollIndicator={false}
-        style={[
-          styles.typeFiltersList,
-          {
-            WebkitOverflowScrolling: 'touch',
-            flexDirection: 'row',
-            flexShrink: 1,
-            overflowX: 'auto',
-            overflowY: 'hidden',
-            transform: 'translateZ(0)',
-            backgroundColor: Colors.white,
-            flexGrow: 1,
-            marginBottom: '7%',
-            marginTop: '5%',
-            overflow: 'hidden',
-            scrollbarWidth: 'none',
-          } as any,
-        ]}
+        style={styles.typeFiltersList}
         contentContainerStyle={styles.typeFilters}
         renderItem={({ item }) => (
           <TouchableOpacity
@@ -733,14 +717,15 @@ const styles = StyleSheet.create({
   typeFiltersList: {
     backgroundColor: Colors.white,
     flexGrow: 0,
-    marginTop: 8,
-    marginBottom: 8,
-    overflow: 'visible',
+    paddingTop: '5%',
+    paddingBottom: '7%',
+    borderTopWidth: 1,
+    borderTopColor: '#EEF0F3',
+    borderBottomWidth: 1,
+    borderBottomColor: '#EEF0F3',
   },
   typeFilters: {
     paddingHorizontal: Spacing.md,
-    paddingTop: '5%',
-    paddingBottom: '7%',
     alignItems: 'center',
     gap: Spacing.sm,
   },
