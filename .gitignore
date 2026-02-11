@@ -93,3 +93,8 @@ android-sdk/ -e
 # Environment files
 *.env
 *.env.*
+
+# QA secret hygiene overrides
+!*.env.example
+!**/*.env.example
+backend/.env
