@@ -1,5 +1,5 @@
-import React, { useCallback, useEffect, useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, FlatList, RefreshControl, ActivityIndicator } from 'react-native';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import { View, Text, StyleSheet, TouchableOpacity, FlatList, RefreshControl, ActivityIndicator, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
@@ -16,32 +16,79 @@ type AppNotification = {
   data?: Record<string, any>;
 };
 
+type FilterKey = 'all' | 'unread' | 'care_request' | 'role_request' | 'marketplace' | 'admin';
+
+const PAGE_SIZE = 20;
+
 export default function NotificationsScreen() {
   const router = useRouter();
   const [items, setItems] = useState<AppNotification[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
+  const [loadingMore, setLoadingMore] = useState(false);
   const [markingAll, setMarkingAll] = useState(false);
+  const [clearingAll, setClearingAll] = useState(false);
+  const [hasMore, setHasMore] = useState(true);
+  const [offset, setOffset] = useState(0);
+  const [filter, setFilter] = useState<FilterKey>('all');
 
-  const load = useCallback(async () => {
+  const filterMeta = useMemo(() => ([
+    { key: 'all' as FilterKey, label: 'All' },
+    { key: 'unread' as FilterKey, label: 'Unread' },
+    { key: 'care_request' as FilterKey, label: 'Care' },
+    { key: 'role_request' as FilterKey, label: 'Roles' },
+    { key: 'marketplace' as FilterKey, label: 'Market' },
+    { key: 'admin' as FilterKey, label: 'Admin' },
+  ]), []);
+
+  const load = useCallback(async (opts?: { reset?: boolean }) => {
+    const reset = !!opts?.reset;
+    const nextOffset = reset ? 0 : offset;
+
+    if (reset) {
+      setLoading(true);
+      setHasMore(true);
+      setOffset(0);
+    } else {
+      if (!hasMore || loadingMore) return;
+      setLoadingMore(true);
+    }
+
     try {
-      const res = await notificationsAPI.getAll({ limit: 200 });
-      setItems(res.data || []);
+      const params: any = {
+        limit: PAGE_SIZE,
+        offset: nextOffset,
+      };
+      if (filter === 'unread') params.unread_only = true;
+      if (filter !== 'all' && filter !== 'unread') params.notif_type = filter;
+
+      const res = await notificationsAPI.getAll(params);
+      const payload = res.data || {};
+      const newItems: AppNotification[] = payload.items || [];
+
+      if (reset) {
+        setItems(newItems);
+      } else {
+        setItems((prev) => [...prev, ...newItems]);
+      }
+      setHasMore(!!payload.has_more);
+      setOffset(nextOffset + newItems.length);
     } catch (e) {
       console.error('Failed to load notifications', e);
     } finally {
       setLoading(false);
       setRefreshing(false);
+      setLoadingMore(false);
     }
-  }, []);
+  }, [filter, hasMore, loadingMore, offset]);
 
   useEffect(() => {
-    load();
-  }, [load]);
+    load({ reset: true });
+  }, [filter]);
 
   const onRefresh = () => {
     setRefreshing(true);
-    load();
+    load({ reset: true });
   };
 
   const markReadAndOpen = async (item: AppNotification) => {
@@ -54,7 +101,13 @@ export default function NotificationsScreen() {
       console.error('Failed to mark notification', e);
     }
 
+    const route = item?.data?.route;
     const listingId = item?.data?.listing_id;
+
+    if (route) {
+      router.push(route as any);
+      return;
+    }
     if (listingId) {
       router.push(`/marketplace/${listingId}` as any);
       return;
@@ -73,6 +126,29 @@ export default function NotificationsScreen() {
     }
   };
 
+  const clearAll = async () => {
+    Alert.alert('Clear notifications', 'Delete all notifications history?', [
+      { text: 'Cancel', style: 'cancel' },
+      {
+        text: 'Clear All',
+        style: 'destructive',
+        onPress: async () => {
+          setClearingAll(true);
+          try {
+            await notificationsAPI.clearAll();
+            setItems([]);
+            setHasMore(false);
+            setOffset(0);
+          } catch (e) {
+            console.error('Failed to clear notifications', e);
+          } finally {
+            setClearingAll(false);
+          }
+        }
+      }
+    ]);
+  };
+
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
       <View style={styles.header}>
@@ -80,9 +156,22 @@ export default function NotificationsScreen() {
           <Ionicons name="chevron-back" size={22} color={Colors.text} />
         </TouchableOpacity>
         <Text style={styles.title}>Notifications</Text>
-        <TouchableOpacity style={styles.iconBtn} onPress={markAllRead} disabled={markingAll}>
-          {markingAll ? <ActivityIndicator size="small" color={Colors.primary} /> : <Ionicons name="checkmark-done-outline" size={20} color={Colors.primary} />}
-        </TouchableOpacity>
+        <View style={styles.headerActions}>
+          <TouchableOpacity style={styles.iconBtn} onPress={markAllRead} disabled={markingAll || clearingAll}>
+            {markingAll ? <ActivityIndicator size="small" color={Colors.primary} /> : <Ionicons name="checkmark-done-outline" size={20} color={Colors.primary} />}
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.iconBtn} onPress={clearAll} disabled={markingAll || clearingAll}>
+            {clearingAll ? <ActivityIndicator size="small" color={Colors.error} /> : <Ionicons name="trash-outline" size={20} color={Colors.error} />}
+          </TouchableOpacity>
+        </View>
+      </View>
+
+      <View style={styles.filtersRow}>
+        {filterMeta.map((f) => (
+          <TouchableOpacity key={f.key} style={[styles.filterChip, filter === f.key && styles.filterChipActive]} onPress={() => setFilter(f.key)}>
+            <Text style={[styles.filterText, filter === f.key && styles.filterTextActive]}>{f.label}</Text>
+          </TouchableOpacity>
+        ))}
       </View>
 
       {loading ? (
@@ -96,7 +185,10 @@ export default function NotificationsScreen() {
           keyExtractor={(item) => item.id}
           refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={[Colors.primary]} />}
           contentContainerStyle={items.length === 0 ? styles.center : styles.list}
-          ListEmptyComponent={<Text style={styles.emptyText}>No notifications yet</Text>}
+          ListEmptyComponent={<Text style={styles.emptyText}>No notifications found</Text>}
+          onEndReachedThreshold={0.2}
+          onEndReached={() => load({ reset: false })}
+          ListFooterComponent={loadingMore ? <ActivityIndicator size="small" color={Colors.primary} /> : null}
           renderItem={({ item }) => (
             <TouchableOpacity style={[styles.card, !item.is_read && styles.unreadCard]} onPress={() => markReadAndOpen(item)}>
               <View style={styles.cardTop}>
@@ -104,7 +196,10 @@ export default function NotificationsScreen() {
                 {!item.is_read && <View style={styles.dot} />}
               </View>
               <Text style={styles.cardBody}>{item.body}</Text>
-              {!!item.created_at && <Text style={styles.time}>{new Date(item.created_at).toLocaleString()}</Text>}
+              <View style={styles.metaRow}>
+                <Text style={styles.typeText}>{item.type}</Text>
+                {!!item.created_at && <Text style={styles.time}>{new Date(item.created_at).toLocaleString()}</Text>}
+              </View>
             </TouchableOpacity>
           )}
         />
@@ -116,45 +211,31 @@ export default function NotificationsScreen() {
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: Colors.background },
   header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: Spacing.md,
-    paddingVertical: Spacing.sm,
-    backgroundColor: Colors.white,
-    borderBottomWidth: 1,
-    borderBottomColor: Colors.border,
+    flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
+    paddingHorizontal: Spacing.md, paddingVertical: Spacing.sm,
+    backgroundColor: Colors.white, borderBottomWidth: 1, borderBottomColor: Colors.border,
   },
+  headerActions: { flexDirection: 'row', gap: 8 },
   iconBtn: {
-    width: 36,
-    height: 36,
-    borderRadius: BorderRadius.md,
-    backgroundColor: Colors.backgroundDark,
-    alignItems: 'center',
-    justifyContent: 'center',
+    width: 36, height: 36, borderRadius: BorderRadius.md, backgroundColor: Colors.backgroundDark,
+    alignItems: 'center', justifyContent: 'center',
   },
   title: { fontSize: FontSize.xl, fontWeight: '800', color: Colors.text },
+  filtersRow: { flexDirection: 'row', paddingHorizontal: Spacing.md, paddingVertical: Spacing.sm, gap: 8, flexWrap: 'wrap' },
+  filterChip: { paddingHorizontal: 12, paddingVertical: 7, borderRadius: 999, borderWidth: 1, borderColor: Colors.border, backgroundColor: Colors.white },
+  filterChipActive: { borderColor: Colors.primary, backgroundColor: Colors.primary + '18' },
+  filterText: { color: Colors.textSecondary, fontSize: 12, fontWeight: '600' },
+  filterTextActive: { color: Colors.primary },
   list: { padding: Spacing.md, gap: Spacing.sm, paddingBottom: 120 },
   center: { flex: 1, justifyContent: 'center', alignItems: 'center', gap: 8 },
   emptyText: { color: Colors.textSecondary, fontSize: FontSize.md },
-  card: {
-    backgroundColor: Colors.white,
-    borderRadius: BorderRadius.lg,
-    padding: Spacing.md,
-    ...Shadow.small,
-  },
-  unreadCard: {
-    borderWidth: 1,
-    borderColor: Colors.primary + '44',
-  },
-  cardTop: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 4,
-  },
+  card: { backgroundColor: Colors.white, borderRadius: BorderRadius.lg, padding: Spacing.md, ...Shadow.small },
+  unreadCard: { borderWidth: 1, borderColor: Colors.primary + '44' },
+  cardTop: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 },
   cardTitle: { fontSize: FontSize.md, fontWeight: '700', color: Colors.text, flex: 1 },
   cardBody: { fontSize: FontSize.sm, color: Colors.textSecondary, lineHeight: 19 },
-  time: { marginTop: 8, fontSize: 12, color: Colors.textSecondary },
+  metaRow: { marginTop: 8, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
+  typeText: { color: Colors.primary, fontSize: 11, fontWeight: '700', textTransform: 'uppercase' },
+  time: { fontSize: 12, color: Colors.textSecondary },
   dot: { width: 8, height: 8, borderRadius: 4, backgroundColor: Colors.primary, marginLeft: 10 },
 });

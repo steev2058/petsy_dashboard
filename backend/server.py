@@ -960,14 +960,28 @@ async def update_user_settings(data: dict, current_user: dict = Depends(get_curr
 @api_router.get('/notifications')
 async def get_my_notifications(
     unread_only: bool = False,
-    limit: int = 100,
+    notif_type: Optional[str] = None,
+    limit: int = 20,
+    offset: int = 0,
     current_user: dict = Depends(get_current_user)
 ):
     query: dict = {"user_id": current_user["id"]}
     if unread_only:
         query["is_read"] = False
-    rows = await db.notifications.find(query).sort("created_at", -1).limit(max(1, min(limit, 300))).to_list(300)
-    return [{k: v for k, v in row.items() if k != "_id"} for row in rows]
+    if notif_type and notif_type != "all":
+        query["type"] = notif_type
+
+    safe_limit = max(1, min(limit, 100))
+    safe_offset = max(0, offset)
+    rows = await db.notifications.find(query).sort("created_at", -1).skip(safe_offset).limit(safe_limit).to_list(safe_limit)
+    total = await db.notifications.count_documents(query)
+    return {
+        "items": [{k: v for k, v in row.items() if k != "_id"} for row in rows],
+        "total": total,
+        "limit": safe_limit,
+        "offset": safe_offset,
+        "has_more": safe_offset + len(rows) < total,
+    }
 
 @api_router.get('/notifications/unread-count')
 async def get_unread_notifications_count(current_user: dict = Depends(get_current_user)):
@@ -988,6 +1002,11 @@ async def mark_all_notifications_read(current_user: dict = Depends(get_current_u
         {"user_id": current_user["id"], "is_read": False},
         {"$set": {"is_read": True, "updated_at": datetime.utcnow()}},
     )
+    return {"success": True}
+
+@api_router.delete('/notifications/clear-all')
+async def clear_all_notifications(current_user: dict = Depends(get_current_user)):
+    await db.notifications.delete_many({"user_id": current_user["id"]})
     return {"success": True}
 
 # ========================= PET ROUTES =========================
@@ -2113,7 +2132,7 @@ async def create_care_request(data: dict, current_user: dict = Depends(get_curre
         "New care request",
         f"{current_user.get('name', 'User')} submitted a care request.",
         "care_request",
-        {"request_id": row["id"]}
+        {"request_id": row["id"], "route": "/clinic-care-management"}
     )
     return {k: v for k, v in row.items() if k != "_id"}
 
@@ -2202,7 +2221,7 @@ async def update_vet_care_request(request_id: str, data: dict, current_user: dic
             "Care request updated",
             f"Your care request is now {row.get('status', 'updated')}.",
             "care_request",
-            {"request_id": request_id, "status": row.get("status")}
+            {"request_id": request_id, "status": row.get("status"), "route": "/clinic-care-management"}
         )
     return {k: v for k, v in row.items() if k != "_id"} if row else {"success": True}
 
@@ -2257,7 +2276,7 @@ async def update_clinic_care_request(request_id: str, data: dict, current_user: 
             "Clinic updated your care request",
             f"Clinic updated your request to {row.get('status', 'updated')}.",
             "care_request",
-            {"request_id": request_id, "status": row.get("status")}
+            {"request_id": request_id, "status": row.get("status"), "route": "/clinic-care-management"}
         )
         if row.get("assigned_vet_id"):
             await create_notification(
@@ -2265,7 +2284,7 @@ async def update_clinic_care_request(request_id: str, data: dict, current_user: 
                 "Assigned to care request",
                 "A clinic assigned you to a care request.",
                 "care_request",
-                {"request_id": request_id}
+                {"request_id": request_id, "route": "/vet-care-requests"}
             )
     return {k: v for k, v in row.items() if k != "_id"} if row else {"success": True}
 
@@ -3056,7 +3075,7 @@ async def set_marketplace_listing_status_admin(listing_id: str, data: dict, admi
             "Marketplace listing update",
             f"Your listing status is now {status}.",
             "marketplace",
-            {"listing_id": listing_id, "status": status}
+            {"listing_id": listing_id, "status": status, "route": "/my-marketplace-listings"}
         )
     return {"success": True}
 
@@ -3090,7 +3109,7 @@ async def create_role_request(data: dict, current_user: dict = Depends(get_curre
         "New role request",
         f"{current_user.get('name', 'User')} requested role: {target_role}",
         "role_request",
-        {"request_id": row["id"], "target_role": target_role}
+        {"request_id": row["id"], "target_role": target_role, "route": "/admin/role-requests"}
     )
     return {k: v for k, v in row.items() if k != "_id"}
 
@@ -3131,7 +3150,7 @@ async def handle_role_request_admin(request_id: str, data: dict, admin_user: dic
         "Role request update",
         f"Your request for {req.get('target_role')} was {new_status}.",
         "role_request",
-        {"request_id": request_id, "status": new_status, "target_role": req.get("target_role")}
+        {"request_id": request_id, "status": new_status, "target_role": req.get("target_role"), "route": "/my-role-requests"}
     )
     return {"success": True}
 

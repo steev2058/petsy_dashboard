@@ -252,10 +252,11 @@ export const settingsAPI = {
 };
 
 export const notificationsAPI = {
-  getAll: (params?: { unread_only?: boolean; limit?: number }) => api.get('/notifications', { params }),
+  getAll: (params?: { unread_only?: boolean; notif_type?: string; limit?: number; offset?: number }) => api.get('/notifications', { params }),
   getUnreadCount: () => api.get('/notifications/unread-count'),
   markRead: (id: string) => api.put(`/notifications/${id}/read`),
   markAllRead: () => api.put('/notifications/read-all'),
+  clearAll: () => api.delete('/notifications/clear-all'),
 };
 
 // AI API
