@@ -2,6 +2,17 @@ import { create } from 'zustand';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Language } from '../i18n/translations';
 
+const BACKEND_URL = process.env.EXPO_PUBLIC_BACKEND_URL || '';
+
+const resolveBackendUrl = () => {
+  if (BACKEND_URL) return BACKEND_URL;
+  if (typeof window !== 'undefined' && window.location) {
+    const { protocol, hostname } = window.location;
+    return `${protocol}//${hostname}:8000`;
+  }
+  return '';
+};
+
 interface User {
   id: string;
   email: string;
@@ -133,12 +144,39 @@ export const useStore = create<AppState>((set, get) => ({
       const cartData = await AsyncStorage.getItem('cart');
       const cart = cartData ? JSON.parse(cartData) : [];
       const cartTotal = cart.reduce((sum: number, item: CartItem) => sum + item.price * item.quantity, 0);
-      
-      if (token) {
-        set({ token, language, isLoading: false, cart, cartTotal });
-      } else {
-        set({ language, isLoading: false, cart, cartTotal });
+
+      if (!token) {
+        set({ language, isLoading: false, cart, cartTotal, user: null, isAuthenticated: false, token: null });
+        return;
       }
+
+      // Keep token during boot, then validate session and restore user profile.
+      set({ token, language, cart, cartTotal });
+
+      try {
+        const backendUrl = resolveBackendUrl();
+        const res = await fetch(`${backendUrl}/api/auth/me`, {
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        if (res.ok) {
+          const contentType = res.headers.get('content-type') || '';
+          if (contentType.includes('application/json')) {
+            const user = await res.json();
+            set({ user, isAuthenticated: true, isLoading: false, token, language, cart, cartTotal });
+            return;
+          }
+        }
+      } catch (authError) {
+        console.error('Stored auth validation failed:', authError);
+      }
+
+      // Invalid/expired token fallback
+      await AsyncStorage.removeItem('auth_token');
+      set({ user: null, token: null, isAuthenticated: false, isLoading: false, language, cart, cartTotal });
     } catch (error) {
       console.error('Error loading stored auth:', error);
       set({ isLoading: false });
