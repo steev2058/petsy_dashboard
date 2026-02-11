@@ -41,7 +41,7 @@ export default function MarketplaceDetail() {
     try {
       const conv = await conversationsAPI.create({
         other_user_id: item.user_id,
-        initial_message: `Hi, I'm interested in your marketplace listing: ${item.title}`,
+        initial_message: language === 'ar' ? `مرحبًا، أنا مهتم بإعلانك في السوق: ${item.title}` : `Hi, I'm interested in your marketplace listing: ${item.title}`,
       });
       router.push(`/chat/${conv.data.id}`);
     } catch {

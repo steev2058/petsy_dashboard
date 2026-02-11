@@ -12,7 +12,7 @@ export default function MyMarketplaceListings() {
   const { language, isRTL } = useTranslation();
   const L = {
     title: language === 'ar' ? 'إعلاناتي' : 'My Listings',
-    sold: 'SOLD',
+    sold: language === 'ar' ? 'تم البيع' : 'SOLD',
     status: language === 'ar' ? 'الحالة' : 'Status',
     active: language === 'ar' ? 'نشط' : 'active',
     edit: language === 'ar' ? 'تعديل' : 'Edit',

@@ -15,6 +15,8 @@ export default function MyRoleRequestsScreen() {
   const L = {
     title: language === 'ar' ? 'طلباتي للأدوار' : 'My Role Requests',
     pending: language === 'ar' ? 'قيد الانتظار' : 'pending',
+    approved: language === 'ar' ? 'مقبول' : 'approved',
+    rejected: language === 'ar' ? 'مرفوض' : 'rejected',
     noRequests: language === 'ar' ? 'لا توجد طلبات أدوار بعد' : 'No role requests yet',
   };
   const [loading, setLoading] = useState(true);
@@ -51,13 +53,13 @@ export default function MyRoleRequestsScreen() {
         renderItem={({ item }) => (
           <View style={[styles.card, Shadow.small]}>
             <View style={styles.rowTop}>
-              <Text style={styles.roleText}>{String(item.target_role || '').replace('_', ' ')}</Text>
+              <Text style={[styles.roleText, isRTL && styles.rtlText]}>{language === 'ar' ? (item.target_role === 'vet' ? 'طبيب بيطري' : item.target_role === 'market_owner' ? 'مالك سوق' : item.target_role === 'care_clinic' ? 'عيادة رعاية' : String(item.target_role || '').replace('_', ' ')) : String(item.target_role || '').replace('_', ' ')}</Text>
               <View style={[styles.badge, { backgroundColor: statusColor(item.status) + '20' }]}>
-                <Text style={[styles.badgeText, { color: statusColor(item.status) }]}>{item.status || L.pending}</Text>
+                <Text style={[styles.badgeText, { color: statusColor(item.status) }]}>{item.status === 'approved' ? L.approved : item.status === 'rejected' ? L.rejected : L.pending}</Text>
               </View>
             </View>
-            {item.reason ? <Text style={styles.reason}>{item.reason}</Text> : null}
-            <Text style={styles.date}>{item.created_at ? new Date(item.created_at).toLocaleString() : ''}</Text>
+            {item.reason ? <Text style={[styles.reason, isRTL && styles.rtlText]}>{item.reason}</Text> : null}
+            <Text style={[styles.date, isRTL && styles.rtlText]}>{item.created_at ? new Date(item.created_at).toLocaleString(language === 'ar' ? 'ar' : 'en') : ''}</Text>
           </View>
         )}
         ListEmptyComponent={<View style={styles.center}><Text style={[styles.empty, isRTL && styles.rtlText]}>{L.noRequests}</Text></View>}
