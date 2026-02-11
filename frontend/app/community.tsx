@@ -68,6 +68,8 @@ export default function CommunityScreen() {
   
   const [posts, setPosts] = useState<Post[]>([]);
   const [selectedType, setSelectedType] = useState('all');
+  const [searchQuery, setSearchQuery] = useState('');
+  const [showSearch, setShowSearch] = useState(false);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [likedPostIds, setLikedPostIds] = useState<Set<string>>(new Set());
@@ -372,7 +374,12 @@ export default function CommunityScreen() {
     }
   };
 
-  const visiblePosts = posts.filter((p) => !blockedUserIds.has(p.user_id));
+  const visiblePosts = posts.filter((p) => {
+    if (blockedUserIds.has(p.user_id)) return false;
+    if (!searchQuery.trim()) return true;
+    const q = searchQuery.toLowerCase();
+    return (`${p.title || ''} ${p.content || ''} ${p.user_name || ''} ${p.type || ''}`).toLowerCase().includes(q);
+  });
 
   const renderPost = ({ item, index }: { item: Post; index: number }) => (
     <AnimatedRN.View entering={FadeInDown.delay(index * 50)}>
@@ -506,11 +513,27 @@ export default function CommunityScreen() {
         <Text style={styles.title}>Community</Text>
         <TouchableOpacity
           style={styles.searchButton}
-          onPress={() => Alert.alert('Search', 'Search functionality coming soon!')}
+          onPress={() => {
+            setShowSearch((v) => !v);
+            if (showSearch) setSearchQuery('');
+          }}
         >
-          <Ionicons name="search" size={22} color={Colors.text} />
+          <Ionicons name={showSearch ? 'close' : 'search'} size={22} color={Colors.text} />
         </TouchableOpacity>
       </View>
+
+      {showSearch && (
+        <View style={styles.searchBarWrap}>
+          <Ionicons name="search" size={18} color={Colors.textSecondary} />
+          <TextInput
+            style={styles.searchInput}
+            placeholder="Search posts..."
+            placeholderTextColor={Colors.textLight}
+            value={searchQuery}
+            onChangeText={setSearchQuery}
+          />
+        </View>
+      )}
 
       {/* Type Filters */}
       <FlatList
@@ -713,6 +736,25 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.backgroundDark,
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  searchBarWrap: {
+    marginHorizontal: Spacing.md,
+    marginTop: Spacing.sm,
+    marginBottom: Spacing.xs,
+    backgroundColor: Colors.white,
+    borderRadius: BorderRadius.lg,
+    borderWidth: 1,
+    borderColor: Colors.border,
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  searchInput: {
+    flex: 1,
+    color: Colors.text,
+    fontSize: FontSize.md,
   },
   typeFiltersList: {
     backgroundColor: Colors.white,
