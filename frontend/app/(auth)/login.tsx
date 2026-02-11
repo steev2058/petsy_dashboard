@@ -27,6 +27,7 @@ export default function LoginScreen() {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState<{ email?: string; password?: string }>({});
+  const [loginError, setLoginError] = useState('');
   const [toast, setToast] = useState<{ visible: boolean; message: string; type: 'success' | 'error' }>({ visible: false, message: '', type: 'error' });
   const toastTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -59,7 +60,8 @@ export default function LoginScreen() {
 
   const handleLogin = async () => {
     if (!validate()) return;
-    
+
+    setLoginError('');
     setLoading(true);
     try {
       const response = await authAPI.login({ email, password });
@@ -67,13 +69,16 @@ export default function LoginScreen() {
       setUser(response.data.user);
       router.replace('/(tabs)/home');
     } catch (error: any) {
+      let message = 'Login failed. Please try again.';
       if (error?.response?.status === 401) {
-        showToast('Email or password is not correct', 'error');
+        message = 'Email or password is not correct';
       } else if (!error?.response) {
-        showToast('Unable to reach server. Please check your connection and try again.', 'error');
+        message = 'Unable to reach server. Please check your connection and try again.';
       } else {
-        showToast(error.response?.data?.detail || 'Login failed. Please try again.', 'error');
+        message = error.response?.data?.detail || message;
       }
+      showToast(message, 'error');
+      setLoginError(message);
     } finally {
       setLoading(false);
     }
@@ -131,7 +136,10 @@ export default function LoginScreen() {
               label={t('email')}
               placeholder="your@email.com"
               value={email}
-              onChangeText={setEmail}
+              onChangeText={(text) => {
+                setEmail(text);
+                if (loginError) setLoginError('');
+              }}
               keyboardType="email-address"
               autoCapitalize="none"
               error={errors.email}
@@ -142,7 +150,10 @@ export default function LoginScreen() {
               label={t('password')}
               placeholder="••••••••"
               value={password}
-              onChangeText={setPassword}
+              onChangeText={(text) => {
+                setPassword(text);
+                if (loginError) setLoginError('');
+              }}
               secureTextEntry={!showPassword}
               error={errors.password}
               leftIcon={<Ionicons name="lock-closed-outline" size={20} color={Colors.textSecondary} />}
@@ -167,6 +178,8 @@ export default function LoginScreen() {
               loading={loading}
               style={styles.loginButton}
             />
+
+            {!!loginError && <Text style={styles.loginErrorText}>{loginError}</Text>}
 
             <Button
               title="Continue as Guest"
@@ -271,6 +284,12 @@ const styles = StyleSheet.create({
   },
   loginButton: {
     marginTop: Spacing.sm,
+  },
+  loginErrorText: {
+    marginTop: Spacing.sm,
+    color: Colors.error,
+    fontSize: FontSize.sm,
+    fontWeight: '600',
   },
   guestButton: {
     marginTop: Spacing.sm,

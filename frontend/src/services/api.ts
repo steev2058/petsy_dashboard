@@ -3,6 +3,15 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const BACKEND_URL = process.env.EXPO_PUBLIC_BACKEND_URL || '';
 
+const resolveBackendUrl = () => {
+  if (BACKEND_URL) return BACKEND_URL;
+  if (typeof window !== 'undefined' && window.location) {
+    const { protocol, hostname } = window.location;
+    return `${protocol}//${hostname}:8000`;
+  }
+  return '';
+};
+
 const toWsBase = (httpBase: string) => {
   if (!httpBase) return '';
   if (httpBase.startsWith('https://')) return httpBase.replace('https://', 'wss://');
@@ -11,7 +20,7 @@ const toWsBase = (httpBase: string) => {
 };
 
 const api = axios.create({
-  baseURL: `${BACKEND_URL}/api`,
+  baseURL: `${resolveBackendUrl()}/api`,
   timeout: 12000,
   headers: {
     'Content-Type': 'application/json',
@@ -322,7 +331,7 @@ export const loyaltyAPI = {
 export const getChatWebSocketUrl = async () => {
   const token = await AsyncStorage.getItem('auth_token');
   if (!token) return null;
-  const wsBase = toWsBase(BACKEND_URL);
+  const wsBase = toWsBase(resolveBackendUrl());
   if (!wsBase) return null;
   return `${wsBase}/ws/chat?token=${encodeURIComponent(token)}`;
 };
