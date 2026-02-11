@@ -67,7 +67,13 @@ export default function LoginScreen() {
       setUser(response.data.user);
       router.replace('/(tabs)/home');
     } catch (error: any) {
-      showToast(error.response?.data?.detail || 'Email or password is not correct', 'error');
+      if (error?.response?.status === 401) {
+        showToast('Email or password is not correct', 'error');
+      } else if (!error?.response) {
+        showToast('Unable to reach server. Please check your connection and try again.', 'error');
+      } else {
+        showToast(error.response?.data?.detail || 'Login failed. Please try again.', 'error');
+      }
     } finally {
       setLoading(false);
     }
