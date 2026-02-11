@@ -32,6 +32,9 @@ interface DashboardStats {
   vets: number;
   revenue: number;
   pendingOrders: number;
+  openMarketplaceReports?: number;
+  pendingRoleRequests?: number;
+  openFriendReports?: number;
   monthlyStats?: { month: string; orders: number; revenue: number }[];
   recentOrders?: { id: string; total: number; status: string }[];
   recentUsers?: { id: string; name: string; email: string }[];
@@ -66,6 +69,9 @@ export default function AdminDashboard() {
     vets: 0,
     revenue: 0,
     pendingOrders: 0,
+    openMarketplaceReports: 0,
+    pendingRoleRequests: 0,
+    openFriendReports: 0,
     monthlyStats: [],
     recentOrders: [],
     recentUsers: [],
@@ -105,6 +111,9 @@ export default function AdminDashboard() {
           vets: 12,
           revenue: 15680,
           pendingOrders: 18,
+          openMarketplaceReports: 7,
+          pendingRoleRequests: 3,
+          openFriendReports: 2,
           monthlyStats: [
             { month: 'Jan', orders: 45, revenue: 2300 },
             { month: 'Feb', orders: 52, revenue: 2800 },
@@ -300,13 +309,35 @@ export default function AdminDashboard() {
               <Ionicons name="chevron-forward" size={20} color={Colors.textSecondary} />
             </TouchableOpacity>
             <View style={styles.pendingDivider} />
-            <TouchableOpacity style={styles.pendingItem} onPress={() => router.push('/admin/pets')}>
+            <TouchableOpacity style={styles.pendingItem} onPress={() => router.push('/admin/marketplace')}>
               <View style={[styles.pendingIcon, { backgroundColor: Colors.error + '20' }]}>
                 <Ionicons name="alert-circle" size={20} color={Colors.error} />
               </View>
               <View style={styles.pendingInfo}>
-                <Text style={styles.pendingLabel}>Lost Pet Reports</Text>
-                <Text style={styles.pendingValue}>Review pending reports</Text>
+                <Text style={styles.pendingLabel}>Marketplace Reports</Text>
+                <Text style={styles.pendingValue}>{stats.openMarketplaceReports || 0} reports to review</Text>
+              </View>
+              <Ionicons name="chevron-forward" size={20} color={Colors.textSecondary} />
+            </TouchableOpacity>
+            <View style={styles.pendingDivider} />
+            <TouchableOpacity style={styles.pendingItem} onPress={() => router.push('/admin/role-requests')}>
+              <View style={[styles.pendingIcon, { backgroundColor: Colors.primary + '20' }]}>
+                <Ionicons name="git-pull-request" size={20} color={Colors.primary} />
+              </View>
+              <View style={styles.pendingInfo}>
+                <Text style={styles.pendingLabel}>Role Requests</Text>
+                <Text style={styles.pendingValue}>{stats.pendingRoleRequests || 0} pending approvals</Text>
+              </View>
+              <Ionicons name="chevron-forward" size={20} color={Colors.textSecondary} />
+            </TouchableOpacity>
+            <View style={styles.pendingDivider} />
+            <TouchableOpacity style={styles.pendingItem} onPress={() => router.push('/admin/friend-reports')}>
+              <View style={[styles.pendingIcon, { backgroundColor: Colors.warning + '20' }]}>
+                <Ionicons name="flag" size={20} color={Colors.warning} />
+              </View>
+              <View style={styles.pendingInfo}>
+                <Text style={styles.pendingLabel}>Friend Reports</Text>
+                <Text style={styles.pendingValue}>{stats.openFriendReports || 0} open moderation cases</Text>
               </View>
               <Ionicons name="chevron-forward" size={20} color={Colors.textSecondary} />
             </TouchableOpacity>

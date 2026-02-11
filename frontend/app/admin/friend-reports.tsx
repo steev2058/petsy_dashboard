@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, FlatList, RefreshControl, ActivityIndicator, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
-import { useRouter } from 'expo-router';
+import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Colors, FontSize, Spacing, BorderRadius, Shadow } from '../../src/constants/theme';
 import api from '../../src/services/api';
 
@@ -18,13 +18,14 @@ type FriendReport = {
 
 export default function AdminFriendReportsScreen() {
   const router = useRouter();
+  const params = useLocalSearchParams<{ target_user_id?: string; status?: string }>();
   const [items, setItems] = useState<FriendReport[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
 
   const load = async () => {
     try {
-      const res = await api.get('/admin/friend-reports');
+      const res = await api.get('/admin/friend-reports', { params: { target_user_id: params.target_user_id, status: params.status } });
       setItems(res.data || []);
     } catch (e) {
       console.error('Failed to load friend reports', e);
@@ -34,7 +35,7 @@ export default function AdminFriendReportsScreen() {
     }
   };
 
-  useEffect(() => { load(); }, []);
+  useEffect(() => { load(); }, [params.target_user_id, params.status]);
 
   const onRefresh = () => { setRefreshing(true); load(); };
 

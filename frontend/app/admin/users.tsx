@@ -110,6 +110,21 @@ export default function AdminUsersScreen() {
     }
   };
 
+  const handleAdminBlockToggle = async (user: any) => {
+    try {
+      if (user.is_blocked_by_admin) {
+        await api.delete(`/admin/users/${user.id}/block`);
+      } else {
+        await api.post(`/admin/users/${user.id}/block`);
+      }
+      const next = !user.is_blocked_by_admin;
+      setUsers(users.map(u => u.id === user.id ? { ...u, is_blocked_by_admin: next } : u));
+      setSelectedUser({ ...user, is_blocked_by_admin: next });
+    } catch {
+      Alert.alert('Error', 'Failed to update block status');
+    }
+  };
+
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
     return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
@@ -152,6 +167,12 @@ export default function AdminUsersScreen() {
         </View>
         <Text style={styles.userEmail}>{item.email}</Text>
         <Text style={styles.userDate}>Joined {formatDate(item.created_at)}</Text>
+        <View style={styles.safetyRow}>
+          <Text style={[styles.safetyChip, item.friend_reports_open_count > 0 ? styles.safetyWarn : styles.safetyOk]}>
+            Reports: {item.friend_reports_open_count || 0} open
+          </Text>
+          {item.is_blocked_by_admin ? <Text style={[styles.safetyChip, styles.safetyBlocked]}>Blocked</Text> : null}
+        </View>
       </View>
       <View style={[styles.verifiedBadge, { backgroundColor: item.is_verified ? Colors.success + '20' : Colors.error + '20' }]}>
         <Ionicons name={item.is_verified ? 'checkmark-circle' : 'close-circle'} size={16} color={item.is_verified ? Colors.success : Colors.error} />
@@ -265,6 +286,14 @@ export default function AdminUsersScreen() {
                     <Ionicons name="shield-checkmark" size={24} color={Colors.primary} />
                     <Text style={styles.modalActionText}>Set Admin</Text>
                   </TouchableOpacity>
+                  <TouchableOpacity style={styles.modalAction} onPress={() => { setShowModal(false); router.push(`/admin/friend-reports?target_user_id=${selectedUser.id}` as any); }}>
+                    <Ionicons name="flag" size={24} color={Colors.warning} />
+                    <Text style={styles.modalActionText}>Reports</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity style={styles.modalAction} onPress={() => handleAdminBlockToggle(selectedUser)}>
+                    <Ionicons name={selectedUser.is_blocked_by_admin ? 'lock-open' : 'ban'} size={24} color={selectedUser.is_blocked_by_admin ? Colors.success : Colors.error} />
+                    <Text style={[styles.modalActionText, { color: selectedUser.is_blocked_by_admin ? Colors.success : Colors.error }]}>{selectedUser.is_blocked_by_admin ? 'Unblock' : 'Block'}</Text>
+                  </TouchableOpacity>
                   <TouchableOpacity style={[styles.modalAction, { backgroundColor: Colors.error + '20' }]} onPress={() => { setShowModal(false); handleDeleteUser(selectedUser.id); }}>
                     <Ionicons name="trash" size={24} color={Colors.error} />
                     <Text style={[styles.modalActionText, { color: Colors.error }]}>Delete</Text>
@@ -305,6 +334,11 @@ const styles = StyleSheet.create({
   adminBadgeText: { fontSize: 10, fontWeight: '700', color: Colors.white },
   userEmail: { fontSize: FontSize.sm, color: Colors.textSecondary, marginTop: 2 },
   userDate: { fontSize: FontSize.xs, color: Colors.textLight, marginTop: 2 },
+  safetyRow: { flexDirection: 'row', gap: 6, marginTop: 4, flexWrap: 'wrap' },
+  safetyChip: { fontSize: 10, fontWeight: '700', paddingHorizontal: 6, paddingVertical: 2, borderRadius: 10, overflow: 'hidden' },
+  safetyWarn: { backgroundColor: Colors.warning + '20', color: Colors.warning },
+  safetyOk: { backgroundColor: Colors.success + '20', color: Colors.success },
+  safetyBlocked: { backgroundColor: Colors.error + '20', color: Colors.error },
   verifiedBadge: { width: 32, height: 32, borderRadius: 16, justifyContent: 'center', alignItems: 'center' },
   emptyState: { alignItems: 'center', paddingVertical: Spacing.xxl },
   emptyText: { fontSize: FontSize.md, color: Colors.textSecondary, marginTop: Spacing.md },

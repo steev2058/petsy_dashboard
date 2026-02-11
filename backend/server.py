@@ -132,6 +132,21 @@ async def get_friend_ids_set(user_id: str) -> Set[str]:
                 result.add(uid)
     return result
 
+async def audit_admin_action(admin_user: dict, action: str, target_type: str, target_id: Optional[str] = None, payload: Optional[dict] = None):
+    try:
+        await db.admin_audit_logs.insert_one({
+            "id": str(uuid.uuid4()),
+            "admin_user_id": admin_user.get("id"),
+            "admin_email": admin_user.get("email"),
+            "action": action,
+            "target_type": target_type,
+            "target_id": target_id,
+            "payload": payload or {},
+            "created_at": datetime.utcnow(),
+        })
+    except Exception as e:
+        logger.warning(f"Failed to write admin audit log: {e}")
+
 # ========================= MODELS =========================
 
 # User Models
@@ -1771,8 +1786,13 @@ async def report_user_in_friends(payload: dict, current_user: dict = Depends(get
     return {"success": True}
 
 @api_router.get('/admin/friend-reports')
-async def get_friend_reports_admin(admin_user: dict = Depends(get_admin_user)):
-    rows = await db.friend_reports.find({}).sort("created_at", -1).to_list(1000)
+async def get_friend_reports_admin(target_user_id: Optional[str] = None, status: Optional[str] = None, admin_user: dict = Depends(get_admin_user)):
+    query: dict = {}
+    if target_user_id:
+        query["target_user_id"] = target_user_id
+    if status:
+        query["status"] = status
+    rows = await db.friend_reports.find(query).sort("created_at", -1).to_list(1000)
     uids = list({r.get("reported_by") for r in rows if r.get("reported_by")} | {r.get("target_user_id") for r in rows if r.get("target_user_id")})
     users = await db.users.find({"id": {"$in": uids}}).to_list(2000)
     umap = {u.get("id"): u for u in users}
@@ -1833,6 +1853,7 @@ async def review_friend_report_admin(report_id: str, payload: dict, admin_user: 
             "reviewed_by": admin_user.get("id"),
         }}
     )
+    await audit_admin_action(admin_user, "review_friend_report", "friend_report", report_id, {"action": action, "status": status_val})
     return {"success": True, "status": status_val}
 
 @api_router.post('/conversations/direct/{other_user_id}')
@@ -3426,6 +3447,9 @@ async def get_admin_stats(admin_user: dict = Depends(get_admin_user)):
         revenue = sum(order.get("total", 0) for order in orders)
         
         pending_orders = await db.orders.count_documents({"status": "pending"})
+        open_marketplace_reports = await db.marketplace_reports.count_documents({})
+        pending_role_requests = await db.role_requests.count_documents({"status": "pending"})
+        open_friend_reports = await db.friend_reports.count_documents({"status": "open"})
         
         # Recent activity
         recent_orders = await db.orders.find({}).sort("created_at", -1).limit(5).to_list(5)
@@ -3460,6 +3484,9 @@ async def get_admin_stats(admin_user: dict = Depends(get_admin_user)):
             "vets": vets_count,
             "revenue": revenue,
             "pendingOrders": pending_orders,
+            "openMarketplaceReports": open_marketplace_reports,
+            "pendingRoleRequests": pending_role_requests,
+            "openFriendReports": open_friend_reports,
             "monthlyStats": list(reversed(monthly_stats)),
             "recentOrders": [{"id": o.get("id"), "total": o.get("total", 0), "status": o.get("status")} for o in recent_orders],
             "recentUsers": [{"id": u.get("id"), "name": u.get("name"), "email": u.get("email")} for u in recent_users],
@@ -3469,6 +3496,7 @@ async def get_admin_stats(admin_user: dict = Depends(get_admin_user)):
         return {
             "users": 0, "pets": 0, "orders": 0, "appointments": 0,
             "products": 0, "vets": 0, "revenue": 0, "pendingOrders": 0,
+            "openMarketplaceReports": 0, "pendingRoleRequests": 0, "openFriendReports": 0,
             "monthlyStats": [], "recentOrders": [], "recentUsers": [],
         }
 
@@ -3476,6 +3504,18 @@ async def get_admin_stats(admin_user: dict = Depends(get_admin_user)):
 async def get_all_users(admin_user: dict = Depends(get_admin_user)):
     """Get all users for admin"""
     users = await db.users.find({}).to_list(1000)
+    user_ids = [u.get("id") for u in users if u.get("id")]
+
+    # friend report counts per target user
+    pipeline = [
+        {"$group": {"_id": "$target_user_id", "count": {"$sum": 1}, "open_count": {"$sum": {"$cond": [{"$eq": ["$status", "open"]}, 1, 0]}}}},
+    ]
+    report_rows = await db.friend_reports.aggregate(pipeline).to_list(2000)
+    report_map = {r.get("_id"): r for r in report_rows}
+
+    blocked_rows = await db.blocked_users.find({"user_id": admin_user["id"], "blocked_user_id": {"$in": user_ids}}).to_list(2000)
+    blocked_set = {r.get("blocked_user_id") for r in blocked_rows}
+
     return [
         {
             "id": u.get("id"),
@@ -3488,6 +3528,9 @@ async def get_all_users(admin_user: dict = Depends(get_admin_user)):
             "role": u.get("role", "user"),
             "created_at": u.get("created_at"),
             "loyalty_points": u.get("loyalty_points", 0),
+            "friend_reports_count": (report_map.get(u.get("id")) or {}).get("count", 0),
+            "friend_reports_open_count": (report_map.get(u.get("id")) or {}).get("open_count", 0),
+            "is_blocked_by_admin": u.get("id") in blocked_set,
         }
         for u in users
     ]
@@ -3501,24 +3544,49 @@ async def update_user_admin(user_id: str, data: dict, admin_user: dict = Depends
           raise HTTPException(status_code=400, detail=f"Invalid role. Allowed: {', '.join(sorted(ALLOWED_ROLES))}")
       data["is_admin"] = role == "admin"
     await db.users.update_one({"id": user_id}, {"$set": data})
+    await audit_admin_action(admin_user, "update_user", "user", user_id, data)
     return {"success": True}
 
 @api_router.delete("/admin/users/{user_id}")
 async def delete_user_admin(user_id: str, admin_user: dict = Depends(get_admin_user)):
     """Delete user (admin)"""
     await db.users.delete_one({"id": user_id})
+    await audit_admin_action(admin_user, "delete_user", "user", user_id)
     return {"success": True}
 
 @api_router.post("/admin/users/{user_id}/make-admin")
 async def make_user_admin(user_id: str, admin_user: dict = Depends(get_admin_user)):
     """Promote user to admin"""
     await db.users.update_one({"id": user_id}, {"$set": {"is_admin": True, "role": "admin"}})
+    await audit_admin_action(admin_user, "make_admin", "user", user_id)
     return {"success": True}
 
 @api_router.post("/admin/users/{user_id}/remove-admin")
 async def remove_user_admin(user_id: str, admin_user: dict = Depends(get_admin_user)):
     """Remove admin privileges from user"""
     await db.users.update_one({"id": user_id}, {"$set": {"is_admin": False, "role": "user"}})
+    await audit_admin_action(admin_user, "remove_admin", "user", user_id)
+    return {"success": True}
+
+@api_router.post('/admin/users/{user_id}/block')
+async def block_user_admin(user_id: str, admin_user: dict = Depends(get_admin_user)):
+    if user_id == admin_user.get('id'):
+        raise HTTPException(status_code=400, detail='Cannot block yourself')
+    existing = await db.blocked_users.find_one({"user_id": admin_user["id"], "blocked_user_id": user_id})
+    if not existing:
+        await db.blocked_users.insert_one({
+            "id": str(uuid.uuid4()),
+            "user_id": admin_user["id"],
+            "blocked_user_id": user_id,
+            "created_at": datetime.utcnow(),
+        })
+    await audit_admin_action(admin_user, "block_user", "user", user_id)
+    return {"success": True}
+
+@api_router.delete('/admin/users/{user_id}/block')
+async def unblock_user_admin(user_id: str, admin_user: dict = Depends(get_admin_user)):
+    await db.blocked_users.delete_one({"user_id": admin_user["id"], "blocked_user_id": user_id})
+    await audit_admin_action(admin_user, "unblock_user", "user", user_id)
     return {"success": True}
 
 @api_router.get("/admin/marketplace/listings")
@@ -3546,6 +3614,7 @@ async def set_marketplace_listing_status_admin(listing_id: str, data: dict, admi
             "marketplace",
             {"listing_id": listing_id, "status": status, "route": "/my-marketplace-listings"}
         )
+    await audit_admin_action(admin_user, "set_marketplace_listing_status", "marketplace_listing", listing_id, {"status": status})
     return {"success": True}
 
 @api_router.post("/role-requests")
@@ -3621,7 +3690,13 @@ async def handle_role_request_admin(request_id: str, data: dict, admin_user: dic
         "role_request",
         {"request_id": request_id, "status": new_status, "target_role": req.get("target_role"), "route": "/my-role-requests"}
     )
+    await audit_admin_action(admin_user, "review_role_request", "role_request", request_id, {"action": action, "status": new_status})
     return {"success": True}
+
+@api_router.get('/admin/audit-logs')
+async def get_admin_audit_logs(limit: int = 200, admin_user: dict = Depends(get_admin_user)):
+    rows = await db.admin_audit_logs.find({}).sort("created_at", -1).limit(max(1, min(limit, 1000))).to_list(1000)
+    return [{k: v for k, v in r.items() if k != "_id"} for r in rows]
 
 @api_router.get("/admin/orders")
 async def get_all_orders_admin(admin_user: dict = Depends(get_admin_user)):
