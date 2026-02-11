@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import {
   View,
   Text,
@@ -7,7 +7,6 @@ import {
   KeyboardAvoidingView,
   Platform,
   ScrollView,
-  Alert,
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -28,6 +27,8 @@ export default function LoginScreen() {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState<{ email?: string; password?: string }>({});
+  const [toast, setToast] = useState<{ visible: boolean; message: string; type: 'success' | 'error' }>({ visible: false, message: '', type: 'error' });
+  const toastTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const validate = () => {
     const newErrors: { email?: string; password?: string } = {};
@@ -48,6 +49,14 @@ export default function LoginScreen() {
     return Object.keys(newErrors).length === 0;
   };
 
+  const showToast = (message: string, type: 'success' | 'error' = 'error') => {
+    if (toastTimerRef.current) clearTimeout(toastTimerRef.current);
+    setToast({ visible: true, message, type });
+    toastTimerRef.current = setTimeout(() => {
+      setToast((prev) => ({ ...prev, visible: false }));
+    }, 2200);
+  };
+
   const handleLogin = async () => {
     if (!validate()) return;
     
@@ -58,10 +67,7 @@ export default function LoginScreen() {
       setUser(response.data.user);
       router.replace('/(tabs)/home');
     } catch (error: any) {
-      Alert.alert(
-        'Login Failed',
-        error.response?.data?.detail || 'Invalid credentials. Please try again.'
-      );
+      showToast(error.response?.data?.detail || 'Email or password is not correct', 'error');
     } finally {
       setLoading(false);
     }
@@ -87,6 +93,17 @@ export default function LoginScreen() {
           contentContainerStyle={styles.scrollContent}
           showsVerticalScrollIndicator={false}
         >
+          {toast.visible && (
+            <View style={[styles.toast, toast.type === 'error' ? styles.toastError : styles.toastSuccess]}>
+              <Ionicons
+                name={toast.type === 'error' ? 'alert-circle' : 'checkmark-circle'}
+                size={16}
+                color={Colors.white}
+              />
+              <Text style={styles.toastText}>{toast.message}</Text>
+            </View>
+          )}
+
           {/* Language Toggle */}
           <TouchableOpacity style={styles.langToggle} onPress={toggleLanguage}>
             <Ionicons name="globe-outline" size={20} color={Colors.primary} />
@@ -295,5 +312,26 @@ const styles = StyleSheet.create({
     color: Colors.primary,
     fontSize: FontSize.md,
     fontWeight: '600',
+  },
+  toast: {
+    borderRadius: BorderRadius.md,
+    paddingVertical: 10,
+    paddingHorizontal: 12,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    marginBottom: Spacing.sm,
+  },
+  toastSuccess: {
+    backgroundColor: Colors.success,
+  },
+  toastError: {
+    backgroundColor: Colors.error,
+  },
+  toastText: {
+    color: Colors.white,
+    fontSize: FontSize.sm,
+    fontWeight: '600',
+    flex: 1,
   },
 });
