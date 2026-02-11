@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, FlatList, RefreshControl, ActivityIndicator, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
@@ -31,6 +31,8 @@ export default function NotificationsScreen() {
   const [hasMore, setHasMore] = useState(true);
   const [offset, setOffset] = useState(0);
   const [filter, setFilter] = useState<FilterKey>('all');
+  const isFetchingRef = useRef(false);
+  const liveTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   const filterMeta = useMemo(() => ([
     { key: 'all' as FilterKey, label: 'All' },
@@ -41,12 +43,15 @@ export default function NotificationsScreen() {
     { key: 'admin' as FilterKey, label: 'Admin' },
   ]), []);
 
-  const load = useCallback(async (opts?: { reset?: boolean }) => {
+  const load = useCallback(async (opts?: { reset?: boolean; silent?: boolean }) => {
     const reset = !!opts?.reset;
+    const silent = !!opts?.silent;
     const nextOffset = reset ? 0 : offset;
 
+    if (isFetchingRef.current) return;
+
     if (reset) {
-      setLoading(true);
+      if (!silent) setLoading(true);
       setHasMore(true);
       setOffset(0);
     } else {
@@ -54,6 +59,7 @@ export default function NotificationsScreen() {
       setLoadingMore(true);
     }
 
+    isFetchingRef.current = true;
     try {
       const params: any = {
         limit: PAGE_SIZE,
@@ -76,6 +82,7 @@ export default function NotificationsScreen() {
     } catch (e) {
       console.error('Failed to load notifications', e);
     } finally {
+      isFetchingRef.current = false;
       setLoading(false);
       setRefreshing(false);
       setLoadingMore(false);
@@ -85,6 +92,19 @@ export default function NotificationsScreen() {
   useEffect(() => {
     load({ reset: true });
   }, [filter]);
+
+  // Real-time-ish refresh via polling (without pull-to-refresh)
+  useEffect(() => {
+    if (liveTimerRef.current) clearInterval(liveTimerRef.current);
+    liveTimerRef.current = setInterval(() => {
+      load({ reset: true, silent: true });
+    }, 10000);
+
+    return () => {
+      if (liveTimerRef.current) clearInterval(liveTimerRef.current);
+      liveTimerRef.current = null;
+    };
+  }, [filter, load]);
 
   const onRefresh = () => {
     setRefreshing(true);
