@@ -99,8 +99,8 @@ export default function MyMarketplaceListings() {
                 )}
               </View>
               <View style={{ flex: 1, marginLeft: Spacing.md }}>
-                <Text style={styles.name}>{item.title}</Text>
-                <Text style={styles.meta}>${Number(item.price || 0).toFixed(2)} • {item.location}</Text>
+                <Text style={[styles.name, isRTL && styles.rtlText]}>{item.title}</Text>
+                <Text style={[styles.meta, isRTL && styles.rtlText]}>${Number(item.price || 0).toFixed(2)} • {item.location}</Text>
                 <Text style={[styles.meta, isRTL && styles.rtlText]}>{L.status}: {item.status || L.active}</Text>
               </View>
             </TouchableOpacity>

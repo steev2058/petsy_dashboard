@@ -23,6 +23,12 @@ export default function MarketplaceDetail() {
     reportSent: language === 'ar' ? 'تم إرسال بلاغ الإعلان' : 'Listing report submitted',
     blocked: language === 'ar' ? 'تم الحظر' : 'Blocked',
     blockedMsg: language === 'ar' ? 'تم حظر البائع' : 'Seller blocked',
+    category: language === 'ar' ? 'الفئة' : 'Category',
+    location: language === 'ar' ? 'الموقع' : 'Location',
+    species: (s?: string) => {
+      if (language !== 'ar') return s || '';
+      return s === 'pets' ? 'حيوانات' : s === 'accessories' ? 'إكسسوارات' : s === 'services' ? 'خدمات' : s || '';
+    },
   };
   const [loading, setLoading] = useState(true);
   const [item, setItem] = useState<any>(null);
@@ -69,16 +75,16 @@ export default function MarketplaceDetail() {
       <ScrollView contentContainerStyle={{ paddingBottom: 120 }}>
         {item.image ? <Image source={{ uri: item.image }} style={styles.img} /> : <View style={styles.imgPh}><Ionicons name='image' size={24} color={Colors.textLight} /></View>}
         <View style={[styles.box, Shadow.small]}>
-          <Text style={styles.name}>{item.title}</Text>
-          <Text style={styles.price}>${Number(item.price || 0).toFixed(2)}</Text>
-          <Text style={styles.meta}>{item.category} • {item.location}</Text>
-          <Text style={styles.desc}>{item.description}</Text>
+          <Text style={[styles.name, isRTL && styles.rtlText]}>{item.title}</Text>
+          <Text style={[styles.price, isRTL && styles.rtlText]}>${Number(item.price || 0).toFixed(2)}</Text>
+          <Text style={[styles.meta, isRTL && styles.rtlText]}>{L.category}: {L.species(item.category)} • {L.location}: {item.location}</Text>
+          <Text style={[styles.desc, isRTL && styles.rtlText]}>{item.description}</Text>
         </View>
       </ScrollView>
       <View style={[styles.bottom, Shadow.large]}>
-        <TouchableOpacity style={styles.btn} onPress={contactSeller}><Ionicons name='chatbubbles' size={18} color={Colors.primary} /><Text style={styles.btnText}>{L.chatSeller}</Text></TouchableOpacity>
-        <TouchableOpacity style={styles.btn} onPress={report}><Ionicons name='flag' size={18} color={Colors.error} /><Text style={styles.btnText}>{L.report}</Text></TouchableOpacity>
-        <TouchableOpacity style={styles.btn} onPress={block}><Ionicons name='ban' size={18} color={Colors.textSecondary} /><Text style={styles.btnText}>{L.block}</Text></TouchableOpacity>
+        <TouchableOpacity style={styles.btn} onPress={contactSeller}><Ionicons name='chatbubbles' size={18} color={Colors.primary} /><Text style={[styles.btnText, isRTL && styles.rtlText]}>{L.chatSeller}</Text></TouchableOpacity>
+        <TouchableOpacity style={styles.btn} onPress={report}><Ionicons name='flag' size={18} color={Colors.error} /><Text style={[styles.btnText, isRTL && styles.rtlText]}>{L.report}</Text></TouchableOpacity>
+        <TouchableOpacity style={styles.btn} onPress={block}><Ionicons name='ban' size={18} color={Colors.textSecondary} /><Text style={[styles.btnText, isRTL && styles.rtlText]}>{L.block}</Text></TouchableOpacity>
       </View>
     </SafeAreaView>
   );

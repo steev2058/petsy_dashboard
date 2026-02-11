@@ -19,6 +19,10 @@ export default function SponsorshipsScreen() {
     na: language === 'ar' ? 'غير متاح' : 'N/A',
     sponsor: language === 'ar' ? 'اكفل' : 'Sponsor',
     empty: language === 'ar' ? 'لا توجد حيوانات متاحة للكفالة' : 'No pets available for sponsorship',
+    species: (s?: string) => {
+      if (language !== 'ar') return s || '';
+      return s === 'cat' ? 'قط' : s === 'dog' ? 'كلب' : s === 'bird' ? 'طائر' : s === 'fish' ? 'سمك' : s === 'rabbit' ? 'أرنب' : s || '';
+    },
   };
   const [loading, setLoading] = useState(true);
   const [pets, setPets] = useState<any[]>([]);
@@ -62,7 +66,7 @@ export default function SponsorshipsScreen() {
             {item.image ? <Image source={{ uri: item.image }} style={styles.img} /> : <View style={styles.imgPh}><Ionicons name='paw' size={22} color={Colors.textLight} /></View>}
             <View style={{ flex: 1, marginLeft: Spacing.md }}>
               <Text style={[styles.name, isRTL && styles.rtlText]}>{item.name || L.pet}</Text>
-              <Text style={[styles.meta, isRTL && styles.rtlText]}>{item.species} • {item.breed || L.mixed}</Text>
+              <Text style={[styles.meta, isRTL && styles.rtlText]}>{L.species(item.species)} • {item.breed || L.mixed}</Text>
               <Text style={[styles.meta, isRTL && styles.rtlText]}>{L.location}: {item.location || L.na}</Text>
             </View>
             <View style={styles.sponsorBtn}><Text style={styles.sponsorText}>{L.sponsor}</Text></View>
