@@ -103,6 +103,26 @@ async def user_is_conversation_participant(user_id: str, conversation_id: str) -
     conversation = await db.conversations.find_one({"id": conversation_id, "participants": user_id})
     return conversation is not None
 
+async def create_notification(user_id: str, title: str, body: str, notif_type: str = "system", data: Optional[dict] = None):
+    if not user_id:
+        return
+    await db.notifications.insert_one({
+        "id": str(uuid.uuid4()),
+        "user_id": user_id,
+        "title": title,
+        "body": body,
+        "type": notif_type,
+        "data": data or {},
+        "is_read": False,
+        "created_at": datetime.utcnow(),
+        "updated_at": datetime.utcnow(),
+    })
+
+async def create_notifications_for_admins(title: str, body: str, notif_type: str = "admin", data: Optional[dict] = None):
+    admins = await db.users.find({"$or": [{"is_admin": True}, {"role": "admin"}]}).to_list(500)
+    for admin in admins:
+        await create_notification(admin.get("id"), title, body, notif_type, data)
+
 # ========================= MODELS =========================
 
 # User Models
@@ -911,6 +931,7 @@ async def delete_account(payload: DeleteAccountRequest, current_user: dict = Dep
     await db.blocked_users.delete_many({"$or": [{"user_id": uid}, {"blocked_user_id": uid}]})
     await db.community_post_notifications.delete_many({"user_id": uid})
     await db.community_reports.delete_many({"reported_by": uid})
+    await db.notifications.delete_many({"user_id": uid})
     return {"message": "Account deleted"}
 
 @api_router.get('/user-settings')
@@ -935,6 +956,39 @@ async def update_user_settings(data: dict, current_user: dict = Depends(get_curr
     )
     row = await db.user_settings.find_one({"user_id": current_user["id"]})
     return {k: row.get(k, DEFAULT_USER_SETTINGS.get(k)) for k in DEFAULT_USER_SETTINGS.keys()}
+
+@api_router.get('/notifications')
+async def get_my_notifications(
+    unread_only: bool = False,
+    limit: int = 100,
+    current_user: dict = Depends(get_current_user)
+):
+    query: dict = {"user_id": current_user["id"]}
+    if unread_only:
+        query["is_read"] = False
+    rows = await db.notifications.find(query).sort("created_at", -1).limit(max(1, min(limit, 300))).to_list(300)
+    return [{k: v for k, v in row.items() if k != "_id"} for row in rows]
+
+@api_router.get('/notifications/unread-count')
+async def get_unread_notifications_count(current_user: dict = Depends(get_current_user)):
+    count = await db.notifications.count_documents({"user_id": current_user["id"], "is_read": False})
+    return {"count": count}
+
+@api_router.put('/notifications/{notification_id}/read')
+async def mark_notification_read(notification_id: str, current_user: dict = Depends(get_current_user)):
+    await db.notifications.update_one(
+        {"id": notification_id, "user_id": current_user["id"]},
+        {"$set": {"is_read": True, "updated_at": datetime.utcnow()}},
+    )
+    return {"success": True}
+
+@api_router.put('/notifications/read-all')
+async def mark_all_notifications_read(current_user: dict = Depends(get_current_user)):
+    await db.notifications.update_many(
+        {"user_id": current_user["id"], "is_read": False},
+        {"$set": {"is_read": True, "updated_at": datetime.utcnow()}},
+    )
+    return {"success": True}
 
 # ========================= PET ROUTES =========================
 
@@ -2055,7 +2109,13 @@ async def create_care_request(data: dict, current_user: dict = Depends(get_curre
         "notes": row.get("description"),
         "created_at": now,
     })
-    return row
+    await create_notifications_for_admins(
+        "New care request",
+        f"{current_user.get('name', 'User')} submitted a care request.",
+        "care_request",
+        {"request_id": row["id"]}
+    )
+    return {k: v for k, v in row.items() if k != "_id"}
 
 @api_router.get("/vet/care-requests")
 async def get_vet_care_requests(
@@ -2136,6 +2196,14 @@ async def update_vet_care_request(request_id: str, data: dict, current_user: dic
     })
 
     row = await db.care_requests.find_one({"id": request_id})
+    if row:
+        await create_notification(
+            row.get("requested_by"),
+            "Care request updated",
+            f"Your care request is now {row.get('status', 'updated')}.",
+            "care_request",
+            {"request_id": request_id, "status": row.get("status")}
+        )
     return {k: v for k, v in row.items() if k != "_id"} if row else {"success": True}
 
 @api_router.get("/clinic/care-requests")
@@ -2183,6 +2251,22 @@ async def update_clinic_care_request(request_id: str, data: dict, current_user: 
     })
 
     row = await db.care_requests.find_one({"id": request_id})
+    if row:
+        await create_notification(
+            row.get("requested_by"),
+            "Clinic updated your care request",
+            f"Clinic updated your request to {row.get('status', 'updated')}.",
+            "care_request",
+            {"request_id": request_id, "status": row.get("status")}
+        )
+        if row.get("assigned_vet_id"):
+            await create_notification(
+                row.get("assigned_vet_id"),
+                "Assigned to care request",
+                "A clinic assigned you to a care request.",
+                "care_request",
+                {"request_id": request_id}
+            )
     return {k: v for k, v in row.items() if k != "_id"} if row else {"success": True}
 
 @api_router.get("/care-requests/{request_id}/timeline")
@@ -2964,7 +3048,16 @@ async def set_marketplace_listing_status_admin(listing_id: str, data: dict, admi
     status = data.get("status", "active")
     if status not in ["active", "sold", "archived"]:
         raise HTTPException(status_code=400, detail="Invalid status")
+    listing = await db.marketplace_listings.find_one({"id": listing_id})
     await db.marketplace_listings.update_one({"id": listing_id}, {"$set": {"status": status, "updated_at": datetime.utcnow()}})
+    if listing and listing.get("user_id"):
+        await create_notification(
+            listing.get("user_id"),
+            "Marketplace listing update",
+            f"Your listing status is now {status}.",
+            "marketplace",
+            {"listing_id": listing_id, "status": status}
+        )
     return {"success": True}
 
 @api_router.post("/role-requests")
@@ -2993,7 +3086,13 @@ async def create_role_request(data: dict, current_user: dict = Depends(get_curre
         "updated_at": datetime.utcnow(),
     }
     await db.role_requests.insert_one(row)
-    return row
+    await create_notifications_for_admins(
+        "New role request",
+        f"{current_user.get('name', 'User')} requested role: {target_role}",
+        "role_request",
+        {"request_id": row["id"], "target_role": target_role}
+    )
+    return {k: v for k, v in row.items() if k != "_id"}
 
 @api_router.get("/role-requests/my")
 async def get_my_role_requests(current_user: dict = Depends(get_current_user)):
@@ -3021,9 +3120,18 @@ async def handle_role_request_admin(request_id: str, data: dict, admin_user: dic
             raise HTTPException(status_code=400, detail="Invalid role in request")
         await db.users.update_one({"id": req.get("user_id")}, {"$set": {"role": role, "is_admin": role == "admin"}})
 
+    new_status = "approved" if action == "approve" else "rejected"
     await db.role_requests.update_one(
         {"id": request_id},
-        {"$set": {"status": "approved" if action == "approve" else "rejected", "updated_at": datetime.utcnow(), "reviewed_by": admin_user["id"]}}
+        {"$set": {"status": new_status, "updated_at": datetime.utcnow(), "reviewed_by": admin_user["id"]}}
+    )
+
+    await create_notification(
+        req.get("user_id"),
+        "Role request update",
+        f"Your request for {req.get('target_role')} was {new_status}.",
+        "role_request",
+        {"request_id": request_id, "status": new_status, "target_role": req.get("target_role")}
     )
     return {"success": True}
 

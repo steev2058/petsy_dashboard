@@ -164,7 +164,7 @@ export default function ProfileScreen() {
         {/* Header */}
         <View style={styles.header}>
           <Text style={styles.title}>{t('my_profile')}</Text>
-          <TouchableOpacity>
+          <TouchableOpacity onPress={() => router.push('/notifications')}>
             <Ionicons name="notifications-outline" size={24} color={Colors.text} />
           </TouchableOpacity>
         </View>

@@ -251,6 +251,13 @@ export const settingsAPI = {
   update: (data: any) => api.put('/user-settings', data),
 };
 
+export const notificationsAPI = {
+  getAll: (params?: { unread_only?: boolean; limit?: number }) => api.get('/notifications', { params }),
+  getUnreadCount: () => api.get('/notifications/unread-count'),
+  markRead: (id: string) => api.put(`/notifications/${id}/read`),
+  markAllRead: () => api.put('/notifications/read-all'),
+};
+
 // AI API
 export const aiAPI = {
   ask: (query: string, context?: string) =>

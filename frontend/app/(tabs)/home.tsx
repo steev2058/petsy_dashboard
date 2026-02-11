@@ -17,7 +17,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { SearchBar, PetCard, VetCard, ProductCard, CategoryList, PET_CATEGORIES } from '../../src/components';
 import { Colors, FontSize, Spacing, BorderRadius, Shadow } from '../../src/constants/theme';
 import { PetImages } from '../../src/constants/images';
-import { petsAPI, vetsAPI, productsAPI } from '../../src/services/api';
+import { petsAPI, vetsAPI, productsAPI, notificationsAPI } from '../../src/services/api';
 import { useStore } from '../../src/store/useStore';
 import { useTranslation } from '../../src/hooks/useTranslation';
 
@@ -35,6 +35,7 @@ export default function HomeScreen() {
   const [vets, setVets] = useState<any[]>([]);
   const [products, setProducts] = useState<any[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  const [unreadCount, setUnreadCount] = useState(0);
 
   const loadData = async () => {
     try {
@@ -53,9 +54,28 @@ export default function HomeScreen() {
     }
   };
 
+  const loadUnreadCount = async () => {
+    if (!user) {
+      setUnreadCount(0);
+      return;
+    }
+    try {
+      const res = await notificationsAPI.getUnreadCount();
+      setUnreadCount(Number(res.data?.count || 0));
+    } catch (e) {
+      console.error('Failed to load unread notifications count', e);
+    }
+  };
+
   useEffect(() => {
     loadData();
-  }, []);
+    loadUnreadCount();
+
+    const timer = setInterval(() => {
+      loadUnreadCount();
+    }, 20000);
+    return () => clearInterval(timer);
+  }, [user]);
 
   const onRefresh = useCallback(async () => {
     setRefreshing(true);
@@ -102,6 +122,14 @@ export default function HomeScreen() {
             <Text style={styles.logoText}>Petsy</Text>
           </View>
           <View style={styles.headerRight}>
+            <TouchableOpacity style={styles.notifyBtn} onPress={() => router.push('/notifications')}>
+              <Ionicons name="notifications-outline" size={24} color={Colors.text} />
+              {unreadCount > 0 && (
+                <View style={styles.notifyBadge}>
+                  <Text style={styles.notifyBadgeText}>{unreadCount > 99 ? '99+' : unreadCount}</Text>
+                </View>
+              )}
+            </TouchableOpacity>
             <TouchableOpacity onPress={() => setLanguage(language === 'en' ? 'ar' : 'en')}>
               <Ionicons name="globe-outline" size={24} color={Colors.text} />
             </TouchableOpacity>
@@ -362,6 +390,26 @@ const styles = StyleSheet.create({
   headerRight: {
     flexDirection: 'row',
     gap: Spacing.md,
+  },
+  notifyBtn: {
+    position: 'relative',
+  },
+  notifyBadge: {
+    position: 'absolute',
+    top: -6,
+    right: -8,
+    minWidth: 16,
+    height: 16,
+    borderRadius: 8,
+    backgroundColor: Colors.error,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: 3,
+  },
+  notifyBadgeText: {
+    color: Colors.white,
+    fontSize: 9,
+    fontWeight: '800',
   },
   heroBanner: {
     margin: Spacing.md,
