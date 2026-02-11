@@ -518,7 +518,23 @@ export default function CommunityScreen() {
         data={POST_TYPES}
         keyExtractor={(item) => item.id}
         showsHorizontalScrollIndicator={false}
-        style={styles.typeFiltersList}
+        style={[
+          styles.typeFiltersList,
+          {
+            WebkitOverflowScrolling: 'touch',
+            flexDirection: 'row',
+            flexShrink: 1,
+            overflowX: 'auto',
+            overflowY: 'hidden',
+            transform: 'translateZ(0)',
+            backgroundColor: Colors.white,
+            flexGrow: 1,
+            marginBottom: '7%',
+            marginTop: '5%',
+            overflow: 'hidden',
+            scrollbarWidth: 'none',
+          } as any,
+        ]}
         contentContainerStyle={styles.typeFilters}
         renderItem={({ item }) => (
           <TouchableOpacity
