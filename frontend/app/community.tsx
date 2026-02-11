@@ -714,8 +714,10 @@ const styles = StyleSheet.create({
   },
   typeFiltersList: {
     backgroundColor: Colors.white,
-    maxHeight: 62,
     flexGrow: 0,
+    paddingTop: 4,
+    paddingBottom: 6,
+    marginBottom: 6,
   },
   typeFilters: {
     paddingHorizontal: Spacing.md,
