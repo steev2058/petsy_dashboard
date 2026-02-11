@@ -1,0 +1,203 @@
+import React, { useEffect, useMemo, useState } from 'react';
+import {
+  View,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  FlatList,
+  RefreshControl,
+  ActivityIndicator,
+} from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { Ionicons } from '@expo/vector-icons';
+import { useRouter } from 'expo-router';
+import { Colors, FontSize, Spacing, BorderRadius, Shadow } from '../../src/constants/theme';
+import api from '../../src/services/api';
+
+type AuditLog = {
+  id: string;
+  admin_user_id?: string;
+  admin_email?: string;
+  action?: string;
+  target_type?: string;
+  target_id?: string;
+  payload?: Record<string, any>;
+  created_at?: string;
+};
+
+const ACTION_FILTERS = ['all', 'review_friend_report', 'review_role_request', 'block_user', 'update_user'];
+
+export default function AdminAuditLogsScreen() {
+  const router = useRouter();
+  const [items, setItems] = useState<AuditLog[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
+  const [limit, setLimit] = useState(200);
+  const [filter, setFilter] = useState<string>('all');
+
+  const load = async () => {
+    try {
+      const res = await api.get('/admin/audit-logs', { params: { limit } });
+      setItems(Array.isArray(res.data) ? res.data : []);
+    } catch (e) {
+      console.error('Failed to load admin audit logs', e);
+      setItems([]);
+    } finally {
+      setLoading(false);
+      setRefreshing(false);
+    }
+  };
+
+  useEffect(() => {
+    load();
+  }, [limit]);
+
+  const onRefresh = () => {
+    setRefreshing(true);
+    load();
+  };
+
+  const filteredItems = useMemo(() => {
+    if (filter === 'all') return items;
+    return items.filter((row) => row.action === filter);
+  }, [items, filter]);
+
+  const renderPayload = (payload?: Record<string, any>) => {
+    if (!payload || Object.keys(payload).length === 0) return '—';
+    try {
+      return JSON.stringify(payload);
+    } catch {
+      return '—';
+    }
+  };
+
+  if (loading) {
+    return (
+      <SafeAreaView style={styles.container}>
+        <View style={styles.center}><ActivityIndicator size="small" color={Colors.primary} /></View>
+      </SafeAreaView>
+    );
+  }
+
+  return (
+    <SafeAreaView style={styles.container} edges={['top']}>
+      <View style={styles.header}>
+        <TouchableOpacity style={styles.iconBtn} onPress={() => router.back()}>
+          <Ionicons name="chevron-back" size={22} color={Colors.text} />
+        </TouchableOpacity>
+        <Text style={styles.title}>Admin Audit Logs</Text>
+        <TouchableOpacity style={styles.iconBtn} onPress={onRefresh}>
+          <Ionicons name="refresh" size={18} color={Colors.text} />
+        </TouchableOpacity>
+      </View>
+
+      <View style={styles.filterWrap}>
+        {ACTION_FILTERS.map((f) => (
+          <TouchableOpacity
+            key={f}
+            style={[styles.filterChip, filter === f && styles.filterChipActive]}
+            onPress={() => setFilter(f)}
+          >
+            <Text style={[styles.filterText, filter === f && styles.filterTextActive]}>{f === 'all' ? 'All' : f.replaceAll('_', ' ')}</Text>
+          </TouchableOpacity>
+        ))}
+      </View>
+
+      <View style={styles.limitRow}>
+        <Text style={styles.limitText}>Showing up to {limit} logs</Text>
+        <TouchableOpacity style={styles.moreBtn} onPress={() => setLimit((v) => Math.min(v + 200, 1000))}>
+          <Text style={styles.moreBtnText}>Load more</Text>
+        </TouchableOpacity>
+      </View>
+
+      <FlatList
+        data={filteredItems}
+        keyExtractor={(item) => item.id}
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={[Colors.primary]} />}
+        contentContainerStyle={filteredItems.length === 0 ? styles.center : styles.list}
+        ListEmptyComponent={<Text style={styles.empty}>No audit logs found</Text>}
+        renderItem={({ item }) => (
+          <View style={[styles.card, Shadow.small]}>
+            <View style={styles.rowBetween}>
+              <Text style={styles.action}>{(item.action || 'unknown').replaceAll('_', ' ')}</Text>
+              <Text style={styles.time}>{item.created_at ? new Date(item.created_at).toLocaleString() : '—'}</Text>
+            </View>
+            <Text style={styles.meta}>Admin: {item.admin_email || item.admin_user_id || '—'}</Text>
+            <Text style={styles.meta}>Target: {item.target_type || '—'} {item.target_id ? `(${item.target_id})` : ''}</Text>
+            <Text style={styles.payload}>{renderPayload(item.payload)}</Text>
+          </View>
+        )}
+      />
+    </SafeAreaView>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: { flex: 1, backgroundColor: Colors.background },
+  center: { flex: 1, alignItems: 'center', justifyContent: 'center' },
+  header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: Spacing.md,
+    paddingVertical: Spacing.sm,
+    borderBottomWidth: 1,
+    borderBottomColor: Colors.border,
+    backgroundColor: Colors.white,
+  },
+  iconBtn: {
+    width: 36,
+    height: 36,
+    borderRadius: BorderRadius.md,
+    backgroundColor: Colors.backgroundDark,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  title: { fontSize: FontSize.xl, fontWeight: '800', color: Colors.text },
+  filterWrap: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 8,
+    paddingHorizontal: Spacing.md,
+    paddingTop: Spacing.sm,
+    paddingBottom: 4,
+  },
+  filterChip: {
+    borderRadius: 999,
+    borderWidth: 1,
+    borderColor: Colors.border,
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    backgroundColor: Colors.white,
+  },
+  filterChipActive: {
+    borderColor: Colors.primary,
+    backgroundColor: Colors.primary + '15',
+  },
+  filterText: { fontSize: 12, color: Colors.textSecondary, textTransform: 'capitalize' },
+  filterTextActive: { color: Colors.primary, fontWeight: '700' },
+  limitRow: {
+    marginHorizontal: Spacing.md,
+    marginTop: 6,
+    marginBottom: 8,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  limitText: { fontSize: 12, color: Colors.textSecondary },
+  moreBtn: {
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    borderRadius: BorderRadius.md,
+    backgroundColor: Colors.primary + '15',
+  },
+  moreBtnText: { color: Colors.primary, fontWeight: '700', fontSize: 12 },
+  list: { padding: Spacing.md, gap: 10, paddingBottom: 120 },
+  empty: { color: Colors.textSecondary },
+  card: { backgroundColor: Colors.white, borderRadius: BorderRadius.lg, padding: Spacing.md },
+  rowBetween: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', gap: 8 },
+  action: { color: Colors.text, fontWeight: '700', fontSize: FontSize.md, textTransform: 'capitalize', flex: 1 },
+  time: { color: Colors.textSecondary, fontSize: 11 },
+  meta: { color: Colors.textSecondary, fontSize: 12, marginTop: 4 },
+  payload: { color: Colors.text, marginTop: 8, fontSize: 12 },
+});
