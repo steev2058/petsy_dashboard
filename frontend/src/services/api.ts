@@ -308,6 +308,9 @@ export const friendsAPI = {
   getRequests: () => api.get('/friends/requests'),
   sendRequest: (target_user_id: string, message?: string) => api.post('/friends/requests', { target_user_id, message }),
   reviewRequest: (requestId: string, action: 'accept' | 'reject') => api.put(`/friends/requests/${requestId}`, { action }),
+  blockUser: (target_user_id: string) => api.post(`/friends/${target_user_id}/block`),
+  unblockUser: (target_user_id: string) => api.delete(`/friends/${target_user_id}/block`),
+  reportUser: (target_user_id: string, reason?: string, notes?: string) => api.post('/friends/report', { target_user_id, reason, notes }),
 };
 
 // Map Locations API

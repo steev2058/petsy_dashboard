@@ -123,6 +123,15 @@ async def create_notifications_for_admins(title: str, body: str, notif_type: str
     for admin in admins:
         await create_notification(admin.get("id"), title, body, notif_type, data)
 
+async def get_friend_ids_set(user_id: str) -> Set[str]:
+    rows = await db.friendships.find({"users": user_id}).to_list(5000)
+    result: Set[str] = set()
+    for fr in rows:
+        for uid in fr.get("users", []):
+            if uid and uid != user_id:
+                result.add(uid)
+    return result
+
 # ========================= MODELS =========================
 
 # User Models
@@ -729,6 +738,7 @@ DEFAULT_USER_SETTINGS = {
     "email_updates": True,
     "chat_sound": True,
     "chat_preview": True,
+    "allow_friend_requests": "everyone",  # everyone | nobody
     "language": "en",
 }
 
@@ -1462,13 +1472,21 @@ async def search_users_for_friends(q: str = '', current_user: dict = Depends(get
     if len(keyword) < 2:
         return []
 
+    blocked_rows = await db.blocked_users.find({"$or": [{"user_id": current_user["id"]}, {"blocked_user_id": current_user["id"]}]}).to_list(5000)
+    blocked_ids = set()
+    for row in blocked_rows:
+        if row.get("user_id") == current_user["id"]:
+            blocked_ids.add(row.get("blocked_user_id"))
+        if row.get("blocked_user_id") == current_user["id"]:
+            blocked_ids.add(row.get("user_id"))
+
     regex_query = {
         "$or": [
             {"name": {"$regex": keyword, "$options": "i"}},
             {"username": {"$regex": keyword, "$options": "i"}},
             {"user_code": {"$regex": keyword, "$options": "i"}},
         ],
-        "id": {"$ne": current_user["id"]}
+        "id": {"$ne": current_user["id"], "$nin": list(blocked_ids)}
     }
     users = await db.users.find(regex_query).limit(30).to_list(30)
 
@@ -1477,25 +1495,23 @@ async def search_users_for_friends(q: str = '', current_user: dict = Depends(get
     outgoing_set = {r.get("to_user_id") for r in outgoing}
     incoming_set = {r.get("from_user_id") for r in incoming}
 
-    friends_rows = await db.friendships.find({"users": current_user["id"]}).to_list(2000)
-    friend_ids = set()
-    for fr in friends_rows:
-        users_pair = fr.get("users", [])
-        for uid in users_pair:
-            if uid != current_user["id"]:
-                friend_ids.add(uid)
+    my_friend_ids = await get_friend_ids_set(current_user["id"])
 
     result = []
     for u in users:
+        uid = u.get("id")
+        target_friend_ids = await get_friend_ids_set(uid)
+        mutual_count = len(my_friend_ids.intersection(target_friend_ids))
         result.append({
-            "id": u.get("id"),
+            "id": uid,
             "name": u.get("name"),
             "avatar": u.get("avatar"),
             "username": u.get("username") or normalize_username(u.get("name") or "user"),
-            "user_code": u.get("user_code") or generate_user_code(u.get("id") or ""),
-            "friendship_status": "friends" if u.get("id") in friend_ids else (
-                "outgoing_pending" if u.get("id") in outgoing_set else (
-                    "incoming_pending" if u.get("id") in incoming_set else "none"
+            "user_code": u.get("user_code") or generate_user_code(uid or ""),
+            "mutual_count": mutual_count,
+            "friendship_status": "friends" if uid in my_friend_ids else (
+                "outgoing_pending" if uid in outgoing_set else (
+                    "incoming_pending" if uid in incoming_set else "none"
                 )
             )
         })
@@ -1513,14 +1529,21 @@ async def get_friends(current_user: dict = Depends(get_current_user)):
         return []
     users = await db.users.find({"id": {"$in": friend_ids}}).to_list(2000)
     umap = {u.get("id"): u for u in users}
-    return [{
-        "id": uid,
-        "name": umap.get(uid, {}).get("name", "Unknown"),
-        "avatar": umap.get(uid, {}).get("avatar"),
-        "username": umap.get(uid, {}).get("username") or normalize_username(umap.get(uid, {}).get("name") or "user"),
-        "user_code": umap.get(uid, {}).get("user_code") or generate_user_code(uid),
-        "is_online": chat_ws_manager.is_online(uid),
-    } for uid in friend_ids]
+    my_friend_ids = await get_friend_ids_set(current_user["id"])
+    result = []
+    for uid in friend_ids:
+        target_friend_ids = await get_friend_ids_set(uid)
+        mutual_count = len(my_friend_ids.intersection(target_friend_ids))
+        result.append({
+            "id": uid,
+            "name": umap.get(uid, {}).get("name", "Unknown"),
+            "avatar": umap.get(uid, {}).get("avatar"),
+            "username": umap.get(uid, {}).get("username") or normalize_username(umap.get(uid, {}).get("name") or "user"),
+            "user_code": umap.get(uid, {}).get("user_code") or generate_user_code(uid),
+            "mutual_count": mutual_count,
+            "is_online": chat_ws_manager.is_online(uid),
+        })
+    return result
 
 @api_router.get('/friends/requests')
 async def get_friend_requests(current_user: dict = Depends(get_current_user)):
@@ -1568,6 +1591,18 @@ async def send_friend_request(payload: dict, current_user: dict = Depends(get_cu
     target = await db.users.find_one({'id': target_user_id})
     if not target:
         raise HTTPException(status_code=404, detail='User not found')
+
+    blocked = await db.blocked_users.find_one({"$or": [
+        {"user_id": current_user["id"], "blocked_user_id": target_user_id},
+        {"user_id": target_user_id, "blocked_user_id": current_user["id"]}
+    ]})
+    if blocked:
+        raise HTTPException(status_code=403, detail='Cannot send request to this user')
+
+    target_settings = await db.user_settings.find_one({"user_id": target_user_id})
+    allow_requests = (target_settings or {}).get("allow_friend_requests", "everyone")
+    if allow_requests == "nobody":
+        raise HTTPException(status_code=403, detail='This user is not accepting friend requests')
 
     existing_friend = await db.friendships.find_one({"users": {"$all": [current_user["id"], target_user_id]}})
     if existing_friend:
@@ -1646,6 +1681,64 @@ async def review_friend_request(request_id: str, payload: dict, current_user: di
     )
 
     return {"success": True, "status": new_status}
+
+@api_router.post('/friends/{target_user_id}/block')
+async def block_user_in_friends(target_user_id: str, current_user: dict = Depends(get_current_user)):
+    if target_user_id == current_user['id']:
+        raise HTTPException(status_code=400, detail='Cannot block yourself')
+
+    target = await db.users.find_one({"id": target_user_id})
+    if not target:
+        raise HTTPException(status_code=404, detail='User not found')
+
+    existing = await db.blocked_users.find_one({"user_id": current_user["id"], "blocked_user_id": target_user_id})
+    if not existing:
+        await db.blocked_users.insert_one({
+            "id": str(uuid.uuid4()),
+            "user_id": current_user["id"],
+            "blocked_user_id": target_user_id,
+            "created_at": datetime.utcnow(),
+        })
+
+    await db.friend_requests.delete_many({"$or": [
+        {"from_user_id": current_user["id"], "to_user_id": target_user_id},
+        {"from_user_id": target_user_id, "to_user_id": current_user["id"]},
+    ]})
+    await db.friendships.delete_many({"users": {"$all": [current_user["id"], target_user_id]}})
+    return {"success": True}
+
+@api_router.delete('/friends/{target_user_id}/block')
+async def unblock_user_in_friends(target_user_id: str, current_user: dict = Depends(get_current_user)):
+    await db.blocked_users.delete_one({"user_id": current_user["id"], "blocked_user_id": target_user_id})
+    return {"success": True}
+
+@api_router.post('/friends/report')
+async def report_user_in_friends(payload: dict, current_user: dict = Depends(get_current_user)):
+    target_user_id = payload.get('target_user_id')
+    reason = (payload.get('reason') or 'abuse').strip()
+    notes = payload.get('notes')
+    if not target_user_id or target_user_id == current_user['id']:
+        raise HTTPException(status_code=400, detail='Invalid target user')
+
+    target = await db.users.find_one({"id": target_user_id})
+    if not target:
+        raise HTTPException(status_code=404, detail='User not found')
+
+    await db.friend_reports.insert_one({
+        "id": str(uuid.uuid4()),
+        "reported_by": current_user["id"],
+        "target_user_id": target_user_id,
+        "reason": reason,
+        "notes": notes,
+        "created_at": datetime.utcnow(),
+    })
+    await create_notifications_for_admins(
+        "User reported",
+        f"{current_user.get('name', 'User')} reported a user profile.",
+        "admin",
+        {"route": "/admin/users", "target_user_id": target_user_id}
+    )
+    return {"success": True}
 
 @api_router.post('/conversations/direct/{other_user_id}')
 async def start_direct_conversation(other_user_id: str, current_user: dict = Depends(get_current_user)):
