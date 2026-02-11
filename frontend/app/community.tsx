@@ -723,8 +723,8 @@ const styles = StyleSheet.create({
   },
   typeFilters: {
     paddingHorizontal: Spacing.md,
-    paddingTop: 8,
-    paddingBottom: 8,
+    paddingTop: '5%',
+    paddingBottom: '7%',
     alignItems: 'center',
     gap: Spacing.sm,
   },
