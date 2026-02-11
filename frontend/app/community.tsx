@@ -420,7 +420,9 @@ export default function CommunityScreen() {
         <Text style={styles.postContent} numberOfLines={4}>{item.content}</Text>
 
         {item.image && (
-          <Image source={{ uri: item.image }} style={styles.postImage} />
+          <View style={styles.postImageWrap}>
+            <Image source={{ uri: item.image }} style={styles.postImage} resizeMode="cover" />
+          </View>
         )}
         </TouchableOpacity>
 
@@ -823,11 +825,16 @@ const styles = StyleSheet.create({
     color: Colors.textSecondary,
     lineHeight: 22,
   },
+  postImageWrap: {
+    width: '100%',
+    marginTop: Spacing.sm,
+    borderRadius: BorderRadius.md,
+    overflow: 'hidden',
+    backgroundColor: Colors.backgroundDark,
+  },
   postImage: {
     width: '100%',
-    height: 200,
-    borderRadius: BorderRadius.md,
-    marginTop: Spacing.sm,
+    aspectRatio: 16 / 9,
   },
   postActions: {
     flexDirection: 'row',

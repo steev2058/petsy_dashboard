@@ -140,7 +140,7 @@ export default function AdoptionScreen() {
           <TouchableOpacity style={[styles.card, Shadow.small]} onPress={() => router.push(`/pet/${item.id}`)}>
             <View style={styles.cardRow}>
               {item.image ? (
-                <Image source={{ uri: item.image }} style={styles.petImage} />
+                <Image source={{ uri: item.image }} style={styles.petImage} resizeMode='cover' />
               ) : (
                 <View style={styles.petImagePlaceholder}><Ionicons name='paw' size={24} color={Colors.textLight} /></View>
               )}
@@ -196,7 +196,7 @@ const styles = StyleSheet.create({
   listContent: { paddingHorizontal: Spacing.md, paddingBottom: 110 },
   card: { backgroundColor: Colors.white, borderRadius: BorderRadius.lg, padding: Spacing.md, marginBottom: Spacing.sm },
   cardRow: { flexDirection: 'row', gap: Spacing.md },
-  petImage: { width: 84, height: 84, borderRadius: BorderRadius.md },
+  petImage: { width: 84, height: 84, borderRadius: BorderRadius.md, backgroundColor: Colors.backgroundDark },
   petImagePlaceholder: { width: 84, height: 84, borderRadius: BorderRadius.md, backgroundColor: Colors.backgroundDark, alignItems: 'center', justifyContent: 'center' },
   cardTop: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
   name: { fontSize: FontSize.lg, fontWeight: '700', color: Colors.text },

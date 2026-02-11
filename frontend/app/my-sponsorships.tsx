@@ -84,7 +84,7 @@ export default function MySponsorshipsScreen() {
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={[Colors.primary]} />}
         renderItem={({ item }) => (
           <TouchableOpacity style={[styles.card, Shadow.small]} onPress={() => item.pet?.id && router.push(`/pet/${item.pet.id}`)}>
-            {item.pet?.image ? <Image source={{ uri: item.pet.image }} style={styles.img} /> : <View style={styles.imgPh}><Ionicons name='paw' size={20} color={Colors.textLight} /></View>}
+            {item.pet?.image ? <Image source={{ uri: item.pet.image }} style={styles.img} resizeMode='cover' /> : <View style={styles.imgPh}><Ionicons name='paw' size={20} color={Colors.textLight} /></View>}
             <View style={{ flex: 1, marginLeft: Spacing.md }}>
               <Text style={[styles.name, isRTL && styles.rtlText]}>{item.pet?.name || L.pet}</Text>
               <Text style={[styles.meta, isRTL && styles.rtlText]}>{item.pet?.species || L.unknown} • {item.pet?.breed || L.mixed}</Text>
@@ -112,7 +112,7 @@ const styles = StyleSheet.create({
   summarySub:{fontSize:FontSize.sm,color:Colors.textSecondary,marginTop:2},
   list:{paddingHorizontal:Spacing.md,paddingBottom:110},
   card:{flexDirection:'row',alignItems:'center',backgroundColor:Colors.white,borderRadius:BorderRadius.lg,padding:Spacing.md,marginBottom:Spacing.sm},
-  img:{width:62,height:62,borderRadius:BorderRadius.md},
+  img:{width:62,height:62,borderRadius:BorderRadius.md,backgroundColor:Colors.backgroundDark},
   imgPh:{width:62,height:62,borderRadius:BorderRadius.md,backgroundColor:Colors.backgroundDark,alignItems:'center',justifyContent:'center'},
   name:{fontSize:FontSize.md,fontWeight:'700',color:Colors.text},
   meta:{fontSize:FontSize.sm,color:Colors.textSecondary,marginTop:2},
