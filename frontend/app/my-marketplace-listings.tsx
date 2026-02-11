@@ -5,9 +5,28 @@ import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { Colors, FontSize, Spacing, BorderRadius, Shadow } from '../src/constants/theme';
 import { marketplaceAPI } from '../src/services/api';
+import { useTranslation } from '../src/hooks/useTranslation';
 
 export default function MyMarketplaceListings() {
   const router = useRouter();
+  const { language, isRTL } = useTranslation();
+  const L = {
+    title: language === 'ar' ? 'إعلاناتي' : 'My Listings',
+    sold: 'SOLD',
+    status: language === 'ar' ? 'الحالة' : 'Status',
+    active: language === 'ar' ? 'نشط' : 'active',
+    edit: language === 'ar' ? 'تعديل' : 'Edit',
+    markSold: language === 'ar' ? 'تم البيع' : 'Mark Sold',
+    del: language === 'ar' ? 'حذف' : 'Delete',
+    noListings: language === 'ar' ? 'لا توجد إعلانات بعد' : 'No listings yet',
+    error: language === 'ar' ? 'خطأ' : 'Error',
+    deleteFail: language === 'ar' ? 'فشل حذف الإعلان' : 'Failed to delete listing',
+    updateFail: language === 'ar' ? 'فشل تحديث حالة الإعلان' : 'Failed to update listing status',
+    delTitle: language === 'ar' ? 'حذف الإعلان' : 'Delete listing',
+    delBody: language === 'ar' ? 'هل أنت متأكد من حذف هذا الإعلان؟' : 'Are you sure you want to delete this listing?',
+    cancel: language === 'ar' ? 'إلغاء' : 'Cancel',
+    deleteQ: language === 'ar' ? 'حذف هذا الإعلان؟' : 'Delete this listing?'
+  };
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [rows, setRows] = useState<any[]>([]);
@@ -35,19 +54,19 @@ export default function MyMarketplaceListings() {
         await marketplaceAPI.remove(id);
         await load();
       } catch {
-        Alert.alert('Error', 'Failed to delete listing');
+        Alert.alert(L.error, L.deleteFail);
       }
     };
 
     if (Platform.OS === 'web') {
-      const ok = typeof window !== 'undefined' ? window.confirm('Delete this listing?') : false;
+      const ok = typeof window !== 'undefined' ? window.confirm(L.deleteQ) : false;
       if (ok) performDelete();
       return;
     }
 
-    Alert.alert('Delete listing', 'Are you sure you want to delete this listing?', [
-      { text: 'Cancel', style: 'cancel' },
-      { text: 'Delete', style: 'destructive', onPress: performDelete }
+    Alert.alert(L.delTitle, L.delBody, [
+      { text: L.cancel, style: 'cancel' },
+      { text: L.del, style: 'destructive', onPress: performDelete }
     ]);
   };
 
@@ -56,7 +75,7 @@ export default function MyMarketplaceListings() {
       await marketplaceAPI.setStatus(id, 'sold');
       await load();
     } catch {
-      Alert.alert('Error', 'Failed to update listing status');
+      Alert.alert(L.error, L.updateFail);
     }
   };
 
@@ -64,7 +83,7 @@ export default function MyMarketplaceListings() {
 
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
-      <View style={styles.header}><TouchableOpacity style={styles.iconBtn} onPress={() => router.back()}><Ionicons name='arrow-back' size={22} color={Colors.text} /></TouchableOpacity><Text style={styles.title}>My Listings</Text><View style={{ width: 40 }} /></View>
+      <View style={styles.header}><TouchableOpacity style={styles.iconBtn} onPress={() => router.back()}><Ionicons name='arrow-back' size={22} color={Colors.text} /></TouchableOpacity><Text style={[styles.title, isRTL && styles.rtlText]}>{L.title}</Text><View style={{ width: 40 }} /></View>
       <FlatList
         data={rows}
         keyExtractor={(item) => item.id}
@@ -76,28 +95,28 @@ export default function MyMarketplaceListings() {
               <View style={styles.thumbWrap}>
                 {item.image ? <Image source={{ uri: item.image }} style={styles.img} /> : <View style={styles.imgPh}><Ionicons name='image' size={20} color={Colors.textLight} /></View>}
                 {item.status === 'sold' && (
-                  <View style={styles.soldBadge}><Text style={styles.soldBadgeText}>SOLD</Text></View>
+                  <View style={styles.soldBadge}><Text style={styles.soldBadgeText}>{L.sold}</Text></View>
                 )}
               </View>
               <View style={{ flex: 1, marginLeft: Spacing.md }}>
                 <Text style={styles.name}>{item.title}</Text>
                 <Text style={styles.meta}>${Number(item.price || 0).toFixed(2)} • {item.location}</Text>
-                <Text style={styles.meta}>Status: {item.status || 'active'}</Text>
+                <Text style={[styles.meta, isRTL && styles.rtlText]}>{L.status}: {item.status || L.active}</Text>
               </View>
             </TouchableOpacity>
             <View style={styles.actionsRow}>
-              <TouchableOpacity style={styles.actionBtn} onPress={() => router.push(`/create-marketplace-listing?editId=${item.id}`)}><Text style={styles.actionText}>Edit</Text></TouchableOpacity>
-              <TouchableOpacity style={styles.actionBtn} onPress={() => onMarkSold(item.id)}><Text style={styles.actionText}>Mark Sold</Text></TouchableOpacity>
-              <TouchableOpacity style={[styles.actionBtn, styles.deleteBtn]} onPress={() => onDelete(item.id)}><Text style={[styles.actionText, styles.deleteText]}>Delete</Text></TouchableOpacity>
+              <TouchableOpacity style={styles.actionBtn} onPress={() => router.push(`/create-marketplace-listing?editId=${item.id}`)}><Text style={styles.actionText}>{L.edit}</Text></TouchableOpacity>
+              <TouchableOpacity style={styles.actionBtn} onPress={() => onMarkSold(item.id)}><Text style={styles.actionText}>{L.markSold}</Text></TouchableOpacity>
+              <TouchableOpacity style={[styles.actionBtn, styles.deleteBtn]} onPress={() => onDelete(item.id)}><Text style={[styles.actionText, styles.deleteText]}>{L.del}</Text></TouchableOpacity>
             </View>
           </View>
         )}
-        ListEmptyComponent={<View style={styles.center}><Text style={styles.empty}>No listings yet</Text></View>}
+        ListEmptyComponent={<View style={styles.center}><Text style={[styles.empty, isRTL && styles.rtlText]}>{L.noListings}</Text></View>}
       />
     </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  container:{flex:1,backgroundColor:'#F8F9FA'}, center:{flex:1,justifyContent:'center',alignItems:'center'}, header:{flexDirection:'row',alignItems:'center',justifyContent:'space-between',paddingHorizontal:Spacing.md,paddingVertical:Spacing.sm,backgroundColor:Colors.white}, iconBtn:{width:40,height:40,borderRadius:12,backgroundColor:Colors.backgroundDark,alignItems:'center',justifyContent:'center'}, title:{fontSize:FontSize.xl,fontWeight:'700',color:Colors.text}, list:{padding:Spacing.md,paddingBottom:110}, card:{backgroundColor:Colors.white,borderRadius:BorderRadius.lg,padding:Spacing.md,marginBottom:Spacing.sm}, thumbWrap:{position:'relative'}, img:{width:70,height:70,borderRadius:BorderRadius.md}, imgPh:{width:70,height:70,borderRadius:BorderRadius.md,backgroundColor:Colors.backgroundDark,alignItems:'center',justifyContent:'center'}, soldBadge:{position:'absolute',top:-6,right:-6,backgroundColor:'#16A34A',paddingHorizontal:8,paddingVertical:3,borderRadius:BorderRadius.full}, soldBadgeText:{color:Colors.white,fontSize:10,fontWeight:'800'}, name:{fontSize:FontSize.md,fontWeight:'700',color:Colors.text}, meta:{fontSize:FontSize.sm,color:Colors.textSecondary,marginTop:2}, actionsRow:{marginTop:10,flexDirection:'row',gap:8}, actionBtn:{paddingHorizontal:10,paddingVertical:7,borderRadius:BorderRadius.md,backgroundColor:Colors.backgroundDark}, actionText:{fontSize:FontSize.xs,fontWeight:'700',color:Colors.text}, deleteBtn:{backgroundColor:'#FEE2E2'}, deleteText:{color:Colors.error}, empty:{color:Colors.textSecondary}
+  container:{flex:1,backgroundColor:'#F8F9FA'}, center:{flex:1,justifyContent:'center',alignItems:'center'}, header:{flexDirection:'row',alignItems:'center',justifyContent:'space-between',paddingHorizontal:Spacing.md,paddingVertical:Spacing.sm,backgroundColor:Colors.white}, iconBtn:{width:40,height:40,borderRadius:12,backgroundColor:Colors.backgroundDark,alignItems:'center',justifyContent:'center'}, title:{fontSize:FontSize.xl,fontWeight:'700',color:Colors.text}, list:{padding:Spacing.md,paddingBottom:110}, card:{backgroundColor:Colors.white,borderRadius:BorderRadius.lg,padding:Spacing.md,marginBottom:Spacing.sm}, thumbWrap:{position:'relative'}, img:{width:70,height:70,borderRadius:BorderRadius.md}, imgPh:{width:70,height:70,borderRadius:BorderRadius.md,backgroundColor:Colors.backgroundDark,alignItems:'center',justifyContent:'center'}, soldBadge:{position:'absolute',top:-6,right:-6,backgroundColor:'#16A34A',paddingHorizontal:8,paddingVertical:3,borderRadius:BorderRadius.full}, soldBadgeText:{color:Colors.white,fontSize:10,fontWeight:'800'}, name:{fontSize:FontSize.md,fontWeight:'700',color:Colors.text}, meta:{fontSize:FontSize.sm,color:Colors.textSecondary,marginTop:2}, actionsRow:{marginTop:10,flexDirection:'row',gap:8}, actionBtn:{paddingHorizontal:10,paddingVertical:7,borderRadius:BorderRadius.md,backgroundColor:Colors.backgroundDark}, actionText:{fontSize:FontSize.xs,fontWeight:'700',color:Colors.text}, deleteBtn:{backgroundColor:'#FEE2E2'}, deleteText:{color:Colors.error}, empty:{color:Colors.textSecondary}, rtlText:{textAlign:'right'}
 });

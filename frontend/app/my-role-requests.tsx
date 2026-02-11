@@ -5,11 +5,18 @@ import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { roleRequestAPI } from '../src/services/api';
 import { Colors, FontSize, Spacing, BorderRadius, Shadow } from '../src/constants/theme';
+import { useTranslation } from '../src/hooks/useTranslation';
 
 const statusColor = (s: string) => s === 'approved' ? Colors.success : s === 'rejected' ? Colors.error : Colors.primary;
 
 export default function MyRoleRequestsScreen() {
   const router = useRouter();
+  const { language, isRTL } = useTranslation();
+  const L = {
+    title: language === 'ar' ? 'طلباتي للأدوار' : 'My Role Requests',
+    pending: language === 'ar' ? 'قيد الانتظار' : 'pending',
+    noRequests: language === 'ar' ? 'لا توجد طلبات أدوار بعد' : 'No role requests yet',
+  };
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [rows, setRows] = useState<any[]>([]);
@@ -32,7 +39,7 @@ export default function MyRoleRequestsScreen() {
     <SafeAreaView style={styles.container} edges={['top']}>
       <View style={styles.header}>
         <TouchableOpacity style={styles.backBtn} onPress={() => router.back()}><Ionicons name='arrow-back' size={22} color={Colors.text} /></TouchableOpacity>
-        <Text style={styles.title}>My Role Requests</Text>
+        <Text style={[styles.title, isRTL && styles.rtlText]}>{L.title}</Text>
         <TouchableOpacity style={styles.addBtn} onPress={() => router.push('/role-request')}><Ionicons name='add' size={20} color={Colors.white} /></TouchableOpacity>
       </View>
 
@@ -46,14 +53,14 @@ export default function MyRoleRequestsScreen() {
             <View style={styles.rowTop}>
               <Text style={styles.roleText}>{String(item.target_role || '').replace('_', ' ')}</Text>
               <View style={[styles.badge, { backgroundColor: statusColor(item.status) + '20' }]}>
-                <Text style={[styles.badgeText, { color: statusColor(item.status) }]}>{item.status || 'pending'}</Text>
+                <Text style={[styles.badgeText, { color: statusColor(item.status) }]}>{item.status || L.pending}</Text>
               </View>
             </View>
             {item.reason ? <Text style={styles.reason}>{item.reason}</Text> : null}
             <Text style={styles.date}>{item.created_at ? new Date(item.created_at).toLocaleString() : ''}</Text>
           </View>
         )}
-        ListEmptyComponent={<View style={styles.center}><Text style={styles.empty}>No role requests yet</Text></View>}
+        ListEmptyComponent={<View style={styles.center}><Text style={[styles.empty, isRTL && styles.rtlText]}>{L.noRequests}</Text></View>}
       />
     </SafeAreaView>
   );
@@ -73,5 +80,6 @@ const styles = StyleSheet.create({
   badgeText:{fontSize:FontSize.xs,fontWeight:'700',textTransform:'capitalize'},
   reason:{fontSize:FontSize.sm,color:Colors.text,marginTop:8},
   date:{fontSize:FontSize.xs,color:Colors.textSecondary,marginTop:8},
-  empty:{color:Colors.textSecondary}
+  empty:{color:Colors.textSecondary},
+  rtlText:{textAlign:'right'}
 });

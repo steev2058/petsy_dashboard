@@ -6,9 +6,20 @@ import { useFocusEffect } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
 import { Colors, FontSize, Spacing, BorderRadius, Shadow } from '../src/constants/theme';
 import { petsAPI } from '../src/services/api';
+import { useTranslation } from '../src/hooks/useTranslation';
 
 export default function SponsorshipsScreen() {
   const router = useRouter();
+  const { language, isRTL } = useTranslation();
+  const L = {
+    title: language === 'ar' ? 'الكفالة' : 'Sponsorship',
+    pet: language === 'ar' ? 'حيوان' : 'Pet',
+    mixed: language === 'ar' ? 'مختلط' : 'Mixed',
+    location: language === 'ar' ? 'الموقع' : 'Location',
+    na: language === 'ar' ? 'غير متاح' : 'N/A',
+    sponsor: language === 'ar' ? 'اكفل' : 'Sponsor',
+    empty: language === 'ar' ? 'لا توجد حيوانات متاحة للكفالة' : 'No pets available for sponsorship',
+  };
   const [loading, setLoading] = useState(true);
   const [pets, setPets] = useState<any[]>([]);
 
@@ -35,7 +46,7 @@ export default function SponsorshipsScreen() {
     <SafeAreaView style={styles.container} edges={['top']}>
       <View style={styles.header}>
         <TouchableOpacity onPress={() => router.back()} style={styles.backBtn}><Ionicons name='arrow-back' size={22} color={Colors.text} /></TouchableOpacity>
-        <Text style={styles.title}>Sponsorship</Text>
+        <Text style={[styles.title, isRTL && styles.rtlText]}>{L.title}</Text>
         <View style={styles.headerActions}>
           <TouchableOpacity onPress={() => router.push('/my-sponsorships')} style={styles.historyBtn}><Ionicons name='list' size={20} color={Colors.primary} /></TouchableOpacity>
           <TouchableOpacity onPress={() => router.push('/create-sponsorship-post')} style={styles.addBtn}><Ionicons name='add' size={22} color={Colors.white} /></TouchableOpacity>
@@ -50,14 +61,14 @@ export default function SponsorshipsScreen() {
           <TouchableOpacity style={[styles.card, Shadow.small]} onPress={() => router.push(`/sponsor/${item.id}`)}>
             {item.image ? <Image source={{ uri: item.image }} style={styles.img} /> : <View style={styles.imgPh}><Ionicons name='paw' size={22} color={Colors.textLight} /></View>}
             <View style={{ flex: 1, marginLeft: Spacing.md }}>
-              <Text style={styles.name}>{item.name || 'Pet'}</Text>
-              <Text style={styles.meta}>{item.species} • {item.breed || 'Mixed'}</Text>
-              <Text style={styles.meta}>Location: {item.location || 'N/A'}</Text>
+              <Text style={[styles.name, isRTL && styles.rtlText]}>{item.name || L.pet}</Text>
+              <Text style={[styles.meta, isRTL && styles.rtlText]}>{item.species} • {item.breed || L.mixed}</Text>
+              <Text style={[styles.meta, isRTL && styles.rtlText]}>{L.location}: {item.location || L.na}</Text>
             </View>
-            <View style={styles.sponsorBtn}><Text style={styles.sponsorText}>Sponsor</Text></View>
+            <View style={styles.sponsorBtn}><Text style={styles.sponsorText}>{L.sponsor}</Text></View>
           </TouchableOpacity>
         )}
-        ListEmptyComponent={<View style={styles.center}><Text style={{ color: Colors.textSecondary }}>No pets available for sponsorship</Text></View>}
+        ListEmptyComponent={<View style={styles.center}><Text style={[{ color: Colors.textSecondary }, isRTL && styles.rtlText]}>{L.empty}</Text></View>}
       />
     </SafeAreaView>
   );
@@ -80,4 +91,5 @@ const styles = StyleSheet.create({
   meta:{fontSize:FontSize.sm,color:Colors.textSecondary,marginTop:2},
   sponsorBtn:{backgroundColor:Colors.primary,borderRadius:BorderRadius.full,paddingHorizontal:12,paddingVertical:7},
   sponsorText:{color:Colors.white,fontSize:FontSize.sm,fontWeight:'700'},
+  rtlText:{textAlign:'right'},
 });

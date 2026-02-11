@@ -6,11 +6,27 @@ import { Ionicons } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
 import { Colors, FontSize, Spacing, BorderRadius, Shadow } from '../src/constants/theme';
 import { petsAPI } from '../src/services/api';
+import { useTranslation } from '../src/hooks/useTranslation';
 
 const SPECIES = ['cat', 'bird', 'fish', 'rabbit', 'dog', 'other'];
 
 export default function CreateSponsorshipPostScreen() {
   const router = useRouter();
+  const { language, isRTL } = useTranslation();
+  const L = {
+    title: language === 'ar' ? 'إنشاء منشور كفالة' : 'Create Sponsorship Post',
+    tapPhoto: language === 'ar' ? 'اضغط لإضافة صورة' : 'Tap to add photo',
+    petName: language === 'ar' ? 'اسم الحيوان *' : 'Pet name *',
+    breed: language === 'ar' ? 'السلالة' : 'Breed',
+    age: language === 'ar' ? 'العمر' : 'Age',
+    location: language === 'ar' ? 'الموقع *' : 'Location *',
+    desc: language === 'ar' ? 'الوصف' : 'Description',
+    post: language === 'ar' ? 'نشر للكفالة' : 'Post for Sponsorship',
+    enterName: language === 'ar' ? 'يرجى إدخال اسم الحيوان' : 'Please enter pet name',
+    enterLocation: language === 'ar' ? 'يرجى إدخال الموقع' : 'Please enter location',
+    created: language === 'ar' ? 'تم إنشاء منشور الكفالة بنجاح' : 'Sponsorship post created successfully',
+    createFail: language === 'ar' ? 'فشل إنشاء منشور الكفالة' : 'Failed to create sponsorship post',
+  };
   const [saving, setSaving] = useState(false);
   const [image, setImage] = useState<string | null>(null);
   const [species, setSpecies] = useState('cat');
@@ -31,8 +47,8 @@ export default function CreateSponsorshipPostScreen() {
   };
 
   const onSubmit = async () => {
-    if (!form.name.trim()) return showToast('Please enter pet name', 'error');
-    if (!form.location.trim()) return showToast('Please enter location', 'error');
+    if (!form.name.trim()) return showToast(L.enterName, 'error');
+    if (!form.location.trim()) return showToast(L.enterLocation, 'error');
 
     setSaving(true);
     try {
@@ -49,10 +65,10 @@ export default function CreateSponsorshipPostScreen() {
         image,
         status: 'for_adoption',
       });
-      showToast('Sponsorship post created successfully', 'success');
+      showToast(L.created, 'success');
       setTimeout(() => router.replace('/sponsorships'), 700);
     } catch (e: any) {
-      showToast(e?.response?.data?.detail || 'Failed to create sponsorship post', 'error');
+      showToast(e?.response?.data?.detail || L.createFail, 'error');
     } finally {
       setSaving(false);
     }
@@ -69,24 +85,24 @@ export default function CreateSponsorshipPostScreen() {
 
       <View style={styles.header}>
         <TouchableOpacity onPress={() => router.back()} style={styles.back}><Ionicons name='arrow-back' size={22} color={Colors.text} /></TouchableOpacity>
-        <Text style={styles.title}>Create Sponsorship Post</Text>
+        <Text style={[styles.title, isRTL && styles.rtlText]}>{L.title}</Text>
         <View style={{ width: 40 }} />
       </View>
 
       <ScrollView contentContainerStyle={styles.content}>
         <TouchableOpacity style={[styles.imageBox, Shadow.small]} onPress={pickImage}>
-          {image ? <Image source={{ uri: image }} style={styles.image} /> : <><Ionicons name='camera' size={28} color={Colors.textLight} /><Text style={styles.imageText}>Tap to add photo</Text></>}
+          {image ? <Image source={{ uri: image }} style={styles.image} /> : <><Ionicons name='camera' size={28} color={Colors.textLight} /><Text style={styles.imageText}>{L.tapPhoto}</Text></>}
         </TouchableOpacity>
 
-        <TextInput style={styles.input} placeholder='Pet name *' value={form.name} onChangeText={(v)=>setForm({...form,name:v})} />
+        <TextInput style={[styles.input, isRTL && styles.rtlText]} placeholder={L.petName} value={form.name} onChangeText={(v)=>setForm({...form,name:v})} />
         <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.speciesRow}>
-          {SPECIES.map((s) => <TouchableOpacity key={s} style={[styles.spBtn, species===s && styles.spBtnActive]} onPress={() => setSpecies(s)}><Text style={[styles.spText, species===s && styles.spTextActive]}>{s}</Text></TouchableOpacity>)}
+          {SPECIES.map((s) => <TouchableOpacity key={s} style={[styles.spBtn, species===s && styles.spBtnActive]} onPress={() => setSpecies(s)}><Text style={[styles.spText, species===s && styles.spTextActive]}>{language === 'ar' ? (s === 'cat' ? 'قط' : s === 'bird' ? 'طائر' : s === 'fish' ? 'سمك' : s === 'rabbit' ? 'أرنب' : s === 'dog' ? 'كلب' : 'أخرى') : s}</Text></TouchableOpacity>)}
         </ScrollView>
-        <TextInput style={styles.input} placeholder='Breed' value={form.breed} onChangeText={(v)=>setForm({...form,breed:v})} />
-        <TextInput style={styles.input} placeholder='Age' value={form.age} onChangeText={(v)=>setForm({...form,age:v})} />
-        <TextInput style={styles.input} placeholder='Location *' value={form.location} onChangeText={(v)=>setForm({...form,location:v})} />
-        <TextInput style={[styles.input, styles.area]} placeholder='Description' multiline value={form.description} onChangeText={(v)=>setForm({...form,description:v})} />
-        <TouchableOpacity style={styles.submit} onPress={onSubmit} disabled={saving}>{saving ? <ActivityIndicator size='small' color={Colors.white} /> : <Text style={styles.submitText}>Post for Sponsorship</Text>}</TouchableOpacity>
+        <TextInput style={[styles.input, isRTL && styles.rtlText]} placeholder={L.breed} value={form.breed} onChangeText={(v)=>setForm({...form,breed:v})} />
+        <TextInput style={[styles.input, isRTL && styles.rtlText]} placeholder={L.age} value={form.age} onChangeText={(v)=>setForm({...form,age:v})} />
+        <TextInput style={[styles.input, isRTL && styles.rtlText]} placeholder={L.location} value={form.location} onChangeText={(v)=>setForm({...form,location:v})} />
+        <TextInput style={[styles.input, styles.area, isRTL && styles.rtlText]} placeholder={L.desc} multiline value={form.description} onChangeText={(v)=>setForm({...form,description:v})} />
+        <TouchableOpacity style={styles.submit} onPress={onSubmit} disabled={saving}>{saving ? <ActivityIndicator size='small' color={Colors.white} /> : <Text style={styles.submitText}>{L.post}</Text>}</TouchableOpacity>
       </ScrollView>
     </SafeAreaView>
   );
@@ -114,4 +130,5 @@ const styles = StyleSheet.create({
   toastSuccess:{backgroundColor:Colors.success},
   toastError:{backgroundColor:Colors.error},
   toastText:{color:Colors.white,fontWeight:'600',fontSize:FontSize.sm,flex:1},
+  rtlText:{textAlign:'right'},
 });
