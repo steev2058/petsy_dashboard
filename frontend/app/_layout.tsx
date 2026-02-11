@@ -11,6 +11,7 @@ export default function RootLayout() {
   const language = useStore((state) => state.language);
   const isAuthenticated = useStore((state) => state.isAuthenticated);
   const isLoading = useStore((state) => state.isLoading);
+  const user = useStore((state) => state.user);
   const router = useRouter();
   const segments = useSegments();
 
@@ -88,10 +89,53 @@ export default function RootLayout() {
       return;
     }
 
+    if (isAuthenticated) {
+      const role = user?.role || 'user';
+      const isAdmin = !!user?.is_admin || role === 'admin';
+
+      const canAccessVet = isAdmin || role === 'vet';
+      const canAccessClinic = isAdmin || role === 'care_clinic';
+      const canAccessMarketOwner = isAdmin || role === 'market_owner';
+      const canAccessAdmin = isAdmin;
+
+      const isVetRoute = first === 'vet-care-requests';
+      const isClinicRoute = first === 'clinic-care-management';
+      const isMarketOwnerRoute = first === 'market-owner-dashboard';
+      const isAdminRoute = first === 'admin';
+
+      if (isVetRoute && !canAccessVet) {
+        router.replace('/(tabs)/home');
+        return;
+      }
+
+      if (isClinicRoute && !canAccessClinic) {
+        router.replace('/(tabs)/home');
+        return;
+      }
+
+      if (isMarketOwnerRoute && !canAccessMarketOwner) {
+        router.replace('/(tabs)/home');
+        return;
+      }
+
+      if (isAdminRoute && !canAccessAdmin) {
+        router.replace('/(tabs)/home');
+        return;
+      }
+
+      // Role request pages are only for regular users requesting role upgrades
+      const isRoleRequestRoute = first === 'role-request' || first === 'my-role-requests';
+      const isSpecializedRole = ['vet', 'market_owner', 'care_clinic', 'admin'].includes(role) || isAdmin;
+      if (isRoleRequestRoute && isSpecializedRole) {
+        router.replace('/(tabs)/home');
+        return;
+      }
+    }
+
     if (isAuthenticated && isAuthRoute) {
       router.replace('/(tabs)/home');
     }
-  }, [segments, isAuthenticated, isLoading, router]);
+  }, [segments, isAuthenticated, isLoading, user, router]);
 
   return (
     <>
