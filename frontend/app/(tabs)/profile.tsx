@@ -142,6 +142,7 @@ export default function ProfileScreen() {
     { icon: 'bag-handle', label: 'Order History', onPress: () => router.push('/order-history') },
     { icon: 'heart', label: t('favorites'), onPress: () => router.push('/favorites') },
     { icon: 'chatbubbles', label: t('messages'), onPress: () => router.push('/messages') },
+    { icon: 'people', label: 'Friends', onPress: () => router.push('/friends') },
     { icon: 'calendar', label: t('my_appointments'), onPress: () => router.push('/my-appointments') },
     { icon: 'document-text', label: t('health_records'), onPress: () => {
       if (myPets.length > 0) {
@@ -185,6 +186,7 @@ export default function ProfileScreen() {
           </View>
           <Text style={styles.userName}>{user?.name}</Text>
           <Text style={styles.userEmail}>{user?.email}</Text>
+          {!!user?.user_code && <Text style={styles.userMeta}>ID: {user.user_code} • @{user?.username || 'user'}</Text>}
           {user?.city && (
             <View style={styles.locationRow}>
               <Ionicons name="location" size={14} color={Colors.textSecondary} />
@@ -383,6 +385,12 @@ const styles = StyleSheet.create({
     fontSize: FontSize.md,
     color: Colors.textSecondary,
     marginTop: 2,
+  },
+  userMeta: {
+    fontSize: FontSize.sm,
+    color: Colors.primary,
+    marginTop: 4,
+    fontWeight: '600',
   },
   locationRow: {
     flexDirection: 'row',

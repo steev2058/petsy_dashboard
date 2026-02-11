@@ -286,6 +286,9 @@ export const ordersAPI = {
 export const conversationsAPI = {
   create: (data: { other_user_id: string; pet_id?: string; initial_message: string }) =>
     api.post('/conversations', data),
+
+  startDirect: (otherUserId: string) =>
+    api.post(`/conversations/direct/${otherUserId}`),
   
   getAll: () => api.get('/conversations'),
   
@@ -297,6 +300,14 @@ export const conversationsAPI = {
   
   sendMessage: (conversationId: string, content: string) =>
     api.post(`/conversations/${conversationId}/messages`, null, { params: { content } }),
+};
+
+export const friendsAPI = {
+  search: (q: string) => api.get('/friends/search', { params: { q } }),
+  getFriends: () => api.get('/friends'),
+  getRequests: () => api.get('/friends/requests'),
+  sendRequest: (target_user_id: string, message?: string) => api.post('/friends/requests', { target_user_id, message }),
+  reviewRequest: (requestId: string, action: 'accept' | 'reject') => api.put(`/friends/requests/${requestId}`, { action }),
 };
 
 // Map Locations API

@@ -76,6 +76,7 @@ export default function RootLayout() {
       'role-request',
       'my-role-requests',
       'notifications',
+      'friends',
       'admin',
     ]);
 
@@ -194,6 +195,7 @@ export default function RootLayout() {
         <Stack.Screen name="role-request" options={{ presentation: 'modal' }} />
         <Stack.Screen name="my-role-requests" />
         <Stack.Screen name="notifications" />
+        <Stack.Screen name="friends" />
         <Stack.Screen name="admin/index" />
         <Stack.Screen name="edit-profile" options={{ presentation: 'card' }} />
         <Stack.Screen name="help-support" />

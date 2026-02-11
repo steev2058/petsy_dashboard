@@ -267,12 +267,12 @@ export default function MessagesScreen() {
             </View>
           )}
         </View>
-        <TouchableOpacity style={styles.newChatButton}>
+        <TouchableOpacity style={styles.newChatButton} onPress={() => router.push('/friends')}>
           <LinearGradient
             colors={[Colors.primary, Colors.primaryDark]}
             style={styles.newChatGradient}
           >
-            <Ionicons name="create" size={20} color={Colors.white} />
+            <Ionicons name="people" size={20} color={Colors.white} />
           </LinearGradient>
         </TouchableOpacity>
       </View>

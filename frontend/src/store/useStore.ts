@@ -17,6 +17,8 @@ interface User {
   id: string;
   email: string;
   name: string;
+  username?: string;
+  user_code?: string;
   phone?: string;
   city?: string;
   bio?: string;

@@ -166,6 +166,8 @@ class DeleteAccountRequest(BaseModel):
 
 class User(UserBase):
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    username: Optional[str] = None
+    user_code: Optional[str] = None
     created_at: datetime = Field(default_factory=datetime.utcnow)
     is_verified: bool = False
     is_admin: bool = False
@@ -178,6 +180,8 @@ class UserResponse(BaseModel):
     id: str
     email: str
     name: str
+    username: Optional[str] = None
+    user_code: Optional[str] = None
     phone: Optional[str] = None
     city: Optional[str] = None
     bio: Optional[str] = None
@@ -549,6 +553,14 @@ def create_access_token(data: dict) -> str:
 def generate_verification_code() -> str:
     return str(random.randint(1000, 9999))
 
+def normalize_username(value: str) -> str:
+    clean = ''.join(ch for ch in (value or '').lower() if ch.isalnum() or ch in ['_', '.'])
+    return clean[:24]
+
+def generate_user_code(user_id: str) -> str:
+    suffix = (user_id or '').replace('-', '')[-6:].upper()
+    return f"PET-{suffix}"
+
 def smtp_is_configured() -> bool:
     return bool(
         os.environ.get("SMTP_HOST")
@@ -729,12 +741,22 @@ async def signup(user_data: UserCreate):
         raise HTTPException(status_code=400, detail="Email already registered")
     
     verification_code = generate_verification_code()
+
+    base_username = normalize_username(user_data.name) or f"user{random.randint(1000, 9999)}"
+    username = base_username
+    i = 1
+    while await db.users.find_one({"username": username}):
+        i += 1
+        username = f"{base_username}{i}"
+
     user = User(
         email=user_data.email,
         name=user_data.name,
+        username=username,
         phone=user_data.phone,
         verification_code=verification_code
     )
+    user.user_code = generate_user_code(user.id)
     user_dict = user.dict()
     user_dict["password_hash"] = hash_password(user_data.password)
     
@@ -886,6 +908,21 @@ async def login(credentials: UserLogin):
     if not user.get("is_verified", False):
         raise HTTPException(status_code=403, detail="Please verify your account before login")
 
+    patch = {}
+    if not user.get("username"):
+        base = normalize_username(user.get("name") or "user") or f"user{random.randint(1000,9999)}"
+        candidate = base
+        i = 1
+        while await db.users.find_one({"username": candidate, "id": {"$ne": user["id"]}}):
+            i += 1
+            candidate = f"{base}{i}"
+        patch["username"] = candidate
+    if not user.get("user_code"):
+        patch["user_code"] = generate_user_code(user["id"])
+    if patch:
+        await db.users.update_one({"id": user["id"]}, {"$set": patch})
+        user.update(patch)
+
     token = create_access_token({"sub": user["id"]})
     return TokenResponse(
         access_token=token,
@@ -894,6 +931,20 @@ async def login(credentials: UserLogin):
 
 @api_router.get("/auth/me", response_model=UserResponse)
 async def get_me(current_user: dict = Depends(get_current_user)):
+    patch = {}
+    if not current_user.get("username"):
+        base = normalize_username(current_user.get("name") or "user") or f"user{random.randint(1000,9999)}"
+        candidate = base
+        i = 1
+        while await db.users.find_one({"username": candidate, "id": {"$ne": current_user["id"]}}):
+            i += 1
+            candidate = f"{base}{i}"
+        patch["username"] = candidate
+    if not current_user.get("user_code"):
+        patch["user_code"] = generate_user_code(current_user["id"])
+    if patch:
+        await db.users.update_one({"id": current_user["id"]}, {"$set": patch})
+        current_user.update(patch)
     return UserResponse(**current_user)
 
 @api_router.put("/auth/update", response_model=UserResponse)
@@ -927,6 +978,8 @@ async def delete_account(payload: DeleteAccountRequest, current_user: dict = Dep
     await db.conversations.delete_many({"participants": uid})
     await db.chat_messages.delete_many({"sender_id": uid})
     await db.favorites.delete_many({"user_id": uid})
+    await db.friend_requests.delete_many({"$or": [{"from_user_id": uid}, {"to_user_id": uid}]})
+    await db.friendships.delete_many({"users": uid})
     await db.user_settings.delete_many({"user_id": uid})
     await db.blocked_users.delete_many({"$or": [{"user_id": uid}, {"blocked_user_id": uid}]})
     await db.community_post_notifications.delete_many({"user_id": uid})
@@ -1402,6 +1455,227 @@ async def get_conversations(current_user: dict = Depends(get_current_user)):
         result.append(clean_conv)
     
     return result
+
+@api_router.get('/friends/search')
+async def search_users_for_friends(q: str = '', current_user: dict = Depends(get_current_user)):
+    keyword = (q or '').strip()
+    if len(keyword) < 2:
+        return []
+
+    regex_query = {
+        "$or": [
+            {"name": {"$regex": keyword, "$options": "i"}},
+            {"username": {"$regex": keyword, "$options": "i"}},
+            {"user_code": {"$regex": keyword, "$options": "i"}},
+        ],
+        "id": {"$ne": current_user["id"]}
+    }
+    users = await db.users.find(regex_query).limit(30).to_list(30)
+
+    outgoing = await db.friend_requests.find({"from_user_id": current_user["id"], "status": "pending"}).to_list(500)
+    incoming = await db.friend_requests.find({"to_user_id": current_user["id"], "status": "pending"}).to_list(500)
+    outgoing_set = {r.get("to_user_id") for r in outgoing}
+    incoming_set = {r.get("from_user_id") for r in incoming}
+
+    friends_rows = await db.friendships.find({"users": current_user["id"]}).to_list(2000)
+    friend_ids = set()
+    for fr in friends_rows:
+        users_pair = fr.get("users", [])
+        for uid in users_pair:
+            if uid != current_user["id"]:
+                friend_ids.add(uid)
+
+    result = []
+    for u in users:
+        result.append({
+            "id": u.get("id"),
+            "name": u.get("name"),
+            "avatar": u.get("avatar"),
+            "username": u.get("username") or normalize_username(u.get("name") or "user"),
+            "user_code": u.get("user_code") or generate_user_code(u.get("id") or ""),
+            "friendship_status": "friends" if u.get("id") in friend_ids else (
+                "outgoing_pending" if u.get("id") in outgoing_set else (
+                    "incoming_pending" if u.get("id") in incoming_set else "none"
+                )
+            )
+        })
+    return result
+
+@api_router.get('/friends')
+async def get_friends(current_user: dict = Depends(get_current_user)):
+    rows = await db.friendships.find({"users": current_user["id"]}).sort("created_at", -1).to_list(2000)
+    friend_ids = []
+    for fr in rows:
+        for uid in fr.get("users", []):
+            if uid != current_user["id"]:
+                friend_ids.append(uid)
+    if not friend_ids:
+        return []
+    users = await db.users.find({"id": {"$in": friend_ids}}).to_list(2000)
+    umap = {u.get("id"): u for u in users}
+    return [{
+        "id": uid,
+        "name": umap.get(uid, {}).get("name", "Unknown"),
+        "avatar": umap.get(uid, {}).get("avatar"),
+        "username": umap.get(uid, {}).get("username") or normalize_username(umap.get(uid, {}).get("name") or "user"),
+        "user_code": umap.get(uid, {}).get("user_code") or generate_user_code(uid),
+        "is_online": chat_ws_manager.is_online(uid),
+    } for uid in friend_ids]
+
+@api_router.get('/friends/requests')
+async def get_friend_requests(current_user: dict = Depends(get_current_user)):
+    incoming = await db.friend_requests.find({"to_user_id": current_user["id"], "status": "pending"}).sort("created_at", -1).to_list(300)
+    outgoing = await db.friend_requests.find({"from_user_id": current_user["id"], "status": "pending"}).sort("created_at", -1).to_list(300)
+
+    incoming_user_ids = [r.get("from_user_id") for r in incoming if r.get("from_user_id")]
+    outgoing_user_ids = [r.get("to_user_id") for r in outgoing if r.get("to_user_id")]
+    users = await db.users.find({"id": {"$in": list(set(incoming_user_ids + outgoing_user_ids))}}).to_list(1000)
+    umap = {u.get("id"): u for u in users}
+
+    return {
+        "incoming": [{
+            "id": r.get("id"),
+            "message": r.get("message"),
+            "created_at": r.get("created_at"),
+            "user": {
+                "id": r.get("from_user_id"),
+                "name": umap.get(r.get("from_user_id"), {}).get("name", "Unknown"),
+                "avatar": umap.get(r.get("from_user_id"), {}).get("avatar"),
+                "username": umap.get(r.get("from_user_id"), {}).get("username") or normalize_username(umap.get(r.get("from_user_id"), {}).get("name") or "user"),
+                "user_code": umap.get(r.get("from_user_id"), {}).get("user_code") or generate_user_code(r.get("from_user_id") or ""),
+            }
+        } for r in incoming],
+        "outgoing": [{
+            "id": r.get("id"),
+            "message": r.get("message"),
+            "created_at": r.get("created_at"),
+            "user": {
+                "id": r.get("to_user_id"),
+                "name": umap.get(r.get("to_user_id"), {}).get("name", "Unknown"),
+                "avatar": umap.get(r.get("to_user_id"), {}).get("avatar"),
+                "username": umap.get(r.get("to_user_id"), {}).get("username") or normalize_username(umap.get(r.get("to_user_id"), {}).get("name") or "user"),
+                "user_code": umap.get(r.get("to_user_id"), {}).get("user_code") or generate_user_code(r.get("to_user_id") or ""),
+            }
+        } for r in outgoing]
+    }
+
+@api_router.post('/friends/requests')
+async def send_friend_request(payload: dict, current_user: dict = Depends(get_current_user)):
+    target_user_id = payload.get('target_user_id')
+    if not target_user_id or target_user_id == current_user['id']:
+        raise HTTPException(status_code=400, detail='Invalid target user')
+
+    target = await db.users.find_one({'id': target_user_id})
+    if not target:
+        raise HTTPException(status_code=404, detail='User not found')
+
+    existing_friend = await db.friendships.find_one({"users": {"$all": [current_user["id"], target_user_id]}})
+    if existing_friend:
+        return {"success": True, "status": "already_friends"}
+
+    existing = await db.friend_requests.find_one({
+        "from_user_id": current_user["id"],
+        "to_user_id": target_user_id,
+        "status": "pending"
+    })
+    if existing:
+        return {"success": True, "status": "pending", "request_id": existing.get("id")}
+
+    reverse = await db.friend_requests.find_one({
+        "from_user_id": target_user_id,
+        "to_user_id": current_user["id"],
+        "status": "pending"
+    })
+    if reverse:
+        # auto-accept reverse request
+        await db.friend_requests.update_one({"id": reverse.get("id")}, {"$set": {"status": "accepted", "updated_at": datetime.utcnow()}})
+        await db.friendships.insert_one({
+            "id": str(uuid.uuid4()),
+            "users": [current_user["id"], target_user_id],
+            "created_at": datetime.utcnow(),
+        })
+        return {"success": True, "status": "friends"}
+
+    row = {
+        "id": str(uuid.uuid4()),
+        "from_user_id": current_user["id"],
+        "to_user_id": target_user_id,
+        "message": (payload.get('message') or '').strip() or None,
+        "status": "pending",
+        "created_at": datetime.utcnow(),
+        "updated_at": datetime.utcnow(),
+    }
+    await db.friend_requests.insert_one(row)
+    await create_notification(
+        target_user_id,
+        "New friend request",
+        f"{current_user.get('name', 'Someone')} sent you a friend request.",
+        "friend_request",
+        {"route": "/friends", "request_id": row["id"]}
+    )
+    return {"success": True, "status": "pending", "request_id": row["id"]}
+
+@api_router.put('/friends/requests/{request_id}')
+async def review_friend_request(request_id: str, payload: dict, current_user: dict = Depends(get_current_user)):
+    action = (payload.get('action') or '').strip().lower()
+    if action not in {'accept', 'reject'}:
+        raise HTTPException(status_code=400, detail='Invalid action')
+
+    req = await db.friend_requests.find_one({"id": request_id, "to_user_id": current_user["id"], "status": "pending"})
+    if not req:
+        raise HTTPException(status_code=404, detail='Friend request not found')
+
+    new_status = 'accepted' if action == 'accept' else 'rejected'
+    await db.friend_requests.update_one({"id": request_id}, {"$set": {"status": new_status, "updated_at": datetime.utcnow()}})
+
+    if action == 'accept':
+        existing_friend = await db.friendships.find_one({"users": {"$all": [current_user["id"], req.get("from_user_id")]}})
+        if not existing_friend:
+            await db.friendships.insert_one({
+                "id": str(uuid.uuid4()),
+                "users": [current_user["id"], req.get("from_user_id")],
+                "created_at": datetime.utcnow(),
+            })
+
+    await create_notification(
+        req.get("from_user_id"),
+        "Friend request update",
+        f"{current_user.get('name', 'User')} {new_status} your friend request.",
+        "friend_request",
+        {"route": "/friends", "request_id": request_id, "status": new_status}
+    )
+
+    return {"success": True, "status": new_status}
+
+@api_router.post('/conversations/direct/{other_user_id}')
+async def start_direct_conversation(other_user_id: str, current_user: dict = Depends(get_current_user)):
+    if other_user_id == current_user['id']:
+        raise HTTPException(status_code=400, detail='Cannot chat with yourself')
+
+    is_friend = await db.friendships.find_one({"users": {"$all": [current_user["id"], other_user_id]}})
+    if not is_friend:
+        raise HTTPException(status_code=403, detail='You can only chat with friends')
+
+    other_user = await db.users.find_one({"id": other_user_id})
+    if not other_user:
+        raise HTTPException(status_code=404, detail='User not found')
+
+    existing = await db.conversations.find_one({
+        "participants": {"$all": [current_user["id"], other_user_id]},
+        "$expr": {"$eq": [{"$size": "$participants"}, 2]}
+    })
+    if existing:
+        return {"conversation_id": existing["id"], "is_new": False}
+
+    conversation = Conversation(
+        participants=[current_user["id"], other_user_id],
+        pet_id=None,
+        last_message=None,
+        last_message_time=datetime.utcnow(),
+    )
+    await db.conversations.insert_one(conversation.dict())
+    await notify_conversation_participants(conversation.id, "conversations_updated", {})
+    return {"conversation_id": conversation.id, "is_new": True}
 
 @api_router.get("/conversations/{conversation_id}/messages")
 async def get_chat_messages(conversation_id: str, current_user: dict = Depends(get_current_user)):
