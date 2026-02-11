@@ -18,9 +18,34 @@ import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Colors, FontSize, Spacing, BorderRadius, Shadow } from '../../src/constants/theme';
 import api from '../../src/services/api';
+import { useTranslation } from '../../src/hooks/useTranslation';
 
 export default function AdminUsersScreen() {
   const router = useRouter();
+  const { language, isRTL } = useTranslation();
+  const L = {
+    users: language === 'ar' ? 'المستخدمون' : 'Users',
+    searchUsers: language === 'ar' ? 'ابحث عن مستخدمين...' : 'Search users...',
+    total: language === 'ar' ? 'الإجمالي' : 'Total',
+    verified: language === 'ar' ? 'موثّق' : 'Verified',
+    admins: language === 'ar' ? 'المشرفون' : 'Admins',
+    noUsers: language === 'ar' ? 'لا يوجد مستخدمون' : 'No users found',
+    userDetails: language === 'ar' ? 'تفاصيل المستخدم' : 'User Details',
+    verify: language === 'ar' ? 'توثيق' : 'Verify',
+    unverify: language === 'ar' ? 'إلغاء التوثيق' : 'Unverify',
+    setVet: language === 'ar' ? 'تعيين طبيب' : 'Set Vet',
+    setMarket: language === 'ar' ? 'تعيين سوق' : 'Set Market',
+    setClinic: language === 'ar' ? 'تعيين عيادة' : 'Set Clinic',
+    setAdmin: language === 'ar' ? 'تعيين مشرف' : 'Set Admin',
+    reports: language === 'ar' ? 'البلاغات' : 'Reports',
+    block: language === 'ar' ? 'حظر' : 'Block',
+    unblock: language === 'ar' ? 'إلغاء الحظر' : 'Unblock',
+    delete: language === 'ar' ? 'حذف' : 'Delete',
+    joined: language === 'ar' ? 'انضم' : 'Joined',
+    reportsOpen: language === 'ar' ? 'بلاغات مفتوحة' : 'Reports',
+    blocked: language === 'ar' ? 'محظور' : 'Blocked',
+    loading: language === 'ar' ? 'جاري تحميل البيانات...' : 'Loading data...',
+  };
   const [users, setUsers] = useState<any[]>([]);
   const [filteredUsers, setFilteredUsers] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -136,7 +161,7 @@ export default function AdminUsersScreen() {
       <SafeAreaView style={styles.container} edges={['top']}>
         <View style={styles.loaderBox}>
           <ActivityIndicator size="small" color={Colors.primary} />
-          <Text style={styles.loaderText}>Loading data...</Text>
+          <Text style={[styles.loaderText, isRTL && styles.rtlText]}>{L.loading}</Text>
         </View>
       </SafeAreaView>
     );
@@ -166,12 +191,12 @@ export default function AdminUsersScreen() {
           )}
         </View>
         <Text style={styles.userEmail}>{item.email}</Text>
-        <Text style={styles.userDate}>Joined {formatDate(item.created_at)}</Text>
+        <Text style={[styles.userDate, isRTL && styles.rtlText]}>{L.joined} {formatDate(item.created_at)}</Text>
         <View style={styles.safetyRow}>
           <Text style={[styles.safetyChip, item.friend_reports_open_count > 0 ? styles.safetyWarn : styles.safetyOk]}>
-            Reports: {item.friend_reports_open_count || 0} open
+            {L.reportsOpen}: {item.friend_reports_open_count || 0}
           </Text>
-          {item.is_blocked_by_admin ? <Text style={[styles.safetyChip, styles.safetyBlocked]}>Blocked</Text> : null}
+          {item.is_blocked_by_admin ? <Text style={[styles.safetyChip, styles.safetyBlocked]}>{L.blocked}</Text> : null}
         </View>
       </View>
       <View style={[styles.verifiedBadge, { backgroundColor: item.is_verified ? Colors.success + '20' : Colors.error + '20' }]}>
@@ -187,7 +212,7 @@ export default function AdminUsersScreen() {
         <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
           <Ionicons name="arrow-back" size={24} color={Colors.text} />
         </TouchableOpacity>
-        <Text style={styles.title}>Users</Text>
+        <Text style={[styles.title, isRTL && styles.rtlText]}>{L.users}</Text>
         <TouchableOpacity style={styles.addButton}>
           <Ionicons name="add" size={24} color={Colors.primary} />
         </TouchableOpacity>
@@ -198,7 +223,7 @@ export default function AdminUsersScreen() {
         <Ionicons name="search" size={20} color={Colors.textSecondary} />
         <TextInput
           style={styles.searchInput}
-          placeholder="Search users..."
+          placeholder={L.searchUsers}
           placeholderTextColor={Colors.textLight}
           value={searchQuery}
           onChangeText={setSearchQuery}
@@ -214,17 +239,17 @@ export default function AdminUsersScreen() {
       <View style={styles.statsBar}>
         <View style={styles.statItem}>
           <Text style={styles.statValue}>{users.length}</Text>
-          <Text style={styles.statLabel}>Total</Text>
+          <Text style={styles.statLabel}>{L.total}</Text>
         </View>
         <View style={styles.statDivider} />
         <View style={styles.statItem}>
           <Text style={styles.statValue}>{users.filter(u => u.is_verified).length}</Text>
-          <Text style={styles.statLabel}>Verified</Text>
+          <Text style={styles.statLabel}>{L.verified}</Text>
         </View>
         <View style={styles.statDivider} />
         <View style={styles.statItem}>
           <Text style={styles.statValue}>{users.filter(u => u.role === 'admin').length}</Text>
-          <Text style={styles.statLabel}>Admins</Text>
+          <Text style={styles.statLabel}>{L.admins}</Text>
         </View>
       </View>
 
@@ -241,7 +266,7 @@ export default function AdminUsersScreen() {
         ListEmptyComponent={
           <View style={styles.emptyState}>
             <Ionicons name="people-outline" size={48} color={Colors.textLight} />
-            <Text style={styles.emptyText}>No users found</Text>
+            <Text style={styles.emptyText}>{L.noUsers}</Text>
           </View>
         }
       />
@@ -251,7 +276,7 @@ export default function AdminUsersScreen() {
         <View style={styles.modalOverlay}>
           <View style={styles.modalContent}>
             <View style={styles.modalHeader}>
-              <Text style={styles.modalTitle}>User Details</Text>
+              <Text style={[styles.modalTitle, isRTL && styles.rtlText]}>{L.userDetails}</Text>
               <TouchableOpacity onPress={() => setShowModal(false)}>
                 <Ionicons name="close" size={24} color={Colors.text} />
               </TouchableOpacity>
@@ -268,35 +293,35 @@ export default function AdminUsersScreen() {
                 <View style={styles.modalActions}>
                   <TouchableOpacity style={styles.modalAction} onPress={() => handleToggleVerification(selectedUser)}>
                     <Ionicons name={selectedUser.is_verified ? 'close-circle' : 'checkmark-circle'} size={24} color={selectedUser.is_verified ? Colors.error : Colors.success} />
-                    <Text style={styles.modalActionText}>{selectedUser.is_verified ? 'Unverify' : 'Verify'}</Text>
+                    <Text style={styles.modalActionText}>{selectedUser.is_verified ? L.unverify : L.verify}</Text>
                   </TouchableOpacity>
                   <TouchableOpacity style={styles.modalAction} onPress={() => handleSetRole(selectedUser, 'vet')}>
                     <Ionicons name="medical" size={24} color={Colors.primary} />
-                    <Text style={styles.modalActionText}>Set Vet</Text>
+                    <Text style={styles.modalActionText}>{L.setVet}</Text>
                   </TouchableOpacity>
                   <TouchableOpacity style={styles.modalAction} onPress={() => handleSetRole(selectedUser, 'market_owner')}>
                     <Ionicons name="storefront" size={24} color={Colors.primary} />
-                    <Text style={styles.modalActionText}>Set Market</Text>
+                    <Text style={styles.modalActionText}>{L.setMarket}</Text>
                   </TouchableOpacity>
                   <TouchableOpacity style={styles.modalAction} onPress={() => handleSetRole(selectedUser, 'care_clinic')}>
                     <Ionicons name="business" size={24} color={Colors.primary} />
-                    <Text style={styles.modalActionText}>Set Clinic</Text>
+                    <Text style={styles.modalActionText}>{L.setClinic}</Text>
                   </TouchableOpacity>
                   <TouchableOpacity style={styles.modalAction} onPress={() => handleSetRole(selectedUser, 'admin')}>
                     <Ionicons name="shield-checkmark" size={24} color={Colors.primary} />
-                    <Text style={styles.modalActionText}>Set Admin</Text>
+                    <Text style={styles.modalActionText}>{L.setAdmin}</Text>
                   </TouchableOpacity>
                   <TouchableOpacity style={styles.modalAction} onPress={() => { setShowModal(false); router.push(`/admin/friend-reports?target_user_id=${selectedUser.id}` as any); }}>
                     <Ionicons name="flag" size={24} color={Colors.warning} />
-                    <Text style={styles.modalActionText}>Reports</Text>
+                    <Text style={styles.modalActionText}>{L.reports}</Text>
                   </TouchableOpacity>
                   <TouchableOpacity style={styles.modalAction} onPress={() => handleAdminBlockToggle(selectedUser)}>
                     <Ionicons name={selectedUser.is_blocked_by_admin ? 'lock-open' : 'ban'} size={24} color={selectedUser.is_blocked_by_admin ? Colors.success : Colors.error} />
-                    <Text style={[styles.modalActionText, { color: selectedUser.is_blocked_by_admin ? Colors.success : Colors.error }]}>{selectedUser.is_blocked_by_admin ? 'Unblock' : 'Block'}</Text>
+                    <Text style={[styles.modalActionText, { color: selectedUser.is_blocked_by_admin ? Colors.success : Colors.error }]}>{selectedUser.is_blocked_by_admin ? L.unblock : L.block}</Text>
                   </TouchableOpacity>
                   <TouchableOpacity style={[styles.modalAction, { backgroundColor: Colors.error + '20' }]} onPress={() => { setShowModal(false); handleDeleteUser(selectedUser.id); }}>
                     <Ionicons name="trash" size={24} color={Colors.error} />
-                    <Text style={[styles.modalActionText, { color: Colors.error }]}>Delete</Text>
+                    <Text style={[styles.modalActionText, { color: Colors.error }]}>{L.delete}</Text>
                   </TouchableOpacity>
                 </View>
               </>
@@ -364,4 +389,5 @@ const styles = StyleSheet.create({
     color: Colors.textSecondary,
     fontSize: FontSize.sm,
   },
+  rtlText: { textAlign: 'right' },
 });
