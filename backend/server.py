@@ -739,6 +739,7 @@ DEFAULT_USER_SETTINGS = {
     "chat_sound": True,
     "chat_preview": True,
     "allow_friend_requests": "everyone",  # everyone | nobody
+    "allow_direct_messages": "everyone",  # everyone | friends_only
     "language": "en",
 }
 
@@ -1372,6 +1373,13 @@ async def create_conversation(data: ConversationCreate, current_user: dict = Dep
     if not other_user:
         raise HTTPException(status_code=404, detail="Recipient user not found")
 
+    blocked = await db.blocked_users.find_one({"$or": [
+        {"user_id": current_user["id"], "blocked_user_id": data.other_user_id},
+        {"user_id": data.other_user_id, "blocked_user_id": current_user["id"]},
+    ]})
+    if blocked:
+        raise HTTPException(status_code=403, detail="Cannot message this user")
+
     # Check if 1:1 conversation already exists (exactly two participants)
     existing = await db.conversations.find_one({
         "participants": {"$all": [current_user["id"], data.other_user_id]},
@@ -1399,6 +1407,13 @@ async def create_conversation(data: ConversationCreate, current_user: dict = Dep
         await notify_conversation_participants(existing["id"], "conversations_updated", {})
 
         return {"conversation_id": existing["id"], "is_new": False}
+
+    other_settings = await db.user_settings.find_one({"user_id": data.other_user_id})
+    direct_policy = (other_settings or {}).get("allow_direct_messages", "everyone")
+    if direct_policy == "friends_only":
+        is_friend = await db.friendships.find_one({"users": {"$all": [current_user["id"], data.other_user_id]}})
+        if not is_friend:
+            raise HTTPException(status_code=403, detail="This user accepts messages from friends only")
 
     # Create new conversation
     conversation = Conversation(
@@ -1682,6 +1697,20 @@ async def review_friend_request(request_id: str, payload: dict, current_user: di
 
     return {"success": True, "status": new_status}
 
+@api_router.get('/friends/blocked')
+async def get_blocked_users_in_friends(current_user: dict = Depends(get_current_user)):
+    rows = await db.blocked_users.find({"user_id": current_user["id"]}).sort("created_at", -1).to_list(1000)
+    ids = [r.get("blocked_user_id") for r in rows if r.get("blocked_user_id")]
+    users = await db.users.find({"id": {"$in": ids}}).to_list(1000)
+    umap = {u.get("id"): u for u in users}
+    return [{
+        "id": uid,
+        "name": umap.get(uid, {}).get("name", "Unknown"),
+        "avatar": umap.get(uid, {}).get("avatar"),
+        "username": umap.get(uid, {}).get("username") or normalize_username(umap.get(uid, {}).get("name") or "user"),
+        "user_code": umap.get(uid, {}).get("user_code") or generate_user_code(uid),
+    } for uid in ids]
+
 @api_router.post('/friends/{target_user_id}/block')
 async def block_user_in_friends(target_user_id: str, current_user: dict = Depends(get_current_user)):
     if target_user_id == current_user['id']:
@@ -1730,6 +1759,7 @@ async def report_user_in_friends(payload: dict, current_user: dict = Depends(get
         "target_user_id": target_user_id,
         "reason": reason,
         "notes": notes,
+        "status": "open",
         "created_at": datetime.utcnow(),
     })
     await create_notifications_for_admins(
@@ -1740,10 +1770,82 @@ async def report_user_in_friends(payload: dict, current_user: dict = Depends(get
     )
     return {"success": True}
 
+@api_router.get('/admin/friend-reports')
+async def get_friend_reports_admin(admin_user: dict = Depends(get_admin_user)):
+    rows = await db.friend_reports.find({}).sort("created_at", -1).to_list(1000)
+    uids = list({r.get("reported_by") for r in rows if r.get("reported_by")} | {r.get("target_user_id") for r in rows if r.get("target_user_id")})
+    users = await db.users.find({"id": {"$in": uids}}).to_list(2000)
+    umap = {u.get("id"): u for u in users}
+    result = []
+    for r in rows:
+        result.append({
+            "id": r.get("id"),
+            "reason": r.get("reason"),
+            "notes": r.get("notes"),
+            "status": r.get("status", "open"),
+            "created_at": r.get("created_at"),
+            "reported_by": {
+                "id": r.get("reported_by"),
+                "name": umap.get(r.get("reported_by"), {}).get("name", "Unknown"),
+                "email": umap.get(r.get("reported_by"), {}).get("email"),
+            },
+            "target_user": {
+                "id": r.get("target_user_id"),
+                "name": umap.get(r.get("target_user_id"), {}).get("name", "Unknown"),
+                "email": umap.get(r.get("target_user_id"), {}).get("email"),
+            },
+            "reviewed_at": r.get("reviewed_at"),
+            "reviewed_by": r.get("reviewed_by"),
+        })
+    return result
+
+@api_router.put('/admin/friend-reports/{report_id}')
+async def review_friend_report_admin(report_id: str, payload: dict, admin_user: dict = Depends(get_admin_user)):
+    action = (payload.get('action') or '').strip().lower()  # resolve|reject|block_target
+    if action not in {'resolve', 'reject', 'block_target'}:
+        raise HTTPException(status_code=400, detail='Invalid action')
+
+    report = await db.friend_reports.find_one({"id": report_id})
+    if not report:
+        raise HTTPException(status_code=404, detail='Report not found')
+
+    status_val = 'resolved' if action in {'resolve', 'block_target'} else 'rejected'
+
+    if action == 'block_target':
+        target_user_id = report.get('target_user_id')
+        reporter_id = report.get('reported_by')
+        if target_user_id and reporter_id:
+            existing = await db.blocked_users.find_one({"user_id": reporter_id, "blocked_user_id": target_user_id})
+            if not existing:
+                await db.blocked_users.insert_one({
+                    "id": str(uuid.uuid4()),
+                    "user_id": reporter_id,
+                    "blocked_user_id": target_user_id,
+                    "created_at": datetime.utcnow(),
+                })
+
+    await db.friend_reports.update_one(
+        {"id": report_id},
+        {"$set": {
+            "status": status_val,
+            "review_action": action,
+            "reviewed_at": datetime.utcnow(),
+            "reviewed_by": admin_user.get("id"),
+        }}
+    )
+    return {"success": True, "status": status_val}
+
 @api_router.post('/conversations/direct/{other_user_id}')
 async def start_direct_conversation(other_user_id: str, current_user: dict = Depends(get_current_user)):
     if other_user_id == current_user['id']:
         raise HTTPException(status_code=400, detail='Cannot chat with yourself')
+
+    blocked = await db.blocked_users.find_one({"$or": [
+        {"user_id": current_user["id"], "blocked_user_id": other_user_id},
+        {"user_id": other_user_id, "blocked_user_id": current_user["id"]},
+    ]})
+    if blocked:
+        raise HTTPException(status_code=403, detail='Cannot message this user')
 
     is_friend = await db.friendships.find_one({"users": {"$all": [current_user["id"], other_user_id]}})
     if not is_friend:

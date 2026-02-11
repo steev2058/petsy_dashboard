@@ -306,6 +306,7 @@ export const friendsAPI = {
   search: (q: string) => api.get('/friends/search', { params: { q } }),
   getFriends: () => api.get('/friends'),
   getRequests: () => api.get('/friends/requests'),
+  getBlocked: () => api.get('/friends/blocked'),
   sendRequest: (target_user_id: string, message?: string) => api.post('/friends/requests', { target_user_id, message }),
   reviewRequest: (requestId: string, action: 'accept' | 'reject') => api.put(`/friends/requests/${requestId}`, { action }),
   blockUser: (target_user_id: string) => api.post(`/friends/${target_user_id}/block`),

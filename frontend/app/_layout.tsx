@@ -197,6 +197,7 @@ export default function RootLayout() {
         <Stack.Screen name="notifications" />
         <Stack.Screen name="friends" />
         <Stack.Screen name="admin/index" />
+        <Stack.Screen name="admin/friend-reports" />
         <Stack.Screen name="edit-profile" options={{ presentation: 'card' }} />
         <Stack.Screen name="help-support" />
         <Stack.Screen name="product/[id]" options={{ presentation: 'card' }} />

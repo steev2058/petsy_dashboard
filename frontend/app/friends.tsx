@@ -11,7 +11,7 @@ type FriendRequest = { id: string; message?: string; user: FriendUser; created_a
 
 export default function FriendsScreen() {
   const router = useRouter();
-  const [tab, setTab] = useState<'friends' | 'requests' | 'find'>('friends');
+  const [tab, setTab] = useState<'friends' | 'requests' | 'find' | 'blocked'>('friends');
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [query, setQuery] = useState('');
@@ -19,15 +19,19 @@ export default function FriendsScreen() {
   const [incoming, setIncoming] = useState<FriendRequest[]>([]);
   const [outgoing, setOutgoing] = useState<FriendRequest[]>([]);
   const [searchResult, setSearchResult] = useState<FriendUser[]>([]);
+  const [blockedUsers, setBlockedUsers] = useState<FriendUser[]>([]);
   const [allowFriendRequests, setAllowFriendRequests] = useState<'everyone' | 'nobody'>('everyone');
+  const [allowDirectMessages, setAllowDirectMessages] = useState<'everyone' | 'friends_only'>('everyone');
 
   const load = async () => {
     try {
-      const [fr, req, st] = await Promise.all([friendsAPI.getFriends(), friendsAPI.getRequests(), settingsAPI.get()]);
+      const [fr, req, st, bl] = await Promise.all([friendsAPI.getFriends(), friendsAPI.getRequests(), settingsAPI.get(), friendsAPI.getBlocked()]);
       setFriends(fr.data || []);
       setIncoming(req.data?.incoming || []);
       setOutgoing(req.data?.outgoing || []);
+      setBlockedUsers(bl.data || []);
       setAllowFriendRequests((st.data?.allow_friend_requests || 'everyone') as 'everyone' | 'nobody');
+      setAllowDirectMessages((st.data?.allow_direct_messages || 'everyone') as 'everyone' | 'friends_only');
     } catch (e) {
       console.error('Failed loading friends', e);
     } finally {
@@ -93,6 +97,16 @@ export default function FriendsScreen() {
     }
   };
 
+  const toggleMessagePrivacy = async () => {
+    const next = allowDirectMessages === 'everyone' ? 'friends_only' : 'everyone';
+    try {
+      await settingsAPI.update({ allow_direct_messages: next });
+      setAllowDirectMessages(next);
+    } catch (e) {
+      console.error('message privacy update failed', e);
+    }
+  };
+
   const blockUser = (userId: string) => {
     Alert.alert('Block user', 'Block this user and remove friendship/requests?', [
       { text: 'Cancel', style: 'cancel' },
@@ -116,6 +130,20 @@ export default function FriendsScreen() {
           await friendsAPI.reportUser(userId, 'abuse', 'Reported from friends flow');
         } catch (e) {
           console.error('report failed', e);
+        }
+      } }
+    ]);
+  };
+
+  const unblockUser = (userId: string) => {
+    Alert.alert('Unblock user', 'Unblock this user?', [
+      { text: 'Cancel', style: 'cancel' },
+      { text: 'Unblock', onPress: async () => {
+        try {
+          await friendsAPI.unblockUser(userId);
+          await load();
+        } catch (e) {
+          console.error('unblock failed', e);
         }
       } }
     ]);
@@ -178,6 +206,18 @@ export default function FriendsScreen() {
     </View>
   );
 
+  const renderBlocked = ({ item }: { item: FriendUser }) => (
+    <View style={styles.card}>
+      <View style={{ flex: 1 }}>
+        <Text style={styles.name}>{item.name}</Text>
+        <Text style={styles.meta}>@{item.username || 'user'} • {item.user_code || item.id?.slice(0, 8)}</Text>
+      </View>
+      <TouchableOpacity style={styles.secondaryBtn} onPress={() => unblockUser(item.id)}>
+        <Text style={styles.secondaryBtnText}>Unblock</Text>
+      </TouchableOpacity>
+    </View>
+  );
+
   if (loading) {
     return <SafeAreaView style={styles.container}><View style={styles.center}><ActivityIndicator size="small" color={Colors.primary} /></View></SafeAreaView>;
   }
@@ -191,19 +231,27 @@ export default function FriendsScreen() {
       </View>
 
       <View style={styles.tabsRow}>
-        {['friends','requests','find'].map((key) => (
+        {['friends','requests','find','blocked'].map((key) => (
           <TouchableOpacity key={key} style={[styles.tabChip, tab === key && styles.tabChipActive]} onPress={() => setTab(key as any)}>
-            <Text style={[styles.tabText, tab === key && styles.tabTextActive]}>{key === 'friends' ? 'Friends' : key === 'requests' ? `Requests (${incoming.length})` : 'Find Users'}</Text>
+            <Text style={[styles.tabText, tab === key && styles.tabTextActive]}>{key === 'friends' ? 'Friends' : key === 'requests' ? `Requests (${incoming.length})` : key === 'blocked' ? `Blocked (${blockedUsers.length})` : 'Find Users'}</Text>
           </TouchableOpacity>
         ))}
       </View>
 
       <View style={styles.privacyRow}>
         <Ionicons name="shield-checkmark-outline" size={16} color={Colors.textSecondary} />
-        <Text style={styles.privacyText}>Friend requests: {allowFriendRequests === 'everyone' ? 'Everyone' : 'Nobody'}</Text>
-        <TouchableOpacity style={styles.secondaryBtn} onPress={togglePrivacy}>
-          <Text style={styles.secondaryBtnText}>Change</Text>
-        </TouchableOpacity>
+        <View style={{ flex: 1 }}>
+          <Text style={styles.privacyText}>Friend requests: {allowFriendRequests === 'everyone' ? 'Everyone' : 'Nobody'}</Text>
+          <Text style={styles.privacyText}>Direct messages: {allowDirectMessages === 'everyone' ? 'Everyone' : 'Friends only'}</Text>
+        </View>
+        <View style={{ gap: 6 }}>
+          <TouchableOpacity style={styles.secondaryBtn} onPress={togglePrivacy}>
+            <Text style={styles.secondaryBtnText}>Requests</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.secondaryBtn} onPress={toggleMessagePrivacy}>
+            <Text style={styles.secondaryBtnText}>Messages</Text>
+          </TouchableOpacity>
+        </View>
       </View>
 
       {tab === 'find' && (
@@ -215,11 +263,11 @@ export default function FriendsScreen() {
 
       <FlatList
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={[Colors.primary]} />}
-        data={tab === 'friends' ? friends : tab === 'requests' ? incoming : searchResult}
+        data={tab === 'friends' ? friends : tab === 'requests' ? incoming : tab === 'blocked' ? blockedUsers : searchResult}
         keyExtractor={(item: any) => item.id}
-        contentContainerStyle={(tab === 'requests' ? incoming.length : (tab === 'friends' ? friends.length : searchResult.length)) === 0 ? styles.center : styles.list}
-        ListEmptyComponent={<Text style={styles.emptyText}>{tab === 'friends' ? 'No friends yet' : tab === 'requests' ? 'No incoming requests' : 'Search users to add friends'}</Text>}
-        renderItem={tab === 'friends' ? renderFriend : tab === 'requests' ? renderIncoming : renderSearch}
+        contentContainerStyle={(tab === 'requests' ? incoming.length : (tab === 'friends' ? friends.length : tab === 'blocked' ? blockedUsers.length : searchResult.length)) === 0 ? styles.center : styles.list}
+        ListEmptyComponent={<Text style={styles.emptyText}>{tab === 'friends' ? 'No friends yet' : tab === 'requests' ? 'No incoming requests' : tab === 'blocked' ? 'No blocked users' : 'Search users to add friends'}</Text>}
+        renderItem={tab === 'friends' ? renderFriend : tab === 'requests' ? renderIncoming : tab === 'blocked' ? renderBlocked : renderSearch}
         ListHeaderComponent={tab === 'requests' && outgoing.length > 0 ? (
           <View style={styles.outgoingBox}>
             <Text style={styles.outgoingTitle}>Outgoing Requests</Text>

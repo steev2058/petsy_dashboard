@@ -49,6 +49,7 @@ const MENU_ITEMS = [
   { id: 'sponsorships', label: 'Sponsorships', icon: 'heart', color: '#F43F5E', route: '/admin/sponsorships' },
   { id: 'marketplace', label: 'Marketplace', icon: 'storefront', color: '#22C55E', route: '/admin/marketplace' },
   { id: 'role-requests', label: 'Role Requests', icon: 'git-pull-request', color: '#A855F7', route: '/admin/role-requests' },
+  { id: 'friend-reports', label: 'Friend Reports', icon: 'flag', color: '#EF4444', route: '/admin/friend-reports' },
   { id: 'payments', label: 'Payments', icon: 'card', color: '#0EA5E9', route: '/admin/payments' },
   { id: 'settings', label: 'Settings', icon: 'settings', color: '#64748B', route: '/admin/settings' },
 ];
