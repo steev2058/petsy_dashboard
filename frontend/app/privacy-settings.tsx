@@ -5,34 +5,43 @@ import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { Colors, FontSize, Spacing, BorderRadius, Shadow } from '../src/constants/theme';
 import { settingsAPI } from '../src/services/api';
+import { useTranslation } from '../src/hooks/useTranslation';
 
 export default function PrivacySettingsScreen() {
   const router = useRouter();
+  const { language, isRTL } = useTranslation();
+  const L = {
+    title: language === 'ar' ? 'إعدادات الخصوصية' : 'Privacy Settings',
+    location: language === 'ar' ? 'خدمات الموقع' : 'Location Services',
+    email: language === 'ar' ? 'تحديثات البريد الإلكتروني' : 'Email Updates',
+    error: language === 'ar' ? 'خطأ' : 'Error',
+    saveFail: language === 'ar' ? 'فشل الحفظ' : 'Failed to save',
+  };
   const [location, setLocation] = useState(true);
   const [email, setEmail] = useState(true);
 
   useEffect(() => { (async () => { try { const r = await settingsAPI.get(); setLocation(!!r.data.location_services); setEmail(!!r.data.email_updates); } catch {} })(); }, []);
-  const save = async (patch: any) => { try { await settingsAPI.update(patch); } catch { Alert.alert('Error', 'Failed to save'); } };
+  const save = async (patch: any) => { try { await settingsAPI.update(patch); } catch { Alert.alert(L.error, L.saveFail); } };
 
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
       <View style={styles.header}>
         <TouchableOpacity onPress={() => router.back()} style={styles.backButton}><Ionicons name='arrow-back' size={22} color={Colors.text} /></TouchableOpacity>
-        <Text style={styles.title}>Privacy Settings</Text>
+        <Text style={[styles.title, isRTL && styles.rtlText]}>{L.title}</Text>
         <View style={{ width: 40 }} />
       </View>
 
       <View style={[styles.card, Shadow.small]}>
-        <Row label='Location Services' value={location} onChange={(v) => { setLocation(v); save({ location_services: v }); }} />
+        <Row label={L.location} value={location} onChange={(v: boolean) => { setLocation(v); save({ location_services: v }); }} isRTL={isRTL} />
         <View style={styles.div} />
-        <Row label='Email Updates' value={email} onChange={(v) => { setEmail(v); save({ email_updates: v }); }} />
+        <Row label={L.email} value={email} onChange={(v: boolean) => { setEmail(v); save({ email_updates: v }); }} isRTL={isRTL} />
       </View>
     </SafeAreaView>
   );
 }
 
-function Row({ label, value, onChange }: any) {
-  return <View style={styles.row}><Text style={styles.label}>{label}</Text><Switch value={value} onValueChange={onChange} trackColor={{ false: Colors.border, true: Colors.primary + '50' }} thumbColor={value ? Colors.primary : Colors.textLight} /></View>;
+function Row({ label, value, onChange, isRTL }: any) {
+  return <View style={styles.row}><Text style={[styles.label, isRTL && styles.rtlText]}>{label}</Text><Switch value={value} onValueChange={onChange} trackColor={{ false: Colors.border, true: Colors.primary + '50' }} thumbColor={value ? Colors.primary : Colors.textLight} /></View>;
 }
 
 const styles = StyleSheet.create({
@@ -44,4 +53,5 @@ const styles = StyleSheet.create({
   row: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: Spacing.sm },
   label: { fontSize: FontSize.md, color: Colors.text, fontWeight: '500' },
   div: { height: 1, backgroundColor: Colors.border },
+  rtlText: { textAlign: 'right' },
 });

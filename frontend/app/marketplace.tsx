@@ -5,11 +5,30 @@ import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { Colors, FontSize, Spacing, BorderRadius, Shadow } from '../src/constants/theme';
 import { communityAPI, conversationsAPI, marketplaceAPI } from '../src/services/api';
+import { useTranslation } from '../src/hooks/useTranslation';
 
 const CATS = ['all', 'pets', 'accessories', 'services'];
 
 export default function MarketplaceScreen() {
   const router = useRouter();
+  const { language, isRTL } = useTranslation();
+  const L = {
+    title: language === 'ar' ? 'السوق' : 'Marketplace',
+    search: language === 'ar' ? 'ابحث في الإعلانات...' : 'Search listings...',
+    chat: language === 'ar' ? 'محادثة' : 'Chat',
+    report: language === 'ar' ? 'إبلاغ' : 'Report',
+    block: language === 'ar' ? 'حظر' : 'Block',
+    sold: 'SOLD',
+    noListings: language === 'ar' ? 'لا توجد إعلانات بعد' : 'No listings yet',
+    error: language === 'ar' ? 'خطأ' : 'Error',
+    chatErr: language === 'ar' ? 'تعذر فتح المحادثة مع البائع' : 'Could not open chat with seller',
+    reported: language === 'ar' ? 'تم الإبلاغ' : 'Reported',
+    reportSent: language === 'ar' ? 'تم إرسال بلاغ الإعلان' : 'Listing report submitted',
+    reportFail: language === 'ar' ? 'فشل الإبلاغ عن الإعلان' : 'Failed to report listing',
+    blocked: language === 'ar' ? 'تم الحظر' : 'Blocked',
+    blockedMsg: language === 'ar' ? 'تم حظر البائع. سيتم إخفاء إعلاناته.' : 'Seller blocked. Their listings will be hidden.',
+    blockFail: language === 'ar' ? 'فشل حظر البائع' : 'Failed to block seller',
+  };
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [items, setItems] = useState<any[]>([]);
@@ -41,26 +60,26 @@ export default function MarketplaceScreen() {
       });
       router.push(`/chat/${conv.data.id}`);
     } catch {
-      Alert.alert('Error', 'Could not open chat with seller');
+      Alert.alert(L.error, L.chatErr);
     }
   };
 
   const reportListing = async (id: string) => {
     try {
       await marketplaceAPI.report(id, 'inappropriate');
-      Alert.alert('Reported', 'Listing report submitted');
+      Alert.alert(L.reported, L.reportSent);
     } catch {
-      Alert.alert('Error', 'Failed to report listing');
+      Alert.alert(L.error, L.reportFail);
     }
   };
 
   const blockSeller = async (userId: string) => {
     try {
       await communityAPI.blockUser(userId);
-      Alert.alert('Blocked', 'Seller blocked. Their listings will be hidden.');
+      Alert.alert(L.blocked, L.blockedMsg);
       load();
     } catch {
-      Alert.alert('Error', 'Failed to block seller');
+      Alert.alert(L.error, L.blockFail);
     }
   };
 
@@ -72,7 +91,7 @@ export default function MarketplaceScreen() {
     <SafeAreaView style={styles.container} edges={['top']}>
       <View style={styles.header}>
         <TouchableOpacity onPress={() => router.back()} style={styles.iconBtn}><Ionicons name='arrow-back' size={22} color={Colors.text} /></TouchableOpacity>
-        <Text style={styles.title}>Marketplace</Text>
+        <Text style={[styles.title, isRTL && styles.rtlText]}>{L.title}</Text>
         <View style={styles.headerActions}>
           <TouchableOpacity onPress={() => router.push('/my-marketplace-listings')} style={styles.iconBtn}><Ionicons name='list' size={20} color={Colors.primary} /></TouchableOpacity>
           <TouchableOpacity onPress={() => router.push('/create-marketplace-listing')} style={[styles.iconBtn, styles.addBtn]}><Ionicons name='add' size={22} color={Colors.white} /></TouchableOpacity>
@@ -81,7 +100,7 @@ export default function MarketplaceScreen() {
 
       <View style={styles.searchWrap}>
         <Ionicons name='search' size={18} color={Colors.textLight} />
-        <TextInput value={q} onChangeText={setQ} placeholder='Search listings...' style={styles.searchInput} onSubmitEditing={load} />
+        <TextInput value={q} onChangeText={setQ} placeholder={L.search} style={[styles.searchInput, isRTL && styles.rtlText]} onSubmitEditing={load} />
       </View>
 
       <FlatList
@@ -104,7 +123,7 @@ export default function MarketplaceScreen() {
               <View style={styles.imageWrap}>
                 {item.image ? <Image source={{ uri: item.image }} style={styles.img} /> : <View style={styles.imgPh}><Ionicons name='image' size={20} color={Colors.textLight} /></View>}
                 {item.status === 'sold' && (
-                  <View style={styles.soldBadge}><Text style={styles.soldBadgeText}>SOLD</Text></View>
+                  <View style={styles.soldBadge}><Text style={styles.soldBadgeText}>{L.sold}</Text></View>
                 )}
               </View>
               <Text style={styles.itemTitle}>{item.title}</Text>
@@ -112,13 +131,13 @@ export default function MarketplaceScreen() {
               <Text numberOfLines={2} style={styles.desc}>{item.description}</Text>
             </TouchableOpacity>
             <View style={styles.actions}>
-              <TouchableOpacity style={styles.actionBtn} onPress={() => contactSeller(item)}><Ionicons name='chatbubbles' size={16} color={Colors.primary} /><Text style={styles.actionText}>Chat</Text></TouchableOpacity>
-              <TouchableOpacity style={styles.actionBtn} onPress={() => reportListing(item.id)}><Ionicons name='flag' size={16} color={Colors.error} /><Text style={styles.actionText}>Report</Text></TouchableOpacity>
-              <TouchableOpacity style={styles.actionBtn} onPress={() => blockSeller(item.user_id)}><Ionicons name='ban' size={16} color={Colors.textSecondary} /><Text style={styles.actionText}>Block</Text></TouchableOpacity>
+              <TouchableOpacity style={styles.actionBtn} onPress={() => contactSeller(item)}><Ionicons name='chatbubbles' size={16} color={Colors.primary} /><Text style={styles.actionText}>{L.chat}</Text></TouchableOpacity>
+              <TouchableOpacity style={styles.actionBtn} onPress={() => reportListing(item.id)}><Ionicons name='flag' size={16} color={Colors.error} /><Text style={styles.actionText}>{L.report}</Text></TouchableOpacity>
+              <TouchableOpacity style={styles.actionBtn} onPress={() => blockSeller(item.user_id)}><Ionicons name='ban' size={16} color={Colors.textSecondary} /><Text style={styles.actionText}>{L.block}</Text></TouchableOpacity>
             </View>
           </View>
         )}
-        ListEmptyComponent={<View style={styles.center}><Text style={styles.empty}>No listings yet</Text></View>}
+        ListEmptyComponent={<View style={styles.center}><Text style={[styles.empty, isRTL && styles.rtlText]}>{L.noListings}</Text></View>}
       />
     </SafeAreaView>
   );
@@ -131,5 +150,5 @@ const styles = StyleSheet.create({
   addBtn:{backgroundColor:Colors.primary}, headerActions:{flexDirection:'row',gap:8}, title:{fontSize:FontSize.xl,fontWeight:'700',color:Colors.text},
   searchWrap:{margin:Spacing.md,marginBottom:Spacing.sm,backgroundColor:Colors.white,borderRadius:BorderRadius.lg,paddingHorizontal:12,paddingVertical:10,flexDirection:'row',alignItems:'center',gap:8,borderWidth:1,borderColor:Colors.border},
   searchInput:{flex:1,color:Colors.text}, chipsRow:{paddingHorizontal:Spacing.md,gap:8,paddingBottom:Spacing.sm}, chip:{paddingHorizontal:14,paddingVertical:8,borderRadius:BorderRadius.full,backgroundColor:Colors.white,borderWidth:1,borderColor:Colors.border}, chipActive:{backgroundColor:Colors.primary,borderColor:Colors.primary}, chipText:{textTransform:'capitalize',color:Colors.textSecondary,fontWeight:'600'}, chipTextActive:{color:Colors.white},
-  list:{paddingHorizontal:Spacing.md,paddingTop:4,paddingBottom:110}, card:{backgroundColor:Colors.white,borderRadius:BorderRadius.lg,padding:Spacing.sm,marginBottom:Spacing.sm}, imageWrap:{position:'relative'}, img:{width:'100%',height:160,borderRadius:BorderRadius.md,backgroundColor:Colors.backgroundDark}, imgPh:{width:'100%',height:160,borderRadius:BorderRadius.md,backgroundColor:Colors.backgroundDark,alignItems:'center',justifyContent:'center'}, soldBadge:{position:'absolute',top:8,right:8,backgroundColor:'#16A34A',paddingHorizontal:10,paddingVertical:4,borderRadius:BorderRadius.full}, soldBadgeText:{color:Colors.white,fontSize:FontSize.xs,fontWeight:'800'}, itemTitle:{marginTop:8,fontSize:FontSize.md,fontWeight:'700',color:Colors.text}, meta:{marginTop:4,color:Colors.textSecondary,fontSize:FontSize.sm}, desc:{marginTop:4,color:Colors.textSecondary,fontSize:FontSize.sm}, actions:{marginTop:10,flexDirection:'row',justifyContent:'space-between'}, actionBtn:{flexDirection:'row',alignItems:'center',gap:5,paddingVertical:6,paddingHorizontal:8,borderRadius:BorderRadius.md,backgroundColor:Colors.backgroundDark}, actionText:{fontSize:FontSize.xs,color:Colors.text}, empty:{color:Colors.textSecondary}
+  list:{paddingHorizontal:Spacing.md,paddingTop:4,paddingBottom:110}, card:{backgroundColor:Colors.white,borderRadius:BorderRadius.lg,padding:Spacing.sm,marginBottom:Spacing.sm}, imageWrap:{position:'relative'}, img:{width:'100%',height:160,borderRadius:BorderRadius.md,backgroundColor:Colors.backgroundDark}, imgPh:{width:'100%',height:160,borderRadius:BorderRadius.md,backgroundColor:Colors.backgroundDark,alignItems:'center',justifyContent:'center'}, soldBadge:{position:'absolute',top:8,right:8,backgroundColor:'#16A34A',paddingHorizontal:10,paddingVertical:4,borderRadius:BorderRadius.full}, soldBadgeText:{color:Colors.white,fontSize:FontSize.xs,fontWeight:'800'}, itemTitle:{marginTop:8,fontSize:FontSize.md,fontWeight:'700',color:Colors.text}, meta:{marginTop:4,color:Colors.textSecondary,fontSize:FontSize.sm}, desc:{marginTop:4,color:Colors.textSecondary,fontSize:FontSize.sm}, actions:{marginTop:10,flexDirection:'row',justifyContent:'space-between'}, actionBtn:{flexDirection:'row',alignItems:'center',gap:5,paddingVertical:6,paddingHorizontal:8,borderRadius:BorderRadius.md,backgroundColor:Colors.backgroundDark}, actionText:{fontSize:FontSize.xs,color:Colors.text}, empty:{color:Colors.textSecondary}, rtlText:{textAlign:'right'}
 });

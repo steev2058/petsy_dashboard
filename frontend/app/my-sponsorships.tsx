@@ -6,9 +6,23 @@ import { Ionicons } from '@expo/vector-icons';
 import { useFocusEffect } from '@react-navigation/native';
 import { Colors, FontSize, Spacing, BorderRadius, Shadow } from '../src/constants/theme';
 import { petsAPI, sponsorshipAPI } from '../src/services/api';
+import { useTranslation } from '../src/hooks/useTranslation';
 
 export default function MySponsorshipsScreen() {
   const router = useRouter();
+  const { language, isRTL } = useTranslation();
+  const L = {
+    title: language === 'ar' ? 'كفالاتي' : 'My Sponsorships',
+    totalSponsored: language === 'ar' ? 'إجمالي الكفالة' : 'Total Sponsored',
+    sponsorships: language === 'ar' ? 'كفالات' : 'sponsorships',
+    pet: language === 'ar' ? 'حيوان' : 'Pet',
+    unknown: language === 'ar' ? 'غير معروف' : 'unknown',
+    mixed: language === 'ar' ? 'مختلط' : 'Mixed',
+    amount: language === 'ar' ? 'المبلغ' : 'Amount',
+    status: language === 'ar' ? 'الحالة' : 'Status',
+    pending: language === 'ar' ? 'قيد الانتظار' : 'pending',
+    empty: language === 'ar' ? 'ليس لديك كفالات بعد' : 'You have no sponsorships yet',
+  };
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [rows, setRows] = useState<any[]>([]);
@@ -53,14 +67,14 @@ export default function MySponsorshipsScreen() {
     <SafeAreaView style={styles.container} edges={['top']}>
       <View style={styles.header}>
         <TouchableOpacity onPress={() => router.back()} style={styles.backBtn}><Ionicons name='arrow-back' size={22} color={Colors.text} /></TouchableOpacity>
-        <Text style={styles.title}>My Sponsorships</Text>
+        <Text style={[styles.title, isRTL && styles.rtlText]}>{L.title}</Text>
         <View style={{ width: 40 }} />
       </View>
 
       <View style={[styles.summary, Shadow.small]}>
-        <Text style={styles.summaryLabel}>Total Sponsored</Text>
+        <Text style={[styles.summaryLabel, isRTL && styles.rtlText]}>{L.totalSponsored}</Text>
         <Text style={styles.summaryValue}>${total.toFixed(2)}</Text>
-        <Text style={styles.summarySub}>{rows.length} sponsorships</Text>
+        <Text style={[styles.summarySub, isRTL && styles.rtlText]}>{rows.length} {L.sponsorships}</Text>
       </View>
 
       <FlatList
@@ -72,15 +86,15 @@ export default function MySponsorshipsScreen() {
           <TouchableOpacity style={[styles.card, Shadow.small]} onPress={() => item.pet?.id && router.push(`/pet/${item.pet.id}`)}>
             {item.pet?.image ? <Image source={{ uri: item.pet.image }} style={styles.img} /> : <View style={styles.imgPh}><Ionicons name='paw' size={20} color={Colors.textLight} /></View>}
             <View style={{ flex: 1, marginLeft: Spacing.md }}>
-              <Text style={styles.name}>{item.pet?.name || 'Pet'}</Text>
-              <Text style={styles.meta}>{item.pet?.species || 'unknown'} • {item.pet?.breed || 'Mixed'}</Text>
-              <Text style={styles.meta}>Amount: ${Number(item.amount || 0).toFixed(2)}</Text>
-              <Text style={styles.meta}>Status: {item.status || 'pending'}</Text>
+              <Text style={[styles.name, isRTL && styles.rtlText]}>{item.pet?.name || L.pet}</Text>
+              <Text style={[styles.meta, isRTL && styles.rtlText]}>{item.pet?.species || L.unknown} • {item.pet?.breed || L.mixed}</Text>
+              <Text style={[styles.meta, isRTL && styles.rtlText]}>{L.amount}: ${Number(item.amount || 0).toFixed(2)}</Text>
+              <Text style={[styles.meta, isRTL && styles.rtlText]}>{L.status}: {item.status || L.pending}</Text>
             </View>
             <Ionicons name='chevron-forward' size={18} color={Colors.textLight} />
           </TouchableOpacity>
         )}
-        ListEmptyComponent={<View style={styles.center}><Text style={styles.empty}>You have no sponsorships yet</Text></View>}
+        ListEmptyComponent={<View style={styles.center}><Text style={[styles.empty, isRTL && styles.rtlText]}>{L.empty}</Text></View>}
       />
     </SafeAreaView>
   );
@@ -103,4 +117,5 @@ const styles = StyleSheet.create({
   name:{fontSize:FontSize.md,fontWeight:'700',color:Colors.text},
   meta:{fontSize:FontSize.sm,color:Colors.textSecondary,marginTop:2},
   empty:{color:Colors.textSecondary},
+  rtlText:{textAlign:'right'},
 });

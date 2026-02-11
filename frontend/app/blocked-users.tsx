@@ -5,9 +5,21 @@ import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { Colors, FontSize, Spacing, BorderRadius, Shadow } from '../src/constants/theme';
 import { communityAPI } from '../src/services/api';
+import { useTranslation } from '../src/hooks/useTranslation';
 
 export default function BlockedUsersScreen() {
   const router = useRouter();
+  const { language, isRTL } = useTranslation();
+  const L = {
+    title: language === 'ar' ? 'المستخدمون المحظورون' : 'Blocked Users',
+    noBlocked: language === 'ar' ? 'لا يوجد مستخدمون محظورون' : 'No blocked users',
+    unblock: language === 'ar' ? 'إلغاء الحظر' : 'Unblock',
+    unblocked: language === 'ar' ? 'تم إلغاء الحظر' : 'Unblocked',
+    unblockedMsg: language === 'ar' ? 'تم إلغاء حظر' : 'has been unblocked.',
+    error: language === 'ar' ? 'خطأ' : 'Error',
+    loadFail: language === 'ar' ? 'فشل تحميل المستخدمين المحظورين' : 'Failed to load blocked users',
+    unblockFail: language === 'ar' ? 'فشل إلغاء الحظر' : 'Failed to unblock user',
+  };
   const [loading, setLoading] = useState(true);
   const [users, setUsers] = useState<any[]>([]);
 
@@ -17,7 +29,7 @@ export default function BlockedUsersScreen() {
       const res = await communityAPI.getBlockedUsers();
       setUsers(res.data || []);
     } catch (e) {
-      Alert.alert('Error', 'Failed to load blocked users');
+      Alert.alert(L.error, L.loadFail);
     } finally {
       setLoading(false);
     }
@@ -29,9 +41,9 @@ export default function BlockedUsersScreen() {
     try {
       await communityAPI.unblockUser(userId);
       setUsers((prev) => prev.filter((u) => u.user_id !== userId));
-      Alert.alert('Unblocked', `${name} has been unblocked.`);
+      Alert.alert(L.unblocked, `${name} ${L.unblockedMsg}`);
     } catch (e) {
-      Alert.alert('Error', 'Failed to unblock user');
+      Alert.alert(L.error, L.unblockFail);
     }
   };
 
@@ -49,7 +61,7 @@ export default function BlockedUsersScreen() {
         <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
           <View style={styles.backButtonInner}><Ionicons name="arrow-back" size={22} color={Colors.text} /></View>
         </TouchableOpacity>
-        <Text style={styles.title}>Blocked Users</Text>
+        <Text style={[styles.title, isRTL && styles.rtlText]}>{L.title}</Text>
         <View style={{ width: 40 }} />
       </View>
 
@@ -57,7 +69,7 @@ export default function BlockedUsersScreen() {
         data={users}
         keyExtractor={(item) => item.user_id}
         contentContainerStyle={styles.list}
-        ListEmptyComponent={<Text style={styles.empty}>No blocked users</Text>}
+        ListEmptyComponent={<Text style={[styles.empty, isRTL && styles.rtlText]}>{L.noBlocked}</Text>}
         renderItem={({ item }) => (
           <View style={[styles.card, Shadow.small]}>
             <View style={styles.left}>
@@ -65,7 +77,7 @@ export default function BlockedUsersScreen() {
               <Text style={styles.name}>{item.name}</Text>
             </View>
             <TouchableOpacity style={styles.unblockBtn} onPress={() => handleUnblock(item.user_id, item.name)}>
-              <Text style={styles.unblockText}>Unblock</Text>
+              <Text style={styles.unblockText}>{L.unblock}</Text>
             </TouchableOpacity>
           </View>
         )}
@@ -91,4 +103,5 @@ const styles = StyleSheet.create({
   unblockBtn: { borderWidth: 1, borderColor: Colors.error, borderRadius: BorderRadius.md, paddingHorizontal: 12, paddingVertical: 6 },
   unblockText: { color: Colors.error, fontWeight: '700' },
   empty: { textAlign: 'center', color: Colors.textSecondary, marginTop: 40 },
+  rtlText: { textAlign: 'right' },
 });
