@@ -3694,8 +3694,48 @@ async def handle_role_request_admin(request_id: str, data: dict, admin_user: dic
     return {"success": True}
 
 @api_router.get('/admin/audit-logs')
-async def get_admin_audit_logs(limit: int = 200, admin_user: dict = Depends(get_admin_user)):
-    rows = await db.admin_audit_logs.find({}).sort("created_at", -1).limit(max(1, min(limit, 1000))).to_list(1000)
+async def get_admin_audit_logs(
+    limit: int = 200,
+    q: Optional[str] = None,
+    action: Optional[str] = None,
+    from_date: Optional[str] = None,
+    to_date: Optional[str] = None,
+    admin_user: dict = Depends(get_admin_user)
+):
+    query: dict = {}
+
+    if action and action != 'all':
+        query['action'] = action
+
+    if q:
+        qv = str(q).strip()
+        if qv:
+            query['$or'] = [
+                {"action": {"$regex": qv, "$options": "i"}},
+                {"target_type": {"$regex": qv, "$options": "i"}},
+                {"target_id": {"$regex": qv, "$options": "i"}},
+                {"admin_email": {"$regex": qv, "$options": "i"}},
+            ]
+
+    date_query: dict = {}
+    if from_date:
+        try:
+            date_query['$gte'] = datetime.fromisoformat(str(from_date))
+        except Exception:
+            pass
+    if to_date:
+        try:
+            # inclusive day if YYYY-MM-DD provided
+            to_dt = datetime.fromisoformat(str(to_date))
+            if len(str(to_date)) == 10:
+                to_dt = to_dt + timedelta(days=1)
+            date_query['$lt'] = to_dt
+        except Exception:
+            pass
+    if date_query:
+        query['created_at'] = date_query
+
+    rows = await db.admin_audit_logs.find(query).sort("created_at", -1).limit(max(1, min(limit, 1000))).to_list(1000)
     return [{k: v for k, v in r.items() if k != "_id"} for r in rows]
 
 @api_router.get("/admin/orders")

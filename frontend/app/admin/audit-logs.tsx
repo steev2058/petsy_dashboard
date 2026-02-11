@@ -7,6 +7,7 @@ import {
   FlatList,
   RefreshControl,
   ActivityIndicator,
+  TextInput,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
@@ -34,10 +35,13 @@ export default function AdminAuditLogsScreen() {
   const [refreshing, setRefreshing] = useState(false);
   const [limit, setLimit] = useState(200);
   const [filter, setFilter] = useState<string>('all');
+  const [query, setQuery] = useState('');
+  const [fromDate, setFromDate] = useState('');
+  const [toDate, setToDate] = useState('');
 
   const load = async () => {
     try {
-      const res = await api.get('/admin/audit-logs', { params: { limit } });
+      const res = await api.get('/admin/audit-logs', { params: { limit, action: filter, q: query, from_date: fromDate, to_date: toDate } });
       setItems(Array.isArray(res.data) ? res.data : []);
     } catch (e) {
       console.error('Failed to load admin audit logs', e);
@@ -50,17 +54,14 @@ export default function AdminAuditLogsScreen() {
 
   useEffect(() => {
     load();
-  }, [limit]);
+  }, [limit, filter]);
 
   const onRefresh = () => {
     setRefreshing(true);
     load();
   };
 
-  const filteredItems = useMemo(() => {
-    if (filter === 'all') return items;
-    return items.filter((row) => row.action === filter);
-  }, [items, filter]);
+  const filteredItems = useMemo(() => items, [items]);
 
   const renderPayload = (payload?: Record<string, any>) => {
     if (!payload || Object.keys(payload).length === 0) return '—';
@@ -101,6 +102,51 @@ export default function AdminAuditLogsScreen() {
             <Text style={[styles.filterText, filter === f && styles.filterTextActive]}>{f === 'all' ? 'All' : f.replaceAll('_', ' ')}</Text>
           </TouchableOpacity>
         ))}
+      </View>
+
+      <View style={styles.searchWrap}>
+        <TextInput
+          value={query}
+          onChangeText={setQuery}
+          placeholder="Search action, admin email, target..."
+          placeholderTextColor={Colors.textLight}
+          style={styles.searchInput}
+          autoCapitalize="none"
+        />
+        <View style={styles.dateRow}>
+          <TextInput
+            value={fromDate}
+            onChangeText={setFromDate}
+            placeholder="From YYYY-MM-DD"
+            placeholderTextColor={Colors.textLight}
+            style={styles.dateInput}
+            autoCapitalize="none"
+          />
+          <TextInput
+            value={toDate}
+            onChangeText={setToDate}
+            placeholder="To YYYY-MM-DD"
+            placeholderTextColor={Colors.textLight}
+            style={styles.dateInput}
+            autoCapitalize="none"
+          />
+        </View>
+        <View style={styles.queryActions}>
+          <TouchableOpacity style={styles.applyBtn} onPress={load}>
+            <Text style={styles.applyBtnText}>Apply</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.clearBtn}
+            onPress={() => {
+              setQuery('');
+              setFromDate('');
+              setToDate('');
+              setTimeout(() => load(), 0);
+            }}
+          >
+            <Text style={styles.clearBtnText}>Clear</Text>
+          </TouchableOpacity>
+        </View>
       </View>
 
       <View style={styles.limitRow}>
@@ -176,6 +222,44 @@ const styles = StyleSheet.create({
   },
   filterText: { fontSize: 12, color: Colors.textSecondary, textTransform: 'capitalize' },
   filterTextActive: { color: Colors.primary, fontWeight: '700' },
+  searchWrap: { paddingHorizontal: Spacing.md, marginTop: 6, gap: 8 },
+  searchInput: {
+    borderWidth: 1,
+    borderColor: Colors.border,
+    backgroundColor: Colors.white,
+    borderRadius: BorderRadius.md,
+    paddingHorizontal: 10,
+    paddingVertical: 9,
+    color: Colors.text,
+    fontSize: 13,
+  },
+  dateRow: { flexDirection: 'row', gap: 8 },
+  dateInput: {
+    flex: 1,
+    borderWidth: 1,
+    borderColor: Colors.border,
+    backgroundColor: Colors.white,
+    borderRadius: BorderRadius.md,
+    paddingHorizontal: 10,
+    paddingVertical: 9,
+    color: Colors.text,
+    fontSize: 12,
+  },
+  queryActions: { flexDirection: 'row', gap: 8 },
+  applyBtn: {
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: BorderRadius.md,
+    backgroundColor: Colors.primary,
+  },
+  applyBtnText: { color: Colors.white, fontWeight: '700', fontSize: 12 },
+  clearBtn: {
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: BorderRadius.md,
+    backgroundColor: Colors.backgroundDark,
+  },
+  clearBtnText: { color: Colors.textSecondary, fontWeight: '700', fontSize: 12 },
   limitRow: {
     marginHorizontal: Spacing.md,
     marginTop: 6,
