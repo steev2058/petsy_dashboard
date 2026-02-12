@@ -1,0 +1,9 @@
+{
+  "blockers": [
+    "Attachments/medical files availability"
+  ],
+  "fixes": [
+    "Added vet-driven appointment status endpoint with no_show/cancelled + reason + user notification"
+  ],
+  "attachments_missing_behavior": "attachments field exists but no upload endpoint/flow to attach medical files in this API path"
+}

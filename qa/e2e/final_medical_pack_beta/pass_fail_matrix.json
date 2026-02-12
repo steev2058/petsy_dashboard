@@ -1,0 +1,42 @@
+[
+  {
+    "check": "No-show/missed appointment state",
+    "result": "PASS"
+  },
+  {
+    "check": "Doctor-side cancel/reject reason shown to user",
+    "result": "PASS"
+  },
+  {
+    "check": "Multi-visit continuity (history + timeline)",
+    "result": "PASS"
+  },
+  {
+    "check": "Attachments/medical files availability",
+    "result": "FAIL"
+  },
+  {
+    "check": "Post-completion follow-up edits visibility",
+    "result": "PASS"
+  },
+  {
+    "check": "Strict privacy (cannot access others data)",
+    "result": "PASS"
+  },
+  {
+    "check": "Concurrency race handling (cancel vs accept/confirm)",
+    "result": "PASS"
+  },
+  {
+    "check": "Payment-linked states",
+    "result": "PASS"
+  },
+  {
+    "check": "Reminders/follow-up notifications",
+    "result": "PASS"
+  },
+  {
+    "check": "Mobile-web/Telegram-webview practical baseline",
+    "result": "PASS"
+  }
+]
