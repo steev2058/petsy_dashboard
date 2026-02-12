@@ -444,6 +444,7 @@ class OrderItem(BaseModel):
     price: float
     quantity: int
     image: Optional[str] = None
+    seller_user_id: Optional[str] = None
 
 class Order(BaseModel):
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
@@ -1254,12 +1255,23 @@ async def create_appointment(apt: AppointmentCreate, current_user: dict = Depend
 
 @api_router.get("/appointments", response_model=List[Appointment])
 async def get_appointments(current_user: dict = Depends(get_current_user)):
-    appointments = await db.appointments.find({"user_id": current_user["id"]}).sort("created_at", -1).to_list(100)
+    appointments = await db.appointments.find({
+        "$or": [
+            {"user_id": current_user["id"]},
+            {"vet_id": current_user["id"]}
+        ]
+    }).sort("created_at", -1).to_list(100)
     return [Appointment(**a) for a in appointments]
 
 @api_router.get("/appointments/{appointment_id}")
 async def get_appointment(appointment_id: str, current_user: dict = Depends(get_current_user)):
-    appointment = await db.appointments.find_one({"id": appointment_id, "user_id": current_user["id"]})
+    appointment = await db.appointments.find_one({
+        "id": appointment_id,
+        "$or": [
+            {"user_id": current_user["id"]},
+            {"vet_id": current_user["id"]}
+        ]
+    })
     if not appointment:
         raise HTTPException(status_code=404, detail="Appointment not found")
     return Appointment(**appointment)
@@ -1373,13 +1385,28 @@ async def clear_cart(current_user: dict = Depends(get_current_user)):
 
 @api_router.post("/orders", response_model=Order)
 async def create_order(order_data: OrderCreate, current_user: dict = Depends(get_current_user)):
-    order = Order(**order_data.dict(), user_id=current_user["id"])
+    enriched_items = []
+    for item in order_data.items:
+        item_data = item.dict()
+        listing = await db.marketplace_listings.find_one({"id": item.product_id})
+        if listing:
+            item_data["seller_user_id"] = listing.get("user_id")
+        enriched_items.append(OrderItem(**item_data))
+
+    order_payload = order_data.dict()
+    order_payload["items"] = [i.dict() for i in enriched_items]
+    order = Order(**order_payload, user_id=current_user["id"])
     await db.orders.insert_one(order.dict())
     return order
 
 @api_router.get("/orders", response_model=List[Order])
 async def get_orders(current_user: dict = Depends(get_current_user)):
     orders = await db.orders.find({"user_id": current_user["id"]}).sort("created_at", -1).to_list(100)
+    return [Order(**o) for o in orders]
+
+@api_router.get("/orders/sales", response_model=List[Order])
+async def get_sales_orders(current_user: dict = Depends(get_current_user)):
+    orders = await db.orders.find({"items": {"$elemMatch": {"seller_user_id": current_user["id"]}}}).sort("created_at", -1).to_list(200)
     return [Order(**o) for o in orders]
 
 @api_router.get("/orders/{order_id}")
@@ -2466,14 +2493,51 @@ async def create_sponsorship(sponsorship: SponsorshipCreate, current_user: dict 
     return new_sponsorship
 
 @api_router.get("/sponsorships/pet/{pet_id}")
-async def get_pet_sponsorships(pet_id: str):
-    sponsorships = await db.sponsorships.find({"pet_id": pet_id, "status": "completed"}).sort("created_at", -1).to_list(50)
-    return sponsorships
+async def get_pet_sponsorships(pet_id: str, current_user: dict = Depends(get_current_user)):
+    pet = await db.pets.find_one({"id": pet_id})
+    all_for_pet = await db.sponsorships.find({"pet_id": pet_id}).sort("created_at", -1).to_list(100)
+
+    # Pet owner can inspect full lifecycle.
+    if pet and pet.get("owner_id") == current_user["id"]:
+        visible = all_for_pet[:50]
+    else:
+        # Other viewers: completed sponsorships + viewer's own entries.
+        visible = [
+            s for s in all_for_pet
+            if s.get("status") == "completed" or s.get("user_id") == current_user["id"]
+        ][:50]
+
+    sanitized = []
+    for s in visible:
+        row = dict(s)
+        row.pop("_id", None)
+        sanitized.append(Sponsorship(**row))
+    return sanitized
 
 @api_router.get("/sponsorships/my")
 async def get_my_sponsorships(current_user: dict = Depends(get_current_user)):
     sponsorships = await db.sponsorships.find({"user_id": current_user["id"]}).sort("created_at", -1).to_list(100)
     return [Sponsorship(**s) for s in sponsorships]
+
+@api_router.put("/sponsorships/{sponsorship_id}/status")
+async def update_sponsorship_status(sponsorship_id: str, data: dict, current_user: dict = Depends(get_current_user)):
+    new_status = (data or {}).get("status")
+    if new_status not in {"pending", "completed", "cancelled"}:
+        raise HTTPException(status_code=400, detail="Invalid sponsorship status")
+
+    sponsorship = await db.sponsorships.find_one({"id": sponsorship_id})
+    if not sponsorship:
+        raise HTTPException(status_code=404, detail="Sponsorship not found")
+
+    pet = await db.pets.find_one({"id": sponsorship.get("pet_id")})
+    is_owner = pet and pet.get("owner_id") == current_user["id"]
+    is_sponsor = sponsorship.get("user_id") == current_user["id"]
+    if not (is_owner or is_sponsor or current_user.get("is_admin")):
+        raise HTTPException(status_code=403, detail="Not allowed to update this sponsorship")
+
+    await db.sponsorships.update_one({"id": sponsorship_id}, {"$set": {"status": new_status}})
+    updated = await db.sponsorships.find_one({"id": sponsorship_id})
+    return Sponsorship(**updated)
 
 # ========================= MARKETPLACE =========================
 

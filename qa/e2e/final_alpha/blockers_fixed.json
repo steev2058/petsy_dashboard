@@ -1,0 +1,18 @@
+{
+  "fixed": [
+    {
+      "id": "SPONSORSHIP_PET_FEED_500_AND_VISIBILITY",
+      "component": "backend/server.py :: GET /sponsorships/pet/{pet_id}",
+      "before": {
+        "symptom": "Endpoint returned 500 Internal Server Error and pending sponsorship not visible to sponsor on pet feed",
+        "evidence": "fast-gulf logs showed ObjectId json encoding error; matrix had sponsorship_visible_on_pet_feed=FAIL"
+      },
+      "change": "Sanitize Mongo _id and return filtered sponsorship lifecycle: owner sees all; others see completed + own records.",
+      "after": {
+        "symptom": "Endpoint returns 200; newly created sponsorship is visible on pet feed to sponsor",
+        "evidence": "latest pass_fail_matrix sponsorship_visible_on_pet_feed=PASS"
+      }
+    }
+  ],
+  "known_blockers": []
+}

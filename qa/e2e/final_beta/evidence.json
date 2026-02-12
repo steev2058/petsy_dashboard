@@ -1,0 +1,735 @@
+{
+  "run_id": "20260212T115315Z",
+  "base": "http://127.0.0.1:8001/api",
+  "marker": "beta-final-20260212T115315Z",
+  "users": {
+    "admin": {
+      "id": "cf2af5c6-3ec3-4247-b43e-ff8be5f86e65",
+      "email": "admin@petsy.com",
+      "role": "admin"
+    },
+    "vet": {
+      "id": "1382dcc7-3cd5-4be2-b4e9-8bad76a7d864",
+      "email": "demo.vet@petsy.com",
+      "role": "vet"
+    },
+    "clinic": {
+      "id": "97052c92-910f-4061-976f-c8a991cdaaf4",
+      "email": "demo.clinic@petsy.com",
+      "role": "care_clinic"
+    },
+    "market": {
+      "id": "c3cfc846-1bbb-4182-bd60-83d66dc4565d",
+      "email": "demo.market@petsy.com",
+      "role": "market_owner"
+    }
+  },
+  "entities": {
+    "conversation_id": "b49d9152-33da-4a3d-a6e2-4f573a9cb1f9",
+    "listing_id": "79b580bb-ae3e-4873-b2d2-b58b5a8064b4",
+    "order_id": "1e549a8f-2424-481a-8d88-203323b06b7e",
+    "pet_id": "1daffa26-bc07-42e5-b45b-636af1cf20c7",
+    "sponsorship_id": "1da8266d-8ba3-4674-b74e-81f405bc7125",
+    "appointment_id": "bfc3e2fd-d91c-4342-8378-f83d34d596ce"
+  },
+  "steps": [
+    {
+      "ts": "2026-02-12T11:53:16.213498+00:00",
+      "method": "POST",
+      "path": "/auth/login",
+      "status": 200,
+      "request": {
+        "email": "admin@petsy.com",
+        "password": "***"
+      },
+      "response": {
+        "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJjZjJhZjVjNi0zZWMzLTQyNDctYjQzZS1mZjhiZTVmODZlNjUiLCJleHAiOjE3NzM0ODkxOTZ9.IAj6acUwm0C_RvGPhb4qJw_cRO7NczDKAcwT_UN2Mmo",
+        "token_type": "bearer",
+        "user": {
+          "id": "cf2af5c6-3ec3-4247-b43e-ff8be5f86e65",
+          "email": "admin@petsy.com",
+          "name": "Admin",
+          "username": "adminuser",
+          "user_code": "PET-F86E65",
+          "phone": "+963900000000",
+          "city": null,
+          "bio": null,
+          "avatar": null,
+          "language": "ar",
+          "is_verified": true,
+          "is_admin": true,
+          "role": "admin",
+          "created_at": "2026-02-11T10:16:53.735000"
+        }
+      }
+    },
+    {
+      "ts": "2026-02-12T11:53:16.449043+00:00",
+      "method": "POST",
+      "path": "/auth/login",
+      "status": 200,
+      "request": {
+        "email": "demo.vet@petsy.com",
+        "password": "***"
+      },
+      "response": {
+        "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMzgyZGNjNy0zY2Q1LTRiZTItYjRlOS04YmFkNzZhN2Q4NjQiLCJleHAiOjE3NzM0ODkxOTZ9.2O3KG1CVogXNC8NOmI-ux-EGJA3uzhCqaz7VKlbDHw0",
+        "token_type": "bearer",
+        "user": {
+          "id": "1382dcc7-3cd5-4be2-b4e9-8bad76a7d864",
+          "email": "demo.vet@petsy.com",
+          "name": "Demo Vet",
+          "username": "demo.vet",
+          "user_code": "PET-A7D864",
+          "phone": null,
+          "city": null,
+          "bio": null,
+          "avatar": null,
+          "language": "ar",
+          "is_verified": true,
+          "is_admin": false,
+          "role": "vet",
+          "created_at": "2026-02-12T11:45:53.977000"
+        }
+      }
+    },
+    {
+      "ts": "2026-02-12T11:53:16.693549+00:00",
+      "method": "POST",
+      "path": "/auth/login",
+      "status": 200,
+      "request": {
+        "email": "demo.clinic@petsy.com",
+        "password": "***"
+      },
+      "response": {
+        "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI5NzA1MmM5Mi05MTBmLTQwNjEtOTc2Zi1jOGE5OTFjZGFhZjQiLCJleHAiOjE3NzM0ODkxOTZ9.btGL2zEpgQkaANlxDaC3pkozViVvFnPxugRLO3Jm-j8",
+        "token_type": "bearer",
+        "user": {
+          "id": "97052c92-910f-4061-976f-c8a991cdaaf4",
+          "email": "demo.clinic@petsy.com",
+          "name": "Demo Clinic",
+          "username": "demo.clinic",
+          "user_code": "PET-CDAAF4",
+          "phone": null,
+          "city": null,
+          "bio": null,
+          "avatar": null,
+          "language": "ar",
+          "is_verified": true,
+          "is_admin": false,
+          "role": "care_clinic",
+          "created_at": "2026-02-12T11:45:54.330000"
+        }
+      }
+    },
+    {
+      "ts": "2026-02-12T11:53:16.938198+00:00",
+      "method": "POST",
+      "path": "/auth/login",
+      "status": 200,
+      "request": {
+        "email": "demo.market@petsy.com",
+        "password": "***"
+      },
+      "response": {
+        "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJjM2NmYzg0Ni0xYmJiLTQxODItYmQ2MC04M2Q2NmRjNDU2NWQiLCJleHAiOjE3NzM0ODkxOTZ9.DvSL7DtsYwNA2Gu3tb0FuMvQIB2-GB55NxTf2eNxZbY",
+        "token_type": "bearer",
+        "user": {
+          "id": "c3cfc846-1bbb-4182-bd60-83d66dc4565d",
+          "email": "demo.market@petsy.com",
+          "name": "Demo Market",
+          "username": "demo.market",
+          "user_code": "PET-C4565D",
+          "phone": null,
+          "city": null,
+          "bio": null,
+          "avatar": null,
+          "language": "ar",
+          "is_verified": true,
+          "is_admin": false,
+          "role": "market_owner",
+          "created_at": "2026-02-12T11:45:54.565000"
+        }
+      }
+    },
+    {
+      "ts": "2026-02-12T11:53:16.944817+00:00",
+      "method": "POST",
+      "path": "/friends/requests",
+      "status": 200,
+      "request": {
+        "target_user_id": "c3cfc846-1bbb-4182-bd60-83d66dc4565d"
+      },
+      "response": {
+        "success": true,
+        "status": "already_friends"
+      }
+    },
+    {
+      "ts": "2026-02-12T11:53:16.948619+00:00",
+      "method": "GET",
+      "path": "/friends/requests",
+      "status": 200,
+      "request": null,
+      "response": {
+        "incoming": [],
+        "outgoing": []
+      }
+    },
+    {
+      "ts": "2026-02-12T11:53:16.952974+00:00",
+      "method": "POST",
+      "path": "/conversations/direct/c3cfc846-1bbb-4182-bd60-83d66dc4565d",
+      "status": 200,
+      "request": null,
+      "response": {
+        "conversation_id": "b49d9152-33da-4a3d-a6e2-4f573a9cb1f9",
+        "is_new": false
+      }
+    },
+    {
+      "ts": "2026-02-12T11:53:16.959192+00:00",
+      "method": "POST",
+      "path": "/conversations/b49d9152-33da-4a3d-a6e2-4f573a9cb1f9/messages",
+      "status": 200,
+      "request": {
+        "content": "Clinic says hi (beta-final-20260212T115315Z)"
+      },
+      "response": {
+        "id": "9d1b8562-639c-4ad2-9141-bc4486a1cdcf",
+        "conversation_id": "b49d9152-33da-4a3d-a6e2-4f573a9cb1f9",
+        "sender_id": "97052c92-910f-4061-976f-c8a991cdaaf4",
+        "content": "Clinic says hi (beta-final-20260212T115315Z)",
+        "created_at": "2026-02-12T11:53:16.955240",
+        "is_read": false
+      }
+    },
+    {
+      "ts": "2026-02-12T11:53:16.963482+00:00",
+      "method": "GET",
+      "path": "/conversations/b49d9152-33da-4a3d-a6e2-4f573a9cb1f9/messages",
+      "status": 200,
+      "request": null,
+      "response": [
+        {
+          "id": "aa5cceb8-9a34-4a84-a3a0-1722fe67bca9",
+          "conversation_id": "b49d9152-33da-4a3d-a6e2-4f573a9cb1f9",
+          "sender_id": "97052c92-910f-4061-976f-c8a991cdaaf4",
+          "content": "hello from clinic",
+          "created_at": "2026-02-12T11:48:17.412000",
+          "is_read": true
+        },
+        {
+          "id": "e2d14fbc-47f6-40ba-baa7-762e3bf92551",
+          "conversation_id": "b49d9152-33da-4a3d-a6e2-4f573a9cb1f9",
+          "sender_id": "c3cfc846-1bbb-4182-bd60-83d66dc4565d",
+          "content": "reply from market",
+          "created_at": "2026-02-12T11:48:17.423000",
+          "is_read": true
+        },
+        {
+          "id": "abf42c25-f81f-4096-9e27-9633a57d6193",
+          "conversation_id": "b49d9152-33da-4a3d-a6e2-4f573a9cb1f9",
+          "sender_id": "97052c92-910f-4061-976f-c8a991cdaaf4",
+          "content": "Clinic says hi (beta-final-20260212T115135Z)",
+          "created_at": "2026-02-12T11:51:36.330000",
+          "is_read": true
+        },
+        {
+          "id": "df353eba-df14-42e1-b745-804d15adc9ea",
+          "conversation_id": "b49d9152-33da-4a3d-a6e2-4f573a9cb1f9",
+          "sender_id": "c3cfc846-1bbb-4182-bd60-83d66dc4565d",
+          "content": "Market acknowledges (beta-final-20260212T115135Z)",
+          "created_at": "2026-02-12T11:51:36.343000",
+          "is_read": true
+        },
+        {
+          "id": "0c32b467-ef37-4679-86e4-0b7284e3d5cb",
+          "conversation_id": "b49d9152-33da-4a3d-a6e2-4f573a9cb1f9",
+          "sender_id": "97052c92-910f-4061-976f-c8a991cdaaf4",
+          "content": "Clinic says hi (beta-final-20260212T115222Z)",
+          "created_at": "2026-02-12T11:52:23.712000",
+          "is_read": true
+        },
+        {
+          "id": "0c99338b-8d32-4741-9efa-11be2888dcff",
+          "conversation_id": "b49d9152-33da-4a3d-a6e2-4f573a9cb1f9",
+          "sender_id": "c3cfc846-1bbb-4182-bd60-83d66dc4565d",
+          "content": "Market acknowledges (beta-final-20260212T115222Z)",
+          "created_at": "2026-02-12T11:52:23.723000",
+          "is_read": true
+        },
+        {
+          "id": "9d1b8562-639c-4ad2-9141-bc4486a1cdcf",
+          "conversation_id": "b49d9152-33da-4a3d-a6e2-4f573a9cb1f9",
+          "sender_id": "97052c92-910f-4061-976f-c8a991cdaaf4",
+          "content": "Clinic says hi (beta-final-20260212T115315Z)",
+          "created_at": "2026-02-12T11:53:16.955000",
+          "is_read": true
+        }
+      ]
+    },
+    {
+      "ts": "2026-02-12T11:53:16.968064+00:00",
+      "method": "POST",
+      "path": "/conversations/b49d9152-33da-4a3d-a6e2-4f573a9cb1f9/messages",
+      "status": 200,
+      "request": {
+        "content": "Market acknowledges (beta-final-20260212T115315Z)"
+      },
+      "response": {
+        "id": "2914f87a-6e88-4500-9802-3f130ff71fb2",
+        "conversation_id": "b49d9152-33da-4a3d-a6e2-4f573a9cb1f9",
+        "sender_id": "c3cfc846-1bbb-4182-bd60-83d66dc4565d",
+        "content": "Market acknowledges (beta-final-20260212T115315Z)",
+        "created_at": "2026-02-12T11:53:16.965546",
+        "is_read": false
+      }
+    },
+    {
+      "ts": "2026-02-12T11:53:16.972068+00:00",
+      "method": "GET",
+      "path": "/conversations/b49d9152-33da-4a3d-a6e2-4f573a9cb1f9/messages",
+      "status": 200,
+      "request": null,
+      "response": [
+        {
+          "id": "aa5cceb8-9a34-4a84-a3a0-1722fe67bca9",
+          "conversation_id": "b49d9152-33da-4a3d-a6e2-4f573a9cb1f9",
+          "sender_id": "97052c92-910f-4061-976f-c8a991cdaaf4",
+          "content": "hello from clinic",
+          "created_at": "2026-02-12T11:48:17.412000",
+          "is_read": true
+        },
+        {
+          "id": "e2d14fbc-47f6-40ba-baa7-762e3bf92551",
+          "conversation_id": "b49d9152-33da-4a3d-a6e2-4f573a9cb1f9",
+          "sender_id": "c3cfc846-1bbb-4182-bd60-83d66dc4565d",
+          "content": "reply from market",
+          "created_at": "2026-02-12T11:48:17.423000",
+          "is_read": true
+        },
+        {
+          "id": "abf42c25-f81f-4096-9e27-9633a57d6193",
+          "conversation_id": "b49d9152-33da-4a3d-a6e2-4f573a9cb1f9",
+          "sender_id": "97052c92-910f-4061-976f-c8a991cdaaf4",
+          "content": "Clinic says hi (beta-final-20260212T115135Z)",
+          "created_at": "2026-02-12T11:51:36.330000",
+          "is_read": true
+        },
+        {
+          "id": "df353eba-df14-42e1-b745-804d15adc9ea",
+          "conversation_id": "b49d9152-33da-4a3d-a6e2-4f573a9cb1f9",
+          "sender_id": "c3cfc846-1bbb-4182-bd60-83d66dc4565d",
+          "content": "Market acknowledges (beta-final-20260212T115135Z)",
+          "created_at": "2026-02-12T11:51:36.343000",
+          "is_read": true
+        },
+        {
+          "id": "0c32b467-ef37-4679-86e4-0b7284e3d5cb",
+          "conversation_id": "b49d9152-33da-4a3d-a6e2-4f573a9cb1f9",
+          "sender_id": "97052c92-910f-4061-976f-c8a991cdaaf4",
+          "content": "Clinic says hi (beta-final-20260212T115222Z)",
+          "created_at": "2026-02-12T11:52:23.712000",
+          "is_read": true
+        },
+        {
+          "id": "0c99338b-8d32-4741-9efa-11be2888dcff",
+          "conversation_id": "b49d9152-33da-4a3d-a6e2-4f573a9cb1f9",
+          "sender_id": "c3cfc846-1bbb-4182-bd60-83d66dc4565d",
+          "content": "Market acknowledges (beta-final-20260212T115222Z)",
+          "created_at": "2026-02-12T11:52:23.723000",
+          "is_read": true
+        },
+        {
+          "id": "9d1b8562-639c-4ad2-9141-bc4486a1cdcf",
+          "conversation_id": "b49d9152-33da-4a3d-a6e2-4f573a9cb1f9",
+          "sender_id": "97052c92-910f-4061-976f-c8a991cdaaf4",
+          "content": "Clinic says hi (beta-final-20260212T115315Z)",
+          "created_at": "2026-02-12T11:53:16.955000",
+          "is_read": true
+        },
+        {
+          "id": "2914f87a-6e88-4500-9802-3f130ff71fb2",
+          "conversation_id": "b49d9152-33da-4a3d-a6e2-4f573a9cb1f9",
+          "sender_id": "c3cfc846-1bbb-4182-bd60-83d66dc4565d",
+          "content": "Market acknowledges (beta-final-20260212T115315Z)",
+          "created_at": "2026-02-12T11:53:16.965000",
+          "is_read": true
+        }
+      ]
+    },
+    {
+      "ts": "2026-02-12T11:53:16.975118+00:00",
+      "method": "POST",
+      "path": "/marketplace/listings",
+      "status": 200,
+      "request": {
+        "title": "Beta Reciprocal Item beta-final-20260212T115315Z"
+      },
+      "response": {
+        "id": "79b580bb-ae3e-4873-b2d2-b58b5a8064b4",
+        "user_id": "c3cfc846-1bbb-4182-bd60-83d66dc4565d",
+        "user_name": "Demo Market",
+        "user_avatar": null,
+        "title": "Beta Reciprocal Item beta-final-20260212T115315Z",
+        "description": "Final beta reciprocal listing",
+        "category": "accessories",
+        "price": 33.75,
+        "location": "Amman",
+        "image": null,
+        "pet_type": null,
+        "condition": "new",
+        "status": "active",
+        "created_at": "2026-02-12T11:53:16.974096"
+      }
+    },
+    {
+      "ts": "2026-02-12T11:53:16.978166+00:00",
+      "method": "POST",
+      "path": "/orders",
+      "status": 200,
+      "request": {
+        "items": [
+          {
+            "product_id": "79b580bb-ae3e-4873-b2d2-b58b5a8064b4",
+            "quantity": 1
+          }
+        ],
+        "total": 33.75
+      },
+      "response": {
+        "id": "1e549a8f-2424-481a-8d88-203323b06b7e",
+        "user_id": "97052c92-910f-4061-976f-c8a991cdaaf4",
+        "items": [
+          {
+            "product_id": "79b580bb-ae3e-4873-b2d2-b58b5a8064b4",
+            "name": "Beta Reciprocal Item beta-final-20260212T115315Z",
+            "price": 33.75,
+            "quantity": 1,
+            "image": null,
+            "seller_user_id": "c3cfc846-1bbb-4182-bd60-83d66dc4565d"
+          }
+        ],
+        "total": 33.75,
+        "status": "pending",
+        "shipping_address": "QA Street 42",
+        "shipping_city": "Amman",
+        "shipping_phone": "+962700000001",
+        "payment_method": "cash_on_delivery",
+        "notes": "order-check-beta-final-20260212T115315Z",
+        "created_at": "2026-02-12T11:53:16.977264"
+      }
+    },
+    {
+      "ts": "2026-02-12T11:53:16.980812+00:00",
+      "method": "GET",
+      "path": "/orders/sales",
+      "status": 200,
+      "request": null,
+      "response": [
+        {
+          "id": "1e549a8f-2424-481a-8d88-203323b06b7e",
+          "user_id": "97052c92-910f-4061-976f-c8a991cdaaf4",
+          "items": [
+            {
+              "product_id": "79b580bb-ae3e-4873-b2d2-b58b5a8064b4",
+              "name": "Beta Reciprocal Item beta-final-20260212T115315Z",
+              "price": 33.75,
+              "quantity": 1,
+              "image": null,
+              "seller_user_id": "c3cfc846-1bbb-4182-bd60-83d66dc4565d"
+            }
+          ],
+          "total": 33.75,
+          "status": "pending",
+          "shipping_address": "QA Street 42",
+          "shipping_city": "Amman",
+          "shipping_phone": "+962700000001",
+          "payment_method": "cash_on_delivery",
+          "notes": "order-check-beta-final-20260212T115315Z",
+          "created_at": "2026-02-12T11:53:16.977000"
+        },
+        {
+          "id": "d5103fc7-a8bd-4d6b-8049-d644694d1863",
+          "user_id": "97052c92-910f-4061-976f-c8a991cdaaf4",
+          "items": [
+            {
+              "product_id": "2fd1d9df-5447-4ce6-8a4a-c2f522ad80e2",
+              "name": "Beta Reciprocal Item beta-final-20260212T115222Z",
+              "price": 33.75,
+              "quantity": 1,
+              "image": null,
+              "seller_user_id": "c3cfc846-1bbb-4182-bd60-83d66dc4565d"
+            }
+          ],
+          "total": 33.75,
+          "status": "pending",
+          "shipping_address": "QA Street 42",
+          "shipping_city": "Amman",
+          "shipping_phone": "+962700000001",
+          "payment_method": "cash_on_delivery",
+          "notes": "order-check-beta-final-20260212T115222Z",
+          "created_at": "2026-02-12T11:52:23.736000"
+        },
+        {
+          "id": "b4badcd3-b941-4d5b-91cf-64ec71167a4f",
+          "user_id": "97052c92-910f-4061-976f-c8a991cdaaf4",
+          "items": [
+            {
+              "product_id": "dcc6e9a6-a090-4ffb-983e-eed4b2e2426f",
+              "name": "Beta Reciprocal Item beta-final-20260212T115135Z",
+              "price": 33.75,
+              "quantity": 1,
+              "image": null,
+              "seller_user_id": "c3cfc846-1bbb-4182-bd60-83d66dc4565d"
+            }
+          ],
+          "total": 33.75,
+          "status": "pending",
+          "shipping_address": "QA Street 42",
+          "shipping_city": "Amman",
+          "shipping_phone": "+962700000001",
+          "payment_method": "cash_on_delivery",
+          "notes": "order-check-beta-final-20260212T115135Z",
+          "created_at": "2026-02-12T11:51:36.359000"
+        }
+      ]
+    },
+    {
+      "ts": "2026-02-12T11:53:16.983223+00:00",
+      "method": "POST",
+      "path": "/pets",
+      "status": 200,
+      "request": {
+        "name": "MarketPet-beta-final-20260212T115315Z",
+        "species": "dog",
+        "gender": "male"
+      },
+      "response": {
+        "name": "MarketPet-beta-final-20260212T115315Z",
+        "species": "dog",
+        "breed": null,
+        "age": null,
+        "gender": "male",
+        "color": null,
+        "weight": null,
+        "description": null,
+        "image": null,
+        "status": "owned",
+        "price": null,
+        "location": null,
+        "vaccinated": false,
+        "neutered": false,
+        "id": "1daffa26-bc07-42e5-b45b-636af1cf20c7",
+        "owner_id": "c3cfc846-1bbb-4182-bd60-83d66dc4565d",
+        "created_at": "2026-02-12T11:53:16.982254",
+        "likes": 0,
+        "views": 0
+      }
+    },
+    {
+      "ts": "2026-02-12T11:53:16.986510+00:00",
+      "method": "POST",
+      "path": "/sponsorships",
+      "status": 200,
+      "request": {
+        "pet_id": "1daffa26-bc07-42e5-b45b-636af1cf20c7",
+        "amount": 12.0
+      },
+      "response": {
+        "id": "1da8266d-8ba3-4674-b74e-81f405bc7125",
+        "pet_id": "1daffa26-bc07-42e5-b45b-636af1cf20c7",
+        "user_id": "97052c92-910f-4061-976f-c8a991cdaaf4",
+        "user_name": "Demo Clinic",
+        "amount": 12.0,
+        "message": "support-beta-final-20260212T115315Z",
+        "is_anonymous": false,
+        "is_recurring": false,
+        "status": "pending",
+        "created_at": "2026-02-12T11:53:16.984814"
+      }
+    },
+    {
+      "ts": "2026-02-12T11:53:16.989530+00:00",
+      "method": "GET",
+      "path": "/sponsorships/pet/1daffa26-bc07-42e5-b45b-636af1cf20c7",
+      "status": 200,
+      "request": null,
+      "response": [
+        {
+          "id": "1da8266d-8ba3-4674-b74e-81f405bc7125",
+          "pet_id": "1daffa26-bc07-42e5-b45b-636af1cf20c7",
+          "user_id": "97052c92-910f-4061-976f-c8a991cdaaf4",
+          "user_name": "Demo Clinic",
+          "amount": 12.0,
+          "message": "support-beta-final-20260212T115315Z",
+          "is_anonymous": false,
+          "is_recurring": false,
+          "status": "pending",
+          "created_at": "2026-02-12T11:53:16.984000"
+        }
+      ]
+    },
+    {
+      "ts": "2026-02-12T11:53:16.995029+00:00",
+      "method": "PUT",
+      "path": "/sponsorships/1da8266d-8ba3-4674-b74e-81f405bc7125/status",
+      "status": 200,
+      "request": {
+        "status": "completed"
+      },
+      "response": {
+        "id": "1da8266d-8ba3-4674-b74e-81f405bc7125",
+        "pet_id": "1daffa26-bc07-42e5-b45b-636af1cf20c7",
+        "user_id": "97052c92-910f-4061-976f-c8a991cdaaf4",
+        "user_name": "Demo Clinic",
+        "amount": 12.0,
+        "message": "support-beta-final-20260212T115315Z",
+        "is_anonymous": false,
+        "is_recurring": false,
+        "status": "completed",
+        "created_at": "2026-02-12T11:53:16.984000"
+      }
+    },
+    {
+      "ts": "2026-02-12T11:53:16.998131+00:00",
+      "method": "GET",
+      "path": "/sponsorships/pet/1daffa26-bc07-42e5-b45b-636af1cf20c7",
+      "status": 200,
+      "request": null,
+      "response": [
+        {
+          "id": "1da8266d-8ba3-4674-b74e-81f405bc7125",
+          "pet_id": "1daffa26-bc07-42e5-b45b-636af1cf20c7",
+          "user_id": "97052c92-910f-4061-976f-c8a991cdaaf4",
+          "user_name": "Demo Clinic",
+          "amount": 12.0,
+          "message": "support-beta-final-20260212T115315Z",
+          "is_anonymous": false,
+          "is_recurring": false,
+          "status": "completed",
+          "created_at": "2026-02-12T11:53:16.984000"
+        }
+      ]
+    },
+    {
+      "ts": "2026-02-12T11:53:17.001959+00:00",
+      "method": "POST",
+      "path": "/appointments",
+      "status": 200,
+      "request": {
+        "vet_id": "1382dcc7-3cd5-4be2-b4e9-8bad76a7d864",
+        "pet_id": "1daffa26-bc07-42e5-b45b-636af1cf20c7"
+      },
+      "response": {
+        "id": "bfc3e2fd-d91c-4342-8378-f83d34d596ce",
+        "user_id": "97052c92-910f-4061-976f-c8a991cdaaf4",
+        "vet_id": "1382dcc7-3cd5-4be2-b4e9-8bad76a7d864",
+        "pet_id": "1daffa26-bc07-42e5-b45b-636af1cf20c7",
+        "date": "2026-02-22",
+        "time": "09:30",
+        "reason": "reciprocal-appointment-beta-final-20260212T115315Z",
+        "status": "pending",
+        "notes": null,
+        "created_at": "2026-02-12T11:53:17.000111"
+      }
+    },
+    {
+      "ts": "2026-02-12T11:53:17.005256+00:00",
+      "method": "GET",
+      "path": "/appointments",
+      "status": 200,
+      "request": null,
+      "response": [
+        {
+          "id": "bfc3e2fd-d91c-4342-8378-f83d34d596ce",
+          "user_id": "97052c92-910f-4061-976f-c8a991cdaaf4",
+          "vet_id": "1382dcc7-3cd5-4be2-b4e9-8bad76a7d864",
+          "pet_id": "1daffa26-bc07-42e5-b45b-636af1cf20c7",
+          "date": "2026-02-22",
+          "time": "09:30",
+          "reason": "reciprocal-appointment-beta-final-20260212T115315Z",
+          "status": "pending",
+          "notes": null,
+          "created_at": "2026-02-12T11:53:17"
+        },
+        {
+          "id": "17d0bad1-7b11-461c-b101-db4595a287c6",
+          "user_id": "97052c92-910f-4061-976f-c8a991cdaaf4",
+          "vet_id": "1382dcc7-3cd5-4be2-b4e9-8bad76a7d864",
+          "pet_id": "510388c7-db04-4399-b9f2-131e16371dfb",
+          "date": "2026-02-22",
+          "time": "09:30",
+          "reason": "reciprocal-appointment-beta-final-20260212T115222Z",
+          "status": "pending",
+          "notes": null,
+          "created_at": "2026-02-12T11:52:23.767000"
+        },
+        {
+          "id": "3ea783df-3121-409c-a9ab-bd66532be4dc",
+          "user_id": "97052c92-910f-4061-976f-c8a991cdaaf4",
+          "vet_id": "1382dcc7-3cd5-4be2-b4e9-8bad76a7d864",
+          "pet_id": "cf87a18e-716d-4afa-a77b-c2adb3fe10e0",
+          "date": "2026-02-22",
+          "time": "09:30",
+          "reason": "reciprocal-appointment-beta-final-20260212T115135Z",
+          "status": "pending",
+          "notes": null,
+          "created_at": "2026-02-12T11:51:36.391000"
+        },
+        {
+          "id": "98a93b58-9397-4985-87d4-806fc3e7ddbf",
+          "user_id": "97052c92-910f-4061-976f-c8a991cdaaf4",
+          "vet_id": "1382dcc7-3cd5-4be2-b4e9-8bad76a7d864",
+          "pet_id": "0b723f2d-eab7-4521-83b7-8f6646ef7eb6",
+          "date": "2026-02-21",
+          "time": "11:00",
+          "reason": "qa",
+          "status": "pending",
+          "notes": null,
+          "created_at": "2026-02-12T11:48:34.494000"
+        },
+        {
+          "id": "05afc83d-d81b-4030-8f1f-51345a6b094d",
+          "user_id": "97052c92-910f-4061-976f-c8a991cdaaf4",
+          "vet_id": "1382dcc7-3cd5-4be2-b4e9-8bad76a7d864",
+          "pet_id": null,
+          "date": "2026-02-21",
+          "time": "11:00",
+          "reason": "qa",
+          "status": "pending",
+          "notes": null,
+          "created_at": "2026-02-12T11:48:17.444000"
+        }
+      ]
+    }
+  ],
+  "matrix": [
+    {
+      "check": "Seeded role logins (admin/vet/clinic/market)",
+      "result": "PASS"
+    },
+    {
+      "check": "Reciprocal chat accept/respond (clinic <-> market)",
+      "result": "PASS"
+    },
+    {
+      "check": "Seller perspective sees purchase via /orders/sales",
+      "result": "PASS"
+    },
+    {
+      "check": "Sponsorship owner sees pending lifecycle state",
+      "result": "PASS"
+    },
+    {
+      "check": "Sponsorship transitions to completed and remains visible",
+      "result": "PASS"
+    },
+    {
+      "check": "Vet/provider sees counterpart appointment",
+      "result": "PASS"
+    }
+  ]
+}

@@ -1,0 +1,11 @@
+{
+  "ts": "2026-02-12T11:48:40.248090+00:00",
+  "method": "POST",
+  "path": "/conversations/direct/f106f48e-de19-4340-829b-3d9005d8ef7e",
+  "status": 403,
+  "request": null,
+  "params": null,
+  "response": {
+    "detail": "You can only chat with friends"
+  }
+}

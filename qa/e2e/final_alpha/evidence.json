@@ -1,0 +1,1287 @@
+{
+  "summary": {
+    "run_id": "20260212T115311Z",
+    "base": "http://127.0.0.1:8001/api",
+    "actor_role": "clinic",
+    "accounts": {
+      "admin": {
+        "email": "admin@petsy.com",
+        "user_id": "cf2af5c6-3ec3-4247-b43e-ff8be5f86e65"
+      },
+      "vet": {
+        "email": "demo.vet@petsy.com",
+        "user_id": "1382dcc7-3cd5-4be2-b4e9-8bad76a7d864"
+      },
+      "clinic": {
+        "email": "demo.clinic@petsy.com",
+        "user_id": "97052c92-910f-4061-976f-c8a991cdaaf4"
+      },
+      "market": {
+        "email": "demo.market@petsy.com",
+        "user_id": "c3cfc846-1bbb-4182-bd60-83d66dc4565d"
+      }
+    },
+    "handoff_ids": {
+      "user_id": "f106f48e-de19-4340-829b-3d9005d8ef7e",
+      "pet_id": "e03a504c-8412-49c6-a623-29634e6659fc",
+      "listing_goods_id": "15c1f4b2-d9dd-4028-a7ec-3dd70f6299a4"
+    },
+    "entities": {
+      "friend_request_id_beta": "4d17865b-1b86-446f-bc3a-ae630aaf882b",
+      "beta_direct_open_status": 403,
+      "friend_request_id_seeded": null,
+      "seeded_conversation_id": "13907a7f-935d-4c31-910c-60c450215dd9",
+      "order_id": "63cf6c06-207b-403d-ade1-72b345aa034b",
+      "sponsorship_id": "aa3a7643-8a13-4b91-9087-8c6796cafcae",
+      "appointment_id": "b1925acc-3b2a-42a0-8712-e0d43af3bed2",
+      "selected_vet_id": "29904761-d70f-44f2-a803-573e4ac9570f"
+    },
+    "matrix": [
+      {
+        "check": "login_admin",
+        "result": "PASS"
+      },
+      {
+        "check": "login_vet",
+        "result": "PASS"
+      },
+      {
+        "check": "login_clinic",
+        "result": "PASS"
+      },
+      {
+        "check": "login_market",
+        "result": "PASS"
+      },
+      {
+        "check": "friend_request_seeded",
+        "result": "PASS"
+      },
+      {
+        "check": "friend_accept_seeded",
+        "result": "PASS"
+      },
+      {
+        "check": "open_direct_seeded",
+        "result": "PASS"
+      },
+      {
+        "check": "send_chat_message_seeded",
+        "result": "PASS"
+      },
+      {
+        "check": "chat_visible_to_counterpart_seeded",
+        "result": "PASS"
+      },
+      {
+        "check": "beta_handoff_ping_attempted",
+        "result": "PASS"
+      },
+      {
+        "check": "create_order",
+        "result": "PASS"
+      },
+      {
+        "check": "order_visible_to_buyer",
+        "result": "PASS"
+      },
+      {
+        "check": "create_sponsorship",
+        "result": "PASS"
+      },
+      {
+        "check": "sponsorship_visible_to_creator",
+        "result": "PASS"
+      },
+      {
+        "check": "sponsorship_visible_on_pet_feed",
+        "result": "PASS"
+      },
+      {
+        "check": "list_vets",
+        "result": "PASS"
+      },
+      {
+        "check": "create_appointment",
+        "result": "PASS"
+      },
+      {
+        "check": "appointment_visible_to_booker",
+        "result": "PASS"
+      }
+    ],
+    "blockers": [],
+    "steps_count": 23
+  },
+  "steps": [
+    {
+      "ts": "2026-02-12T11:53:12.063322+00:00",
+      "method": "POST",
+      "path": "/auth/login",
+      "status": 200,
+      "request": {
+        "email": "admin@petsy.com",
+        "password": "***"
+      },
+      "params": null,
+      "response": {
+        "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJjZjJhZjVjNi0zZWMzLTQyNDctYjQzZS1mZjhiZTVmODZlNjUiLCJleHAiOjE3NzM0ODkxOTJ9.REFd-4Rit6Bkj5ostNGqHDTepHB88CWOpg1o4pgCj7g",
+        "token_type": "bearer",
+        "user": {
+          "id": "cf2af5c6-3ec3-4247-b43e-ff8be5f86e65",
+          "email": "admin@petsy.com",
+          "name": "Admin",
+          "username": "adminuser",
+          "user_code": "PET-F86E65",
+          "phone": "+963900000000",
+          "city": null,
+          "bio": null,
+          "avatar": null,
+          "language": "ar",
+          "is_verified": true,
+          "is_admin": true,
+          "role": "admin",
+          "created_at": "2026-02-11T10:16:53.735000"
+        }
+      }
+    },
+    {
+      "ts": "2026-02-12T11:53:12.304506+00:00",
+      "method": "GET",
+      "path": "/auth/me",
+      "status": 200,
+      "request": null,
+      "params": null,
+      "response": {
+        "id": "cf2af5c6-3ec3-4247-b43e-ff8be5f86e65",
+        "email": "admin@petsy.com",
+        "name": "Admin",
+        "username": "adminuser",
+        "user_code": "PET-F86E65",
+        "phone": "+963900000000",
+        "city": null,
+        "bio": null,
+        "avatar": null,
+        "language": "ar",
+        "is_verified": true,
+        "is_admin": true,
+        "role": "admin",
+        "created_at": "2026-02-11T10:16:53.735000"
+      }
+    },
+    {
+      "ts": "2026-02-12T11:53:12.546454+00:00",
+      "method": "POST",
+      "path": "/auth/login",
+      "status": 200,
+      "request": {
+        "email": "demo.vet@petsy.com",
+        "password": "***"
+      },
+      "params": null,
+      "response": {
+        "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMzgyZGNjNy0zY2Q1LTRiZTItYjRlOS04YmFkNzZhN2Q4NjQiLCJleHAiOjE3NzM0ODkxOTJ9.Bau7xNQNaXt-mU8AP-Co3H6sqEJNctyLrNEAFmAo7RU",
+        "token_type": "bearer",
+        "user": {
+          "id": "1382dcc7-3cd5-4be2-b4e9-8bad76a7d864",
+          "email": "demo.vet@petsy.com",
+          "name": "Demo Vet",
+          "username": "demo.vet",
+          "user_code": "PET-A7D864",
+          "phone": null,
+          "city": null,
+          "bio": null,
+          "avatar": null,
+          "language": "ar",
+          "is_verified": true,
+          "is_admin": false,
+          "role": "vet",
+          "created_at": "2026-02-12T11:45:53.977000"
+        }
+      }
+    },
+    {
+      "ts": "2026-02-12T11:53:12.556067+00:00",
+      "method": "GET",
+      "path": "/auth/me",
+      "status": 200,
+      "request": null,
+      "params": null,
+      "response": {
+        "id": "1382dcc7-3cd5-4be2-b4e9-8bad76a7d864",
+        "email": "demo.vet@petsy.com",
+        "name": "Demo Vet",
+        "username": "demo.vet",
+        "user_code": "PET-A7D864",
+        "phone": null,
+        "city": null,
+        "bio": null,
+        "avatar": null,
+        "language": "ar",
+        "is_verified": true,
+        "is_admin": false,
+        "role": "vet",
+        "created_at": "2026-02-12T11:45:53.977000"
+      }
+    },
+    {
+      "ts": "2026-02-12T11:53:12.797600+00:00",
+      "method": "POST",
+      "path": "/auth/login",
+      "status": 200,
+      "request": {
+        "email": "demo.clinic@petsy.com",
+        "password": "***"
+      },
+      "params": null,
+      "response": {
+        "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI5NzA1MmM5Mi05MTBmLTQwNjEtOTc2Zi1jOGE5OTFjZGFhZjQiLCJleHAiOjE3NzM0ODkxOTJ9.KIVPCsT7Ic3ydakv20C1SVkPbo8DQRZwiSPNwdJXqaA",
+        "token_type": "bearer",
+        "user": {
+          "id": "97052c92-910f-4061-976f-c8a991cdaaf4",
+          "email": "demo.clinic@petsy.com",
+          "name": "Demo Clinic",
+          "username": "demo.clinic",
+          "user_code": "PET-CDAAF4",
+          "phone": null,
+          "city": null,
+          "bio": null,
+          "avatar": null,
+          "language": "ar",
+          "is_verified": true,
+          "is_admin": false,
+          "role": "care_clinic",
+          "created_at": "2026-02-12T11:45:54.330000"
+        }
+      }
+    },
+    {
+      "ts": "2026-02-12T11:53:12.804064+00:00",
+      "method": "GET",
+      "path": "/auth/me",
+      "status": 200,
+      "request": null,
+      "params": null,
+      "response": {
+        "id": "97052c92-910f-4061-976f-c8a991cdaaf4",
+        "email": "demo.clinic@petsy.com",
+        "name": "Demo Clinic",
+        "username": "demo.clinic",
+        "user_code": "PET-CDAAF4",
+        "phone": null,
+        "city": null,
+        "bio": null,
+        "avatar": null,
+        "language": "ar",
+        "is_verified": true,
+        "is_admin": false,
+        "role": "care_clinic",
+        "created_at": "2026-02-12T11:45:54.330000"
+      }
+    },
+    {
+      "ts": "2026-02-12T11:53:13.049296+00:00",
+      "method": "POST",
+      "path": "/auth/login",
+      "status": 200,
+      "request": {
+        "email": "demo.market@petsy.com",
+        "password": "***"
+      },
+      "params": null,
+      "response": {
+        "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJjM2NmYzg0Ni0xYmJiLTQxODItYmQ2MC04M2Q2NmRjNDU2NWQiLCJleHAiOjE3NzM0ODkxOTN9.I0fP0nJju-KpWWi9z_AM9r6fZjfYCZab8DjJ9UjY8q4",
+        "token_type": "bearer",
+        "user": {
+          "id": "c3cfc846-1bbb-4182-bd60-83d66dc4565d",
+          "email": "demo.market@petsy.com",
+          "name": "Demo Market",
+          "username": "demo.market",
+          "user_code": "PET-C4565D",
+          "phone": null,
+          "city": null,
+          "bio": null,
+          "avatar": null,
+          "language": "ar",
+          "is_verified": true,
+          "is_admin": false,
+          "role": "market_owner",
+          "created_at": "2026-02-12T11:45:54.565000"
+        }
+      }
+    },
+    {
+      "ts": "2026-02-12T11:53:13.056842+00:00",
+      "method": "GET",
+      "path": "/auth/me",
+      "status": 200,
+      "request": null,
+      "params": null,
+      "response": {
+        "id": "c3cfc846-1bbb-4182-bd60-83d66dc4565d",
+        "email": "demo.market@petsy.com",
+        "name": "Demo Market",
+        "username": "demo.market",
+        "user_code": "PET-C4565D",
+        "phone": null,
+        "city": null,
+        "bio": null,
+        "avatar": null,
+        "language": "ar",
+        "is_verified": true,
+        "is_admin": false,
+        "role": "market_owner",
+        "created_at": "2026-02-12T11:45:54.565000"
+      }
+    },
+    {
+      "ts": "2026-02-12T11:53:13.071407+00:00",
+      "method": "POST",
+      "path": "/friends/requests",
+      "status": 200,
+      "request": {
+        "target_user_id": "1382dcc7-3cd5-4be2-b4e9-8bad76a7d864"
+      },
+      "params": null,
+      "response": {
+        "success": true,
+        "status": "already_friends"
+      }
+    },
+    {
+      "ts": "2026-02-12T11:53:13.078702+00:00",
+      "method": "GET",
+      "path": "/friends/requests",
+      "status": 200,
+      "request": null,
+      "params": null,
+      "response": {
+        "incoming": [],
+        "outgoing": []
+      }
+    },
+    {
+      "ts": "2026-02-12T11:53:13.086114+00:00",
+      "method": "POST",
+      "path": "/conversations/direct/1382dcc7-3cd5-4be2-b4e9-8bad76a7d864",
+      "status": 200,
+      "request": null,
+      "params": null,
+      "response": {
+        "conversation_id": "13907a7f-935d-4c31-910c-60c450215dd9",
+        "is_new": false
+      }
+    },
+    {
+      "ts": "2026-02-12T11:53:13.096938+00:00",
+      "method": "POST",
+      "path": "/conversations/13907a7f-935d-4c31-910c-60c450215dd9/messages",
+      "status": 200,
+      "request": null,
+      "params": {
+        "content": "Alpha seeded chat ping (20260212T115311Z)"
+      },
+      "response": {
+        "id": "393dbcf8-3f8d-4a24-a61c-d671c1b84f53",
+        "conversation_id": "13907a7f-935d-4c31-910c-60c450215dd9",
+        "sender_id": "97052c92-910f-4061-976f-c8a991cdaaf4",
+        "content": "Alpha seeded chat ping (20260212T115311Z)",
+        "created_at": "2026-02-12T11:53:13.091213",
+        "is_read": false
+      }
+    },
+    {
+      "ts": "2026-02-12T11:53:13.103291+00:00",
+      "method": "GET",
+      "path": "/conversations/13907a7f-935d-4c31-910c-60c450215dd9/messages",
+      "status": 200,
+      "request": null,
+      "params": null,
+      "response": [
+        {
+          "id": "0231bb6f-d654-4ed6-8443-7f0b35331681",
+          "conversation_id": "13907a7f-935d-4c31-910c-60c450215dd9",
+          "sender_id": "97052c92-910f-4061-976f-c8a991cdaaf4",
+          "content": "Alpha seeded chat ping (20260212T114954Z)",
+          "created_at": "2026-02-12T11:49:56.007000",
+          "is_read": true
+        },
+        {
+          "id": "2a468cad-f596-4496-b2a3-5c4c68c7efd1",
+          "conversation_id": "13907a7f-935d-4c31-910c-60c450215dd9",
+          "sender_id": "97052c92-910f-4061-976f-c8a991cdaaf4",
+          "content": "Alpha seeded chat ping (20260212T115048Z)",
+          "created_at": "2026-02-12T11:50:49.221000",
+          "is_read": true
+        },
+        {
+          "id": "da0befa0-e964-4f71-aa06-931dc672b09d",
+          "conversation_id": "13907a7f-935d-4c31-910c-60c450215dd9",
+          "sender_id": "97052c92-910f-4061-976f-c8a991cdaaf4",
+          "content": "Alpha seeded chat ping (20260212T115130Z)",
+          "created_at": "2026-02-12T11:51:31.180000",
+          "is_read": true
+        },
+        {
+          "id": "2ffc6efb-d928-484d-bd3e-0ca22f555887",
+          "conversation_id": "13907a7f-935d-4c31-910c-60c450215dd9",
+          "sender_id": "97052c92-910f-4061-976f-c8a991cdaaf4",
+          "content": "Alpha seeded chat ping (20260212T115207Z)",
+          "created_at": "2026-02-12T11:52:08.949000",
+          "is_read": true
+        },
+        {
+          "id": "b946bb0c-0936-4b89-8360-ded3cda98762",
+          "conversation_id": "13907a7f-935d-4c31-910c-60c450215dd9",
+          "sender_id": "97052c92-910f-4061-976f-c8a991cdaaf4",
+          "content": "Alpha seeded chat ping (20260212T115255Z)",
+          "created_at": "2026-02-12T11:52:56.899000",
+          "is_read": true
+        },
+        {
+          "id": "393dbcf8-3f8d-4a24-a61c-d671c1b84f53",
+          "conversation_id": "13907a7f-935d-4c31-910c-60c450215dd9",
+          "sender_id": "97052c92-910f-4061-976f-c8a991cdaaf4",
+          "content": "Alpha seeded chat ping (20260212T115311Z)",
+          "created_at": "2026-02-12T11:53:13.091000",
+          "is_read": true
+        }
+      ]
+    },
+    {
+      "ts": "2026-02-12T11:53:13.109630+00:00",
+      "method": "POST",
+      "path": "/friends/requests",
+      "status": 200,
+      "request": {
+        "target_user_id": "f106f48e-de19-4340-829b-3d9005d8ef7e"
+      },
+      "params": null,
+      "response": {
+        "success": true,
+        "status": "pending",
+        "request_id": "4d17865b-1b86-446f-bc3a-ae630aaf882b"
+      }
+    },
+    {
+      "ts": "2026-02-12T11:53:13.113640+00:00",
+      "method": "POST",
+      "path": "/conversations/direct/f106f48e-de19-4340-829b-3d9005d8ef7e",
+      "status": 403,
+      "request": null,
+      "params": null,
+      "response": {
+        "detail": "You can only chat with friends"
+      }
+    },
+    {
+      "ts": "2026-02-12T11:53:13.117288+00:00",
+      "method": "POST",
+      "path": "/orders",
+      "status": 200,
+      "request": {
+        "items": [
+          {
+            "product_id": "15c1f4b2-d9dd-4028-a7ec-3dd70f6299a4",
+            "name": "UserB Premium Pet Bed",
+            "price": 49.99,
+            "quantity": 1
+          }
+        ],
+        "total": 49.99,
+        "shipping_address": "Alpha QA Street 7",
+        "shipping_city": "Amman",
+        "shipping_phone": "+19990001111",
+        "payment_method": "cash_on_delivery",
+        "notes": "alpha-side-order-20260212T115311Z"
+      },
+      "params": null,
+      "response": {
+        "id": "63cf6c06-207b-403d-ade1-72b345aa034b",
+        "user_id": "97052c92-910f-4061-976f-c8a991cdaaf4",
+        "items": [
+          {
+            "product_id": "15c1f4b2-d9dd-4028-a7ec-3dd70f6299a4",
+            "name": "UserB Premium Pet Bed",
+            "price": 49.99,
+            "quantity": 1,
+            "image": null,
+            "seller_user_id": "f106f48e-de19-4340-829b-3d9005d8ef7e"
+          }
+        ],
+        "total": 49.99,
+        "status": "pending",
+        "shipping_address": "Alpha QA Street 7",
+        "shipping_city": "Amman",
+        "shipping_phone": "+19990001111",
+        "payment_method": "cash_on_delivery",
+        "notes": "alpha-side-order-20260212T115311Z",
+        "created_at": "2026-02-12T11:53:13.116214"
+      }
+    },
+    {
+      "ts": "2026-02-12T11:53:13.120801+00:00",
+      "method": "GET",
+      "path": "/orders",
+      "status": 200,
+      "request": null,
+      "params": null,
+      "response": [
+        {
+          "id": "63cf6c06-207b-403d-ade1-72b345aa034b",
+          "user_id": "97052c92-910f-4061-976f-c8a991cdaaf4",
+          "items": [
+            {
+              "product_id": "15c1f4b2-d9dd-4028-a7ec-3dd70f6299a4",
+              "name": "UserB Premium Pet Bed",
+              "price": 49.99,
+              "quantity": 1,
+              "image": null,
+              "seller_user_id": "f106f48e-de19-4340-829b-3d9005d8ef7e"
+            }
+          ],
+          "total": 49.99,
+          "status": "pending",
+          "shipping_address": "Alpha QA Street 7",
+          "shipping_city": "Amman",
+          "shipping_phone": "+19990001111",
+          "payment_method": "cash_on_delivery",
+          "notes": "alpha-side-order-20260212T115311Z",
+          "created_at": "2026-02-12T11:53:13.116000"
+        },
+        {
+          "id": "e297fe7b-0437-4187-80ed-c95e532c7c3e",
+          "user_id": "97052c92-910f-4061-976f-c8a991cdaaf4",
+          "items": [
+            {
+              "product_id": "15c1f4b2-d9dd-4028-a7ec-3dd70f6299a4",
+              "name": "UserB Premium Pet Bed",
+              "price": 49.99,
+              "quantity": 1,
+              "image": null,
+              "seller_user_id": "f106f48e-de19-4340-829b-3d9005d8ef7e"
+            }
+          ],
+          "total": 49.99,
+          "status": "pending",
+          "shipping_address": "Alpha QA Street 7",
+          "shipping_city": "Amman",
+          "shipping_phone": "+19990001111",
+          "payment_method": "cash_on_delivery",
+          "notes": "alpha-side-order-20260212T115255Z",
+          "created_at": "2026-02-12T11:52:56.921000"
+        },
+        {
+          "id": "d5103fc7-a8bd-4d6b-8049-d644694d1863",
+          "user_id": "97052c92-910f-4061-976f-c8a991cdaaf4",
+          "items": [
+            {
+              "product_id": "2fd1d9df-5447-4ce6-8a4a-c2f522ad80e2",
+              "name": "Beta Reciprocal Item beta-final-20260212T115222Z",
+              "price": 33.75,
+              "quantity": 1,
+              "image": null,
+              "seller_user_id": "c3cfc846-1bbb-4182-bd60-83d66dc4565d"
+            }
+          ],
+          "total": 33.75,
+          "status": "pending",
+          "shipping_address": "QA Street 42",
+          "shipping_city": "Amman",
+          "shipping_phone": "+962700000001",
+          "payment_method": "cash_on_delivery",
+          "notes": "order-check-beta-final-20260212T115222Z",
+          "created_at": "2026-02-12T11:52:23.736000"
+        },
+        {
+          "id": "99ddf036-f455-4f68-b6ff-f9dea48cfe33",
+          "user_id": "97052c92-910f-4061-976f-c8a991cdaaf4",
+          "items": [
+            {
+              "product_id": "15c1f4b2-d9dd-4028-a7ec-3dd70f6299a4",
+              "name": "UserB Premium Pet Bed",
+              "price": 49.99,
+              "quantity": 1,
+              "image": null,
+              "seller_user_id": "f106f48e-de19-4340-829b-3d9005d8ef7e"
+            }
+          ],
+          "total": 49.99,
+          "status": "pending",
+          "shipping_address": "Alpha QA Street 7",
+          "shipping_city": "Amman",
+          "shipping_phone": "+19990001111",
+          "payment_method": "cash_on_delivery",
+          "notes": "alpha-side-order-20260212T115207Z",
+          "created_at": "2026-02-12T11:52:08.971000"
+        },
+        {
+          "id": "b4badcd3-b941-4d5b-91cf-64ec71167a4f",
+          "user_id": "97052c92-910f-4061-976f-c8a991cdaaf4",
+          "items": [
+            {
+              "product_id": "dcc6e9a6-a090-4ffb-983e-eed4b2e2426f",
+              "name": "Beta Reciprocal Item beta-final-20260212T115135Z",
+              "price": 33.75,
+              "quantity": 1,
+              "image": null,
+              "seller_user_id": "c3cfc846-1bbb-4182-bd60-83d66dc4565d"
+            }
+          ],
+          "total": 33.75,
+          "status": "pending",
+          "shipping_address": "QA Street 42",
+          "shipping_city": "Amman",
+          "shipping_phone": "+962700000001",
+          "payment_method": "cash_on_delivery",
+          "notes": "order-check-beta-final-20260212T115135Z",
+          "created_at": "2026-02-12T11:51:36.359000"
+        },
+        {
+          "id": "5632c8f0-8214-4ea9-a768-80f0671850e9",
+          "user_id": "97052c92-910f-4061-976f-c8a991cdaaf4",
+          "items": [
+            {
+              "product_id": "15c1f4b2-d9dd-4028-a7ec-3dd70f6299a4",
+              "name": "UserB Premium Pet Bed",
+              "price": 49.99,
+              "quantity": 1,
+              "image": null,
+              "seller_user_id": "f106f48e-de19-4340-829b-3d9005d8ef7e"
+            }
+          ],
+          "total": 49.99,
+          "status": "pending",
+          "shipping_address": "Alpha QA Street 7",
+          "shipping_city": "Amman",
+          "shipping_phone": "+19990001111",
+          "payment_method": "cash_on_delivery",
+          "notes": "alpha-side-order-20260212T115130Z",
+          "created_at": "2026-02-12T11:51:31.198000"
+        },
+        {
+          "id": "b24dd426-65f4-42b4-9ed6-b2ba1fa8b93d",
+          "user_id": "97052c92-910f-4061-976f-c8a991cdaaf4",
+          "items": [
+            {
+              "product_id": "15c1f4b2-d9dd-4028-a7ec-3dd70f6299a4",
+              "name": "UserB Premium Pet Bed",
+              "price": 49.99,
+              "quantity": 1,
+              "image": null,
+              "seller_user_id": "f106f48e-de19-4340-829b-3d9005d8ef7e"
+            }
+          ],
+          "total": 49.99,
+          "status": "pending",
+          "shipping_address": "Alpha QA Street 7",
+          "shipping_city": "Amman",
+          "shipping_phone": "+19990001111",
+          "payment_method": "cash_on_delivery",
+          "notes": "alpha-side-order-20260212T115048Z",
+          "created_at": "2026-02-12T11:50:49.248000"
+        },
+        {
+          "id": "bc015336-30a2-4f35-aa69-67ed42bb5731",
+          "user_id": "97052c92-910f-4061-976f-c8a991cdaaf4",
+          "items": [
+            {
+              "product_id": "15c1f4b2-d9dd-4028-a7ec-3dd70f6299a4",
+              "name": "UserB Premium Pet Bed",
+              "price": 49.99,
+              "quantity": 1,
+              "image": null,
+              "seller_user_id": "f106f48e-de19-4340-829b-3d9005d8ef7e"
+            }
+          ],
+          "total": 49.99,
+          "status": "pending",
+          "shipping_address": "Alpha QA Street 7",
+          "shipping_city": "Amman",
+          "shipping_phone": "+19990001111",
+          "payment_method": "cash_on_delivery",
+          "notes": "alpha-side-order-20260212T114954Z",
+          "created_at": "2026-02-12T11:49:56.027000"
+        },
+        {
+          "id": "352971ab-ceb6-444e-884e-8dfb22b7aeee",
+          "user_id": "97052c92-910f-4061-976f-c8a991cdaaf4",
+          "items": [
+            {
+              "product_id": "15c1f4b2-d9dd-4028-a7ec-3dd70f6299a4",
+              "name": "UserB Premium Pet Bed",
+              "price": 49.99,
+              "quantity": 1,
+              "image": null,
+              "seller_user_id": null
+            }
+          ],
+          "total": 49.99,
+          "status": "pending",
+          "shipping_address": "Alpha QA Street 7",
+          "shipping_city": "Amman",
+          "shipping_phone": "+19990001111",
+          "payment_method": "cash_on_delivery",
+          "notes": "alpha-side-order-20260212T114839Z",
+          "created_at": "2026-02-12T11:48:40.249000"
+        },
+        {
+          "id": "18e232b2-ad67-46ac-87c0-a83028399eb3",
+          "user_id": "97052c92-910f-4061-976f-c8a991cdaaf4",
+          "items": [
+            {
+              "product_id": "82308407-c97b-4c66-8419-b99bfe59977e",
+              "name": "Beta Item 1770896914",
+              "price": 19.5,
+              "quantity": 1,
+              "image": null,
+              "seller_user_id": null
+            }
+          ],
+          "total": 19.5,
+          "status": "pending",
+          "shipping_address": "x",
+          "shipping_city": "y",
+          "shipping_phone": "z",
+          "payment_method": "cash_on_delivery",
+          "notes": null,
+          "created_at": "2026-02-12T11:48:34.482000"
+        },
+        {
+          "id": "e9c9a03b-3749-489f-96c0-2ca1cb8e4ea7",
+          "user_id": "97052c92-910f-4061-976f-c8a991cdaaf4",
+          "items": [
+            {
+              "product_id": "5bbc5bc6-9044-40c4-a989-027fb252d0c7",
+              "name": "Beta Item 1770896897",
+              "price": 19.5,
+              "quantity": 1,
+              "image": null,
+              "seller_user_id": null
+            }
+          ],
+          "total": 19.5,
+          "status": "pending",
+          "shipping_address": "x",
+          "shipping_city": "y",
+          "shipping_phone": "z",
+          "payment_method": "cash_on_delivery",
+          "notes": null,
+          "created_at": "2026-02-12T11:48:17.434000"
+        }
+      ]
+    },
+    {
+      "ts": "2026-02-12T11:53:13.124874+00:00",
+      "method": "POST",
+      "path": "/sponsorships",
+      "status": 200,
+      "request": {
+        "pet_id": "e03a504c-8412-49c6-a623-29634e6659fc",
+        "amount": 20.0,
+        "message": "Alpha side sponsorship 20260212T115311Z",
+        "is_anonymous": false,
+        "is_recurring": false
+      },
+      "params": null,
+      "response": {
+        "id": "aa3a7643-8a13-4b91-9087-8c6796cafcae",
+        "pet_id": "e03a504c-8412-49c6-a623-29634e6659fc",
+        "user_id": "97052c92-910f-4061-976f-c8a991cdaaf4",
+        "user_name": "Demo Clinic",
+        "amount": 20.0,
+        "message": "Alpha side sponsorship 20260212T115311Z",
+        "is_anonymous": false,
+        "is_recurring": false,
+        "status": "pending",
+        "created_at": "2026-02-12T11:53:13.123079"
+      }
+    },
+    {
+      "ts": "2026-02-12T11:53:13.128306+00:00",
+      "method": "GET",
+      "path": "/sponsorships/my",
+      "status": 200,
+      "request": null,
+      "params": null,
+      "response": [
+        {
+          "id": "aa3a7643-8a13-4b91-9087-8c6796cafcae",
+          "pet_id": "e03a504c-8412-49c6-a623-29634e6659fc",
+          "user_id": "97052c92-910f-4061-976f-c8a991cdaaf4",
+          "user_name": "Demo Clinic",
+          "amount": 20.0,
+          "message": "Alpha side sponsorship 20260212T115311Z",
+          "is_anonymous": false,
+          "is_recurring": false,
+          "status": "pending",
+          "created_at": "2026-02-12T11:53:13.123000"
+        },
+        {
+          "id": "d251ebee-c83b-4ed9-a30d-a255fc9165ff",
+          "pet_id": "9051d664-0bce-4e62-ba0d-e747127308fc",
+          "user_id": "97052c92-910f-4061-976f-c8a991cdaaf4",
+          "user_name": "Demo Clinic",
+          "amount": 3.0,
+          "message": "x",
+          "is_anonymous": false,
+          "is_recurring": false,
+          "status": "completed",
+          "created_at": "2026-02-12T11:53:12.548000"
+        },
+        {
+          "id": "408bf590-4614-4950-b2d6-229d1a9966bf",
+          "pet_id": "e03a504c-8412-49c6-a623-29634e6659fc",
+          "user_id": "97052c92-910f-4061-976f-c8a991cdaaf4",
+          "user_name": "Demo Clinic",
+          "amount": 20.0,
+          "message": "Alpha side sponsorship 20260212T115255Z",
+          "is_anonymous": false,
+          "is_recurring": false,
+          "status": "pending",
+          "created_at": "2026-02-12T11:52:56.928000"
+        },
+        {
+          "id": "3fc662c4-e228-422b-880f-eaf2a47785bc",
+          "pet_id": "510388c7-db04-4399-b9f2-131e16371dfb",
+          "user_id": "97052c92-910f-4061-976f-c8a991cdaaf4",
+          "user_name": "Demo Clinic",
+          "amount": 12.0,
+          "message": "support-beta-final-20260212T115222Z",
+          "is_anonymous": false,
+          "is_recurring": false,
+          "status": "completed",
+          "created_at": "2026-02-12T11:52:23.745000"
+        },
+        {
+          "id": "46f65354-296a-4473-95e0-ba3edd708592",
+          "pet_id": "e03a504c-8412-49c6-a623-29634e6659fc",
+          "user_id": "97052c92-910f-4061-976f-c8a991cdaaf4",
+          "user_name": "Demo Clinic",
+          "amount": 20.0,
+          "message": "Alpha side sponsorship 20260212T115207Z",
+          "is_anonymous": false,
+          "is_recurring": false,
+          "status": "pending",
+          "created_at": "2026-02-12T11:52:08.978000"
+        },
+        {
+          "id": "2de0b952-c597-415d-bbe1-fc1470549abc",
+          "pet_id": "cf87a18e-716d-4afa-a77b-c2adb3fe10e0",
+          "user_id": "97052c92-910f-4061-976f-c8a991cdaaf4",
+          "user_name": "Demo Clinic",
+          "amount": 12.0,
+          "message": "support-beta-final-20260212T115135Z",
+          "is_anonymous": false,
+          "is_recurring": false,
+          "status": "completed",
+          "created_at": "2026-02-12T11:51:36.369000"
+        },
+        {
+          "id": "618efb00-ebf2-4b41-a63d-a9b566af093e",
+          "pet_id": "e03a504c-8412-49c6-a623-29634e6659fc",
+          "user_id": "97052c92-910f-4061-976f-c8a991cdaaf4",
+          "user_name": "Demo Clinic",
+          "amount": 20.0,
+          "message": "Alpha side sponsorship 20260212T115130Z",
+          "is_anonymous": false,
+          "is_recurring": false,
+          "status": "pending",
+          "created_at": "2026-02-12T11:51:31.204000"
+        },
+        {
+          "id": "92f5b52e-d502-41cd-b0cf-37f498acebd5",
+          "pet_id": "e03a504c-8412-49c6-a623-29634e6659fc",
+          "user_id": "97052c92-910f-4061-976f-c8a991cdaaf4",
+          "user_name": "Demo Clinic",
+          "amount": 20.0,
+          "message": "Alpha side sponsorship 20260212T115048Z",
+          "is_anonymous": false,
+          "is_recurring": false,
+          "status": "pending",
+          "created_at": "2026-02-12T11:50:49.257000"
+        },
+        {
+          "id": "a0368edd-b3e6-4f6f-b35d-17ca878f147f",
+          "pet_id": "e03a504c-8412-49c6-a623-29634e6659fc",
+          "user_id": "97052c92-910f-4061-976f-c8a991cdaaf4",
+          "user_name": "Demo Clinic",
+          "amount": 20.0,
+          "message": "Alpha side sponsorship 20260212T114954Z",
+          "is_anonymous": false,
+          "is_recurring": false,
+          "status": "pending",
+          "created_at": "2026-02-12T11:49:56.034000"
+        },
+        {
+          "id": "e0bf71d6-0c15-49ae-913d-32ae32acb0db",
+          "pet_id": "e03a504c-8412-49c6-a623-29634e6659fc",
+          "user_id": "97052c92-910f-4061-976f-c8a991cdaaf4",
+          "user_name": "Demo Clinic",
+          "amount": 20.0,
+          "message": "Alpha side sponsorship 20260212T114839Z",
+          "is_anonymous": false,
+          "is_recurring": false,
+          "status": "pending",
+          "created_at": "2026-02-12T11:48:40.255000"
+        },
+        {
+          "id": "5dbe7481-2bd1-488f-9f7f-27a79986ea99",
+          "pet_id": "0b723f2d-eab7-4521-83b7-8f6646ef7eb6",
+          "user_id": "97052c92-910f-4061-976f-c8a991cdaaf4",
+          "user_name": "Demo Clinic",
+          "amount": 5.0,
+          "message": "beta",
+          "is_anonymous": false,
+          "is_recurring": false,
+          "status": "pending",
+          "created_at": "2026-02-12T11:48:34.488000"
+        }
+      ]
+    },
+    {
+      "ts": "2026-02-12T11:53:13.132445+00:00",
+      "method": "GET",
+      "path": "/sponsorships/pet/e03a504c-8412-49c6-a623-29634e6659fc",
+      "status": 200,
+      "request": null,
+      "params": null,
+      "response": [
+        {
+          "id": "aa3a7643-8a13-4b91-9087-8c6796cafcae",
+          "pet_id": "e03a504c-8412-49c6-a623-29634e6659fc",
+          "user_id": "97052c92-910f-4061-976f-c8a991cdaaf4",
+          "user_name": "Demo Clinic",
+          "amount": 20.0,
+          "message": "Alpha side sponsorship 20260212T115311Z",
+          "is_anonymous": false,
+          "is_recurring": false,
+          "status": "pending",
+          "created_at": "2026-02-12T11:53:13.123000"
+        },
+        {
+          "id": "408bf590-4614-4950-b2d6-229d1a9966bf",
+          "pet_id": "e03a504c-8412-49c6-a623-29634e6659fc",
+          "user_id": "97052c92-910f-4061-976f-c8a991cdaaf4",
+          "user_name": "Demo Clinic",
+          "amount": 20.0,
+          "message": "Alpha side sponsorship 20260212T115255Z",
+          "is_anonymous": false,
+          "is_recurring": false,
+          "status": "pending",
+          "created_at": "2026-02-12T11:52:56.928000"
+        },
+        {
+          "id": "46f65354-296a-4473-95e0-ba3edd708592",
+          "pet_id": "e03a504c-8412-49c6-a623-29634e6659fc",
+          "user_id": "97052c92-910f-4061-976f-c8a991cdaaf4",
+          "user_name": "Demo Clinic",
+          "amount": 20.0,
+          "message": "Alpha side sponsorship 20260212T115207Z",
+          "is_anonymous": false,
+          "is_recurring": false,
+          "status": "pending",
+          "created_at": "2026-02-12T11:52:08.978000"
+        },
+        {
+          "id": "618efb00-ebf2-4b41-a63d-a9b566af093e",
+          "pet_id": "e03a504c-8412-49c6-a623-29634e6659fc",
+          "user_id": "97052c92-910f-4061-976f-c8a991cdaaf4",
+          "user_name": "Demo Clinic",
+          "amount": 20.0,
+          "message": "Alpha side sponsorship 20260212T115130Z",
+          "is_anonymous": false,
+          "is_recurring": false,
+          "status": "pending",
+          "created_at": "2026-02-12T11:51:31.204000"
+        },
+        {
+          "id": "92f5b52e-d502-41cd-b0cf-37f498acebd5",
+          "pet_id": "e03a504c-8412-49c6-a623-29634e6659fc",
+          "user_id": "97052c92-910f-4061-976f-c8a991cdaaf4",
+          "user_name": "Demo Clinic",
+          "amount": 20.0,
+          "message": "Alpha side sponsorship 20260212T115048Z",
+          "is_anonymous": false,
+          "is_recurring": false,
+          "status": "pending",
+          "created_at": "2026-02-12T11:50:49.257000"
+        },
+        {
+          "id": "a0368edd-b3e6-4f6f-b35d-17ca878f147f",
+          "pet_id": "e03a504c-8412-49c6-a623-29634e6659fc",
+          "user_id": "97052c92-910f-4061-976f-c8a991cdaaf4",
+          "user_name": "Demo Clinic",
+          "amount": 20.0,
+          "message": "Alpha side sponsorship 20260212T114954Z",
+          "is_anonymous": false,
+          "is_recurring": false,
+          "status": "pending",
+          "created_at": "2026-02-12T11:49:56.034000"
+        },
+        {
+          "id": "e0bf71d6-0c15-49ae-913d-32ae32acb0db",
+          "pet_id": "e03a504c-8412-49c6-a623-29634e6659fc",
+          "user_id": "97052c92-910f-4061-976f-c8a991cdaaf4",
+          "user_name": "Demo Clinic",
+          "amount": 20.0,
+          "message": "Alpha side sponsorship 20260212T114839Z",
+          "is_anonymous": false,
+          "is_recurring": false,
+          "status": "pending",
+          "created_at": "2026-02-12T11:48:40.255000"
+        }
+      ]
+    },
+    {
+      "ts": "2026-02-12T11:53:13.135354+00:00",
+      "method": "GET",
+      "path": "/vets",
+      "status": 200,
+      "request": null,
+      "params": null,
+      "response": [
+        {
+          "name": "Dr. Ahmad Hassan",
+          "specialty": "all",
+          "experience_years": 15,
+          "phone": "+963912345678",
+          "email": null,
+          "clinic_name": "Damascus Pet Care",
+          "address": "Mezzeh, Damascus",
+          "city": "Damascus",
+          "latitude": null,
+          "longitude": null,
+          "rating": 4.8,
+          "reviews_count": 124,
+          "image": null,
+          "available_hours": "9:00 AM - 6:00 PM",
+          "services": [
+            "checkup",
+            "vaccination",
+            "surgery",
+            "dental"
+          ],
+          "id": "29904761-d70f-44f2-a803-573e4ac9570f",
+          "created_at": "2026-02-11T10:09:30.187000"
+        },
+        {
+          "name": "Dr. Layla Nouri",
+          "specialty": "cats",
+          "experience_years": 10,
+          "phone": "+963923456789",
+          "email": null,
+          "clinic_name": "Feline Friends Clinic",
+          "address": "Malki, Damascus",
+          "city": "Damascus",
+          "latitude": null,
+          "longitude": null,
+          "rating": 4.9,
+          "reviews_count": 89,
+          "image": null,
+          "available_hours": "10:00 AM - 8:00 PM",
+          "services": [
+            "checkup",
+            "vaccination",
+            "grooming"
+          ],
+          "id": "b1a6dbd4-38db-48a8-86ae-972f67720f55",
+          "created_at": "2026-02-11T10:09:30.200000"
+        },
+        {
+          "name": "Dr. Omar Khalil",
+          "specialty": "dogs",
+          "experience_years": 12,
+          "phone": "+963934567890",
+          "email": null,
+          "clinic_name": "Canine Care Center",
+          "address": "Aleppo City Center",
+          "city": "Aleppo",
+          "latitude": null,
+          "longitude": null,
+          "rating": 4.7,
+          "reviews_count": 156,
+          "image": null,
+          "available_hours": "24/7 Emergency",
+          "services": [
+            "checkup",
+            "vaccination",
+            "surgery",
+            "emergency"
+          ],
+          "id": "8151c494-2ee4-4a92-bc78-fc3e0bdbe8d9",
+          "created_at": "2026-02-11T10:09:30.202000"
+        }
+      ]
+    },
+    {
+      "ts": "2026-02-12T11:53:13.139588+00:00",
+      "method": "POST",
+      "path": "/appointments",
+      "status": 200,
+      "request": {
+        "vet_id": "29904761-d70f-44f2-a803-573e4ac9570f",
+        "pet_id": "e03a504c-8412-49c6-a623-29634e6659fc",
+        "date": "2026-02-23",
+        "time": "11:00",
+        "reason": "Alpha booking cycle 20260212T115311Z",
+        "notes": "QA final alpha"
+      },
+      "params": null,
+      "response": {
+        "id": "b1925acc-3b2a-42a0-8712-e0d43af3bed2",
+        "user_id": "97052c92-910f-4061-976f-c8a991cdaaf4",
+        "vet_id": "29904761-d70f-44f2-a803-573e4ac9570f",
+        "pet_id": "e03a504c-8412-49c6-a623-29634e6659fc",
+        "date": "2026-02-23",
+        "time": "11:00",
+        "reason": "Alpha booking cycle 20260212T115311Z",
+        "status": "pending",
+        "notes": "QA final alpha",
+        "created_at": "2026-02-12T11:53:13.138153"
+      }
+    },
+    {
+      "ts": "2026-02-12T11:53:13.145188+00:00",
+      "method": "GET",
+      "path": "/appointments",
+      "status": 200,
+      "request": null,
+      "params": null,
+      "response": [
+        {
+          "id": "b1925acc-3b2a-42a0-8712-e0d43af3bed2",
+          "user_id": "97052c92-910f-4061-976f-c8a991cdaaf4",
+          "vet_id": "29904761-d70f-44f2-a803-573e4ac9570f",
+          "pet_id": "e03a504c-8412-49c6-a623-29634e6659fc",
+          "date": "2026-02-23",
+          "time": "11:00",
+          "reason": "Alpha booking cycle 20260212T115311Z",
+          "status": "pending",
+          "notes": "QA final alpha",
+          "created_at": "2026-02-12T11:53:13.138000"
+        },
+        {
+          "id": "30700eed-2e94-4d03-8f5c-c57748dfbc47",
+          "user_id": "97052c92-910f-4061-976f-c8a991cdaaf4",
+          "vet_id": "29904761-d70f-44f2-a803-573e4ac9570f",
+          "pet_id": "e03a504c-8412-49c6-a623-29634e6659fc",
+          "date": "2026-02-23",
+          "time": "11:00",
+          "reason": "Alpha booking cycle 20260212T115255Z",
+          "status": "pending",
+          "notes": "QA final alpha",
+          "created_at": "2026-02-12T11:52:56.943000"
+        },
+        {
+          "id": "17d0bad1-7b11-461c-b101-db4595a287c6",
+          "user_id": "97052c92-910f-4061-976f-c8a991cdaaf4",
+          "vet_id": "1382dcc7-3cd5-4be2-b4e9-8bad76a7d864",
+          "pet_id": "510388c7-db04-4399-b9f2-131e16371dfb",
+          "date": "2026-02-22",
+          "time": "09:30",
+          "reason": "reciprocal-appointment-beta-final-20260212T115222Z",
+          "status": "pending",
+          "notes": null,
+          "created_at": "2026-02-12T11:52:23.767000"
+        },
+        {
+          "id": "3c2a5a01-bbd3-4f8c-9caf-c1ef71e7d21f",
+          "user_id": "97052c92-910f-4061-976f-c8a991cdaaf4",
+          "vet_id": "29904761-d70f-44f2-a803-573e4ac9570f",
+          "pet_id": "e03a504c-8412-49c6-a623-29634e6659fc",
+          "date": "2026-02-23",
+          "time": "11:00",
+          "reason": "Alpha booking cycle 20260212T115207Z",
+          "status": "pending",
+          "notes": "QA final alpha",
+          "created_at": "2026-02-12T11:52:08.997000"
+        },
+        {
+          "id": "3ea783df-3121-409c-a9ab-bd66532be4dc",
+          "user_id": "97052c92-910f-4061-976f-c8a991cdaaf4",
+          "vet_id": "1382dcc7-3cd5-4be2-b4e9-8bad76a7d864",
+          "pet_id": "cf87a18e-716d-4afa-a77b-c2adb3fe10e0",
+          "date": "2026-02-22",
+          "time": "09:30",
+          "reason": "reciprocal-appointment-beta-final-20260212T115135Z",
+          "status": "pending",
+          "notes": null,
+          "created_at": "2026-02-12T11:51:36.391000"
+        },
+        {
+          "id": "e9599787-4d96-4b8f-8610-3de20a30bafd",
+          "user_id": "97052c92-910f-4061-976f-c8a991cdaaf4",
+          "vet_id": "29904761-d70f-44f2-a803-573e4ac9570f",
+          "pet_id": "e03a504c-8412-49c6-a623-29634e6659fc",
+          "date": "2026-02-23",
+          "time": "11:00",
+          "reason": "Alpha booking cycle 20260212T115130Z",
+          "status": "pending",
+          "notes": "QA final alpha",
+          "created_at": "2026-02-12T11:51:31.219000"
+        },
+        {
+          "id": "bb5055a5-12da-4b6d-ab59-3ac391d9dabc",
+          "user_id": "97052c92-910f-4061-976f-c8a991cdaaf4",
+          "vet_id": "29904761-d70f-44f2-a803-573e4ac9570f",
+          "pet_id": "e03a504c-8412-49c6-a623-29634e6659fc",
+          "date": "2026-02-23",
+          "time": "11:00",
+          "reason": "Alpha booking cycle 20260212T115048Z",
+          "status": "pending",
+          "notes": "QA final alpha",
+          "created_at": "2026-02-12T11:50:49.282000"
+        },
+        {
+          "id": "72cbb37d-2b53-4974-9dc5-f2f6e4b17758",
+          "user_id": "97052c92-910f-4061-976f-c8a991cdaaf4",
+          "vet_id": "29904761-d70f-44f2-a803-573e4ac9570f",
+          "pet_id": "e03a504c-8412-49c6-a623-29634e6659fc",
+          "date": "2026-02-23",
+          "time": "11:00",
+          "reason": "Alpha booking cycle 20260212T114954Z",
+          "status": "pending",
+          "notes": "QA final alpha",
+          "created_at": "2026-02-12T11:49:56.048000"
+        },
+        {
+          "id": "9fd3cdca-1375-4e8d-8028-a90b2c951df3",
+          "user_id": "97052c92-910f-4061-976f-c8a991cdaaf4",
+          "vet_id": "29904761-d70f-44f2-a803-573e4ac9570f",
+          "pet_id": "e03a504c-8412-49c6-a623-29634e6659fc",
+          "date": "2026-02-23",
+          "time": "11:00",
+          "reason": "Alpha booking cycle 20260212T114839Z",
+          "status": "pending",
+          "notes": "QA final alpha",
+          "created_at": "2026-02-12T11:48:40.266000"
+        },
+        {
+          "id": "98a93b58-9397-4985-87d4-806fc3e7ddbf",
+          "user_id": "97052c92-910f-4061-976f-c8a991cdaaf4",
+          "vet_id": "1382dcc7-3cd5-4be2-b4e9-8bad76a7d864",
+          "pet_id": "0b723f2d-eab7-4521-83b7-8f6646ef7eb6",
+          "date": "2026-02-21",
+          "time": "11:00",
+          "reason": "qa",
+          "status": "pending",
+          "notes": null,
+          "created_at": "2026-02-12T11:48:34.494000"
+        },
+        {
+          "id": "05afc83d-d81b-4030-8f1f-51345a6b094d",
+          "user_id": "97052c92-910f-4061-976f-c8a991cdaaf4",
+          "vet_id": "1382dcc7-3cd5-4be2-b4e9-8bad76a7d864",
+          "pet_id": null,
+          "date": "2026-02-21",
+          "time": "11:00",
+          "reason": "qa",
+          "status": "pending",
+          "notes": null,
+          "created_at": "2026-02-12T11:48:17.444000"
+        }
+      ]
+    }
+  ]
+}

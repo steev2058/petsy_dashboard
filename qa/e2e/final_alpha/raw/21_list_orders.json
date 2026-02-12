@@ -1,0 +1,252 @@
+{
+  "ts": "2026-02-12T11:53:13.120801+00:00",
+  "method": "GET",
+  "path": "/orders",
+  "status": 200,
+  "request": null,
+  "params": null,
+  "response": [
+    {
+      "id": "63cf6c06-207b-403d-ade1-72b345aa034b",
+      "user_id": "97052c92-910f-4061-976f-c8a991cdaaf4",
+      "items": [
+        {
+          "product_id": "15c1f4b2-d9dd-4028-a7ec-3dd70f6299a4",
+          "name": "UserB Premium Pet Bed",
+          "price": 49.99,
+          "quantity": 1,
+          "image": null,
+          "seller_user_id": "f106f48e-de19-4340-829b-3d9005d8ef7e"
+        }
+      ],
+      "total": 49.99,
+      "status": "pending",
+      "shipping_address": "Alpha QA Street 7",
+      "shipping_city": "Amman",
+      "shipping_phone": "+19990001111",
+      "payment_method": "cash_on_delivery",
+      "notes": "alpha-side-order-20260212T115311Z",
+      "created_at": "2026-02-12T11:53:13.116000"
+    },
+    {
+      "id": "e297fe7b-0437-4187-80ed-c95e532c7c3e",
+      "user_id": "97052c92-910f-4061-976f-c8a991cdaaf4",
+      "items": [
+        {
+          "product_id": "15c1f4b2-d9dd-4028-a7ec-3dd70f6299a4",
+          "name": "UserB Premium Pet Bed",
+          "price": 49.99,
+          "quantity": 1,
+          "image": null,
+          "seller_user_id": "f106f48e-de19-4340-829b-3d9005d8ef7e"
+        }
+      ],
+      "total": 49.99,
+      "status": "pending",
+      "shipping_address": "Alpha QA Street 7",
+      "shipping_city": "Amman",
+      "shipping_phone": "+19990001111",
+      "payment_method": "cash_on_delivery",
+      "notes": "alpha-side-order-20260212T115255Z",
+      "created_at": "2026-02-12T11:52:56.921000"
+    },
+    {
+      "id": "d5103fc7-a8bd-4d6b-8049-d644694d1863",
+      "user_id": "97052c92-910f-4061-976f-c8a991cdaaf4",
+      "items": [
+        {
+          "product_id": "2fd1d9df-5447-4ce6-8a4a-c2f522ad80e2",
+          "name": "Beta Reciprocal Item beta-final-20260212T115222Z",
+          "price": 33.75,
+          "quantity": 1,
+          "image": null,
+          "seller_user_id": "c3cfc846-1bbb-4182-bd60-83d66dc4565d"
+        }
+      ],
+      "total": 33.75,
+      "status": "pending",
+      "shipping_address": "QA Street 42",
+      "shipping_city": "Amman",
+      "shipping_phone": "+962700000001",
+      "payment_method": "cash_on_delivery",
+      "notes": "order-check-beta-final-20260212T115222Z",
+      "created_at": "2026-02-12T11:52:23.736000"
+    },
+    {
+      "id": "99ddf036-f455-4f68-b6ff-f9dea48cfe33",
+      "user_id": "97052c92-910f-4061-976f-c8a991cdaaf4",
+      "items": [
+        {
+          "product_id": "15c1f4b2-d9dd-4028-a7ec-3dd70f6299a4",
+          "name": "UserB Premium Pet Bed",
+          "price": 49.99,
+          "quantity": 1,
+          "image": null,
+          "seller_user_id": "f106f48e-de19-4340-829b-3d9005d8ef7e"
+        }
+      ],
+      "total": 49.99,
+      "status": "pending",
+      "shipping_address": "Alpha QA Street 7",
+      "shipping_city": "Amman",
+      "shipping_phone": "+19990001111",
+      "payment_method": "cash_on_delivery",
+      "notes": "alpha-side-order-20260212T115207Z",
+      "created_at": "2026-02-12T11:52:08.971000"
+    },
+    {
+      "id": "b4badcd3-b941-4d5b-91cf-64ec71167a4f",
+      "user_id": "97052c92-910f-4061-976f-c8a991cdaaf4",
+      "items": [
+        {
+          "product_id": "dcc6e9a6-a090-4ffb-983e-eed4b2e2426f",
+          "name": "Beta Reciprocal Item beta-final-20260212T115135Z",
+          "price": 33.75,
+          "quantity": 1,
+          "image": null,
+          "seller_user_id": "c3cfc846-1bbb-4182-bd60-83d66dc4565d"
+        }
+      ],
+      "total": 33.75,
+      "status": "pending",
+      "shipping_address": "QA Street 42",
+      "shipping_city": "Amman",
+      "shipping_phone": "+962700000001",
+      "payment_method": "cash_on_delivery",
+      "notes": "order-check-beta-final-20260212T115135Z",
+      "created_at": "2026-02-12T11:51:36.359000"
+    },
+    {
+      "id": "5632c8f0-8214-4ea9-a768-80f0671850e9",
+      "user_id": "97052c92-910f-4061-976f-c8a991cdaaf4",
+      "items": [
+        {
+          "product_id": "15c1f4b2-d9dd-4028-a7ec-3dd70f6299a4",
+          "name": "UserB Premium Pet Bed",
+          "price": 49.99,
+          "quantity": 1,
+          "image": null,
+          "seller_user_id": "f106f48e-de19-4340-829b-3d9005d8ef7e"
+        }
+      ],
+      "total": 49.99,
+      "status": "pending",
+      "shipping_address": "Alpha QA Street 7",
+      "shipping_city": "Amman",
+      "shipping_phone": "+19990001111",
+      "payment_method": "cash_on_delivery",
+      "notes": "alpha-side-order-20260212T115130Z",
+      "created_at": "2026-02-12T11:51:31.198000"
+    },
+    {
+      "id": "b24dd426-65f4-42b4-9ed6-b2ba1fa8b93d",
+      "user_id": "97052c92-910f-4061-976f-c8a991cdaaf4",
+      "items": [
+        {
+          "product_id": "15c1f4b2-d9dd-4028-a7ec-3dd70f6299a4",
+          "name": "UserB Premium Pet Bed",
+          "price": 49.99,
+          "quantity": 1,
+          "image": null,
+          "seller_user_id": "f106f48e-de19-4340-829b-3d9005d8ef7e"
+        }
+      ],
+      "total": 49.99,
+      "status": "pending",
+      "shipping_address": "Alpha QA Street 7",
+      "shipping_city": "Amman",
+      "shipping_phone": "+19990001111",
+      "payment_method": "cash_on_delivery",
+      "notes": "alpha-side-order-20260212T115048Z",
+      "created_at": "2026-02-12T11:50:49.248000"
+    },
+    {
+      "id": "bc015336-30a2-4f35-aa69-67ed42bb5731",
+      "user_id": "97052c92-910f-4061-976f-c8a991cdaaf4",
+      "items": [
+        {
+          "product_id": "15c1f4b2-d9dd-4028-a7ec-3dd70f6299a4",
+          "name": "UserB Premium Pet Bed",
+          "price": 49.99,
+          "quantity": 1,
+          "image": null,
+          "seller_user_id": "f106f48e-de19-4340-829b-3d9005d8ef7e"
+        }
+      ],
+      "total": 49.99,
+      "status": "pending",
+      "shipping_address": "Alpha QA Street 7",
+      "shipping_city": "Amman",
+      "shipping_phone": "+19990001111",
+      "payment_method": "cash_on_delivery",
+      "notes": "alpha-side-order-20260212T114954Z",
+      "created_at": "2026-02-12T11:49:56.027000"
+    },
+    {
+      "id": "352971ab-ceb6-444e-884e-8dfb22b7aeee",
+      "user_id": "97052c92-910f-4061-976f-c8a991cdaaf4",
+      "items": [
+        {
+          "product_id": "15c1f4b2-d9dd-4028-a7ec-3dd70f6299a4",
+          "name": "UserB Premium Pet Bed",
+          "price": 49.99,
+          "quantity": 1,
+          "image": null,
+          "seller_user_id": null
+        }
+      ],
+      "total": 49.99,
+      "status": "pending",
+      "shipping_address": "Alpha QA Street 7",
+      "shipping_city": "Amman",
+      "shipping_phone": "+19990001111",
+      "payment_method": "cash_on_delivery",
+      "notes": "alpha-side-order-20260212T114839Z",
+      "created_at": "2026-02-12T11:48:40.249000"
+    },
+    {
+      "id": "18e232b2-ad67-46ac-87c0-a83028399eb3",
+      "user_id": "97052c92-910f-4061-976f-c8a991cdaaf4",
+      "items": [
+        {
+          "product_id": "82308407-c97b-4c66-8419-b99bfe59977e",
+          "name": "Beta Item 1770896914",
+          "price": 19.5,
+          "quantity": 1,
+          "image": null,
+          "seller_user_id": null
+        }
+      ],
+      "total": 19.5,
+      "status": "pending",
+      "shipping_address": "x",
+      "shipping_city": "y",
+      "shipping_phone": "z",
+      "payment_method": "cash_on_delivery",
+      "notes": null,
+      "created_at": "2026-02-12T11:48:34.482000"
+    },
+    {
+      "id": "e9c9a03b-3749-489f-96c0-2ca1cb8e4ea7",
+      "user_id": "97052c92-910f-4061-976f-c8a991cdaaf4",
+      "items": [
+        {
+          "product_id": "5bbc5bc6-9044-40c4-a989-027fb252d0c7",
+          "name": "Beta Item 1770896897",
+          "price": 19.5,
+          "quantity": 1,
+          "image": null,
+          "seller_user_id": null
+        }
+      ],
+      "total": 19.5,
+      "status": "pending",
+      "shipping_address": "x",
+      "shipping_city": "y",
+      "shipping_phone": "z",
+      "payment_method": "cash_on_delivery",
+      "notes": null,
+      "created_at": "2026-02-12T11:48:17.434000"
+    }
+  ]
+}
