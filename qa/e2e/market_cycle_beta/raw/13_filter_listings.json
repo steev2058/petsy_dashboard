@@ -1,0 +1,97 @@
+{
+  "ts": "2026-02-12T13:11:27.131290+00:00",
+  "label": "13_filter_listings",
+  "method": "GET",
+  "path": "/marketplace/listings",
+  "status": 200,
+  "request": {
+    "json": null,
+    "params": {
+      "category": "accessories",
+      "min_price": 20,
+      "max_price": 25
+    }
+  },
+  "response": [
+    {
+      "id": "6813e6b5-533a-4265-93b6-2a664e1d9cbc",
+      "user_id": "c3cfc846-1bbb-4182-bd60-83d66dc4565d",
+      "user_name": "Demo Market",
+      "user_avatar": null,
+      "title": "Beta Cycle Leash market-beta-20260212T131124Z",
+      "description": "Nylon leash for QA cycle",
+      "category": "accessories",
+      "price": 22.5,
+      "location": "Amman",
+      "image": null,
+      "pet_type": null,
+      "condition": "new",
+      "status": "active",
+      "created_at": "2026-02-12T13:11:27.097000"
+    },
+    {
+      "id": "c0fa6715-119d-4620-96d5-b742c9df5e76",
+      "user_id": "c3cfc846-1bbb-4182-bd60-83d66dc4565d",
+      "user_name": "Demo Market",
+      "user_avatar": null,
+      "title": "Beta Cycle Leash market-beta-20260212T131026Z",
+      "description": "Nylon leash for QA cycle",
+      "category": "accessories",
+      "price": 22.5,
+      "location": "Amman",
+      "image": null,
+      "pet_type": null,
+      "condition": "new",
+      "status": "active",
+      "created_at": "2026-02-12T13:10:29.774000"
+    },
+    {
+      "id": "bf759e6b-59d4-48c8-86cc-e62a0473a7fe",
+      "user_id": "c3cfc846-1bbb-4182-bd60-83d66dc4565d",
+      "user_name": "Demo Market",
+      "user_avatar": null,
+      "title": "Beta Cycle Leash market-beta-20260212T131004Z",
+      "description": "Nylon leash for QA cycle",
+      "category": "accessories",
+      "price": 22.5,
+      "location": "Amman",
+      "image": null,
+      "pet_type": null,
+      "condition": "new",
+      "status": "active",
+      "created_at": "2026-02-12T13:10:07.900000"
+    },
+    {
+      "id": "c712b7cc-a613-409e-bfeb-086978eb9df4",
+      "user_id": "912be3c7-d54b-43b6-9235-d702d371135a",
+      "user_name": "qa.market_owner",
+      "user_avatar": null,
+      "title": "NegListing-9b7644",
+      "description": "matrix listing",
+      "category": "accessories",
+      "price": 25.0,
+      "location": "QA",
+      "image": "https://images.pexels.com/photos/7210754/pexels-photo-7210754.jpeg",
+      "pet_type": null,
+      "condition": null,
+      "status": "sold",
+      "created_at": "2026-02-11T06:25:40.560000"
+    },
+    {
+      "id": "c1ac30e5-f13d-4bad-881e-7e1c19b7f455",
+      "user_id": "912be3c7-d54b-43b6-9235-d702d371135a",
+      "user_name": "qa.market_owner",
+      "user_avatar": null,
+      "title": "NegListing-56cd2f",
+      "description": "matrix listing",
+      "category": "accessories",
+      "price": 25.0,
+      "location": "QA",
+      "image": "https://images.pexels.com/photos/7210754/pexels-photo-7210754.jpeg",
+      "pet_type": null,
+      "condition": null,
+      "status": "active",
+      "created_at": "2026-02-11T06:25:30.357000"
+    }
+  ]
+}

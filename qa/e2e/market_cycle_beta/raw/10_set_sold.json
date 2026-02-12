@@ -1,0 +1,17 @@
+{
+  "ts": "2026-02-12T13:11:27.115793+00:00",
+  "label": "10_set_sold",
+  "method": "PUT",
+  "path": "/marketplace/listings/b7601370-f9fd-4108-9329-eb370d6234da/status",
+  "status": 200,
+  "request": {
+    "json": {
+      "status": "sold"
+    },
+    "params": null
+  },
+  "response": {
+    "message": "Status updated",
+    "status": "sold"
+  }
+}

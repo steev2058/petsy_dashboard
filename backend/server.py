@@ -1540,13 +1540,39 @@ async def clear_cart(current_user: dict = Depends(get_current_user)):
 
 @api_router.post("/orders", response_model=Order)
 async def create_order(order_data: OrderCreate, current_user: dict = Depends(get_current_user)):
+    if not order_data.items:
+        raise HTTPException(status_code=400, detail="Order must include at least one item")
+
     enriched_items = []
+    computed_total = 0.0
+
     for item in order_data.items:
-        item_data = item.dict()
+        if item.quantity <= 0:
+            raise HTTPException(status_code=400, detail="Item quantity must be greater than zero")
+        if item.price < 0:
+            raise HTTPException(status_code=400, detail="Item price cannot be negative")
+
         listing = await db.marketplace_listings.find_one({"id": item.product_id})
-        if listing:
-            item_data["seller_user_id"] = listing.get("user_id")
+        if not listing:
+            raise HTTPException(status_code=400, detail=f"Listing not found: {item.product_id}")
+
+        listing_status = listing.get("status", "active")
+        if listing_status != "active":
+            raise HTTPException(status_code=400, detail=f"Listing unavailable: {item.product_id} ({listing_status})")
+
+        listing_price = float(listing.get("price", 0))
+        if abs(float(item.price) - listing_price) > 1e-6:
+            raise HTTPException(status_code=400, detail=f"Price mismatch for listing: {item.product_id}")
+
+        item_data = item.dict()
+        item_data["seller_user_id"] = listing.get("user_id")
         enriched_items.append(OrderItem(**item_data))
+        computed_total += float(item.price) * int(item.quantity)
+
+    if order_data.total < 0:
+        raise HTTPException(status_code=400, detail="Order total cannot be negative")
+    if abs(float(order_data.total) - computed_total) > 1e-6:
+        raise HTTPException(status_code=400, detail="Order total does not match line items")
 
     order_payload = order_data.dict()
     order_payload["items"] = [i.dict() for i in enriched_items]

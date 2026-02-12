@@ -1,0 +1,34 @@
+{
+  "ts": "2026-02-12T13:11:27.103377+00:00",
+  "label": "07_create_listing_archivable",
+  "method": "POST",
+  "path": "/marketplace/listings",
+  "status": 200,
+  "request": {
+    "json": {
+      "title": "Archived Item market-beta-20260212T131124Z",
+      "description": "Nylon leash for QA cycle",
+      "category": "accessories",
+      "price": 18.0,
+      "location": "Amman",
+      "condition": "new"
+    },
+    "params": null
+  },
+  "response": {
+    "id": "a3c928cb-638a-4299-b28c-b399ebc4edf2",
+    "user_id": "c3cfc846-1bbb-4182-bd60-83d66dc4565d",
+    "user_name": "Demo Market",
+    "user_avatar": null,
+    "title": "Archived Item market-beta-20260212T131124Z",
+    "description": "Nylon leash for QA cycle",
+    "category": "accessories",
+    "price": 18.0,
+    "location": "Amman",
+    "image": null,
+    "pet_type": null,
+    "condition": "new",
+    "status": "active",
+    "created_at": "2026-02-12T13:11:27.101694"
+  }
+}

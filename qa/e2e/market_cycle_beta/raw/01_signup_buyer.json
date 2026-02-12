@@ -1,0 +1,20 @@
+{
+  "ts": "2026-02-12T13:11:25.338061+00:00",
+  "label": "01_signup_buyer",
+  "method": "POST",
+  "path": "/auth/signup",
+  "status": 200,
+  "request": {
+    "json": {
+      "email": "beta.buyer.1770901884@example.com",
+      "name": "Beta Buyer",
+      "password": "E2E-Beta#2026!",
+      "phone": "+10000000011"
+    },
+    "params": null
+  },
+  "response": {
+    "message": "User created. Verification code sent to email.",
+    "user_id": "f691c364-bee7-4f90-b67a-365beb40ec83"
+  }
+}

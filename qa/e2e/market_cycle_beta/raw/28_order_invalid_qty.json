@@ -1,0 +1,28 @@
+{
+  "ts": "2026-02-12T13:11:27.436789+00:00",
+  "label": "28_order_invalid_qty",
+  "method": "POST",
+  "path": "/orders",
+  "status": 400,
+  "request": {
+    "json": {
+      "items": [
+        {
+          "product_id": "6813e6b5-533a-4265-93b6-2a664e1d9cbc",
+          "name": "BadQty",
+          "price": 22.5,
+          "quantity": 0
+        }
+      ],
+      "total": 22.5,
+      "shipping_address": "QA",
+      "shipping_city": "Amman",
+      "shipping_phone": "+10000000016",
+      "payment_method": "cash_on_delivery"
+    },
+    "params": null
+  },
+  "response": {
+    "detail": "Item quantity must be greater than zero"
+  }
+}

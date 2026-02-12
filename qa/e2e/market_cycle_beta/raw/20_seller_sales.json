@@ -1,0 +1,387 @@
+{
+  "ts": "2026-02-12T13:11:27.156133+00:00",
+  "label": "20_seller_sales",
+  "method": "GET",
+  "path": "/orders/sales",
+  "status": 200,
+  "request": {
+    "json": null,
+    "params": null
+  },
+  "response": [
+    {
+      "id": "2a7fece7-e03c-4d4a-817f-aabcb8b2720b",
+      "user_id": "f691c364-bee7-4f90-b67a-365beb40ec83",
+      "items": [
+        {
+          "product_id": "6813e6b5-533a-4265-93b6-2a664e1d9cbc",
+          "name": "Beta Cycle Leash market-beta-20260212T131124Z",
+          "price": 22.5,
+          "quantity": 1,
+          "image": null,
+          "seller_user_id": "c3cfc846-1bbb-4182-bd60-83d66dc4565d"
+        }
+      ],
+      "total": 22.5,
+      "status": "pending",
+      "shipping_address": "QA Street 99",
+      "shipping_city": "Amman",
+      "shipping_phone": "+10000000013",
+      "payment_method": "cash_on_delivery",
+      "notes": "market-beta-20260212T131124Z",
+      "created_at": "2026-02-12T13:11:27.144000"
+    },
+    {
+      "id": "6fb62601-b138-4326-8005-eac387d16ae2",
+      "user_id": "e0060110-0214-4e36-ad1e-6b27b53215b3",
+      "items": [
+        {
+          "product_id": "c0fa6715-119d-4620-96d5-b742c9df5e76",
+          "name": "Beta Cycle Leash market-beta-20260212T131026Z",
+          "price": 22.5,
+          "quantity": 1,
+          "image": null,
+          "seller_user_id": "c3cfc846-1bbb-4182-bd60-83d66dc4565d"
+        }
+      ],
+      "total": 22.5,
+      "status": "pending",
+      "shipping_address": "QA-2",
+      "shipping_city": "Amman",
+      "shipping_phone": "+10000000018",
+      "payment_method": "cash_on_delivery",
+      "notes": null,
+      "created_at": "2026-02-12T13:10:30.134000"
+    },
+    {
+      "id": "dcd4071c-5c84-442d-a272-a43d17e584ac",
+      "user_id": "dd96b88f-1073-4a12-821b-d74e424d426c",
+      "items": [
+        {
+          "product_id": "c0fa6715-119d-4620-96d5-b742c9df5e76",
+          "name": "BadPrice",
+          "price": -1.0,
+          "quantity": 1,
+          "image": null,
+          "seller_user_id": "c3cfc846-1bbb-4182-bd60-83d66dc4565d"
+        }
+      ],
+      "total": -1.0,
+      "status": "pending",
+      "shipping_address": "QA",
+      "shipping_city": "Amman",
+      "shipping_phone": "+10000000017",
+      "payment_method": "cash_on_delivery",
+      "notes": null,
+      "created_at": "2026-02-12T13:10:30.130000"
+    },
+    {
+      "id": "f889963d-cbed-4330-ab22-453c0f1b224d",
+      "user_id": "dd96b88f-1073-4a12-821b-d74e424d426c",
+      "items": [
+        {
+          "product_id": "c0fa6715-119d-4620-96d5-b742c9df5e76",
+          "name": "BadQty",
+          "price": 22.5,
+          "quantity": 0,
+          "image": null,
+          "seller_user_id": "c3cfc846-1bbb-4182-bd60-83d66dc4565d"
+        }
+      ],
+      "total": 22.5,
+      "status": "pending",
+      "shipping_address": "QA",
+      "shipping_city": "Amman",
+      "shipping_phone": "+10000000016",
+      "payment_method": "cash_on_delivery",
+      "notes": null,
+      "created_at": "2026-02-12T13:10:30.125000"
+    },
+    {
+      "id": "48ab630d-1e71-4071-943f-7edaf6447f07",
+      "user_id": "dd96b88f-1073-4a12-821b-d74e424d426c",
+      "items": [
+        {
+          "product_id": "b8a37b97-50b5-4c45-ae41-bf0cb9e4b61c",
+          "name": "Archived Item",
+          "price": 18.0,
+          "quantity": 1,
+          "image": null,
+          "seller_user_id": "c3cfc846-1bbb-4182-bd60-83d66dc4565d"
+        }
+      ],
+      "total": 18.0,
+      "status": "pending",
+      "shipping_address": "QA",
+      "shipping_city": "Amman",
+      "shipping_phone": "+10000000015",
+      "payment_method": "cash_on_delivery",
+      "notes": null,
+      "created_at": "2026-02-12T13:10:30.120000"
+    },
+    {
+      "id": "b62331a0-1f12-41a0-90d3-77d1147d8282",
+      "user_id": "dd96b88f-1073-4a12-821b-d74e424d426c",
+      "items": [
+        {
+          "product_id": "4dcb7b26-16a4-4d1c-bb9c-77f398abe5e5",
+          "name": "Sold Item",
+          "price": 35.0,
+          "quantity": 1,
+          "image": null,
+          "seller_user_id": "c3cfc846-1bbb-4182-bd60-83d66dc4565d"
+        }
+      ],
+      "total": 35.0,
+      "status": "pending",
+      "shipping_address": "QA",
+      "shipping_city": "Amman",
+      "shipping_phone": "+10000000014",
+      "payment_method": "cash_on_delivery",
+      "notes": null,
+      "created_at": "2026-02-12T13:10:30.114000"
+    },
+    {
+      "id": "0f099852-a569-4598-820b-c02e1fe612d8",
+      "user_id": "dd96b88f-1073-4a12-821b-d74e424d426c",
+      "items": [
+        {
+          "product_id": "c0fa6715-119d-4620-96d5-b742c9df5e76",
+          "name": "Beta Cycle Leash market-beta-20260212T131026Z",
+          "price": 22.5,
+          "quantity": 1,
+          "image": null,
+          "seller_user_id": "c3cfc846-1bbb-4182-bd60-83d66dc4565d"
+        }
+      ],
+      "total": 22.5,
+      "status": "shipped",
+      "shipping_address": "QA Street 99",
+      "shipping_city": "Amman",
+      "shipping_phone": "+10000000013",
+      "payment_method": "cash_on_delivery",
+      "notes": "market-beta-20260212T131026Z",
+      "created_at": "2026-02-12T13:10:29.832000"
+    },
+    {
+      "id": "107ea075-ab24-4265-abc7-582be7f0948c",
+      "user_id": "1382dcc7-3cd5-4be2-b4e9-8bad76a7d864",
+      "items": [
+        {
+          "product_id": "02304eb7-a3a5-49ff-8e20-99d8e78e52c3",
+          "name": "Alpha QA Product 20260212T131020Z",
+          "price": 41.0,
+          "quantity": 1,
+          "image": null,
+          "seller_user_id": "c3cfc846-1bbb-4182-bd60-83d66dc4565d"
+        }
+      ],
+      "total": 41.0,
+      "status": "cancelled",
+      "shipping_address": "QA street 17",
+      "shipping_city": "Amman",
+      "shipping_phone": "+962700000001",
+      "payment_method": "cash_on_delivery",
+      "notes": "alpha-market-cycle-20260212T131020Z",
+      "created_at": "2026-02-12T13:10:21.231000"
+    },
+    {
+      "id": "86d028a4-1784-43da-9ab0-5ec7598958b0",
+      "user_id": "782eafaf-970c-4f27-aef8-b6af0e7892e6",
+      "items": [
+        {
+          "product_id": "bf759e6b-59d4-48c8-86cc-e62a0473a7fe",
+          "name": "Beta Cycle Leash market-beta-20260212T131004Z",
+          "price": 22.5,
+          "quantity": 1,
+          "image": null,
+          "seller_user_id": "c3cfc846-1bbb-4182-bd60-83d66dc4565d"
+        }
+      ],
+      "total": 22.5,
+      "status": "pending",
+      "shipping_address": "QA-2",
+      "shipping_city": "Amman",
+      "shipping_phone": "+10000000018",
+      "payment_method": "cash_on_delivery",
+      "notes": null,
+      "created_at": "2026-02-12T13:10:08.307000"
+    },
+    {
+      "id": "cf008ef5-9a39-464d-a004-2fc2f425f119",
+      "user_id": "1c961166-5d80-44c3-9fe5-a24047c1ead7",
+      "items": [
+        {
+          "product_id": "bf759e6b-59d4-48c8-86cc-e62a0473a7fe",
+          "name": "BadPrice",
+          "price": -1.0,
+          "quantity": 1,
+          "image": null,
+          "seller_user_id": "c3cfc846-1bbb-4182-bd60-83d66dc4565d"
+        }
+      ],
+      "total": -1.0,
+      "status": "pending",
+      "shipping_address": "QA",
+      "shipping_city": "Amman",
+      "shipping_phone": "+10000000017",
+      "payment_method": "cash_on_delivery",
+      "notes": null,
+      "created_at": "2026-02-12T13:10:08.301000"
+    },
+    {
+      "id": "91ac9c81-88af-40c5-a2a1-258f12bd1771",
+      "user_id": "1c961166-5d80-44c3-9fe5-a24047c1ead7",
+      "items": [
+        {
+          "product_id": "bf759e6b-59d4-48c8-86cc-e62a0473a7fe",
+          "name": "BadQty",
+          "price": 22.5,
+          "quantity": 0,
+          "image": null,
+          "seller_user_id": "c3cfc846-1bbb-4182-bd60-83d66dc4565d"
+        }
+      ],
+      "total": 22.5,
+      "status": "pending",
+      "shipping_address": "QA",
+      "shipping_city": "Amman",
+      "shipping_phone": "+10000000016",
+      "payment_method": "cash_on_delivery",
+      "notes": null,
+      "created_at": "2026-02-12T13:10:08.296000"
+    },
+    {
+      "id": "5c395d38-e57d-4fff-9a3f-a27f2dc6feb4",
+      "user_id": "1c961166-5d80-44c3-9fe5-a24047c1ead7",
+      "items": [
+        {
+          "product_id": "fc6d6180-e5d9-4ad0-a60c-3e68c48c89ce",
+          "name": "Archived Item",
+          "price": 18.0,
+          "quantity": 1,
+          "image": null,
+          "seller_user_id": "c3cfc846-1bbb-4182-bd60-83d66dc4565d"
+        }
+      ],
+      "total": 18.0,
+      "status": "pending",
+      "shipping_address": "QA",
+      "shipping_city": "Amman",
+      "shipping_phone": "+10000000015",
+      "payment_method": "cash_on_delivery",
+      "notes": null,
+      "created_at": "2026-02-12T13:10:08.292000"
+    },
+    {
+      "id": "bed4ba66-fffa-49a9-a564-4b20b51151b6",
+      "user_id": "1c961166-5d80-44c3-9fe5-a24047c1ead7",
+      "items": [
+        {
+          "product_id": "bf96b697-5c4e-421f-8256-49fa225327f2",
+          "name": "Sold Item",
+          "price": 35.0,
+          "quantity": 1,
+          "image": null,
+          "seller_user_id": "c3cfc846-1bbb-4182-bd60-83d66dc4565d"
+        }
+      ],
+      "total": 35.0,
+      "status": "pending",
+      "shipping_address": "QA",
+      "shipping_city": "Amman",
+      "shipping_phone": "+10000000014",
+      "payment_method": "cash_on_delivery",
+      "notes": null,
+      "created_at": "2026-02-12T13:10:08.285000"
+    },
+    {
+      "id": "2fc3fed1-928e-4401-ac51-0d625fa21ec5",
+      "user_id": "1c961166-5d80-44c3-9fe5-a24047c1ead7",
+      "items": [
+        {
+          "product_id": "bf759e6b-59d4-48c8-86cc-e62a0473a7fe",
+          "name": "Beta Cycle Leash market-beta-20260212T131004Z",
+          "price": 22.5,
+          "quantity": 1,
+          "image": null,
+          "seller_user_id": "c3cfc846-1bbb-4182-bd60-83d66dc4565d"
+        }
+      ],
+      "total": 22.5,
+      "status": "shipped",
+      "shipping_address": "QA Street 99",
+      "shipping_city": "Amman",
+      "shipping_phone": "+10000000013",
+      "payment_method": "cash_on_delivery",
+      "notes": "market-beta-20260212T131004Z",
+      "created_at": "2026-02-12T13:10:07.981000"
+    },
+    {
+      "id": "1e549a8f-2424-481a-8d88-203323b06b7e",
+      "user_id": "97052c92-910f-4061-976f-c8a991cdaaf4",
+      "items": [
+        {
+          "product_id": "79b580bb-ae3e-4873-b2d2-b58b5a8064b4",
+          "name": "Beta Reciprocal Item beta-final-20260212T115315Z",
+          "price": 33.75,
+          "quantity": 1,
+          "image": null,
+          "seller_user_id": "c3cfc846-1bbb-4182-bd60-83d66dc4565d"
+        }
+      ],
+      "total": 33.75,
+      "status": "pending",
+      "shipping_address": "QA Street 42",
+      "shipping_city": "Amman",
+      "shipping_phone": "+962700000001",
+      "payment_method": "cash_on_delivery",
+      "notes": "order-check-beta-final-20260212T115315Z",
+      "created_at": "2026-02-12T11:53:16.977000"
+    },
+    {
+      "id": "d5103fc7-a8bd-4d6b-8049-d644694d1863",
+      "user_id": "97052c92-910f-4061-976f-c8a991cdaaf4",
+      "items": [
+        {
+          "product_id": "2fd1d9df-5447-4ce6-8a4a-c2f522ad80e2",
+          "name": "Beta Reciprocal Item beta-final-20260212T115222Z",
+          "price": 33.75,
+          "quantity": 1,
+          "image": null,
+          "seller_user_id": "c3cfc846-1bbb-4182-bd60-83d66dc4565d"
+        }
+      ],
+      "total": 33.75,
+      "status": "pending",
+      "shipping_address": "QA Street 42",
+      "shipping_city": "Amman",
+      "shipping_phone": "+962700000001",
+      "payment_method": "cash_on_delivery",
+      "notes": "order-check-beta-final-20260212T115222Z",
+      "created_at": "2026-02-12T11:52:23.736000"
+    },
+    {
+      "id": "b4badcd3-b941-4d5b-91cf-64ec71167a4f",
+      "user_id": "97052c92-910f-4061-976f-c8a991cdaaf4",
+      "items": [
+        {
+          "product_id": "dcc6e9a6-a090-4ffb-983e-eed4b2e2426f",
+          "name": "Beta Reciprocal Item beta-final-20260212T115135Z",
+          "price": 33.75,
+          "quantity": 1,
+          "image": null,
+          "seller_user_id": "c3cfc846-1bbb-4182-bd60-83d66dc4565d"
+        }
+      ],
+      "total": 33.75,
+      "status": "pending",
+      "shipping_address": "QA Street 42",
+      "shipping_city": "Amman",
+      "shipping_phone": "+962700000001",
+      "payment_method": "cash_on_delivery",
+      "notes": "order-check-beta-final-20260212T115135Z",
+      "created_at": "2026-02-12T11:51:36.359000"
+    }
+  ]
+}

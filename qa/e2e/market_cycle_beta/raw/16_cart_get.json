@@ -1,0 +1,23 @@
+{
+  "ts": "2026-02-12T13:11:27.141467+00:00",
+  "label": "16_cart_get",
+  "method": "GET",
+  "path": "/cart",
+  "status": 200,
+  "request": {
+    "json": null,
+    "params": null
+  },
+  "response": {
+    "items": [
+      {
+        "product_id": "6813e6b5-533a-4265-93b6-2a664e1d9cbc",
+        "name": "Beta Cycle Leash market-beta-20260212T131124Z",
+        "price": 22.5,
+        "quantity": 1,
+        "image": null
+      }
+    ],
+    "total": 22.5
+  }
+}

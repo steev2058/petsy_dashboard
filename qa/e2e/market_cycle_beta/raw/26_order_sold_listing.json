@@ -1,0 +1,28 @@
+{
+  "ts": "2026-02-12T13:11:27.429484+00:00",
+  "label": "26_order_sold_listing",
+  "method": "POST",
+  "path": "/orders",
+  "status": 400,
+  "request": {
+    "json": {
+      "items": [
+        {
+          "product_id": "b7601370-f9fd-4108-9329-eb370d6234da",
+          "name": "Sold Item",
+          "price": 35.0,
+          "quantity": 1
+        }
+      ],
+      "total": 35.0,
+      "shipping_address": "QA",
+      "shipping_city": "Amman",
+      "shipping_phone": "+10000000014",
+      "payment_method": "cash_on_delivery"
+    },
+    "params": null
+  },
+  "response": {
+    "detail": "Listing unavailable: b7601370-f9fd-4108-9329-eb370d6234da (sold)"
+  }
+}

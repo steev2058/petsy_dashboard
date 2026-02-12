@@ -1,0 +1,17 @@
+{
+  "ts": "2026-02-12T13:11:27.108032+00:00",
+  "label": "08_set_archived",
+  "method": "PUT",
+  "path": "/marketplace/listings/a3c928cb-638a-4299-b28c-b399ebc4edf2/status",
+  "status": 200,
+  "request": {
+    "json": {
+      "status": "archived"
+    },
+    "params": null
+  },
+  "response": {
+    "message": "Status updated",
+    "status": "archived"
+  }
+}

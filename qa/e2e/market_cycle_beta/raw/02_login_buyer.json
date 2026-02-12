@@ -1,0 +1,17 @@
+{
+  "ts": "2026-02-12T13:11:25.576932+00:00",
+  "label": "02_login_buyer",
+  "method": "POST",
+  "path": "/auth/login",
+  "status": 403,
+  "request": {
+    "json": {
+      "email": "beta.buyer.1770901884@example.com",
+      "password": "E2E-Beta#2026!"
+    },
+    "params": null
+  },
+  "response": {
+    "detail": "Please verify your account before login"
+  }
+}

@@ -1,0 +1,49 @@
+[
+  {
+    "check": "Buyer account setup/login(create-or-login)",
+    "result": "PASS",
+    "detail": "signup=200, login=403"
+  },
+  {
+    "check": "Buyer authenticated session",
+    "result": "PASS"
+  },
+  {
+    "check": "Coordinate with Alpha seller account",
+    "result": "PASS"
+  },
+  {
+    "check": "Browse/search/filter/detail journey",
+    "result": "PASS"
+  },
+  {
+    "check": "Archived listing hidden from browse",
+    "result": "PASS"
+  },
+  {
+    "check": "Sold listing appears as unavailable in browse",
+    "result": "PASS"
+  },
+  {
+    "check": "Cart -> checkout -> order history/detail",
+    "result": "PASS"
+  },
+  {
+    "check": "Seller-side flow: sale visibility + buyer receives status update",
+    "result": "PASS"
+  },
+  {
+    "check": "Buyer/seller messaging interaction",
+    "result": "PASS"
+  },
+  {
+    "check": "Edge guards: sold/archived + invalid quantity/pricing blocked",
+    "result": "PASS",
+    "detail": "sold=400, archived=400, qty=400, price=400"
+  },
+  {
+    "check": "Privacy: buyer cannot access another buyer order",
+    "result": "PASS",
+    "detail": "order2_create=200, cross_access=404"
+  }
+]

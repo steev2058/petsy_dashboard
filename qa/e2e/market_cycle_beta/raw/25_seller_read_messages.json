@@ -1,0 +1,21 @@
+{
+  "ts": "2026-02-12T13:11:27.425075+00:00",
+  "label": "25_seller_read_messages",
+  "method": "GET",
+  "path": "/conversations/7a6d7632-38e9-44cf-bc82-397686fce13b/messages",
+  "status": 200,
+  "request": {
+    "json": null,
+    "params": null
+  },
+  "response": [
+    {
+      "id": "2258d4d1-d6f7-4f1d-9030-9a6e534bf14a",
+      "conversation_id": "7a6d7632-38e9-44cf-bc82-397686fce13b",
+      "sender_id": "f691c364-bee7-4f90-b67a-365beb40ec83",
+      "content": "Is Beta Cycle Leash market-beta-20260212T131124Z still available? market-beta-20260212T131124Z",
+      "created_at": "2026-02-12T13:11:27.414000",
+      "is_read": true
+    }
+  ]
+}

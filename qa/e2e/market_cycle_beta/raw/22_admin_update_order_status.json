@@ -1,0 +1,16 @@
+{
+  "ts": "2026-02-12T13:11:27.401569+00:00",
+  "label": "22_admin_update_order_status",
+  "method": "PUT",
+  "path": "/admin/orders/2a7fece7-e03c-4d4a-817f-aabcb8b2720b",
+  "status": 200,
+  "request": {
+    "json": {
+      "status": "shipped"
+    },
+    "params": null
+  },
+  "response": {
+    "success": true
+  }
+}

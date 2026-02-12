@@ -1,0 +1,14 @@
+{
+  "ts": "2026-02-12T13:11:27.447920+00:00",
+  "label": "31_buyer1_access_buyer2_order",
+  "method": "GET",
+  "path": "/orders/23beb50f-36d9-4172-8c7b-8a6493704d75",
+  "status": 404,
+  "request": {
+    "json": null,
+    "params": null
+  },
+  "response": {
+    "detail": "Order not found"
+  }
+}

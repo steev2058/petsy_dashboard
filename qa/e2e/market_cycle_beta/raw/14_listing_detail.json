@@ -1,0 +1,27 @@
+{
+  "ts": "2026-02-12T13:11:27.133862+00:00",
+  "label": "14_listing_detail",
+  "method": "GET",
+  "path": "/marketplace/listings/6813e6b5-533a-4265-93b6-2a664e1d9cbc",
+  "status": 200,
+  "request": {
+    "json": null,
+    "params": null
+  },
+  "response": {
+    "id": "6813e6b5-533a-4265-93b6-2a664e1d9cbc",
+    "user_id": "c3cfc846-1bbb-4182-bd60-83d66dc4565d",
+    "user_name": "Demo Market",
+    "user_avatar": null,
+    "title": "Beta Cycle Leash market-beta-20260212T131124Z",
+    "description": "Nylon leash for QA cycle",
+    "category": "accessories",
+    "price": 22.5,
+    "location": "Amman",
+    "image": null,
+    "pet_type": null,
+    "condition": "new",
+    "status": "active",
+    "created_at": "2026-02-12T13:11:27.097000"
+  }
+}

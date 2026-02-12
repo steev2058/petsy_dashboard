@@ -1,0 +1,47 @@
+{
+  "ts": "2026-02-12T13:11:27.444418+00:00",
+  "label": "30_buyer2_order",
+  "method": "POST",
+  "path": "/orders",
+  "status": 200,
+  "request": {
+    "json": {
+      "items": [
+        {
+          "product_id": "6813e6b5-533a-4265-93b6-2a664e1d9cbc",
+          "name": "Beta Cycle Leash market-beta-20260212T131124Z",
+          "price": 22.5,
+          "quantity": 1
+        }
+      ],
+      "total": 22.5,
+      "shipping_address": "QA-2",
+      "shipping_city": "Amman",
+      "shipping_phone": "+10000000018",
+      "payment_method": "cash_on_delivery"
+    },
+    "params": null
+  },
+  "response": {
+    "id": "23beb50f-36d9-4172-8c7b-8a6493704d75",
+    "user_id": "30ff83c7-1a97-4ecc-8d35-42f7dc73a3b9",
+    "items": [
+      {
+        "product_id": "6813e6b5-533a-4265-93b6-2a664e1d9cbc",
+        "name": "Beta Cycle Leash market-beta-20260212T131124Z",
+        "price": 22.5,
+        "quantity": 1,
+        "image": null,
+        "seller_user_id": "c3cfc846-1bbb-4182-bd60-83d66dc4565d"
+      }
+    ],
+    "total": 22.5,
+    "status": "pending",
+    "shipping_address": "QA-2",
+    "shipping_city": "Amman",
+    "shipping_phone": "+10000000018",
+    "payment_method": "cash_on_delivery",
+    "notes": null,
+    "created_at": "2026-02-12T13:11:27.442531"
+  }
+}
