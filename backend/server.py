@@ -277,12 +277,16 @@ class PetUpdate(BaseModel):
 class HealthRecord(BaseModel):
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
     pet_id: str
+    user_id: Optional[str] = None
     record_type: str  # vaccination, checkup, treatment, weight
     title: str
     description: Optional[str] = None
     date: str
     vet_name: Optional[str] = None
+    clinic_name: Optional[str] = None
+    next_due_date: Optional[str] = None
     notes: Optional[str] = None
+    attachments: List[str] = []
     created_at: datetime = Field(default_factory=datetime.utcnow)
 
 class HealthRecordCreate(BaseModel):
@@ -292,7 +296,10 @@ class HealthRecordCreate(BaseModel):
     description: Optional[str] = None
     date: str
     vet_name: Optional[str] = None
+    clinic_name: Optional[str] = None
+    next_due_date: Optional[str] = None
     notes: Optional[str] = None
+    attachments: Optional[List[str]] = []
 
 # Veterinarian Models
 class VetBase(BaseModel):
@@ -2932,8 +2939,33 @@ async def update_vet_care_request(request_id: str, data: dict, current_user: dic
                     f"Notes: {vet_notes}" if vet_notes else "",
                     f"Follow-up context: {existing.get('follow_up_context')}" if existing.get("follow_up_context") else "",
                 ]).strip()
+
+                # Attachments can arrive through two paths:
+                # 1) inline `care_requests.attachments`
+                # 2) uploaded files under `medical_attachments` scoped by care_request_id
+                # Merge both deterministically to avoid continuity drift across runs.
+                care_request_attachments = existing.get("attachments") if isinstance(existing.get("attachments"), list) else []
+                uploaded_rows = await db.medical_attachments.find({"care_request_id": request_id}).sort("created_at", 1).to_list(200)
+                uploaded_links = [
+                    f"/api/medical-attachments/{row.get('id')}/download"
+                    for row in uploaded_rows
+                    if isinstance(row, dict) and row.get("id")
+                ]
+
+                merged_attachments: List[str] = []
+                seen_attachments = set()
+                for value in [*care_request_attachments, *uploaded_links]:
+                    if not isinstance(value, str):
+                        continue
+                    clean = value.strip()
+                    if not clean or clean in seen_attachments:
+                        continue
+                    seen_attachments.add(clean)
+                    merged_attachments.append(clean)
+
+                health_record_id = str(uuid.uuid4())
                 await db.health_records.insert_one({
-                    "id": str(uuid.uuid4()),
+                    "id": health_record_id,
                     "pet_id": pet_id,
                     "user_id": pet.get("owner_id"),
                     "record_type": "vet_visit",
@@ -2944,7 +2976,7 @@ async def update_vet_care_request(request_id: str, data: dict, current_user: dic
                     "clinic_name": data.get("clinic_name") or existing.get("clinic_name"),
                     "next_due_date": existing.get("follow_up_due_date"),
                     "notes": merged_notes,
-                    "attachments": existing.get("attachments") or [],
+                    "attachments": merged_attachments,
                     "created_at": datetime.utcnow(),
                 })
     elif data.get("status"):

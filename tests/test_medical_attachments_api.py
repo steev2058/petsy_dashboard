@@ -98,6 +98,7 @@ class FakeCollection:
 class FakeDB:
     def __init__(self):
         self.users = FakeCollection()
+        self.pets = FakeCollection()
         self.care_requests = FakeCollection()
         self.care_request_events = FakeCollection()
         self.health_records = FakeCollection()
@@ -255,3 +256,104 @@ def test_simulate_appointment_reminder_creates_evidence(client_and_db):
     assert payload["status"] == "sent"
     assert len(db.appointment_reminders.rows) == 1
     assert len(db.notifications.rows) == 1
+
+
+def test_care_request_completion_merges_inline_and_uploaded_attachments(client_and_db):
+    client, db = client_and_db
+    owner, owner_token = _seed_user(db, "owner4@test.com", role="user")
+    vet, vet_token = _seed_user(db, "vet4@test.com", role="vet")
+
+    pet_id = str(uuid.uuid4())
+    request_id = str(uuid.uuid4())
+    db.pets = getattr(db, "pets", FakeCollection())
+    db.pets.rows.append({"id": pet_id, "owner_id": owner["id"], "name": "Milo"})
+    db.care_requests.rows.append({
+        "id": request_id,
+        "requested_by": owner["id"],
+        "assigned_vet_id": vet["id"],
+        "pet_id": pet_id,
+        "title": "Follow-up",
+        "description": "Coughing",
+        "status": "in_progress",
+        "attachments": ["inline://a", "inline://b"],
+        "created_at": datetime.utcnow(),
+    })
+
+    upload = client.post(
+        "/api/medical-attachments/upload",
+        data={"care_request_id": request_id},
+        files={"file": ("xray1.png", io.BytesIO(b"img-1"), "image/png")},
+        headers={"Authorization": f"Bearer {owner_token}"},
+    )
+    assert upload.status_code == 200
+    uploaded_id = upload.json()["id"]
+
+    complete = client.put(
+        f"/api/vet/care-requests/{request_id}",
+        json={"action": "complete", "diagnosis": "URI", "prescription": "Meds"},
+        headers={"Authorization": f"Bearer {vet_token}"},
+    )
+    assert complete.status_code == 200
+
+    records = client.get(
+        f"/api/health-records/{pet_id}",
+        headers={"Authorization": f"Bearer {owner_token}"},
+    )
+    assert records.status_code == 200
+    vet_visit = next((r for r in records.json() if r.get("record_type") == "vet_visit"), None)
+    assert vet_visit is not None
+    assert vet_visit.get("attachments") == [
+        "inline://a",
+        "inline://b",
+        f"/api/medical-attachments/{uploaded_id}/download",
+    ]
+
+
+@pytest.mark.parametrize("iterations", [10])
+def test_attachment_continuity_stable_across_repeated_runs(client_and_db, iterations):
+    client, db = client_and_db
+    owner, owner_token = _seed_user(db, "owner5@test.com", role="user")
+    vet, vet_token = _seed_user(db, "vet5@test.com", role="vet")
+
+    db.pets = getattr(db, "pets", FakeCollection())
+
+    for i in range(iterations):
+        pet_id = str(uuid.uuid4())
+        request_id = str(uuid.uuid4())
+        db.pets.rows.append({"id": pet_id, "owner_id": owner["id"], "name": f"Pet-{i}"})
+        db.care_requests.rows.append({
+            "id": request_id,
+            "requested_by": owner["id"],
+            "assigned_vet_id": vet["id"],
+            "pet_id": pet_id,
+            "title": f"Run-{i}",
+            "description": "Looped attachment continuity",
+            "status": "in_progress",
+            "attachments": [f"inline://{i}"],
+            "created_at": datetime.utcnow(),
+        })
+
+        up = client.post(
+            "/api/medical-attachments/upload",
+            data={"care_request_id": request_id},
+            files={"file": (f"loop-{i}.png", io.BytesIO(f"img-{i}".encode()), "image/png")},
+            headers={"Authorization": f"Bearer {owner_token}"},
+        )
+        assert up.status_code == 200
+        uploaded_id = up.json()["id"]
+
+        done = client.put(
+            f"/api/vet/care-requests/{request_id}",
+            json={"action": "complete", "diagnosis": "OK", "prescription": "Observe"},
+            headers={"Authorization": f"Bearer {vet_token}"},
+        )
+        assert done.status_code == 200
+
+        rec = client.get(f"/api/health-records/{pet_id}", headers={"Authorization": f"Bearer {owner_token}"})
+        assert rec.status_code == 200
+        items = [r for r in rec.json() if r.get("record_type") == "vet_visit"]
+        assert len(items) == 1
+        assert items[0].get("attachments") == [
+            f"inline://{i}",
+            f"/api/medical-attachments/{uploaded_id}/download",
+        ]
