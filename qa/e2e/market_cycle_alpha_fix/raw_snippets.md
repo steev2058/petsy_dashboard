@@ -1,0 +1,15 @@
+- 01_login_seller: 200 POST /auth/login
+- 02_signup_buyer: 200 POST /auth/signup
+- 03_signup_buyer2: 200 POST /auth/signup
+- 04_create_listing: 200 POST /marketplace/listings
+- 05_buyer_checkout: 200 POST /orders
+- 06_login_admin: 200 POST /auth/login
+- 07_seed_confirmed_status: 200 PUT /admin/orders/ccac5c3a-474a-47a4-bdd7-78fea1d17359
+- 07_seller_sales: 200 GET /orders/sales
+- 08_seller_transition_confirmed_to_shipped: 200 PUT /orders/sales/ccac5c3a-474a-47a4-bdd7-78fea1d17359/status
+- 09_buyer_order_history_after_ship: 200 GET /orders
+- 10_buyer_order_detail_after_ship: 200 GET /orders/ccac5c3a-474a-47a4-bdd7-78fea1d17359
+- 11_buyer_notifications: 200 GET /notifications
+- 12_other_buyer_checkout: 200 POST /orders
+- 13_non_seller_attempt_transition: 403 PUT /orders/sales/fb087537-d934-4262-89c7-db0bc7b28f3a/status
+- 14_invalid_transition_shipped_to_confirmed: 400 PUT /orders/sales/ccac5c3a-474a-47a4-bdd7-78fea1d17359/status

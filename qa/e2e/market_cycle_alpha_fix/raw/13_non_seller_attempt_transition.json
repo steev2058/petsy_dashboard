@@ -1,0 +1,16 @@
+{
+  "ts": "2026-02-12T13:34:18.165264+00:00",
+  "label": "13_non_seller_attempt_transition",
+  "method": "PUT",
+  "path": "/orders/sales/fb087537-d934-4262-89c7-db0bc7b28f3a/status",
+  "status": 403,
+  "request": {
+    "json": {
+      "to_status": "shipped"
+    },
+    "params": null
+  },
+  "response": {
+    "detail": "Access denied for this role"
+  }
+}

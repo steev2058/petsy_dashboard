@@ -1,0 +1,16 @@
+{
+  "ts": "2026-02-12T13:34:18.132169+00:00",
+  "label": "07_seed_confirmed_status",
+  "method": "PUT",
+  "path": "/admin/orders/ccac5c3a-474a-47a4-bdd7-78fea1d17359",
+  "status": 200,
+  "request": {
+    "json": {
+      "status": "confirmed"
+    },
+    "params": null
+  },
+  "response": {
+    "success": true
+  }
+}

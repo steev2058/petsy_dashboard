@@ -1,0 +1,41 @@
+[
+  {
+    "check": "Seller (market_owner) login",
+    "result": "PASS"
+  },
+  {
+    "check": "Buyer accounts provisioned",
+    "result": "PASS"
+  },
+  {
+    "check": "Seller listing creation",
+    "result": "PASS"
+  },
+  {
+    "check": "Seller can see sold order in /orders/sales",
+    "result": "PASS"
+  },
+  {
+    "check": "Seller scoped transition confirmed->shipped",
+    "result": "PASS",
+    "detail": "status=200"
+  },
+  {
+    "check": "Buyer sees updated status in history/detail",
+    "result": "PASS"
+  },
+  {
+    "check": "Buyer receives order notification",
+    "result": "PASS"
+  },
+  {
+    "check": "AuthZ: unrelated actor cannot transition seller order",
+    "result": "PASS",
+    "detail": "status=403"
+  },
+  {
+    "check": "Guardrail: invalid transition rejected",
+    "result": "PASS",
+    "detail": "status=400"
+  }
+]

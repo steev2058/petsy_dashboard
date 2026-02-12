@@ -1,0 +1,34 @@
+{
+  "ts": "2026-02-12T13:34:17.880307+00:00",
+  "label": "04_create_listing",
+  "method": "POST",
+  "path": "/marketplace/listings",
+  "status": 200,
+  "request": {
+    "json": {
+      "title": "Alpha Fix Listing alpha-fix-20260212T133415Z",
+      "description": "Seller transition fix listing",
+      "category": "accessories",
+      "price": 26.0,
+      "location": "Amman",
+      "condition": "new"
+    },
+    "params": null
+  },
+  "response": {
+    "id": "25cd0b53-0f9e-4473-a898-c76c060d29bb",
+    "user_id": "c3cfc846-1bbb-4182-bd60-83d66dc4565d",
+    "user_name": "Demo Market",
+    "user_avatar": null,
+    "title": "Alpha Fix Listing alpha-fix-20260212T133415Z",
+    "description": "Seller transition fix listing",
+    "category": "accessories",
+    "price": 26.0,
+    "location": "Amman",
+    "image": null,
+    "pet_type": null,
+    "condition": "new",
+    "status": "active",
+    "created_at": "2026-02-12T13:34:17.878590"
+  }
+}

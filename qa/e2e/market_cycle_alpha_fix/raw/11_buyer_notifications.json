@@ -1,0 +1,38 @@
+{
+  "ts": "2026-02-12T13:34:18.158665+00:00",
+  "label": "11_buyer_notifications",
+  "method": "GET",
+  "path": "/notifications",
+  "status": 200,
+  "request": {
+    "json": null,
+    "params": {
+      "notif_type": "order",
+      "limit": 50
+    }
+  },
+  "response": {
+    "items": [
+      {
+        "id": "abea79e5-ef94-4c04-9e57-ed5cb4263250",
+        "user_id": "a41c984c-5635-4e6d-9009-4489738080eb",
+        "title": "Order status updated",
+        "body": "Your order ccac5c3a-474a-47a4-bdd7-78fea1d17359 is now shipped.",
+        "type": "order",
+        "data": {
+          "order_id": "ccac5c3a-474a-47a4-bdd7-78fea1d17359",
+          "status": "shipped",
+          "updated_by": "c3cfc846-1bbb-4182-bd60-83d66dc4565d",
+          "reason": "handoff to courier"
+        },
+        "is_read": false,
+        "created_at": "2026-02-12T13:34:18.144000",
+        "updated_at": "2026-02-12T13:34:18.144000"
+      }
+    ],
+    "total": 1,
+    "limit": 50,
+    "offset": 0,
+    "has_more": false
+  }
+}

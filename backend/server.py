@@ -487,6 +487,11 @@ class OrderCreate(BaseModel):
     notes: Optional[str] = None
     points_used: int = 0  # Loyalty points to redeem
 
+
+class SellerOrderTransitionRequest(BaseModel):
+    to_status: str
+    reason: Optional[str] = None
+
 # Payment Models
 class PaymentMethod(BaseModel):
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
@@ -1538,6 +1543,26 @@ async def clear_cart(current_user: dict = Depends(get_current_user)):
 
 # ========================= ORDERS (SHOP CHECKOUT) =========================
 
+SELLER_ORDER_ALLOWED_TRANSITIONS = {
+    "pending": {"confirmed", "cancelled"},
+    "confirmed": {"shipped", "cancelled"},
+    "shipped": {"delivered"},
+    "delivered": set(),
+    "cancelled": set(),
+}
+
+
+def _normalize_order_status(value: Optional[str]) -> str:
+    return (value or "").strip().lower()
+
+
+def _seller_can_transition_order(order: dict, seller_id: str) -> bool:
+    items = order.get("items") or []
+    if not items:
+        return False
+    return all((item or {}).get("seller_user_id") == seller_id for item in items)
+
+
 @api_router.post("/orders", response_model=Order)
 async def create_order(order_data: OrderCreate, current_user: dict = Depends(get_current_user)):
     enriched_items = []
@@ -1563,6 +1588,66 @@ async def get_orders(current_user: dict = Depends(get_current_user)):
 async def get_sales_orders(current_user: dict = Depends(get_current_user)):
     orders = await db.orders.find({"items": {"$elemMatch": {"seller_user_id": current_user["id"]}}}).sort("created_at", -1).to_list(200)
     return [Order(**o) for o in orders]
+
+
+@api_router.put("/orders/sales/{order_id}/status", response_model=Order)
+async def transition_sales_order_status(
+    order_id: str,
+    payload: SellerOrderTransitionRequest,
+    current_user: dict = Depends(require_roles("market_owner")),
+):
+    order = await db.orders.find_one({"id": order_id})
+    if not order:
+        raise HTTPException(status_code=404, detail="Order not found")
+
+    if not _seller_can_transition_order(order, current_user["id"]):
+        raise HTTPException(status_code=403, detail="You are not allowed to update this order")
+
+    current_status = _normalize_order_status(order.get("status") or "pending")
+    next_status = _normalize_order_status(payload.to_status)
+
+    allowed_next = SELLER_ORDER_ALLOWED_TRANSITIONS.get(current_status)
+    if allowed_next is None:
+        raise HTTPException(status_code=400, detail=f"Unsupported current order status: {current_status}")
+    if next_status not in allowed_next:
+        allowed_hint = sorted(list(allowed_next))
+        raise HTTPException(
+            status_code=400,
+            detail=f"Invalid transition {current_status} -> {next_status}. Allowed: {allowed_hint}",
+        )
+
+    update_doc = {
+        "status": next_status,
+        "updated_at": datetime.utcnow(),
+        "seller_status_updated_by": current_user["id"],
+        "seller_status_updated_at": datetime.utcnow(),
+    }
+    if payload.reason:
+        update_doc["seller_status_reason"] = payload.reason.strip()
+
+    result = await db.orders.update_one(
+        {"id": order_id, "status": order.get("status")},
+        {"$set": update_doc},
+    )
+    if result.modified_count == 0:
+        raise HTTPException(status_code=409, detail="Order changed concurrently; refresh and retry")
+
+    await create_notification(
+        order.get("user_id"),
+        "Order status updated",
+        f"Your order {order_id} is now {next_status}.",
+        "order",
+        {
+            "order_id": order_id,
+            "status": next_status,
+            "updated_by": current_user["id"],
+            "reason": (payload.reason or "").strip() or None,
+        },
+    )
+
+    updated = await db.orders.find_one({"id": order_id})
+    return Order(**updated)
+
 
 @api_router.get("/orders/{order_id}")
 async def get_order(order_id: str, current_user: dict = Depends(get_current_user)):

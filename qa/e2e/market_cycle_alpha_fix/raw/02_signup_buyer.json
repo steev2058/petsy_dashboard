@@ -1,0 +1,19 @@
+{
+  "ts": "2026-02-12T13:34:16.731930+00:00",
+  "label": "02_signup_buyer",
+  "method": "POST",
+  "path": "/auth/signup",
+  "status": 200,
+  "request": {
+    "json": {
+      "email": "alpha.fix.buyer.1770903255@example.com",
+      "name": "Alpha Fix Buyer",
+      "password": "AlphaFix#2026!"
+    },
+    "params": null
+  },
+  "response": {
+    "message": "User created. Verification code sent to email.",
+    "user_id": "a41c984c-5635-4e6d-9009-4489738080eb"
+  }
+}
