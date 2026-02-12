@@ -186,7 +186,7 @@ export default function VerifyScreen() {
 
         {/* Resend */}
         <View style={styles.resendContainer}>
-          <Text style={styles.resendText}>Didn't receive the code? </Text>
+          <Text style={styles.resendText}>Didn&apos;t receive the code? </Text>
           <TouchableOpacity onPress={handleResend}>
             <Text style={styles.resendLink}>{t('resend_code')}</Text>
           </TouchableOpacity>

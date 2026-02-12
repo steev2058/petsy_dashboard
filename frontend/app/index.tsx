@@ -1,24 +1,20 @@
-import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, Image, Dimensions, ActivityIndicator } from 'react-native';
+import React, { useEffect } from 'react';
+import { View, Text, StyleSheet, ActivityIndicator } from 'react-native';
 import { useRouter } from 'expo-router';
-import Animated, { 
-  useSharedValue, 
-  useAnimatedStyle, 
+import Animated, {
+  useSharedValue,
+  useAnimatedStyle,
   withSpring,
   withTiming,
   withDelay,
-  runOnJS
 } from 'react-native-reanimated';
 import { useStore } from '../src/store/useStore';
 import { Colors, FontSize, Spacing } from '../src/constants/theme';
 import { authAPI } from '../src/services/api';
 
-const { width, height } = Dimensions.get('window');
-
 export default function SplashScreen() {
   const router = useRouter();
   const { token, setUser, isLoading } = useStore();
-  const [checking, setChecking] = useState(true);
   
   const logoScale = useSharedValue(0.5);
   const logoOpacity = useSharedValue(0);
@@ -56,14 +52,12 @@ export default function SplashScreen() {
         if (token) {
           const response = await authAPI.getMe();
           setUser(response.data);
-          setTimeout(() => runOnJS(navigateToApp)(), 1500);
+          setTimeout(navigateToApp, 1500);
         } else {
-          setTimeout(() => runOnJS(navigateToAuth)(), 2000);
+          setTimeout(navigateToAuth, 2000);
         }
       } catch (error) {
-        setTimeout(() => runOnJS(navigateToAuth)(), 2000);
-      } finally {
-        setChecking(false);
+        setTimeout(navigateToAuth, 2000);
       }
     };
 

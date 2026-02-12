@@ -368,7 +368,7 @@ export default function SponsorPetScreen() {
                 </View>
                 <View style={styles.anonymousContent}>
                   <Text style={styles.anonymousTitle}>Make this anonymous</Text>
-                  <Text style={styles.anonymousDesc}>Your name won't be shown publicly</Text>
+                  <Text style={styles.anonymousDesc}>Your name won&apos;t be shown publicly</Text>
                 </View>
               </TouchableOpacity>
 
