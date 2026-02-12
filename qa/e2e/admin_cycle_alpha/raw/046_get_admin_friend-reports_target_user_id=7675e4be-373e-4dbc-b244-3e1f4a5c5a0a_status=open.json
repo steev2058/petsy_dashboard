@@ -1,0 +1,29 @@
+{
+  "ts": "2026-02-12T16:58:15.336717+00:00",
+  "method": "GET",
+  "path": "/admin/friend-reports?target_user_id=7675e4be-373e-4dbc-b244-3e1f4a5c5a0a&status=open",
+  "status": 200,
+  "request": null,
+  "params": null,
+  "response": [
+    {
+      "id": "24a4dc7d-3e8b-4780-bc3c-f9c631ecb952",
+      "reason": "abuse",
+      "notes": "alpha-admin-cycle-20260212T165807Z",
+      "status": "open",
+      "created_at": "2026-02-12T16:58:15.325000",
+      "reported_by": {
+        "id": "0c9c87d3-f0c9-4abc-baa6-c329cde3aceb",
+        "name": "Alpha User",
+        "email": "alpha.user.1770915488@example.com"
+      },
+      "target_user": {
+        "id": "7675e4be-373e-4dbc-b244-3e1f4a5c5a0a",
+        "name": "Alpha Target",
+        "email": "alpha.target.1770915488@example.com"
+      },
+      "reviewed_at": null,
+      "reviewed_by": null
+    }
+  ]
+}

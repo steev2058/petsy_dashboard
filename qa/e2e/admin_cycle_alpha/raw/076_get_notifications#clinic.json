@@ -1,5 +1,5 @@
 {
-  "ts": "2026-02-12T15:31:02.405483+00:00",
+  "ts": "2026-02-12T16:58:15.528835+00:00",
   "method": "GET",
   "path": "/notifications#clinic",
   "status": 200,
@@ -8,20 +8,20 @@
   "response": {
     "items": [
       {
-        "id": "a76c67bc-c895-4881-bceb-aee0705db794",
-        "user_id": "4c502561-40ea-4e3f-a345-1b8abe0e6566",
+        "id": "4d36ae09-6d43-4a40-bf67-519c95dc559a",
+        "user_id": "98c84b87-8eea-4caf-b733-61f0c5451db6",
         "title": "Role request update",
         "body": "Your request for care_clinic was approved.",
         "type": "role_request",
         "data": {
-          "request_id": "8533f1f6-0caa-46ab-a0b3-db62110878af",
+          "request_id": "aeae60e4-d878-45b2-9620-937dd00c59aa",
           "status": "approved",
           "target_role": "care_clinic",
           "route": "/my-role-requests"
         },
         "is_read": false,
-        "created_at": "2026-02-12T15:31:02.345000",
-        "updated_at": "2026-02-12T15:31:02.345000"
+        "created_at": "2026-02-12T16:58:15.468000",
+        "updated_at": "2026-02-12T16:58:15.468000"
       }
     ],
     "total": 1,

@@ -1,5 +1,5 @@
 {
-  "ts": "2026-02-12T15:30:55.514511+00:00",
+  "ts": "2026-02-12T16:58:08.119751+00:00",
   "method": "POST",
   "path": "/auth/login",
   "status": 200,
@@ -9,7 +9,7 @@
   },
   "params": null,
   "response": {
-    "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJjZjJhZjVjNi0zZWMzLTQyNDctYjQzZS1mZjhiZTVmODZlNjUiLCJleHAiOjE3NzM1MDIyNTV9.M4JPg8RoRoPP8ur_BEzoib4cfdMIqDyvO5UI3-WCIco",
+    "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJjZjJhZjVjNi0zZWMzLTQyNDctYjQzZS1mZjhiZTVmODZlNjUiLCJleHAiOjE3NzM1MDc0ODh9.xFJoUI55hP9sMYZGZeZjCGwYJ8wO9WJc4ww_8xLTZ4E",
     "token_type": "bearer",
     "user": {
       "id": "cf2af5c6-3ec3-4247-b43e-ff8be5f86e65",

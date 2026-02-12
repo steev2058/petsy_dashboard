@@ -1,11 +1,11 @@
 {
-  "ts": "2026-02-12T15:31:02.240367+00:00",
+  "ts": "2026-02-12T16:58:15.351817+00:00",
   "method": "POST",
   "path": "/marketplace/listings",
   "status": 200,
   "request": {
-    "title": "Alpha listing alpha-admin-cycle-20260212T153055Z",
-    "description": "Listing to moderate alpha-admin-cycle-20260212T153055Z",
+    "title": "Alpha listing alpha-admin-cycle-20260212T165807Z",
+    "description": "Listing to moderate alpha-admin-cycle-20260212T165807Z",
     "price": 42,
     "category": "pets",
     "location": "Amman",
@@ -14,12 +14,12 @@
   },
   "params": null,
   "response": {
-    "id": "bf22266a-a99d-46aa-b4c6-efd28b675f57",
-    "user_id": "e05f0e2a-9077-4705-845b-aa29712d5b85",
+    "id": "01557afc-65aa-4ba3-bc96-5d9289bd0e13",
+    "user_id": "c818e9a6-76f5-438e-b7fc-6a29ffeba622",
     "user_name": "Alpha Market",
     "user_avatar": null,
-    "title": "Alpha listing alpha-admin-cycle-20260212T153055Z",
-    "description": "Listing to moderate alpha-admin-cycle-20260212T153055Z",
+    "title": "Alpha listing alpha-admin-cycle-20260212T165807Z",
+    "description": "Listing to moderate alpha-admin-cycle-20260212T165807Z",
     "category": "pets",
     "price": 42.0,
     "location": "Amman",
@@ -27,6 +27,6 @@
     "pet_type": null,
     "condition": null,
     "status": "active",
-    "created_at": "2026-02-12T15:31:02.239170"
+    "created_at": "2026-02-12T16:58:15.350443"
   }
 }

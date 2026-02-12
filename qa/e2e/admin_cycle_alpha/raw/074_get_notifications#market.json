@@ -1,5 +1,5 @@
 {
-  "ts": "2026-02-12T15:31:02.396435+00:00",
+  "ts": "2026-02-12T16:58:15.518839+00:00",
   "method": "GET",
   "path": "/notifications#market",
   "status": 200,
@@ -8,35 +8,35 @@
   "response": {
     "items": [
       {
-        "id": "d24ab512-7daf-456f-bb79-db5c329342a0",
-        "user_id": "e05f0e2a-9077-4705-845b-aa29712d5b85",
+        "id": "bb18cdbc-ebf4-445d-a47a-f8bbd84c4f23",
+        "user_id": "c818e9a6-76f5-438e-b7fc-6a29ffeba622",
         "title": "Role request update",
         "body": "Your request for market_owner was rejected.",
         "type": "role_request",
         "data": {
-          "request_id": "2154f870-2c7b-40a9-9ca2-ea208010bcf3",
+          "request_id": "8ccf80db-646b-4171-8b88-994c428fa09c",
           "status": "rejected",
           "target_role": "market_owner",
           "route": "/my-role-requests"
         },
         "is_read": false,
-        "created_at": "2026-02-12T15:31:02.365000",
-        "updated_at": "2026-02-12T15:31:02.365000"
+        "created_at": "2026-02-12T16:58:15.489000",
+        "updated_at": "2026-02-12T16:58:15.489000"
       },
       {
-        "id": "b963e672-f1ea-48fc-947d-41191ed0b671",
-        "user_id": "e05f0e2a-9077-4705-845b-aa29712d5b85",
+        "id": "f3dee8ff-fc99-4835-88bb-7aecaf545228",
+        "user_id": "c818e9a6-76f5-438e-b7fc-6a29ffeba622",
         "title": "Marketplace listing update",
         "body": "Your listing status is now archived.",
         "type": "marketplace",
         "data": {
-          "listing_id": "bf22266a-a99d-46aa-b4c6-efd28b675f57",
+          "listing_id": "01557afc-65aa-4ba3-bc96-5d9289bd0e13",
           "status": "archived",
           "route": "/my-marketplace-listings"
         },
         "is_read": false,
-        "created_at": "2026-02-12T15:31:02.251000",
-        "updated_at": "2026-02-12T15:31:02.251000"
+        "created_at": "2026-02-12T16:58:15.364000",
+        "updated_at": "2026-02-12T16:58:15.364000"
       }
     ],
     "total": 2,

@@ -1,11 +1,29 @@
 {
-  "ts": "2026-02-12T15:31:02.247652+00:00",
+  "ts": "2026-02-12T16:58:15.360313+00:00",
   "method": "GET",
   "path": "/admin/marketplace/reports",
   "status": 200,
   "request": null,
   "params": null,
   "response": [
+    {
+      "id": "b386881e-bef2-4aa3-8b8e-3c24913efb02",
+      "listing_id": "01557afc-65aa-4ba3-bc96-5d9289bd0e13",
+      "reported_by": "0c9c87d3-f0c9-4abc-baa6-c329cde3aceb",
+      "listing_owner_id": "c818e9a6-76f5-438e-b7fc-6a29ffeba622",
+      "reason": "fraud",
+      "notes": "alpha-admin-cycle-20260212T165807Z",
+      "created_at": "2026-02-12T16:58:15.354000"
+    },
+    {
+      "id": "f76ed5cf-1126-4092-ae07-39c832638810",
+      "listing_id": "3ca4432c-8bfd-4c94-ab9c-83c14f905ae1",
+      "reported_by": "7a6e4621-c6f8-4aa5-b6b0-b1fa1b478f55",
+      "listing_owner_id": "91f30b9f-5220-4ca8-b739-f7fcb17ad0cc",
+      "reason": "fraud",
+      "notes": "alpha-admin-cycle-20260212T165714Z",
+      "created_at": "2026-02-12T16:57:22.046000"
+    },
     {
       "id": "4e893982-f73b-47f8-b879-014ffc1d509d",
       "listing_id": "bf22266a-a99d-46aa-b4c6-efd28b675f57",

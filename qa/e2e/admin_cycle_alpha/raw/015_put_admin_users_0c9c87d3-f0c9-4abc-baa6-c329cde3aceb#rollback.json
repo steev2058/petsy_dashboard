@@ -1,0 +1,13 @@
+{
+  "ts": "2026-02-12T16:58:15.244664+00:00",
+  "method": "PUT",
+  "path": "/admin/users/0c9c87d3-f0c9-4abc-baa6-c329cde3aceb#rollback",
+  "status": 200,
+  "request": {
+    "role": "user"
+  },
+  "params": null,
+  "response": {
+    "success": true
+  }
+}

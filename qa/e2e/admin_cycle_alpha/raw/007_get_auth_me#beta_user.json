@@ -1,16 +1,16 @@
 {
-  "ts": "2026-02-12T15:31:02.089447+00:00",
+  "ts": "2026-02-12T16:58:15.203617+00:00",
   "method": "GET",
   "path": "/auth/me#beta_user",
   "status": 200,
   "request": null,
   "params": null,
   "response": {
-    "id": "6000f5e2-fb25-4116-b1e4-599c2b9a5bde",
-    "email": "alpha.user.1770910255@example.com",
+    "id": "0c9c87d3-f0c9-4abc-baa6-c329cde3aceb",
+    "email": "alpha.user.1770915488@example.com",
     "name": "Alpha User",
-    "username": "alphauser5",
-    "user_code": "PET-9A5BDE",
+    "username": "alphauser7",
+    "user_code": "PET-E3ACEB",
     "phone": "+962701011111",
     "city": null,
     "bio": null,
@@ -19,6 +19,6 @@
     "is_verified": false,
     "is_admin": false,
     "role": "user",
-    "created_at": "2026-02-12T15:30:55.522000"
+    "created_at": "2026-02-12T16:58:08.128000"
   }
 }

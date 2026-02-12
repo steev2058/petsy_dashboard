@@ -1,11 +1,191 @@
 {
-  "ts": "2026-02-12T15:31:02.380161+00:00",
+  "ts": "2026-02-12T16:58:15.504197+00:00",
   "method": "GET",
   "path": "/admin/audit-logs",
   "status": 200,
   "request": null,
   "params": null,
   "response": [
+    {
+      "id": "46323fb2-e6dc-4da9-a64f-4cc52cae3c9d",
+      "admin_user_id": "cf2af5c6-3ec3-4247-b43e-ff8be5f86e65",
+      "admin_email": "admin@petsy.com",
+      "action": "review_role_request",
+      "target_type": "role_request",
+      "target_id": "8ccf80db-646b-4171-8b88-994c428fa09c",
+      "payload": {
+        "action": "reject",
+        "status": "rejected"
+      },
+      "created_at": "2026-02-12T16:58:15.489000"
+    },
+    {
+      "id": "f7bca3e0-c18e-428b-84d1-020e5d46f459",
+      "admin_user_id": "cf2af5c6-3ec3-4247-b43e-ff8be5f86e65",
+      "admin_email": "admin@petsy.com",
+      "action": "review_role_request",
+      "target_type": "role_request",
+      "target_id": "aeae60e4-d878-45b2-9620-937dd00c59aa",
+      "payload": {
+        "action": "approve",
+        "status": "approved"
+      },
+      "created_at": "2026-02-12T16:58:15.469000"
+    },
+    {
+      "id": "124fbab3-2257-4062-8519-329e9421d97a",
+      "admin_user_id": "cf2af5c6-3ec3-4247-b43e-ff8be5f86e65",
+      "admin_email": "admin@petsy.com",
+      "action": "review_role_request",
+      "target_type": "role_request",
+      "target_id": "65ef4003-9b0b-4ea3-a89b-ba77613c3451",
+      "payload": {
+        "action": "approve",
+        "status": "approved"
+      },
+      "created_at": "2026-02-12T16:58:15.445000"
+    },
+    {
+      "id": "0d593c38-fbf9-4c9f-89ce-9d7351b214d2",
+      "admin_user_id": "cf2af5c6-3ec3-4247-b43e-ff8be5f86e65",
+      "admin_email": "admin@petsy.com",
+      "action": "set_marketplace_listing_status",
+      "target_type": "marketplace_listing",
+      "target_id": "01557afc-65aa-4ba3-bc96-5d9289bd0e13",
+      "payload": {
+        "status": "archived"
+      },
+      "created_at": "2026-02-12T16:58:15.364000"
+    },
+    {
+      "id": "adb18abf-ffbf-4a51-8b4e-d3bf5fb7fca4",
+      "admin_user_id": "cf2af5c6-3ec3-4247-b43e-ff8be5f86e65",
+      "admin_email": "admin@petsy.com",
+      "action": "review_friend_report",
+      "target_type": "friend_report",
+      "target_id": "24a4dc7d-3e8b-4780-bc3c-f9c631ecb952",
+      "payload": {
+        "action": "block_target",
+        "status": "resolved"
+      },
+      "created_at": "2026-02-12T16:58:15.342000"
+    },
+    {
+      "id": "1fa8172b-1f1a-4a4a-9096-2b23a4206ac0",
+      "admin_user_id": "cf2af5c6-3ec3-4247-b43e-ff8be5f86e65",
+      "admin_email": "admin@petsy.com",
+      "action": "update_user",
+      "target_type": "user",
+      "target_id": "0c9c87d3-f0c9-4abc-baa6-c329cde3aceb",
+      "payload": {
+        "role": "user",
+        "is_admin": false
+      },
+      "created_at": "2026-02-12T16:58:15.243000"
+    },
+    {
+      "id": "ccd254bd-90e1-45b0-babb-2858af76fc24",
+      "admin_user_id": "cf2af5c6-3ec3-4247-b43e-ff8be5f86e65",
+      "admin_email": "admin@petsy.com",
+      "action": "update_user",
+      "target_type": "user",
+      "target_id": "0c9c87d3-f0c9-4abc-baa6-c329cde3aceb",
+      "payload": {
+        "role": "care_clinic",
+        "is_admin": false
+      },
+      "created_at": "2026-02-12T16:58:15.233000"
+    },
+    {
+      "id": "fb88a4a6-4cd7-4917-9971-8e7bce51f4c6",
+      "admin_user_id": "cf2af5c6-3ec3-4247-b43e-ff8be5f86e65",
+      "admin_email": "admin@petsy.com",
+      "action": "review_role_request",
+      "target_type": "role_request",
+      "target_id": "cdcea2f1-c399-47ed-9e36-a068e2f6f7c1",
+      "payload": {
+        "action": "reject",
+        "status": "rejected"
+      },
+      "created_at": "2026-02-12T16:57:22.201000"
+    },
+    {
+      "id": "2ca114ed-4d30-4ee3-9de5-b9c9de03170c",
+      "admin_user_id": "cf2af5c6-3ec3-4247-b43e-ff8be5f86e65",
+      "admin_email": "admin@petsy.com",
+      "action": "review_role_request",
+      "target_type": "role_request",
+      "target_id": "5e671f78-0825-4e57-8766-679442897f04",
+      "payload": {
+        "action": "approve",
+        "status": "approved"
+      },
+      "created_at": "2026-02-12T16:57:22.177000"
+    },
+    {
+      "id": "f76628a8-4f4e-441f-8437-eca0314684d5",
+      "admin_user_id": "cf2af5c6-3ec3-4247-b43e-ff8be5f86e65",
+      "admin_email": "admin@petsy.com",
+      "action": "review_role_request",
+      "target_type": "role_request",
+      "target_id": "40ea9dbc-9a1d-4bc9-bc95-30030f0cfabf",
+      "payload": {
+        "action": "approve",
+        "status": "approved"
+      },
+      "created_at": "2026-02-12T16:57:22.155000"
+    },
+    {
+      "id": "24e41a5a-3beb-41b0-beb4-bb16fdb24a3d",
+      "admin_user_id": "cf2af5c6-3ec3-4247-b43e-ff8be5f86e65",
+      "admin_email": "admin@petsy.com",
+      "action": "set_marketplace_listing_status",
+      "target_type": "marketplace_listing",
+      "target_id": "3ca4432c-8bfd-4c94-ab9c-83c14f905ae1",
+      "payload": {
+        "status": "archived"
+      },
+      "created_at": "2026-02-12T16:57:22.060000"
+    },
+    {
+      "id": "ea2451d5-ded0-4ec6-b093-361767b8ac10",
+      "admin_user_id": "cf2af5c6-3ec3-4247-b43e-ff8be5f86e65",
+      "admin_email": "admin@petsy.com",
+      "action": "review_friend_report",
+      "target_type": "friend_report",
+      "target_id": "a8b8a7f2-3b64-4a93-99a2-11d98e2e53a8",
+      "payload": {
+        "action": "block_target",
+        "status": "resolved"
+      },
+      "created_at": "2026-02-12T16:57:22.027000"
+    },
+    {
+      "id": "ebb676b9-4558-4c3e-a96b-baf81bfc61c3",
+      "admin_user_id": "cf2af5c6-3ec3-4247-b43e-ff8be5f86e65",
+      "admin_email": "admin@petsy.com",
+      "action": "update_user",
+      "target_type": "user",
+      "target_id": "7a6e4621-c6f8-4aa5-b6b0-b1fa1b478f55",
+      "payload": {
+        "role": "user",
+        "is_admin": false
+      },
+      "created_at": "2026-02-12T16:57:21.906000"
+    },
+    {
+      "id": "9f7e699b-2b42-4b3b-8aa6-44593f83b4a7",
+      "admin_user_id": "cf2af5c6-3ec3-4247-b43e-ff8be5f86e65",
+      "admin_email": "admin@petsy.com",
+      "action": "update_user",
+      "target_type": "user",
+      "target_id": "7a6e4621-c6f8-4aa5-b6b0-b1fa1b478f55",
+      "payload": {
+        "role": "care_clinic",
+        "is_admin": false
+      },
+      "created_at": "2026-02-12T16:57:21.895000"
+    },
     {
       "id": "c4433911-3d00-4f71-a1db-7e105b908b1a",
       "admin_user_id": "cf2af5c6-3ec3-4247-b43e-ff8be5f86e65",

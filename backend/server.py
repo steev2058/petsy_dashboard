@@ -2368,6 +2368,11 @@ async def get_lost_found_by_id(post_id: str):
 
 # ========================= COMMUNITY =========================
 
+def community_posts_collection():
+    """Single source of truth for community post storage."""
+    return db.community
+
+
 @api_router.post("/community", response_model=CommunityPost)
 async def create_community_post(post: CommunityPostCreate, current_user: dict = Depends(get_current_user)):
     community_post = CommunityPost(
@@ -2376,7 +2381,7 @@ async def create_community_post(post: CommunityPostCreate, current_user: dict = 
         user_name=current_user["name"],
         user_avatar=current_user.get("avatar")
     )
-    await db.community.insert_one(community_post.dict())
+    await community_posts_collection().insert_one(community_post.dict())
     return community_post
 
 @api_router.get("/community", response_model=List[CommunityPost])
@@ -4539,13 +4544,13 @@ async def delete_vet_admin(vet_id: str, admin_user: dict = Depends(get_admin_use
 @api_router.get("/admin/community")
 async def get_all_posts_admin(admin_user: dict = Depends(get_admin_user)):
     """Get all community posts for admin"""
-    posts = await db.community.find({}).sort("created_at", -1).to_list(1000)
+    posts = await community_posts_collection().find({}).sort("created_at", -1).to_list(1000)
     return [{k: v for k, v in p.items() if k != "_id"} for p in posts]
 
 @api_router.delete("/admin/community/{post_id}")
 async def delete_post_admin(post_id: str, admin_user: dict = Depends(get_admin_user)):
     """Delete community post (admin)"""
-    deleted_primary = await db.community.delete_one({"id": post_id})
+    deleted_primary = await community_posts_collection().delete_one({"id": post_id})
     # backward compatibility: clear legacy collection if present
     await db.community_posts.delete_one({"id": post_id})
     if deleted_primary.deleted_count == 0:

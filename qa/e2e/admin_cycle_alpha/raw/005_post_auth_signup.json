@@ -1,10 +1,10 @@
 {
-  "ts": "2026-02-12T15:31:00.671598+00:00",
+  "ts": "2026-02-12T16:58:13.868622+00:00",
   "method": "POST",
   "path": "/auth/signup",
   "status": 200,
   "request": {
-    "email": "alpha.market.1770910255@example.com",
+    "email": "alpha.market.1770915488@example.com",
     "name": "Alpha Market",
     "password": "***",
     "phone": "+962701011114"
@@ -12,6 +12,6 @@
   "params": null,
   "response": {
     "message": "User created. Verification code sent to email.",
-    "user_id": "e05f0e2a-9077-4705-845b-aa29712d5b85"
+    "user_id": "c818e9a6-76f5-438e-b7fc-6a29ffeba622"
   }
 }

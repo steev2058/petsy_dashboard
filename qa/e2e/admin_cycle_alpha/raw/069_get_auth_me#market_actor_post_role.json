@@ -1,16 +1,16 @@
 {
-  "ts": "2026-02-12T15:31:02.370738+00:00",
+  "ts": "2026-02-12T16:58:15.494934+00:00",
   "method": "GET",
   "path": "/auth/me#market_actor_post_role",
   "status": 200,
   "request": null,
   "params": null,
   "response": {
-    "id": "e05f0e2a-9077-4705-845b-aa29712d5b85",
-    "email": "alpha.market.1770910255@example.com",
+    "id": "c818e9a6-76f5-438e-b7fc-6a29ffeba622",
+    "email": "alpha.market.1770915488@example.com",
     "name": "Alpha Market",
-    "username": "alphamarket5",
-    "user_code": "PET-2D5B85",
+    "username": "alphamarket7",
+    "user_code": "PET-EBA622",
     "phone": "+962701011114",
     "city": null,
     "bio": null,
@@ -19,6 +19,6 @@
     "is_verified": false,
     "is_admin": false,
     "role": "user",
-    "created_at": "2026-02-12T15:30:59.297000"
+    "created_at": "2026-02-12T16:58:12.525000"
   }
 }

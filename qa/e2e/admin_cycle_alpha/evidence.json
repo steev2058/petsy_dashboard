@@ -1,7 +1,7 @@
 {
-  "run_id": "20260212T153055Z",
+  "run_id": "20260212T165807Z",
   "base": "http://127.0.0.1:8001/api",
-  "marker": "alpha-admin-cycle-20260212T153055Z",
+  "marker": "alpha-admin-cycle-20260212T165807Z",
   "users": {
     "admin": {
       "id": "cf2af5c6-3ec3-4247-b43e-ff8be5f86e65",
@@ -9,35 +9,35 @@
       "role": "admin"
     },
     "beta_user": {
-      "id": "6000f5e2-fb25-4116-b1e4-599c2b9a5bde",
-      "email": "alpha.user.1770910255@example.com",
+      "id": "0c9c87d3-f0c9-4abc-baa6-c329cde3aceb",
+      "email": "alpha.user.1770915488@example.com",
       "role": "user"
     },
     "vet_actor": {
-      "id": "f694e7f5-3c9c-4cb1-939f-c8b7c87a1a35",
-      "email": "alpha.vet.1770910255@example.com"
+      "id": "5abca839-14c7-4610-83f6-47d91c913202",
+      "email": "alpha.vet.1770915488@example.com"
     },
     "clinic_actor": {
-      "id": "4c502561-40ea-4e3f-a345-1b8abe0e6566",
-      "email": "alpha.clinic.1770910255@example.com"
+      "id": "98c84b87-8eea-4caf-b733-61f0c5451db6",
+      "email": "alpha.clinic.1770915488@example.com"
     },
     "market_actor": {
-      "id": "e05f0e2a-9077-4705-845b-aa29712d5b85",
-      "email": "alpha.market.1770910255@example.com"
+      "id": "c818e9a6-76f5-438e-b7fc-6a29ffeba622",
+      "email": "alpha.market.1770915488@example.com"
     },
     "target_user": {
-      "id": "9ef02715-e265-4379-af3f-f7b4716ea2c5",
-      "email": "alpha.target.1770910255@example.com"
+      "id": "7675e4be-373e-4dbc-b244-3e1f4a5c5a0a",
+      "email": "alpha.target.1770915488@example.com"
     }
   },
   "entities": {
-    "friend_report_id": "876345e0-1ced-4693-98d3-28eaf1e80ac0",
-    "market_listing_id": "bf22266a-a99d-46aa-b4c6-efd28b675f57",
-    "community_post_id": "1e4fac08-91b1-470f-94f6-eec2464ed690",
+    "friend_report_id": "24a4dc7d-3e8b-4780-bc3c-f9c631ecb952",
+    "market_listing_id": "01557afc-65aa-4ba3-bc96-5d9289bd0e13",
+    "community_post_id": "ada2ace2-d153-4b0e-bf33-09093c93faf0",
     "role_request_ids": {
-      "vet_actor": "db1364c0-e9b0-4f80-8b6e-21be87d4ccb3",
-      "clinic_actor": "8533f1f6-0caa-46ab-a0b3-db62110878af",
-      "market_actor": "2154f870-2c7b-40a9-9ca2-ea208010bcf3"
+      "vet_actor": "65ef4003-9b0b-4ea3-a89b-ba77613c3451",
+      "clinic_actor": "aeae60e4-d878-45b2-9620-937dd00c59aa",
+      "market_actor": "8ccf80db-646b-4171-8b88-994c428fa09c"
     }
   },
   "checks": {

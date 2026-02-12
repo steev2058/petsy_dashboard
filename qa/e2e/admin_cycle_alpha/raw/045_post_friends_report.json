@@ -1,12 +1,12 @@
 {
-  "ts": "2026-02-12T15:31:02.220913+00:00",
+  "ts": "2026-02-12T16:58:15.331039+00:00",
   "method": "POST",
   "path": "/friends/report",
   "status": 200,
   "request": {
-    "target_user_id": "9ef02715-e265-4379-af3f-f7b4716ea2c5",
+    "target_user_id": "7675e4be-373e-4dbc-b244-3e1f4a5c5a0a",
     "reason": "abuse",
-    "notes": "alpha-admin-cycle-20260212T153055Z"
+    "notes": "alpha-admin-cycle-20260212T165807Z"
   },
   "params": null,
   "response": {

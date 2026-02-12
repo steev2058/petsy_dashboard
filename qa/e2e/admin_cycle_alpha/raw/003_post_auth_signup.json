@@ -1,10 +1,10 @@
 {
-  "ts": "2026-02-12T15:30:57.936084+00:00",
+  "ts": "2026-02-12T16:58:11.318532+00:00",
   "method": "POST",
   "path": "/auth/signup",
   "status": 200,
   "request": {
-    "email": "alpha.vet.1770910255@example.com",
+    "email": "alpha.vet.1770915488@example.com",
     "name": "Alpha Vet",
     "password": "***",
     "phone": "+962701011112"
@@ -12,6 +12,6 @@
   "params": null,
   "response": {
     "message": "User created. Verification code sent to email.",
-    "user_id": "f694e7f5-3c9c-4cb1-939f-c8b7c87a1a35"
+    "user_id": "5abca839-14c7-4610-83f6-47d91c913202"
   }
 }
