@@ -1,0 +1,17 @@
+{
+  "ts": "2026-02-12T15:25:40.459967+00:00",
+  "method": "POST",
+  "path": "/auth/signup",
+  "status": 200,
+  "request": {
+    "email": "beta.market.1770909934@example.com",
+    "name": "Beta Market",
+    "password": "***",
+    "phone": "+962700011114"
+  },
+  "params": null,
+  "response": {
+    "message": "User created. Verification code sent to email.",
+    "user_id": "19e1c448-be9f-477b-a817-b5c7ad583acc"
+  }
+}

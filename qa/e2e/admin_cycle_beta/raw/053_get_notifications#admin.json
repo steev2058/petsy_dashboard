@@ -1,0 +1,299 @@
+{
+  "ts": "2026-02-12T15:25:41.827642+00:00",
+  "method": "GET",
+  "path": "/notifications#admin",
+  "status": 200,
+  "request": null,
+  "params": null,
+  "response": {
+    "items": [
+      {
+        "id": "b1beffa0-6ce0-4eb9-937e-6b1445b3b73b",
+        "user_id": "cf2af5c6-3ec3-4247-b43e-ff8be5f86e65",
+        "title": "New role request",
+        "body": "Beta Market requested role: market_owner",
+        "type": "role_request",
+        "data": {
+          "request_id": "a2652488-8498-4ef2-8894-8f07211c5fd5",
+          "target_role": "market_owner",
+          "route": "/admin/role-requests"
+        },
+        "is_read": false,
+        "created_at": "2026-02-12T15:25:41.802000",
+        "updated_at": "2026-02-12T15:25:41.802000"
+      },
+      {
+        "id": "ae4be623-6c5a-422d-92e4-708da3579ace",
+        "user_id": "cf2af5c6-3ec3-4247-b43e-ff8be5f86e65",
+        "title": "New role request",
+        "body": "Beta Clinic requested role: care_clinic",
+        "type": "role_request",
+        "data": {
+          "request_id": "4736b036-1816-4eaa-903f-31eeec550a7b",
+          "target_role": "care_clinic",
+          "route": "/admin/role-requests"
+        },
+        "is_read": false,
+        "created_at": "2026-02-12T15:25:41.780000",
+        "updated_at": "2026-02-12T15:25:41.780000"
+      },
+      {
+        "id": "5c23e2e8-506a-43d5-84f3-a4d714249e22",
+        "user_id": "cf2af5c6-3ec3-4247-b43e-ff8be5f86e65",
+        "title": "New role request",
+        "body": "Beta Vet requested role: vet",
+        "type": "role_request",
+        "data": {
+          "request_id": "09ed729f-9fdb-4634-8e91-e44b698641e4",
+          "target_role": "vet",
+          "route": "/admin/role-requests"
+        },
+        "is_read": false,
+        "created_at": "2026-02-12T15:25:41.755000",
+        "updated_at": "2026-02-12T15:25:41.755000"
+      },
+      {
+        "id": "d5643781-35c5-48bf-ae7a-9e6af125673c",
+        "user_id": "cf2af5c6-3ec3-4247-b43e-ff8be5f86e65",
+        "title": "User reported",
+        "body": "Beta User reported a user profile.",
+        "type": "admin",
+        "data": {
+          "route": "/admin/users",
+          "target_user_id": "fab769ee-6816-4e57-aba6-7a82bda5d13f"
+        },
+        "is_read": false,
+        "created_at": "2026-02-12T15:25:41.694000",
+        "updated_at": "2026-02-12T15:25:41.694000"
+      },
+      {
+        "id": "0b06a320-11c0-43a9-9d25-b7ac9d9335f1",
+        "user_id": "cf2af5c6-3ec3-4247-b43e-ff8be5f86e65",
+        "title": "New care request",
+        "body": "Demo Clinic submitted a care request.",
+        "type": "care_request",
+        "data": {
+          "request_id": "b76fe716-ced2-4300-a603-521917d02231",
+          "route": "/clinic-care-management"
+        },
+        "is_read": false,
+        "created_at": "2026-02-12T15:15:29.890000",
+        "updated_at": "2026-02-12T15:15:29.890000"
+      },
+      {
+        "id": "03a6371f-57b3-4aa0-b7e3-3e79cb3a0fc0",
+        "user_id": "cf2af5c6-3ec3-4247-b43e-ff8be5f86e65",
+        "title": "New care request",
+        "body": "Demo Clinic submitted a care request.",
+        "type": "care_request",
+        "data": {
+          "request_id": "d6903509-65a7-4975-98bf-e3f8dc6c39e0",
+          "route": "/clinic-care-management"
+        },
+        "is_read": false,
+        "created_at": "2026-02-12T15:15:04.689000",
+        "updated_at": "2026-02-12T15:15:04.689000"
+      },
+      {
+        "id": "f2e0a16e-049c-4e26-b532-9d44516c5cef",
+        "user_id": "cf2af5c6-3ec3-4247-b43e-ff8be5f86e65",
+        "title": "New care request",
+        "body": "Beta Clinic User submitted a care request.",
+        "type": "care_request",
+        "data": {
+          "request_id": "741a3e54-d025-4e15-97f8-cc86ea358c1d",
+          "route": "/clinic-care-management"
+        },
+        "is_read": false,
+        "created_at": "2026-02-12T15:14:58.361000",
+        "updated_at": "2026-02-12T15:14:58.361000"
+      },
+      {
+        "id": "eaadddcc-9ee2-4a78-ab66-33bf8ef87d9c",
+        "user_id": "cf2af5c6-3ec3-4247-b43e-ff8be5f86e65",
+        "title": "New care request",
+        "body": "Beta Clinic User submitted a care request.",
+        "type": "care_request",
+        "data": {
+          "request_id": "9547ee2a-2743-4545-9317-9bc5dc924929",
+          "route": "/clinic-care-management"
+        },
+        "is_read": false,
+        "created_at": "2026-02-12T15:14:58.353000",
+        "updated_at": "2026-02-12T15:14:58.353000"
+      },
+      {
+        "id": "6f6ec8c2-ea0c-4616-8f5f-4bddfff64bd2",
+        "user_id": "cf2af5c6-3ec3-4247-b43e-ff8be5f86e65",
+        "title": "New care request",
+        "body": "Beta Clinic User submitted a care request.",
+        "type": "care_request",
+        "data": {
+          "request_id": "518f2db3-620a-4b5f-b1a0-0fb38ff6a111",
+          "route": "/clinic-care-management"
+        },
+        "is_read": false,
+        "created_at": "2026-02-12T15:14:58.343000",
+        "updated_at": "2026-02-12T15:14:58.343000"
+      },
+      {
+        "id": "d19bff70-ab00-4246-b3d4-dbc129d664ae",
+        "user_id": "cf2af5c6-3ec3-4247-b43e-ff8be5f86e65",
+        "title": "New care request",
+        "body": "Beta Clinic User submitted a care request.",
+        "type": "care_request",
+        "data": {
+          "request_id": "5246c3e1-fd09-4afb-8cf1-640a217c96d2",
+          "route": "/clinic-care-management"
+        },
+        "is_read": false,
+        "created_at": "2026-02-12T15:14:04.652000",
+        "updated_at": "2026-02-12T15:14:04.652000"
+      },
+      {
+        "id": "27b93975-73ac-41fe-a79b-1eeeb81bc226",
+        "user_id": "cf2af5c6-3ec3-4247-b43e-ff8be5f86e65",
+        "title": "New care request",
+        "body": "Beta Clinic User submitted a care request.",
+        "type": "care_request",
+        "data": {
+          "request_id": "9ff24f70-67b8-4bb9-8e66-c4488a0c997c",
+          "route": "/clinic-care-management"
+        },
+        "is_read": false,
+        "created_at": "2026-02-12T15:14:04.644000",
+        "updated_at": "2026-02-12T15:14:04.644000"
+      },
+      {
+        "id": "953b6ae2-8559-41bd-84e6-05f8fb0a20a0",
+        "user_id": "cf2af5c6-3ec3-4247-b43e-ff8be5f86e65",
+        "title": "New care request",
+        "body": "Beta Clinic User submitted a care request.",
+        "type": "care_request",
+        "data": {
+          "request_id": "2dcebc05-bb93-4156-b876-f1bbfcce91bd",
+          "route": "/clinic-care-management"
+        },
+        "is_read": false,
+        "created_at": "2026-02-12T15:14:04.635000",
+        "updated_at": "2026-02-12T15:14:04.635000"
+      },
+      {
+        "id": "60cc01f1-3304-4695-9048-d6ab32fcc68c",
+        "user_id": "cf2af5c6-3ec3-4247-b43e-ff8be5f86e65",
+        "title": "New care request",
+        "body": "Attach Fix User submitted a care request.",
+        "type": "care_request",
+        "data": {
+          "request_id": "63a3a3e5-b74a-4dc0-809a-6e418e621358",
+          "route": "/clinic-care-management"
+        },
+        "is_read": false,
+        "created_at": "2026-02-12T13:01:49.900000",
+        "updated_at": "2026-02-12T13:01:49.900000"
+      },
+      {
+        "id": "6dc6badf-5528-4e33-bd83-a330fd6bf393",
+        "user_id": "cf2af5c6-3ec3-4247-b43e-ff8be5f86e65",
+        "title": "New care request",
+        "body": "Attach Fix User submitted a care request.",
+        "type": "care_request",
+        "data": {
+          "request_id": "acc03be8-e83d-4805-a5e7-cac65e9d97ca",
+          "route": "/clinic-care-management"
+        },
+        "is_read": false,
+        "created_at": "2026-02-12T13:01:49.871000",
+        "updated_at": "2026-02-12T13:01:49.871000"
+      },
+      {
+        "id": "70bc344b-03c1-4569-ba0c-b3b4b2db185c",
+        "user_id": "cf2af5c6-3ec3-4247-b43e-ff8be5f86e65",
+        "title": "New care request",
+        "body": "Attach Fix User submitted a care request.",
+        "type": "care_request",
+        "data": {
+          "request_id": "0f0af582-d29c-4f37-a4ff-e8da4f41df53",
+          "route": "/clinic-care-management"
+        },
+        "is_read": false,
+        "created_at": "2026-02-12T13:01:49.839000",
+        "updated_at": "2026-02-12T13:01:49.839000"
+      },
+      {
+        "id": "a7748478-274c-4a63-aad7-ec3429526885",
+        "user_id": "cf2af5c6-3ec3-4247-b43e-ff8be5f86e65",
+        "title": "New care request",
+        "body": "Attach Fix User submitted a care request.",
+        "type": "care_request",
+        "data": {
+          "request_id": "fe555b6a-de37-498f-a351-6ca28c38c955",
+          "route": "/clinic-care-management"
+        },
+        "is_read": false,
+        "created_at": "2026-02-12T13:01:49.811000",
+        "updated_at": "2026-02-12T13:01:49.811000"
+      },
+      {
+        "id": "c394ed4c-ffba-45fe-84e8-5e6986df7971",
+        "user_id": "cf2af5c6-3ec3-4247-b43e-ff8be5f86e65",
+        "title": "New care request",
+        "body": "Attach Fix User submitted a care request.",
+        "type": "care_request",
+        "data": {
+          "request_id": "6a6d3327-4de0-4e9d-8b6b-0de04a8ed519",
+          "route": "/clinic-care-management"
+        },
+        "is_read": false,
+        "created_at": "2026-02-12T13:01:49.781000",
+        "updated_at": "2026-02-12T13:01:49.781000"
+      },
+      {
+        "id": "9b9f4566-3172-41e6-a07b-8937d0ebe54b",
+        "user_id": "cf2af5c6-3ec3-4247-b43e-ff8be5f86e65",
+        "title": "New care request",
+        "body": "Attach Fix User submitted a care request.",
+        "type": "care_request",
+        "data": {
+          "request_id": "796111c7-b4a3-45ed-a1ab-683f1811c902",
+          "route": "/clinic-care-management"
+        },
+        "is_read": false,
+        "created_at": "2026-02-12T13:01:49.751000",
+        "updated_at": "2026-02-12T13:01:49.751000"
+      },
+      {
+        "id": "06a0ca72-7004-4c71-ad36-97f7b70527d8",
+        "user_id": "cf2af5c6-3ec3-4247-b43e-ff8be5f86e65",
+        "title": "New care request",
+        "body": "Attach Fix User submitted a care request.",
+        "type": "care_request",
+        "data": {
+          "request_id": "1712b58d-cbc3-43c3-9999-74631e9a6e48",
+          "route": "/clinic-care-management"
+        },
+        "is_read": false,
+        "created_at": "2026-02-12T13:01:49.724000",
+        "updated_at": "2026-02-12T13:01:49.724000"
+      },
+      {
+        "id": "187101ea-9085-47be-a3b3-790623c40cef",
+        "user_id": "cf2af5c6-3ec3-4247-b43e-ff8be5f86e65",
+        "title": "New care request",
+        "body": "Attach Fix User submitted a care request.",
+        "type": "care_request",
+        "data": {
+          "request_id": "d5ed639b-3d87-4523-a018-7a1e4b3df13c",
+          "route": "/clinic-care-management"
+        },
+        "is_read": false,
+        "created_at": "2026-02-12T13:01:49.694000",
+        "updated_at": "2026-02-12T13:01:49.694000"
+      }
+    ],
+    "total": 64,
+    "limit": 20,
+    "offset": 0,
+    "has_more": true
+  }
+}

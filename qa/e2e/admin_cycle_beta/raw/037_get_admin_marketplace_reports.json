@@ -1,0 +1,28 @@
+{
+  "ts": "2026-02-12T15:25:41.726675+00:00",
+  "method": "GET",
+  "path": "/admin/marketplace/reports",
+  "status": 200,
+  "request": null,
+  "params": null,
+  "response": [
+    {
+      "id": "35b14e25-9e7f-4af0-ac71-0680b612efd6",
+      "listing_id": "858c4862-953c-4bc3-84db-90682bfa6835",
+      "reported_by": "454a7812-8e2e-4b9b-8c0c-bcb6699782c1",
+      "listing_owner_id": "19e1c448-be9f-477b-a817-b5c7ad583acc",
+      "reason": "fraud",
+      "notes": "beta-admin-cycle-20260212T152533Z",
+      "created_at": "2026-02-12T15:25:41.722000"
+    },
+    {
+      "id": "c4a64f73-38c4-449f-874a-d33d4623cf72",
+      "listing_id": "02304eb7-a3a5-49ff-8e20-99d8e78e52c3",
+      "reported_by": "1382dcc7-3cd5-4be2-b4e9-8bad76a7d864",
+      "listing_owner_id": "c3cfc846-1bbb-4182-bd60-83d66dc4565d",
+      "reason": "spam",
+      "notes": "QA report check",
+      "created_at": "2026-02-12T13:10:21.308000"
+    }
+  ]
+}

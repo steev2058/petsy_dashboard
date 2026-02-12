@@ -1,0 +1,11 @@
+{
+  "ts": "2026-02-12T15:25:41.672330+00:00",
+  "method": "GET",
+  "path": "/admin/marketplace/reports#clinic_actor",
+  "status": 403,
+  "request": null,
+  "params": null,
+  "response": {
+    "detail": "Admin access required"
+  }
+}

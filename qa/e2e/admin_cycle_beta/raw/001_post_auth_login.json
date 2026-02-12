@@ -1,0 +1,31 @@
+{
+  "ts": "2026-02-12T15:25:34.062913+00:00",
+  "method": "POST",
+  "path": "/auth/login",
+  "status": 200,
+  "request": {
+    "email": "admin@petsy.com",
+    "password": "***"
+  },
+  "params": null,
+  "response": {
+    "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJjZjJhZjVjNi0zZWMzLTQyNDctYjQzZS1mZjhiZTVmODZlNjUiLCJleHAiOjE3NzM1MDE5MzR9.bsp4x0-mh5b6-m_ccc9lCoJtL7RnurcpjsGm-R_pfF0",
+    "token_type": "bearer",
+    "user": {
+      "id": "cf2af5c6-3ec3-4247-b43e-ff8be5f86e65",
+      "email": "admin@petsy.com",
+      "name": "Admin",
+      "username": "adminuser",
+      "user_code": "PET-F86E65",
+      "phone": "+963900000000",
+      "city": null,
+      "bio": null,
+      "avatar": null,
+      "language": "ar",
+      "is_verified": true,
+      "is_admin": true,
+      "role": "admin",
+      "created_at": "2026-02-11T10:16:53.735000"
+    }
+  }
+}

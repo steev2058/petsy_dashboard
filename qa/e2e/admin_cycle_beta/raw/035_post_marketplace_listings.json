@@ -1,0 +1,32 @@
+{
+  "ts": "2026-02-12T15:25:41.717871+00:00",
+  "method": "POST",
+  "path": "/marketplace/listings",
+  "status": 200,
+  "request": {
+    "title": "Beta listing beta-admin-cycle-20260212T152533Z",
+    "description": "Listing to moderate beta-admin-cycle-20260212T152533Z",
+    "price": 42,
+    "category": "pets",
+    "location": "Amman",
+    "images": [],
+    "contact_phone": "+962700099001"
+  },
+  "params": null,
+  "response": {
+    "id": "858c4862-953c-4bc3-84db-90682bfa6835",
+    "user_id": "19e1c448-be9f-477b-a817-b5c7ad583acc",
+    "user_name": "Beta Market",
+    "user_avatar": null,
+    "title": "Beta listing beta-admin-cycle-20260212T152533Z",
+    "description": "Listing to moderate beta-admin-cycle-20260212T152533Z",
+    "category": "pets",
+    "price": 42.0,
+    "location": "Amman",
+    "image": null,
+    "pet_type": null,
+    "condition": null,
+    "status": "active",
+    "created_at": "2026-02-12T15:25:41.716635"
+  }
+}

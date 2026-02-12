@@ -1,0 +1,24 @@
+{
+  "ts": "2026-02-12T15:25:41.627454+00:00",
+  "method": "GET",
+  "path": "/auth/me#market_actor",
+  "status": 200,
+  "request": null,
+  "params": null,
+  "response": {
+    "id": "19e1c448-be9f-477b-a817-b5c7ad583acc",
+    "email": "beta.market.1770909934@example.com",
+    "name": "Beta Market",
+    "username": "betamarket",
+    "user_code": "PET-583ACC",
+    "phone": "+962700011114",
+    "city": null,
+    "bio": null,
+    "avatar": null,
+    "language": "en",
+    "is_verified": false,
+    "is_admin": false,
+    "role": "user",
+    "created_at": "2026-02-12T15:25:39.011000"
+  }
+}

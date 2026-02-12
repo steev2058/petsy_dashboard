@@ -1,0 +1,22 @@
+{
+  "ts": "2026-02-12T15:25:41.758533+00:00",
+  "method": "POST",
+  "path": "/role-requests",
+  "status": 200,
+  "request": {
+    "target_role": "vet",
+    "reason": "beta-admin-cycle-20260212T152533Z-vet_actor"
+  },
+  "params": null,
+  "response": {
+    "id": "09ed729f-9fdb-4634-8e91-e44b698641e4",
+    "user_id": "fc899bbf-2184-4ff1-b4b4-e4a9dde58f58",
+    "user_name": "Beta Vet",
+    "user_email": "beta.vet.1770909934@example.com",
+    "target_role": "vet",
+    "reason": "beta-admin-cycle-20260212T152533Z-vet_actor",
+    "status": "pending",
+    "created_at": "2026-02-12T15:25:41.753305",
+    "updated_at": "2026-02-12T15:25:41.753307"
+  }
+}

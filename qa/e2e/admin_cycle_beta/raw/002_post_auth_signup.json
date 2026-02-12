@@ -1,0 +1,17 @@
+{
+  "ts": "2026-02-12T15:25:36.136023+00:00",
+  "method": "POST",
+  "path": "/auth/signup",
+  "status": 200,
+  "request": {
+    "email": "beta.user.1770909934@example.com",
+    "name": "Beta User",
+    "password": "***",
+    "phone": "+962700011111"
+  },
+  "params": null,
+  "response": {
+    "message": "User created. Verification code sent to email.",
+    "user_id": "454a7812-8e2e-4b9b-8c0c-bcb6699782c1"
+  }
+}

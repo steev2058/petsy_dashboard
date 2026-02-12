@@ -1,0 +1,15 @@
+{
+  "ts": "2026-02-12T15:25:41.835235+00:00",
+  "method": "GET",
+  "path": "/notifications#beta",
+  "status": 200,
+  "request": null,
+  "params": null,
+  "response": {
+    "items": [],
+    "total": 0,
+    "limit": 20,
+    "offset": 0,
+    "has_more": false
+  }
+}

@@ -1,0 +1,22 @@
+{
+  "ts": "2026-02-12T15:25:41.820536+00:00",
+  "method": "GET",
+  "path": "/role-requests/my#market_actor",
+  "status": 200,
+  "request": null,
+  "params": null,
+  "response": [
+    {
+      "id": "a2652488-8498-4ef2-8894-8f07211c5fd5",
+      "user_id": "19e1c448-be9f-477b-a817-b5c7ad583acc",
+      "user_name": "Beta Market",
+      "user_email": "beta.market.1770909934@example.com",
+      "target_role": "market_owner",
+      "reason": "beta-admin-cycle-20260212T152533Z-market_actor",
+      "status": "rejected",
+      "created_at": "2026-02-12T15:25:41.800000",
+      "updated_at": "2026-02-12T15:25:41.808000",
+      "reviewed_by": "cf2af5c6-3ec3-4247-b43e-ff8be5f86e65"
+    }
+  ]
+}

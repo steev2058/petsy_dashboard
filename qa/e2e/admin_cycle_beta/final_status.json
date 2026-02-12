@@ -1,0 +1,35 @@
+{
+  "status": "GO",
+  "run_id": "20260212T152533Z",
+  "blockers": [],
+  "matrix": [
+    {
+      "check": "Non-admin actors denied on admin endpoints",
+      "result": "PASS"
+    },
+    {
+      "check": "Friend report moderated: admin block_target prevents DM",
+      "result": "PASS"
+    },
+    {
+      "check": "Marketplace moderation reflected: archived hidden from public",
+      "result": "PASS"
+    },
+    {
+      "check": "Marketplace moderation reflected to owner listing state",
+      "result": "PASS"
+    },
+    {
+      "check": "Role-request admin actions reflected in user roles/status",
+      "result": "PASS"
+    },
+    {
+      "check": "Notification propagation after admin actions",
+      "result": "PASS"
+    },
+    {
+      "check": "Non-admin cannot access admin audit logs",
+      "result": "PASS"
+    }
+  ]
+}

@@ -1,0 +1,29 @@
+{
+  "ts": "2026-02-12T15:25:41.701573+00:00",
+  "method": "GET",
+  "path": "/admin/friend-reports?target_user_id=fab769ee-6816-4e57-aba6-7a82bda5d13f&status=open",
+  "status": 200,
+  "request": null,
+  "params": null,
+  "response": [
+    {
+      "id": "d2508de0-f198-4168-a990-63042a8d0015",
+      "reason": "abuse",
+      "notes": "beta-admin-cycle-20260212T152533Z",
+      "status": "open",
+      "created_at": "2026-02-12T15:25:41.691000",
+      "reported_by": {
+        "id": "454a7812-8e2e-4b9b-8c0c-bcb6699782c1",
+        "name": "Beta User",
+        "email": "beta.user.1770909934@example.com"
+      },
+      "target_user": {
+        "id": "fab769ee-6816-4e57-aba6-7a82bda5d13f",
+        "name": "Beta Target",
+        "email": "beta.target.1770909934@example.com"
+      },
+      "reviewed_at": null,
+      "reviewed_by": null
+    }
+  ]
+}
