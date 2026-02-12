@@ -1,0 +1,283 @@
+{
+  "run_id": "20260212T130147Z",
+  "marker": "attach-fix-20260212T130147Z",
+  "base": "http://127.0.0.1:8001/api",
+  "user": {
+    "id": "199cd06e-0ac0-4ddc-beaa-2392c4195880",
+    "email": "beta.attach.fix.1770901308@example.com"
+  },
+  "vet": {
+    "id": "1382dcc7-3cd5-4be2-b4e9-8bad76a7d864",
+    "email": "demo.vet@petsy.com"
+  },
+  "pet_id": "1918dd1c-6b34-4037-9698-07fc1eb23477",
+  "steps": [
+    {
+      "iteration": 0,
+      "request_id": "18ef11e2-0593-4b4c-bc97-29c60e48e0e9",
+      "record": {
+        "id": "5a57c1ab-7c60-40dc-afaf-caa12669880f",
+        "pet_id": "1918dd1c-6b34-4037-9698-07fc1eb23477",
+        "user_id": "199cd06e-0ac0-4ddc-beaa-2392c4195880",
+        "record_type": "vet_visit",
+        "title": "Attachment Continuity attach-fix-20260212T130147Z #0",
+        "description": "Loop 0",
+        "date": "2026-02-12",
+        "vet_name": "Demo Vet",
+        "clinic_name": null,
+        "next_due_date": null,
+        "notes": "Diagnosis: Dx-0\nPrescription: Rx-0\n\nFollow-up context: Loop-0",
+        "attachments": [
+          "inline://attach-fix-20260212T130147Z-0-a",
+          "inline://attach-fix-20260212T130147Z-0-b"
+        ],
+        "created_at": "2026-02-12T13:01:49.588000"
+      }
+    },
+    {
+      "iteration": 1,
+      "request_id": "8f9a27e9-b1ed-40e4-bd26-ac2bbfa9e6f4",
+      "record": {
+        "id": "988b5227-e4df-4655-ad30-0a292a80f03a",
+        "pet_id": "1918dd1c-6b34-4037-9698-07fc1eb23477",
+        "user_id": "199cd06e-0ac0-4ddc-beaa-2392c4195880",
+        "record_type": "vet_visit",
+        "title": "Attachment Continuity attach-fix-20260212T130147Z #1",
+        "description": "Loop 1",
+        "date": "2026-02-12",
+        "vet_name": "Demo Vet",
+        "clinic_name": null,
+        "next_due_date": null,
+        "notes": "Diagnosis: Dx-1\nPrescription: Rx-1\n\nFollow-up context: Loop-1",
+        "attachments": [
+          "inline://attach-fix-20260212T130147Z-1-a",
+          "inline://attach-fix-20260212T130147Z-1-b"
+        ],
+        "created_at": "2026-02-12T13:01:49.618000"
+      }
+    },
+    {
+      "iteration": 2,
+      "request_id": "1e815e6f-5e68-4d80-9abe-47a93d9c42f5",
+      "record": {
+        "id": "e3cf299a-191c-4763-9a94-f0c0b582c608",
+        "pet_id": "1918dd1c-6b34-4037-9698-07fc1eb23477",
+        "user_id": "199cd06e-0ac0-4ddc-beaa-2392c4195880",
+        "record_type": "vet_visit",
+        "title": "Attachment Continuity attach-fix-20260212T130147Z #2",
+        "description": "Loop 2",
+        "date": "2026-02-12",
+        "vet_name": "Demo Vet",
+        "clinic_name": null,
+        "next_due_date": null,
+        "notes": "Diagnosis: Dx-2\nPrescription: Rx-2\n\nFollow-up context: Loop-2",
+        "attachments": [
+          "inline://attach-fix-20260212T130147Z-2-a",
+          "inline://attach-fix-20260212T130147Z-2-b"
+        ],
+        "created_at": "2026-02-12T13:01:49.653000"
+      }
+    },
+    {
+      "iteration": 3,
+      "request_id": "961ca18d-bf15-40bd-9c53-46d9026ac1ae",
+      "record": {
+        "id": "5f0c47b4-6769-4594-95e6-02841134e66b",
+        "pet_id": "1918dd1c-6b34-4037-9698-07fc1eb23477",
+        "user_id": "199cd06e-0ac0-4ddc-beaa-2392c4195880",
+        "record_type": "vet_visit",
+        "title": "Attachment Continuity attach-fix-20260212T130147Z #3",
+        "description": "Loop 3",
+        "date": "2026-02-12",
+        "vet_name": "Demo Vet",
+        "clinic_name": null,
+        "next_due_date": null,
+        "notes": "Diagnosis: Dx-3\nPrescription: Rx-3\n\nFollow-up context: Loop-3",
+        "attachments": [
+          "inline://attach-fix-20260212T130147Z-3-a",
+          "inline://attach-fix-20260212T130147Z-3-b"
+        ],
+        "created_at": "2026-02-12T13:01:49.684000"
+      }
+    },
+    {
+      "iteration": 4,
+      "request_id": "d5ed639b-3d87-4523-a018-7a1e4b3df13c",
+      "record": {
+        "id": "0c7df47c-46e7-4d9e-bd77-8ce1052a5cfe",
+        "pet_id": "1918dd1c-6b34-4037-9698-07fc1eb23477",
+        "user_id": "199cd06e-0ac0-4ddc-beaa-2392c4195880",
+        "record_type": "vet_visit",
+        "title": "Attachment Continuity attach-fix-20260212T130147Z #4",
+        "description": "Loop 4",
+        "date": "2026-02-12",
+        "vet_name": "Demo Vet",
+        "clinic_name": null,
+        "next_due_date": null,
+        "notes": "Diagnosis: Dx-4\nPrescription: Rx-4\n\nFollow-up context: Loop-4",
+        "attachments": [
+          "inline://attach-fix-20260212T130147Z-4-a",
+          "inline://attach-fix-20260212T130147Z-4-b"
+        ],
+        "created_at": "2026-02-12T13:01:49.714000"
+      }
+    },
+    {
+      "iteration": 5,
+      "request_id": "1712b58d-cbc3-43c3-9999-74631e9a6e48",
+      "record": {
+        "id": "6ff02435-f1df-4394-b419-c2d8a7e4a768",
+        "pet_id": "1918dd1c-6b34-4037-9698-07fc1eb23477",
+        "user_id": "199cd06e-0ac0-4ddc-beaa-2392c4195880",
+        "record_type": "vet_visit",
+        "title": "Attachment Continuity attach-fix-20260212T130147Z #5",
+        "description": "Loop 5",
+        "date": "2026-02-12",
+        "vet_name": "Demo Vet",
+        "clinic_name": null,
+        "next_due_date": null,
+        "notes": "Diagnosis: Dx-5\nPrescription: Rx-5\n\nFollow-up context: Loop-5",
+        "attachments": [
+          "inline://attach-fix-20260212T130147Z-5-a",
+          "inline://attach-fix-20260212T130147Z-5-b"
+        ],
+        "created_at": "2026-02-12T13:01:49.741000"
+      }
+    },
+    {
+      "iteration": 6,
+      "request_id": "796111c7-b4a3-45ed-a1ab-683f1811c902",
+      "record": {
+        "id": "97d64550-f364-474a-84f8-95ddaf339d3f",
+        "pet_id": "1918dd1c-6b34-4037-9698-07fc1eb23477",
+        "user_id": "199cd06e-0ac0-4ddc-beaa-2392c4195880",
+        "record_type": "vet_visit",
+        "title": "Attachment Continuity attach-fix-20260212T130147Z #6",
+        "description": "Loop 6",
+        "date": "2026-02-12",
+        "vet_name": "Demo Vet",
+        "clinic_name": null,
+        "next_due_date": null,
+        "notes": "Diagnosis: Dx-6\nPrescription: Rx-6\n\nFollow-up context: Loop-6",
+        "attachments": [
+          "inline://attach-fix-20260212T130147Z-6-a",
+          "inline://attach-fix-20260212T130147Z-6-b"
+        ],
+        "created_at": "2026-02-12T13:01:49.769000"
+      }
+    },
+    {
+      "iteration": 7,
+      "request_id": "6a6d3327-4de0-4e9d-8b6b-0de04a8ed519",
+      "record": {
+        "id": "cf697872-0301-48f4-8426-8be43ef27d88",
+        "pet_id": "1918dd1c-6b34-4037-9698-07fc1eb23477",
+        "user_id": "199cd06e-0ac0-4ddc-beaa-2392c4195880",
+        "record_type": "vet_visit",
+        "title": "Attachment Continuity attach-fix-20260212T130147Z #7",
+        "description": "Loop 7",
+        "date": "2026-02-12",
+        "vet_name": "Demo Vet",
+        "clinic_name": null,
+        "next_due_date": null,
+        "notes": "Diagnosis: Dx-7\nPrescription: Rx-7\n\nFollow-up context: Loop-7",
+        "attachments": [
+          "inline://attach-fix-20260212T130147Z-7-a",
+          "inline://attach-fix-20260212T130147Z-7-b"
+        ],
+        "created_at": "2026-02-12T13:01:49.801000"
+      }
+    },
+    {
+      "iteration": 8,
+      "request_id": "fe555b6a-de37-498f-a351-6ca28c38c955",
+      "record": {
+        "id": "f06f4bf7-88cb-4e5e-a73a-602aacf4fdb2",
+        "pet_id": "1918dd1c-6b34-4037-9698-07fc1eb23477",
+        "user_id": "199cd06e-0ac0-4ddc-beaa-2392c4195880",
+        "record_type": "vet_visit",
+        "title": "Attachment Continuity attach-fix-20260212T130147Z #8",
+        "description": "Loop 8",
+        "date": "2026-02-12",
+        "vet_name": "Demo Vet",
+        "clinic_name": null,
+        "next_due_date": null,
+        "notes": "Diagnosis: Dx-8\nPrescription: Rx-8\n\nFollow-up context: Loop-8",
+        "attachments": [
+          "inline://attach-fix-20260212T130147Z-8-a",
+          "inline://attach-fix-20260212T130147Z-8-b"
+        ],
+        "created_at": "2026-02-12T13:01:49.829000"
+      }
+    },
+    {
+      "iteration": 9,
+      "request_id": "0f0af582-d29c-4f37-a4ff-e8da4f41df53",
+      "record": {
+        "id": "340b8242-53ef-4515-ae8d-3685106eefc8",
+        "pet_id": "1918dd1c-6b34-4037-9698-07fc1eb23477",
+        "user_id": "199cd06e-0ac0-4ddc-beaa-2392c4195880",
+        "record_type": "vet_visit",
+        "title": "Attachment Continuity attach-fix-20260212T130147Z #9",
+        "description": "Loop 9",
+        "date": "2026-02-12",
+        "vet_name": "Demo Vet",
+        "clinic_name": null,
+        "next_due_date": null,
+        "notes": "Diagnosis: Dx-9\nPrescription: Rx-9\n\nFollow-up context: Loop-9",
+        "attachments": [
+          "inline://attach-fix-20260212T130147Z-9-a",
+          "inline://attach-fix-20260212T130147Z-9-b"
+        ],
+        "created_at": "2026-02-12T13:01:49.860000"
+      }
+    },
+    {
+      "iteration": 10,
+      "request_id": "acc03be8-e83d-4805-a5e7-cac65e9d97ca",
+      "record": {
+        "id": "89cd1226-937a-4f08-867d-26e2bf0f0f6b",
+        "pet_id": "1918dd1c-6b34-4037-9698-07fc1eb23477",
+        "user_id": "199cd06e-0ac0-4ddc-beaa-2392c4195880",
+        "record_type": "vet_visit",
+        "title": "Attachment Continuity attach-fix-20260212T130147Z #10",
+        "description": "Loop 10",
+        "date": "2026-02-12",
+        "vet_name": "Demo Vet",
+        "clinic_name": null,
+        "next_due_date": null,
+        "notes": "Diagnosis: Dx-10\nPrescription: Rx-10\n\nFollow-up context: Loop-10",
+        "attachments": [
+          "inline://attach-fix-20260212T130147Z-10-a",
+          "inline://attach-fix-20260212T130147Z-10-b"
+        ],
+        "created_at": "2026-02-12T13:01:49.888000"
+      }
+    },
+    {
+      "iteration": 11,
+      "request_id": "63a3a3e5-b74a-4dc0-809a-6e418e621358",
+      "record": {
+        "id": "bb3db35b-742e-44f1-b324-1da55faec6ed",
+        "pet_id": "1918dd1c-6b34-4037-9698-07fc1eb23477",
+        "user_id": "199cd06e-0ac0-4ddc-beaa-2392c4195880",
+        "record_type": "vet_visit",
+        "title": "Attachment Continuity attach-fix-20260212T130147Z #11",
+        "description": "Loop 11",
+        "date": "2026-02-12",
+        "vet_name": "Demo Vet",
+        "clinic_name": null,
+        "next_due_date": null,
+        "notes": "Diagnosis: Dx-11\nPrescription: Rx-11\n\nFollow-up context: Loop-11",
+        "attachments": [
+          "inline://attach-fix-20260212T130147Z-11-a",
+          "inline://attach-fix-20260212T130147Z-11-b"
+        ],
+        "created_at": "2026-02-12T13:01:49.926000"
+      }
+    }
+  ],
+  "summary": {
+    "all_pass": true
+  }
+}

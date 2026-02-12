@@ -1,0 +1,250 @@
+{
+  "run_id": "20260212T130147Z",
+  "base": "http://127.0.0.1:8001/api",
+  "iterations": 12,
+  "passed": 12,
+  "failed": 0,
+  "all_pass": true,
+  "rows": [
+    {
+      "iteration": 0,
+      "care_request_id": "18ef11e2-0593-4b4c-bc97-29c60e48e0e9",
+      "health_record_id": "5a57c1ab-7c60-40dc-afaf-caa12669880f",
+      "expected_inline": [
+        "inline://attach-fix-20260212T130147Z-0-a",
+        "inline://attach-fix-20260212T130147Z-0-b"
+      ],
+      "actual_attachments": [
+        "inline://attach-fix-20260212T130147Z-0-a",
+        "inline://attach-fix-20260212T130147Z-0-b"
+      ],
+      "result": "PASS",
+      "statuses": {
+        "accept": 200,
+        "start": 200,
+        "complete": 200,
+        "health_records": 200
+      }
+    },
+    {
+      "iteration": 1,
+      "care_request_id": "8f9a27e9-b1ed-40e4-bd26-ac2bbfa9e6f4",
+      "health_record_id": "988b5227-e4df-4655-ad30-0a292a80f03a",
+      "expected_inline": [
+        "inline://attach-fix-20260212T130147Z-1-a",
+        "inline://attach-fix-20260212T130147Z-1-b"
+      ],
+      "actual_attachments": [
+        "inline://attach-fix-20260212T130147Z-1-a",
+        "inline://attach-fix-20260212T130147Z-1-b"
+      ],
+      "result": "PASS",
+      "statuses": {
+        "accept": 200,
+        "start": 200,
+        "complete": 200,
+        "health_records": 200
+      }
+    },
+    {
+      "iteration": 2,
+      "care_request_id": "1e815e6f-5e68-4d80-9abe-47a93d9c42f5",
+      "health_record_id": "e3cf299a-191c-4763-9a94-f0c0b582c608",
+      "expected_inline": [
+        "inline://attach-fix-20260212T130147Z-2-a",
+        "inline://attach-fix-20260212T130147Z-2-b"
+      ],
+      "actual_attachments": [
+        "inline://attach-fix-20260212T130147Z-2-a",
+        "inline://attach-fix-20260212T130147Z-2-b"
+      ],
+      "result": "PASS",
+      "statuses": {
+        "accept": 200,
+        "start": 200,
+        "complete": 200,
+        "health_records": 200
+      }
+    },
+    {
+      "iteration": 3,
+      "care_request_id": "961ca18d-bf15-40bd-9c53-46d9026ac1ae",
+      "health_record_id": "5f0c47b4-6769-4594-95e6-02841134e66b",
+      "expected_inline": [
+        "inline://attach-fix-20260212T130147Z-3-a",
+        "inline://attach-fix-20260212T130147Z-3-b"
+      ],
+      "actual_attachments": [
+        "inline://attach-fix-20260212T130147Z-3-a",
+        "inline://attach-fix-20260212T130147Z-3-b"
+      ],
+      "result": "PASS",
+      "statuses": {
+        "accept": 200,
+        "start": 200,
+        "complete": 200,
+        "health_records": 200
+      }
+    },
+    {
+      "iteration": 4,
+      "care_request_id": "d5ed639b-3d87-4523-a018-7a1e4b3df13c",
+      "health_record_id": "0c7df47c-46e7-4d9e-bd77-8ce1052a5cfe",
+      "expected_inline": [
+        "inline://attach-fix-20260212T130147Z-4-a",
+        "inline://attach-fix-20260212T130147Z-4-b"
+      ],
+      "actual_attachments": [
+        "inline://attach-fix-20260212T130147Z-4-a",
+        "inline://attach-fix-20260212T130147Z-4-b"
+      ],
+      "result": "PASS",
+      "statuses": {
+        "accept": 200,
+        "start": 200,
+        "complete": 200,
+        "health_records": 200
+      }
+    },
+    {
+      "iteration": 5,
+      "care_request_id": "1712b58d-cbc3-43c3-9999-74631e9a6e48",
+      "health_record_id": "6ff02435-f1df-4394-b419-c2d8a7e4a768",
+      "expected_inline": [
+        "inline://attach-fix-20260212T130147Z-5-a",
+        "inline://attach-fix-20260212T130147Z-5-b"
+      ],
+      "actual_attachments": [
+        "inline://attach-fix-20260212T130147Z-5-a",
+        "inline://attach-fix-20260212T130147Z-5-b"
+      ],
+      "result": "PASS",
+      "statuses": {
+        "accept": 200,
+        "start": 200,
+        "complete": 200,
+        "health_records": 200
+      }
+    },
+    {
+      "iteration": 6,
+      "care_request_id": "796111c7-b4a3-45ed-a1ab-683f1811c902",
+      "health_record_id": "97d64550-f364-474a-84f8-95ddaf339d3f",
+      "expected_inline": [
+        "inline://attach-fix-20260212T130147Z-6-a",
+        "inline://attach-fix-20260212T130147Z-6-b"
+      ],
+      "actual_attachments": [
+        "inline://attach-fix-20260212T130147Z-6-a",
+        "inline://attach-fix-20260212T130147Z-6-b"
+      ],
+      "result": "PASS",
+      "statuses": {
+        "accept": 200,
+        "start": 200,
+        "complete": 200,
+        "health_records": 200
+      }
+    },
+    {
+      "iteration": 7,
+      "care_request_id": "6a6d3327-4de0-4e9d-8b6b-0de04a8ed519",
+      "health_record_id": "cf697872-0301-48f4-8426-8be43ef27d88",
+      "expected_inline": [
+        "inline://attach-fix-20260212T130147Z-7-a",
+        "inline://attach-fix-20260212T130147Z-7-b"
+      ],
+      "actual_attachments": [
+        "inline://attach-fix-20260212T130147Z-7-a",
+        "inline://attach-fix-20260212T130147Z-7-b"
+      ],
+      "result": "PASS",
+      "statuses": {
+        "accept": 200,
+        "start": 200,
+        "complete": 200,
+        "health_records": 200
+      }
+    },
+    {
+      "iteration": 8,
+      "care_request_id": "fe555b6a-de37-498f-a351-6ca28c38c955",
+      "health_record_id": "f06f4bf7-88cb-4e5e-a73a-602aacf4fdb2",
+      "expected_inline": [
+        "inline://attach-fix-20260212T130147Z-8-a",
+        "inline://attach-fix-20260212T130147Z-8-b"
+      ],
+      "actual_attachments": [
+        "inline://attach-fix-20260212T130147Z-8-a",
+        "inline://attach-fix-20260212T130147Z-8-b"
+      ],
+      "result": "PASS",
+      "statuses": {
+        "accept": 200,
+        "start": 200,
+        "complete": 200,
+        "health_records": 200
+      }
+    },
+    {
+      "iteration": 9,
+      "care_request_id": "0f0af582-d29c-4f37-a4ff-e8da4f41df53",
+      "health_record_id": "340b8242-53ef-4515-ae8d-3685106eefc8",
+      "expected_inline": [
+        "inline://attach-fix-20260212T130147Z-9-a",
+        "inline://attach-fix-20260212T130147Z-9-b"
+      ],
+      "actual_attachments": [
+        "inline://attach-fix-20260212T130147Z-9-a",
+        "inline://attach-fix-20260212T130147Z-9-b"
+      ],
+      "result": "PASS",
+      "statuses": {
+        "accept": 200,
+        "start": 200,
+        "complete": 200,
+        "health_records": 200
+      }
+    },
+    {
+      "iteration": 10,
+      "care_request_id": "acc03be8-e83d-4805-a5e7-cac65e9d97ca",
+      "health_record_id": "89cd1226-937a-4f08-867d-26e2bf0f0f6b",
+      "expected_inline": [
+        "inline://attach-fix-20260212T130147Z-10-a",
+        "inline://attach-fix-20260212T130147Z-10-b"
+      ],
+      "actual_attachments": [
+        "inline://attach-fix-20260212T130147Z-10-a",
+        "inline://attach-fix-20260212T130147Z-10-b"
+      ],
+      "result": "PASS",
+      "statuses": {
+        "accept": 200,
+        "start": 200,
+        "complete": 200,
+        "health_records": 200
+      }
+    },
+    {
+      "iteration": 11,
+      "care_request_id": "63a3a3e5-b74a-4dc0-809a-6e418e621358",
+      "health_record_id": "bb3db35b-742e-44f1-b324-1da55faec6ed",
+      "expected_inline": [
+        "inline://attach-fix-20260212T130147Z-11-a",
+        "inline://attach-fix-20260212T130147Z-11-b"
+      ],
+      "actual_attachments": [
+        "inline://attach-fix-20260212T130147Z-11-a",
+        "inline://attach-fix-20260212T130147Z-11-b"
+      ],
+      "result": "PASS",
+      "statuses": {
+        "accept": 200,
+        "start": 200,
+        "complete": 200,
+        "health_records": 200
+      }
+    }
+  ]
+}

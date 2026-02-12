@@ -1,0 +1,85 @@
+INFO:     Started server process [107685]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://127.0.0.1:8001 (Press CTRL+C to quit)
+INFO:     127.0.0.1:53858 - "GET /api/health HTTP/1.1" 200 OK
+/root/.openclaw/workspace/petsy_dashboard/backend/.venv/lib/python3.12/site-packages/jwt/api_jwt.py:153: InsecureKeyLengthWarning: The HMAC key is 21 bytes long, which is below the minimum recommended length of 32 bytes for SHA256. See RFC 7518 Section 3.2.
+  return self._jws.encode(
+INFO:     127.0.0.1:53860 - "POST /api/auth/login HTTP/1.1" 200 OK
+2026-02-12 13:01:48,320 - backend.server - INFO - User registered: beta.attach.fix.1770901308@example.com, verification code: 3302
+INFO:     127.0.0.1:53874 - "POST /api/auth/signup HTTP/1.1" 200 OK
+/root/.openclaw/workspace/petsy_dashboard/backend/.venv/lib/python3.12/site-packages/jwt/api_jwt.py:371: InsecureKeyLengthWarning: The HMAC key is 21 bytes long, which is below the minimum recommended length of 32 bytes for SHA256. See RFC 7518 Section 3.2.
+  decoded = self.decode_complete(
+INFO:     127.0.0.1:53888 - "POST /api/pets HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53898 - "POST /api/care-requests HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53904 - "POST /api/medical-attachments/upload?care_request_id=18ef11e2-0593-4b4c-bc97-29c60e48e0e9 HTTP/1.1" 422 Unprocessable Entity
+INFO:     127.0.0.1:53916 - "PUT /api/vet/care-requests/18ef11e2-0593-4b4c-bc97-29c60e48e0e9 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53918 - "PUT /api/vet/care-requests/18ef11e2-0593-4b4c-bc97-29c60e48e0e9 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53922 - "PUT /api/vet/care-requests/18ef11e2-0593-4b4c-bc97-29c60e48e0e9 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53926 - "GET /api/health-records/1918dd1c-6b34-4037-9698-07fc1eb23477 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53934 - "POST /api/care-requests HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53946 - "POST /api/medical-attachments/upload?care_request_id=8f9a27e9-b1ed-40e4-bd26-ac2bbfa9e6f4 HTTP/1.1" 422 Unprocessable Entity
+INFO:     127.0.0.1:53950 - "PUT /api/vet/care-requests/8f9a27e9-b1ed-40e4-bd26-ac2bbfa9e6f4 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53954 - "PUT /api/vet/care-requests/8f9a27e9-b1ed-40e4-bd26-ac2bbfa9e6f4 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53962 - "PUT /api/vet/care-requests/8f9a27e9-b1ed-40e4-bd26-ac2bbfa9e6f4 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53964 - "GET /api/health-records/1918dd1c-6b34-4037-9698-07fc1eb23477 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53978 - "POST /api/care-requests HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53984 - "POST /api/medical-attachments/upload?care_request_id=1e815e6f-5e68-4d80-9abe-47a93d9c42f5 HTTP/1.1" 422 Unprocessable Entity
+INFO:     127.0.0.1:53998 - "PUT /api/vet/care-requests/1e815e6f-5e68-4d80-9abe-47a93d9c42f5 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54010 - "PUT /api/vet/care-requests/1e815e6f-5e68-4d80-9abe-47a93d9c42f5 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54026 - "PUT /api/vet/care-requests/1e815e6f-5e68-4d80-9abe-47a93d9c42f5 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54040 - "GET /api/health-records/1918dd1c-6b34-4037-9698-07fc1eb23477 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54054 - "POST /api/care-requests HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54058 - "POST /api/medical-attachments/upload?care_request_id=961ca18d-bf15-40bd-9c53-46d9026ac1ae HTTP/1.1" 422 Unprocessable Entity
+INFO:     127.0.0.1:54068 - "PUT /api/vet/care-requests/961ca18d-bf15-40bd-9c53-46d9026ac1ae HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54082 - "PUT /api/vet/care-requests/961ca18d-bf15-40bd-9c53-46d9026ac1ae HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54086 - "PUT /api/vet/care-requests/961ca18d-bf15-40bd-9c53-46d9026ac1ae HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54098 - "GET /api/health-records/1918dd1c-6b34-4037-9698-07fc1eb23477 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54112 - "POST /api/care-requests HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54120 - "POST /api/medical-attachments/upload?care_request_id=d5ed639b-3d87-4523-a018-7a1e4b3df13c HTTP/1.1" 422 Unprocessable Entity
+INFO:     127.0.0.1:54132 - "PUT /api/vet/care-requests/d5ed639b-3d87-4523-a018-7a1e4b3df13c HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54144 - "PUT /api/vet/care-requests/d5ed639b-3d87-4523-a018-7a1e4b3df13c HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54148 - "PUT /api/vet/care-requests/d5ed639b-3d87-4523-a018-7a1e4b3df13c HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54150 - "GET /api/health-records/1918dd1c-6b34-4037-9698-07fc1eb23477 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54164 - "POST /api/care-requests HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54174 - "POST /api/medical-attachments/upload?care_request_id=1712b58d-cbc3-43c3-9999-74631e9a6e48 HTTP/1.1" 422 Unprocessable Entity
+INFO:     127.0.0.1:54186 - "PUT /api/vet/care-requests/1712b58d-cbc3-43c3-9999-74631e9a6e48 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54188 - "PUT /api/vet/care-requests/1712b58d-cbc3-43c3-9999-74631e9a6e48 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54196 - "PUT /api/vet/care-requests/1712b58d-cbc3-43c3-9999-74631e9a6e48 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54210 - "GET /api/health-records/1918dd1c-6b34-4037-9698-07fc1eb23477 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54214 - "POST /api/care-requests HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54220 - "POST /api/medical-attachments/upload?care_request_id=796111c7-b4a3-45ed-a1ab-683f1811c902 HTTP/1.1" 422 Unprocessable Entity
+INFO:     127.0.0.1:54228 - "PUT /api/vet/care-requests/796111c7-b4a3-45ed-a1ab-683f1811c902 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54236 - "PUT /api/vet/care-requests/796111c7-b4a3-45ed-a1ab-683f1811c902 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54242 - "PUT /api/vet/care-requests/796111c7-b4a3-45ed-a1ab-683f1811c902 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54258 - "GET /api/health-records/1918dd1c-6b34-4037-9698-07fc1eb23477 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54260 - "POST /api/care-requests HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54264 - "POST /api/medical-attachments/upload?care_request_id=6a6d3327-4de0-4e9d-8b6b-0de04a8ed519 HTTP/1.1" 422 Unprocessable Entity
+INFO:     127.0.0.1:54276 - "PUT /api/vet/care-requests/6a6d3327-4de0-4e9d-8b6b-0de04a8ed519 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54288 - "PUT /api/vet/care-requests/6a6d3327-4de0-4e9d-8b6b-0de04a8ed519 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54290 - "PUT /api/vet/care-requests/6a6d3327-4de0-4e9d-8b6b-0de04a8ed519 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54304 - "GET /api/health-records/1918dd1c-6b34-4037-9698-07fc1eb23477 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54314 - "POST /api/care-requests HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54316 - "POST /api/medical-attachments/upload?care_request_id=fe555b6a-de37-498f-a351-6ca28c38c955 HTTP/1.1" 422 Unprocessable Entity
+INFO:     127.0.0.1:54318 - "PUT /api/vet/care-requests/fe555b6a-de37-498f-a351-6ca28c38c955 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54324 - "PUT /api/vet/care-requests/fe555b6a-de37-498f-a351-6ca28c38c955 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54326 - "PUT /api/vet/care-requests/fe555b6a-de37-498f-a351-6ca28c38c955 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54342 - "GET /api/health-records/1918dd1c-6b34-4037-9698-07fc1eb23477 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54344 - "POST /api/care-requests HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54346 - "POST /api/medical-attachments/upload?care_request_id=0f0af582-d29c-4f37-a4ff-e8da4f41df53 HTTP/1.1" 422 Unprocessable Entity
+INFO:     127.0.0.1:54362 - "PUT /api/vet/care-requests/0f0af582-d29c-4f37-a4ff-e8da4f41df53 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54376 - "PUT /api/vet/care-requests/0f0af582-d29c-4f37-a4ff-e8da4f41df53 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54380 - "PUT /api/vet/care-requests/0f0af582-d29c-4f37-a4ff-e8da4f41df53 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54390 - "GET /api/health-records/1918dd1c-6b34-4037-9698-07fc1eb23477 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54392 - "POST /api/care-requests HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54406 - "POST /api/medical-attachments/upload?care_request_id=acc03be8-e83d-4805-a5e7-cac65e9d97ca HTTP/1.1" 422 Unprocessable Entity
+INFO:     127.0.0.1:54420 - "PUT /api/vet/care-requests/acc03be8-e83d-4805-a5e7-cac65e9d97ca HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54426 - "PUT /api/vet/care-requests/acc03be8-e83d-4805-a5e7-cac65e9d97ca HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54436 - "PUT /api/vet/care-requests/acc03be8-e83d-4805-a5e7-cac65e9d97ca HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54440 - "GET /api/health-records/1918dd1c-6b34-4037-9698-07fc1eb23477 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54452 - "POST /api/care-requests HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54460 - "POST /api/medical-attachments/upload?care_request_id=63a3a3e5-b74a-4dc0-809a-6e418e621358 HTTP/1.1" 422 Unprocessable Entity
+INFO:     127.0.0.1:54468 - "PUT /api/vet/care-requests/63a3a3e5-b74a-4dc0-809a-6e418e621358 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54480 - "PUT /api/vet/care-requests/63a3a3e5-b74a-4dc0-809a-6e418e621358 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54492 - "PUT /api/vet/care-requests/63a3a3e5-b74a-4dc0-809a-6e418e621358 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54508 - "GET /api/health-records/1918dd1c-6b34-4037-9698-07fc1eb23477 HTTP/1.1" 200 OK
