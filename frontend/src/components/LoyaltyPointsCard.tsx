@@ -147,7 +147,7 @@ export const LoyaltyPointsCard: React.FC<LoyaltyPointsCardProps> = ({
             <View style={styles.discountPreview}>
               <Ionicons name="checkmark-circle" size={20} color={Colors.success} />
               <Text style={styles.discountText}>
-                You'll save <Text style={styles.discountAmount}>${discount.toFixed(2)}</Text>
+                You&apos;ll save <Text style={styles.discountAmount}>${discount.toFixed(2)}</Text>
               </Text>
             </View>
           )}
@@ -189,7 +189,7 @@ export const LoyaltyPointsCard: React.FC<LoyaltyPointsCardProps> = ({
         <View style={styles.noPointsMessage}>
           <Ionicons name="information-circle" size={20} color={Colors.textSecondary} />
           <Text style={styles.noPointsText}>
-            You don't have any points yet. Complete purchases to earn points!
+            You don&apos;t have any points yet. Complete purchases to earn points!
           </Text>
         </View>
       )}

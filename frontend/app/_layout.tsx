@@ -2,7 +2,6 @@ import React, { useEffect } from 'react';
 import { Stack, useRouter, useSegments } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { I18nManager, Platform } from 'react-native';
-import * as Updates from 'expo-updates';
 import { useStore } from '../src/store/useStore';
 import { Colors } from '../src/constants/theme';
 

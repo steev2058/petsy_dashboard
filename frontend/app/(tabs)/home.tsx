@@ -157,7 +157,7 @@ export default function HomeScreen() {
           />
           <View style={styles.heroOverlay}>
             <Text style={styles.heroTitle}>Find Your Perfect Companion</Text>
-            <Text style={styles.heroSubtitle}>Adopt, don't shop!</Text>
+            <Text style={styles.heroSubtitle}>Adopt, don&apos;t shop!</Text>
             <TouchableOpacity 
               style={styles.heroButton}
               onPress={() => router.push('/(tabs)/adoption')}

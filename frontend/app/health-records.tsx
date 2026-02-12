@@ -281,7 +281,7 @@ export default function HealthRecordsScreen() {
               <Ionicons name="document-text" size={48} color={Colors.white} />
             </View>
             <Text style={styles.emptyTitle}>No Records Yet</Text>
-            <Text style={styles.emptyText}>Start tracking your pet's health by adding records</Text>
+            <Text style={styles.emptyText}>Start tracking your pet&apos;s health by adding records</Text>
           </View>
         }
       />

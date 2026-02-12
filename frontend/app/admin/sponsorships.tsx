@@ -60,7 +60,7 @@ export default function AdminSponsorshipsScreen() {
       <View style={styles.info}>
         <Text style={styles.petName}>{item.pet_name || 'Unknown Pet'}</Text>
         <Text style={styles.sponsor}>{item.is_anonymous ? 'Anonymous' : item.user_name}</Text>
-        {item.message && <Text style={styles.message} numberOfLines={1}>"{item.message}"</Text>}
+        {item.message && <Text style={styles.message} numberOfLines={1}>&ldquo;{item.message}&rdquo;</Text>}
         <Text style={styles.date}>{new Date(item.created_at).toLocaleDateString()}</Text>
       </View>
       <Text style={styles.amount}>${item.amount?.toFixed(2)}</Text>

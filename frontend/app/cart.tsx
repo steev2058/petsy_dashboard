@@ -155,7 +155,7 @@ export default function CartScreen() {
           </View>
           <Text style={styles.emptyTitle}>Your bag is empty</Text>
           <Text style={styles.emptyText}>
-            Looks like you haven't added any products yet.
+            Looks like you haven&apos;t added any products yet.
             Start shopping to fill your bag with premium pet supplies!
           </Text>
           <TouchableOpacity
