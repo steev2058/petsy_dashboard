@@ -21,7 +21,8 @@ import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import Animated, { FadeInDown, FadeInUp } from 'react-native-reanimated';
 import { Colors, FontSize, Spacing, BorderRadius, Shadow } from '../src/constants/theme';
-import { healthAPI, petsAPI } from '../src/services/api';
+import * as ImagePicker from 'expo-image-picker';
+import { healthAPI, petsAPI, careAPI } from '../src/services/api';
 import { useStore } from '../src/store/useStore';
 import { useTranslation } from '../src/hooks/useTranslation';
 
@@ -44,6 +45,18 @@ interface HealthRecord {
   clinic_name?: string;
   next_due_date?: string;
   notes?: string;
+  attachments?: string[];
+}
+
+interface FollowUpForm {
+  title: string;
+  description: string;
+  location: string;
+  priority: 'low' | 'normal' | 'high';
+  follow_up_context: string;
+  follow_up_due_date: string;
+  reminder_enabled: boolean;
+  attachments: string[];
 }
 
 export default function HealthRecordsScreen() {
@@ -58,6 +71,9 @@ export default function HealthRecordsScreen() {
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [showAddModal, setShowAddModal] = useState(false);
+  const [showFollowUpModal, setShowFollowUpModal] = useState(false);
+  const [savingFollowUp, setSavingFollowUp] = useState(false);
+  const [uploadingAttachment, setUploadingAttachment] = useState(false);
   const [selectedType, setSelectedType] = useState('vaccination');
   const [formData, setFormData] = useState({
     title: '',
@@ -67,6 +83,17 @@ export default function HealthRecordsScreen() {
     clinic_name: '',
     next_due_date: '',
     notes: '',
+  });
+
+  const [followUpForm, setFollowUpForm] = useState<FollowUpForm>({
+    title: 'Follow-up medical review',
+    description: '',
+    location: '',
+    priority: 'normal',
+    follow_up_context: '',
+    follow_up_due_date: '',
+    reminder_enabled: true,
+    attachments: [],
   });
 
   const currentPet = petsList.find(p => p.id === selectedPetId);
@@ -153,6 +180,75 @@ export default function HealthRecordsScreen() {
     return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
   };
 
+  const addFollowUpAttachment = async () => {
+    try {
+      setUploadingAttachment(true);
+      const result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        allowsEditing: false,
+        quality: 0.4,
+        base64: true,
+      });
+      if (result.canceled || !result.assets?.length) return;
+      const asset = result.assets[0];
+      if (!asset.base64) {
+        Alert.alert('Upload failed', 'Could not read file. Please try another image.');
+        return;
+      }
+      const mime = asset.mimeType || 'image/jpeg';
+      const dataUrl = `data:${mime};base64,${asset.base64}`;
+      setFollowUpForm((prev) => ({ ...prev, attachments: [...prev.attachments, dataUrl].slice(0, 4) }));
+    } catch (e: any) {
+      Alert.alert('Upload failed', e?.message || 'Attachment upload is not available on this device.');
+    } finally {
+      setUploadingAttachment(false);
+    }
+  };
+
+  const submitFollowUpRequest = async () => {
+    if (!selectedPetId) {
+      Alert.alert('No pet selected', 'Please select a pet first');
+      return;
+    }
+    if (!followUpForm.description.trim()) {
+      Alert.alert('Missing details', 'Please describe symptoms or what follow-up is needed.');
+      return;
+    }
+    if (followUpForm.reminder_enabled && !followUpForm.follow_up_due_date.trim()) {
+      Alert.alert('Reminder date required', 'Set a follow-up due date to enable reminder.');
+      return;
+    }
+    try {
+      setSavingFollowUp(true);
+      await careAPI.createRequest({
+        pet_id: selectedPetId,
+        title: followUpForm.title || 'Follow-up medical review',
+        description: followUpForm.description,
+        location: followUpForm.location,
+        priority: followUpForm.priority,
+        follow_up_context: followUpForm.follow_up_context,
+        follow_up_due_date: followUpForm.follow_up_due_date || undefined,
+        reminder_enabled: followUpForm.reminder_enabled,
+        attachments: followUpForm.attachments,
+      });
+      setShowFollowUpModal(false);
+      setFollowUpForm({
+        title: 'Follow-up medical review',
+        description: '',
+        location: '',
+        priority: 'normal',
+        follow_up_context: '',
+        follow_up_due_date: '',
+        reminder_enabled: true,
+        attachments: [],
+      });
+      Alert.alert('Submitted', 'Your follow-up request is now visible to clinic/vet team.');
+    } catch (error: any) {
+      Alert.alert('Failed to submit', error?.response?.data?.detail || 'Please try again in a moment.');
+    } finally {
+      setSavingFollowUp(false);
+    }
+  };
 
   if (loading) {
     return (
@@ -185,6 +281,11 @@ export default function HealthRecordsScreen() {
                 <Ionicons name="person" size={12} /> {item.vet_name}
               </Text>
             )}
+            {!!item.attachments?.length && (
+              <Text style={styles.recordAttachmentText}>
+                <Ionicons name="attach" size={12} /> {item.attachments.length} attachment(s)
+              </Text>
+            )}
             {item.next_due_date && (
               <View style={styles.nextDueBadge}>
                 <Ionicons name="calendar" size={12} color={Colors.warning} />
@@ -210,17 +311,25 @@ export default function HealthRecordsScreen() {
           <Text style={styles.title}>Health Records</Text>
           {currentPet && <Text style={styles.subtitle}>{currentPet.name}</Text>}
         </View>
-        <TouchableOpacity
-          style={styles.addButton}
-          onPress={() => setShowAddModal(true)}
-        >
-          <LinearGradient
-            colors={[Colors.primary, Colors.primaryDark]}
-            style={styles.addButtonGradient}
+        <View style={styles.headerActions}>
+          <TouchableOpacity
+            style={styles.followUpButton}
+            onPress={() => setShowFollowUpModal(true)}
           >
-            <Ionicons name="add" size={24} color={Colors.white} />
-          </LinearGradient>
-        </TouchableOpacity>
+            <Ionicons name="paper-plane" size={18} color={Colors.primary} />
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.addButton}
+            onPress={() => setShowAddModal(true)}
+          >
+            <LinearGradient
+              colors={[Colors.primary, Colors.primaryDark]}
+              style={styles.addButtonGradient}
+            >
+              <Ionicons name="add" size={24} color={Colors.white} />
+            </LinearGradient>
+          </TouchableOpacity>
+        </View>
       </View>
 
       {/* Pet selector */}
@@ -285,6 +394,85 @@ export default function HealthRecordsScreen() {
           </View>
         }
       />
+
+      {/* Follow-up Request Modal */}
+      <Modal visible={showFollowUpModal} animationType="slide" transparent>
+        <View style={styles.modalOverlay}>
+          <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={styles.modalContainer}>
+            <View style={styles.modalContent}>
+              <View style={styles.modalHandle} />
+              <Text style={styles.modalTitle}>Request Vet Follow-up</Text>
+              <Text style={styles.followUpHint}>Share symptoms, attach photos, and set a reminder. Vet/clinic team will see this context.</Text>
+
+              <ScrollView showsVerticalScrollIndicator={false}>
+                <TextInput
+                  style={styles.input}
+                  placeholder="Short title"
+                  placeholderTextColor={Colors.textLight}
+                  value={followUpForm.title}
+                  onChangeText={(text) => setFollowUpForm((prev) => ({ ...prev, title: text }))}
+                />
+                <TextInput
+                  style={[styles.input, styles.textArea]}
+                  placeholder="Symptoms or concern *"
+                  placeholderTextColor={Colors.textLight}
+                  multiline
+                  value={followUpForm.description}
+                  onChangeText={(text) => setFollowUpForm((prev) => ({ ...prev, description: text }))}
+                />
+                <TextInput
+                  style={[styles.input, styles.textArea]}
+                  placeholder="Follow-up context (what changed since last visit)"
+                  placeholderTextColor={Colors.textLight}
+                  multiline
+                  value={followUpForm.follow_up_context}
+                  onChangeText={(text) => setFollowUpForm((prev) => ({ ...prev, follow_up_context: text }))}
+                />
+                <TextInput
+                  style={styles.input}
+                  placeholder="Location (optional)"
+                  placeholderTextColor={Colors.textLight}
+                  value={followUpForm.location}
+                  onChangeText={(text) => setFollowUpForm((prev) => ({ ...prev, location: text }))}
+                />
+                <TextInput
+                  style={styles.input}
+                  placeholder="Follow-up due date YYYY-MM-DD"
+                  placeholderTextColor={Colors.textLight}
+                  value={followUpForm.follow_up_due_date}
+                  onChangeText={(text) => setFollowUpForm((prev) => ({ ...prev, follow_up_due_date: text }))}
+                />
+
+                <View style={styles.attachmentHeader}>
+                  <Text style={styles.attachmentTitle}>Medical Attachments ({followUpForm.attachments.length}/4)</Text>
+                  <TouchableOpacity style={styles.attachmentBtn} disabled={uploadingAttachment || followUpForm.attachments.length >= 4} onPress={addFollowUpAttachment}>
+                    {uploadingAttachment ? <ActivityIndicator size="small" color={Colors.primary} /> : <Text style={styles.attachmentBtnText}>Upload image</Text>}
+                  </TouchableOpacity>
+                </View>
+                {followUpForm.attachments.map((_, idx) => (
+                  <View key={`${idx}`} style={styles.attachmentRow}>
+                    <Text style={styles.attachmentRowText}>Attachment #{idx + 1}</Text>
+                    <TouchableOpacity onPress={() => setFollowUpForm((prev) => ({ ...prev, attachments: prev.attachments.filter((__, i) => i !== idx) }))}>
+                      <Ionicons name="close-circle" size={18} color={Colors.error} />
+                    </TouchableOpacity>
+                  </View>
+                ))}
+              </ScrollView>
+
+              <View style={styles.modalActions}>
+                <TouchableOpacity style={styles.cancelButton} onPress={() => setShowFollowUpModal(false)} disabled={savingFollowUp}>
+                  <Text style={styles.cancelButtonText}>Cancel</Text>
+                </TouchableOpacity>
+                <TouchableOpacity style={styles.saveButton} onPress={submitFollowUpRequest} disabled={savingFollowUp}>
+                  <LinearGradient colors={[Colors.primary, Colors.primaryDark]} style={styles.saveButtonGradient}>
+                    {savingFollowUp ? <ActivityIndicator size="small" color={Colors.white} /> : <Text style={styles.saveButtonText}>Send to Vet</Text>}
+                  </LinearGradient>
+                </TouchableOpacity>
+              </View>
+            </View>
+          </KeyboardAvoidingView>
+        </View>
+      </Modal>
 
       {/* Add Record Modal */}
       <Modal visible={showAddModal} animationType="slide" transparent>
@@ -428,6 +616,19 @@ const styles = StyleSheet.create({
     fontSize: FontSize.sm,
     color: Colors.textSecondary,
   },
+  headerActions: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.sm,
+  },
+  followUpButton: {
+    width: 40,
+    height: 40,
+    borderRadius: 12,
+    backgroundColor: Colors.primary + '15',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
   addButton: {
     borderRadius: 12,
     overflow: 'hidden',
@@ -568,6 +769,11 @@ const styles = StyleSheet.create({
     color: Colors.textSecondary,
     marginTop: 4,
   },
+  recordAttachmentText: {
+    fontSize: FontSize.xs,
+    color: Colors.textSecondary,
+    marginTop: 4,
+  },
   nextDueBadge: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -636,6 +842,11 @@ const styles = StyleSheet.create({
     fontSize: FontSize.xl,
     fontWeight: '700',
     color: Colors.text,
+    marginBottom: Spacing.sm,
+  },
+  followUpHint: {
+    fontSize: FontSize.sm,
+    color: Colors.textSecondary,
     marginBottom: Spacing.md,
   },
   typeSelector: {
@@ -668,6 +879,42 @@ const styles = StyleSheet.create({
   textArea: {
     minHeight: 80,
     textAlignVertical: 'top',
+  },
+  attachmentHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: Spacing.sm,
+  },
+  attachmentTitle: {
+    color: Colors.text,
+    fontSize: FontSize.sm,
+    fontWeight: '600',
+  },
+  attachmentBtn: {
+    backgroundColor: Colors.primary + '15',
+    borderRadius: BorderRadius.md,
+    paddingHorizontal: Spacing.sm,
+    paddingVertical: 6,
+  },
+  attachmentBtnText: {
+    color: Colors.primary,
+    fontSize: FontSize.xs,
+    fontWeight: '700',
+  },
+  attachmentRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    backgroundColor: Colors.backgroundDark,
+    borderRadius: BorderRadius.md,
+    paddingHorizontal: Spacing.sm,
+    paddingVertical: 8,
+    marginBottom: Spacing.xs,
+  },
+  attachmentRowText: {
+    color: Colors.text,
+    fontSize: FontSize.sm,
   },
   modalActions: {
     flexDirection: 'row',

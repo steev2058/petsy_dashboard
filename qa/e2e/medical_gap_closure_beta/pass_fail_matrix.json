@@ -1,0 +1,38 @@
+[
+  {
+    "check": "3-pet user setup",
+    "result": "PASS"
+  },
+  {
+    "check": "User can create follow-up care request with attachments",
+    "result": "PASS"
+  },
+  {
+    "check": "Vet queue sees attachments + follow-up context",
+    "result": "PASS"
+  },
+  {
+    "check": "Reminder/follow-up fields persisted",
+    "result": "PASS"
+  },
+  {
+    "check": "Vet complete flow succeeds",
+    "result": "PASS"
+  },
+  {
+    "check": "Health record receives attachment continuity",
+    "result": "FAIL"
+  },
+  {
+    "check": "Timeline reflects lifecycle",
+    "result": "PASS"
+  },
+  {
+    "check": "Notifications include care/reminder updates",
+    "result": "PASS"
+  },
+  {
+    "check": "Permission UX backend guard (other user denied timeline)",
+    "result": "PASS"
+  }
+]

@@ -1,0 +1,995 @@
+{
+  "run_id": "20260212T125032Z",
+  "base": "http://127.0.0.1:8001/api",
+  "marker": "medical-gap-close-20260212T125032Z",
+  "users": {
+    "beta_user": {
+      "id": "cd635635-5146-4845-a47a-b7f04893fe67",
+      "email": "beta.med.gap.1770900632@example.com"
+    },
+    "vet": {
+      "id": "1382dcc7-3cd5-4be2-b4e9-8bad76a7d864",
+      "email": "demo.vet@petsy.com"
+    },
+    "other_user_id": "3b0eb3a9-cee4-483b-ad15-88e197a1411a"
+  },
+  "pet_ids": [
+    "616b96bb-6d26-4001-9d50-82921db7c2c7",
+    "6a220fb0-aa57-4c46-a8e0-b6cc0b3ba3de",
+    "04779224-ebdd-4f4c-8812-94facc97b2d0"
+  ],
+  "care_request_id": "598cf8e2-7875-4379-8685-ec411c22d5a4",
+  "matrix": [
+    {
+      "check": "3-pet user setup",
+      "result": "PASS"
+    },
+    {
+      "check": "User can create follow-up care request with attachments",
+      "result": "PASS"
+    },
+    {
+      "check": "Vet queue sees attachments + follow-up context",
+      "result": "PASS"
+    },
+    {
+      "check": "Reminder/follow-up fields persisted",
+      "result": "PASS"
+    },
+    {
+      "check": "Vet complete flow succeeds",
+      "result": "PASS"
+    },
+    {
+      "check": "Health record receives attachment continuity",
+      "result": "FAIL"
+    },
+    {
+      "check": "Timeline reflects lifecycle",
+      "result": "PASS"
+    },
+    {
+      "check": "Notifications include care/reminder updates",
+      "result": "PASS"
+    },
+    {
+      "check": "Permission UX backend guard (other user denied timeline)",
+      "result": "PASS"
+    }
+  ],
+  "blockers": [
+    "Health record receives attachment continuity"
+  ],
+  "steps": [
+    {
+      "ts": "2026-02-12T12:50:32.428866+00:00",
+      "method": "POST",
+      "path": "/auth/login",
+      "status": 200,
+      "request": {
+        "email": "demo.vet@petsy.com",
+        "password": "***"
+      },
+      "response": {
+        "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMzgyZGNjNy0zY2Q1LTRiZTItYjRlOS04YmFkNzZhN2Q4NjQiLCJleHAiOjE3NzM0OTI2MzJ9.pPCmoNSzwm9uf9NDllu82VFXFUCDn9qUmr_Y9BHyMO0",
+        "token_type": "bearer",
+        "user": {
+          "id": "1382dcc7-3cd5-4be2-b4e9-8bad76a7d864",
+          "email": "demo.vet@petsy.com",
+          "name": "Demo Vet",
+          "username": "demo.vet",
+          "user_code": "PET-A7D864",
+          "phone": null,
+          "city": null,
+          "bio": null,
+          "avatar": null,
+          "language": "ar",
+          "is_verified": true,
+          "is_admin": false,
+          "role": "vet",
+          "created_at": "2026-02-12T11:45:53.977000"
+        }
+      }
+    },
+    {
+      "ts": "2026-02-12T12:50:33.815156+00:00",
+      "method": "POST",
+      "path": "/auth/signup",
+      "status": 200,
+      "request": {
+        "email": "beta.med.gap.1770900632@example.com",
+        "password": "***"
+      },
+      "response": {
+        "message": "User created. Verification code sent to email.",
+        "user_id": "cd635635-5146-4845-a47a-b7f04893fe67"
+      }
+    },
+    {
+      "ts": "2026-02-12T12:50:33.820691+00:00",
+      "method": "POST",
+      "path": "/pets",
+      "status": 200,
+      "request": {
+        "name": "Milo"
+      },
+      "response": {
+        "name": "Milo-032Z",
+        "species": "dog",
+        "breed": null,
+        "age": null,
+        "gender": "male",
+        "color": null,
+        "weight": null,
+        "description": "medical-gap-close-20260212T125032Z-pet-1",
+        "image": null,
+        "status": "owned",
+        "price": null,
+        "location": "Amman",
+        "vaccinated": false,
+        "neutered": false,
+        "id": "616b96bb-6d26-4001-9d50-82921db7c2c7",
+        "owner_id": "cd635635-5146-4845-a47a-b7f04893fe67",
+        "created_at": "2026-02-12T12:50:33.819069",
+        "likes": 0,
+        "views": 0
+      }
+    },
+    {
+      "ts": "2026-02-12T12:50:33.825243+00:00",
+      "method": "POST",
+      "path": "/pets",
+      "status": 200,
+      "request": {
+        "name": "Luna"
+      },
+      "response": {
+        "name": "Luna-032Z",
+        "species": "dog",
+        "breed": null,
+        "age": null,
+        "gender": "male",
+        "color": null,
+        "weight": null,
+        "description": "medical-gap-close-20260212T125032Z-pet-2",
+        "image": null,
+        "status": "owned",
+        "price": null,
+        "location": "Amman",
+        "vaccinated": false,
+        "neutered": false,
+        "id": "6a220fb0-aa57-4c46-a8e0-b6cc0b3ba3de",
+        "owner_id": "cd635635-5146-4845-a47a-b7f04893fe67",
+        "created_at": "2026-02-12T12:50:33.823687",
+        "likes": 0,
+        "views": 0
+      }
+    },
+    {
+      "ts": "2026-02-12T12:50:33.828609+00:00",
+      "method": "POST",
+      "path": "/pets",
+      "status": 200,
+      "request": {
+        "name": "Kiwi"
+      },
+      "response": {
+        "name": "Kiwi-032Z",
+        "species": "cat",
+        "breed": null,
+        "age": null,
+        "gender": "male",
+        "color": null,
+        "weight": null,
+        "description": "medical-gap-close-20260212T125032Z-pet-3",
+        "image": null,
+        "status": "owned",
+        "price": null,
+        "location": "Amman",
+        "vaccinated": false,
+        "neutered": false,
+        "id": "04779224-ebdd-4f4c-8812-94facc97b2d0",
+        "owner_id": "cd635635-5146-4845-a47a-b7f04893fe67",
+        "created_at": "2026-02-12T12:50:33.827268",
+        "likes": 0,
+        "views": 0
+      }
+    },
+    {
+      "ts": "2026-02-12T12:50:33.831923+00:00",
+      "method": "GET",
+      "path": "/pets/my",
+      "status": 200,
+      "request": null,
+      "response": [
+        {
+          "name": "Milo-032Z",
+          "species": "dog",
+          "breed": null,
+          "age": null,
+          "gender": "male",
+          "color": null,
+          "weight": null,
+          "description": "medical-gap-close-20260212T125032Z-pet-1",
+          "image": null,
+          "status": "owned",
+          "price": null,
+          "location": "Amman",
+          "vaccinated": false,
+          "neutered": false,
+          "id": "616b96bb-6d26-4001-9d50-82921db7c2c7",
+          "owner_id": "cd635635-5146-4845-a47a-b7f04893fe67",
+          "created_at": "2026-02-12T12:50:33.819000",
+          "likes": 0,
+          "views": 0
+        },
+        {
+          "name": "Luna-032Z",
+          "species": "dog",
+          "breed": null,
+          "age": null,
+          "gender": "male",
+          "color": null,
+          "weight": null,
+          "description": "medical-gap-close-20260212T125032Z-pet-2",
+          "image": null,
+          "status": "owned",
+          "price": null,
+          "location": "Amman",
+          "vaccinated": false,
+          "neutered": false,
+          "id": "6a220fb0-aa57-4c46-a8e0-b6cc0b3ba3de",
+          "owner_id": "cd635635-5146-4845-a47a-b7f04893fe67",
+          "created_at": "2026-02-12T12:50:33.823000",
+          "likes": 0,
+          "views": 0
+        },
+        {
+          "name": "Kiwi-032Z",
+          "species": "cat",
+          "breed": null,
+          "age": null,
+          "gender": "male",
+          "color": null,
+          "weight": null,
+          "description": "medical-gap-close-20260212T125032Z-pet-3",
+          "image": null,
+          "status": "owned",
+          "price": null,
+          "location": "Amman",
+          "vaccinated": false,
+          "neutered": false,
+          "id": "04779224-ebdd-4f4c-8812-94facc97b2d0",
+          "owner_id": "cd635635-5146-4845-a47a-b7f04893fe67",
+          "created_at": "2026-02-12T12:50:33.827000",
+          "likes": 0,
+          "views": 0
+        }
+      ]
+    },
+    {
+      "ts": "2026-02-12T12:50:33.842500+00:00",
+      "method": "POST",
+      "path": "/care-requests",
+      "status": 200,
+      "request": {
+        "pet_id": "616b96bb-6d26-4001-9d50-82921db7c2c7",
+        "attachments": 2
+      },
+      "response": {
+        "id": "598cf8e2-7875-4379-8685-ec411c22d5a4",
+        "pet_id": "616b96bb-6d26-4001-9d50-82921db7c2c7",
+        "title": "Follow-up review medical-gap-close-20260212T125032Z",
+        "description": "Pet still coughing after meds.",
+        "location": "Amman",
+        "priority": "high",
+        "status": "pending",
+        "requested_by": "cd635635-5146-4845-a47a-b7f04893fe67",
+        "requested_by_name": "Beta Med Gap",
+        "assigned_vet_id": null,
+        "assigned_clinic_id": null,
+        "attachments": [
+          "data:image/jpeg;base64,ZmFrZS1hdHRhY2gtMQ==",
+          "data:image/jpeg;base64,ZmFrZS1hdHRhY2gtMg=="
+        ],
+        "follow_up_context": "Symptoms improved for 2 days then returned.",
+        "follow_up_due_date": "2026-02-19",
+        "reminder_enabled": true,
+        "created_at": "2026-02-12T12:50:33.834532",
+        "updated_at": "2026-02-12T12:50:33.834532"
+      }
+    },
+    {
+      "ts": "2026-02-12T12:50:33.848197+00:00",
+      "method": "GET",
+      "path": "/vet/care-requests",
+      "status": 200,
+      "request": null,
+      "response": [
+        {
+          "id": "598cf8e2-7875-4379-8685-ec411c22d5a4",
+          "pet_id": "616b96bb-6d26-4001-9d50-82921db7c2c7",
+          "title": "Follow-up review medical-gap-close-20260212T125032Z",
+          "description": "Pet still coughing after meds.",
+          "location": "Amman",
+          "priority": "high",
+          "status": "pending",
+          "requested_by": "cd635635-5146-4845-a47a-b7f04893fe67",
+          "requested_by_name": "Beta Med Gap",
+          "assigned_vet_id": null,
+          "assigned_clinic_id": null,
+          "attachments": [
+            "data:image/jpeg;base64,ZmFrZS1hdHRhY2gtMQ==",
+            "data:image/jpeg;base64,ZmFrZS1hdHRhY2gtMg=="
+          ],
+          "follow_up_context": "Symptoms improved for 2 days then returned.",
+          "follow_up_due_date": "2026-02-19",
+          "reminder_enabled": true,
+          "created_at": "2026-02-12T12:50:33.834000",
+          "updated_at": "2026-02-12T12:50:33.834000"
+        },
+        {
+          "id": "921cf7e8-fcdd-4b1b-872c-f25196807698",
+          "pet_id": "ecc50b7f-2b81-4edb-8926-f1444c1f7052",
+          "title": "Follow-up review medical-gap-close-20260212T124955Z",
+          "description": "Pet still coughing after meds.",
+          "location": "Amman",
+          "priority": "high",
+          "status": "completed",
+          "requested_by": "41a9e141-75de-423e-a7ac-6b13efe61b09",
+          "requested_by_name": "Beta Med Gap",
+          "assigned_vet_id": "1382dcc7-3cd5-4be2-b4e9-8bad76a7d864",
+          "assigned_clinic_id": null,
+          "created_at": "2026-02-12T12:49:57.465000",
+          "updated_at": "2026-02-12T12:49:57.492000",
+          "diagnosis": "Upper respiratory inflammation",
+          "prescription": "Continue antibiotics 5 days",
+          "vet_notes": "Hydration + steam"
+        },
+        {
+          "id": "faf235bf-7126-4334-afb2-aba0a1ed906d",
+          "pet_id": "221cf038-a6b7-422d-9303-3d767fd32c88",
+          "title": "Continuity visit 2 final-medical-beta-20260212T123719Z",
+          "description": "Continuity symptoms #2",
+          "location": "Amman",
+          "priority": "normal",
+          "status": "completed",
+          "requested_by": "30c4a5aa-f7ad-49fb-9a41-8d8af873fc65",
+          "requested_by_name": "Beta Final Medical",
+          "assigned_vet_id": "1382dcc7-3cd5-4be2-b4e9-8bad76a7d864",
+          "assigned_clinic_id": null,
+          "created_at": "2026-02-12T12:37:25.542000",
+          "updated_at": "2026-02-12T12:37:25.560000",
+          "diagnosis": "Dx2",
+          "prescription": "Rx2",
+          "vet_notes": "Follow-up 2"
+        },
+        {
+          "id": "ee9894ec-482b-4420-a92c-7545dc6227e1",
+          "pet_id": "221cf038-a6b7-422d-9303-3d767fd32c88",
+          "title": "Continuity visit 1 final-medical-beta-20260212T123719Z",
+          "description": "Continuity symptoms #1",
+          "location": "Amman",
+          "priority": "normal",
+          "status": "completed",
+          "requested_by": "30c4a5aa-f7ad-49fb-9a41-8d8af873fc65",
+          "requested_by_name": "Beta Final Medical",
+          "assigned_vet_id": "1382dcc7-3cd5-4be2-b4e9-8bad76a7d864",
+          "assigned_clinic_id": null,
+          "created_at": "2026-02-12T12:37:25.507000",
+          "updated_at": "2026-02-12T12:37:25.531000",
+          "diagnosis": "Dx1",
+          "prescription": "Rx1",
+          "vet_notes": "Follow-up 1"
+        },
+        {
+          "id": "6b4e14dd-e294-4553-b5a1-4e8737d62fd8",
+          "pet_id": "dc441305-86f8-4405-9484-8ad973998f35",
+          "title": "final-med-20260212T123634Z-attach-check",
+          "description": "need tests",
+          "location": null,
+          "priority": "normal",
+          "status": "in_progress",
+          "requested_by": "97052c92-910f-4061-976f-c8a991cdaaf4",
+          "requested_by_name": "Demo Clinic",
+          "assigned_vet_id": "1382dcc7-3cd5-4be2-b4e9-8bad76a7d864",
+          "assigned_clinic_id": null,
+          "created_at": "2026-02-12T12:36:34.892000",
+          "updated_at": "2026-02-12T12:36:34.899000"
+        },
+        {
+          "id": "7fe66ca8-a6cd-4b6f-a831-5dd0fe9c7161",
+          "pet_id": "d9986129-0f9f-4671-b145-21f395369df9",
+          "title": "Continuity visit 2 final-medical-beta-20260212T123613Z",
+          "description": "Continuity symptoms #2",
+          "location": "Amman",
+          "priority": "normal",
+          "status": "completed",
+          "requested_by": "c186ed9f-e1d8-4d07-967d-79fac2636d37",
+          "requested_by_name": "Beta Final Medical",
+          "assigned_vet_id": "1382dcc7-3cd5-4be2-b4e9-8bad76a7d864",
+          "assigned_clinic_id": null,
+          "created_at": "2026-02-12T12:36:16.604000",
+          "updated_at": "2026-02-12T12:36:16.621000",
+          "diagnosis": "Dx2",
+          "prescription": "Rx2",
+          "vet_notes": "Follow-up 2"
+        },
+        {
+          "id": "8338ac43-0fa3-4a17-8c10-e471c3a1ca70",
+          "pet_id": "d9986129-0f9f-4671-b145-21f395369df9",
+          "title": "Continuity visit 1 final-medical-beta-20260212T123613Z",
+          "description": "Continuity symptoms #1",
+          "location": "Amman",
+          "priority": "normal",
+          "status": "completed",
+          "requested_by": "c186ed9f-e1d8-4d07-967d-79fac2636d37",
+          "requested_by_name": "Beta Final Medical",
+          "assigned_vet_id": "1382dcc7-3cd5-4be2-b4e9-8bad76a7d864",
+          "assigned_clinic_id": null,
+          "created_at": "2026-02-12T12:36:16.579000",
+          "updated_at": "2026-02-12T12:36:16.595000",
+          "diagnosis": "Dx1",
+          "prescription": "Rx1",
+          "vet_notes": "Follow-up 1"
+        },
+        {
+          "id": "1ab1b52e-5d18-40bc-841b-cc515af21e7d",
+          "pet_id": "b1c97255-3efb-4073-bf42-30cf31f9dbd7",
+          "title": "Continuity visit 2 final-medical-beta-20260212T123508Z",
+          "description": "Continuity symptoms #2",
+          "location": "Amman",
+          "priority": "normal",
+          "status": "completed",
+          "requested_by": "b6067667-1c01-4570-a5dd-08ff2e00f261",
+          "requested_by_name": "Beta Final Medical",
+          "assigned_vet_id": "1382dcc7-3cd5-4be2-b4e9-8bad76a7d864",
+          "assigned_clinic_id": null,
+          "created_at": "2026-02-12T12:35:12.718000",
+          "updated_at": "2026-02-12T12:35:12.735000",
+          "diagnosis": "Dx2",
+          "prescription": "Rx2",
+          "vet_notes": "Follow-up 2"
+        },
+        {
+          "id": "9d0b0cb3-b1e0-4b2c-a5a5-959cbc769e80",
+          "pet_id": "b1c97255-3efb-4073-bf42-30cf31f9dbd7",
+          "title": "Continuity visit 1 final-medical-beta-20260212T123508Z",
+          "description": "Continuity symptoms #1",
+          "location": "Amman",
+          "priority": "normal",
+          "status": "completed",
+          "requested_by": "b6067667-1c01-4570-a5dd-08ff2e00f261",
+          "requested_by_name": "Beta Final Medical",
+          "assigned_vet_id": "1382dcc7-3cd5-4be2-b4e9-8bad76a7d864",
+          "assigned_clinic_id": null,
+          "created_at": "2026-02-12T12:35:12.689000",
+          "updated_at": "2026-02-12T12:35:12.707000",
+          "diagnosis": "Dx1",
+          "prescription": "Rx1",
+          "vet_notes": "Follow-up 1"
+        },
+        {
+          "id": "a18e9911-7a94-4920-96c3-1413dc4274ad",
+          "pet_id": "1ebda4ce-8258-4e75-a654-91ec9817d5bf",
+          "title": "Continuity visit 2 final-medical-beta-20260212T123423Z",
+          "description": "Continuity symptoms #2",
+          "location": "Amman",
+          "priority": "normal",
+          "status": "completed",
+          "requested_by": "10bb4191-3c83-47ba-81c2-9cbfc810f2c2",
+          "requested_by_name": "Beta Final Medical",
+          "assigned_vet_id": "1382dcc7-3cd5-4be2-b4e9-8bad76a7d864",
+          "assigned_clinic_id": null,
+          "created_at": "2026-02-12T12:34:26.927000",
+          "updated_at": "2026-02-12T12:34:26.948000",
+          "diagnosis": "Dx2",
+          "prescription": "Rx2",
+          "vet_notes": "Follow-up 2"
+        },
+        {
+          "id": "00d72ead-bd30-4f17-9ef3-1de1eeaa61e2",
+          "pet_id": "1ebda4ce-8258-4e75-a654-91ec9817d5bf",
+          "title": "Continuity visit 1 final-medical-beta-20260212T123423Z",
+          "description": "Continuity symptoms #1",
+          "location": "Amman",
+          "priority": "normal",
+          "status": "completed",
+          "requested_by": "10bb4191-3c83-47ba-81c2-9cbfc810f2c2",
+          "requested_by_name": "Beta Final Medical",
+          "assigned_vet_id": "1382dcc7-3cd5-4be2-b4e9-8bad76a7d864",
+          "assigned_clinic_id": null,
+          "created_at": "2026-02-12T12:34:26.883000",
+          "updated_at": "2026-02-12T12:34:26.912000",
+          "diagnosis": "Dx1",
+          "prescription": "Rx1",
+          "vet_notes": "Follow-up 1"
+        },
+        {
+          "id": "21c3e205-6653-4ded-9af0-0132d0a4344f",
+          "pet_id": "ee622311-41f3-4d1b-854d-8fa86688be23",
+          "title": "Care request 3 beta-vet-flow-20260212T120139Z",
+          "description": "Symptoms for Kiwi-20139Z (beta-vet-flow-20260212T120139Z)",
+          "location": "Amman",
+          "priority": "normal",
+          "status": "completed",
+          "requested_by": "8de895c8-8aaf-42ba-b87b-cd9ff8d1e7b8",
+          "requested_by_name": "Beta Vet Flow User",
+          "assigned_vet_id": "1382dcc7-3cd5-4be2-b4e9-8bad76a7d864",
+          "assigned_clinic_id": null,
+          "created_at": "2026-02-12T12:01:41.422000",
+          "updated_at": "2026-02-12T12:01:41.442000",
+          "diagnosis": "Dx-Kiwi-20139Z",
+          "prescription": "Rx-Kiwi-20139Z",
+          "vet_notes": "Follow-up after 3 days for Kiwi-20139Z (beta-vet-flow-20260212T120139Z)"
+        },
+        {
+          "id": "376ada76-f43e-4943-b6e6-f4ea5989e577",
+          "pet_id": "8b587bd9-2569-4921-b2a6-663c11fd6add",
+          "title": "Care request 2 beta-vet-flow-20260212T120139Z",
+          "description": "Symptoms for Luna-20139Z (beta-vet-flow-20260212T120139Z)",
+          "location": "Amman",
+          "priority": "normal",
+          "status": "completed",
+          "requested_by": "8de895c8-8aaf-42ba-b87b-cd9ff8d1e7b8",
+          "requested_by_name": "Beta Vet Flow User",
+          "assigned_vet_id": "1382dcc7-3cd5-4be2-b4e9-8bad76a7d864",
+          "assigned_clinic_id": null,
+          "created_at": "2026-02-12T12:01:41.383000",
+          "updated_at": "2026-02-12T12:01:41.407000",
+          "diagnosis": "Dx-Luna-20139Z",
+          "prescription": "Rx-Luna-20139Z",
+          "vet_notes": "Follow-up after 3 days for Luna-20139Z (beta-vet-flow-20260212T120139Z)"
+        },
+        {
+          "id": "9771b7cf-f05c-433c-848a-02bb4912b0d4",
+          "pet_id": "f4f86b97-8773-42ca-bda7-fbe3292c65af",
+          "title": "Care request 1 beta-vet-flow-20260212T120139Z",
+          "description": "Symptoms for Milo-20139Z (beta-vet-flow-20260212T120139Z)",
+          "location": "Amman",
+          "priority": "high",
+          "status": "completed",
+          "requested_by": "8de895c8-8aaf-42ba-b87b-cd9ff8d1e7b8",
+          "requested_by_name": "Beta Vet Flow User",
+          "assigned_vet_id": "1382dcc7-3cd5-4be2-b4e9-8bad76a7d864",
+          "assigned_clinic_id": null,
+          "created_at": "2026-02-12T12:01:41.336000",
+          "updated_at": "2026-02-12T12:01:41.355000",
+          "diagnosis": "Dx-Milo-20139Z",
+          "prescription": "Rx-Milo-20139Z",
+          "vet_notes": "Follow-up after 3 days for Milo-20139Z (beta-vet-flow-20260212T120139Z)"
+        },
+        {
+          "id": "15bbf200-e4e7-4a02-93e4-f8959af8959c",
+          "pet_id": "1cf7609d-3f7b-4f8f-a52d-edbe5647da3c",
+          "title": "Care request 3 beta-vet-flow-20260212T120025Z",
+          "description": "Symptoms for Kiwi-20025Z (beta-vet-flow-20260212T120025Z)",
+          "location": "Amman",
+          "priority": "normal",
+          "status": "completed",
+          "requested_by": "77b18f80-48a2-4e36-bdfe-0dd9a7bc8db6",
+          "requested_by_name": "Beta Vet Flow User",
+          "assigned_vet_id": "1382dcc7-3cd5-4be2-b4e9-8bad76a7d864",
+          "assigned_clinic_id": null,
+          "created_at": "2026-02-12T12:00:27.516000",
+          "updated_at": "2026-02-12T12:00:27.534000",
+          "diagnosis": "Dx-Kiwi-20025Z",
+          "prescription": "Rx-Kiwi-20025Z",
+          "vet_notes": "Follow-up after 3 days for Kiwi-20025Z (beta-vet-flow-20260212T120025Z)"
+        },
+        {
+          "id": "8a545aae-0dab-4827-8eed-4fa2cf8ff768",
+          "pet_id": "8937ac8b-73d4-4ebd-81ae-6a334cfbbb2c",
+          "title": "Care request 2 beta-vet-flow-20260212T120025Z",
+          "description": "Symptoms for Luna-20025Z (beta-vet-flow-20260212T120025Z)",
+          "location": "Amman",
+          "priority": "normal",
+          "status": "completed",
+          "requested_by": "77b18f80-48a2-4e36-bdfe-0dd9a7bc8db6",
+          "requested_by_name": "Beta Vet Flow User",
+          "assigned_vet_id": "1382dcc7-3cd5-4be2-b4e9-8bad76a7d864",
+          "assigned_clinic_id": null,
+          "created_at": "2026-02-12T12:00:27.485000",
+          "updated_at": "2026-02-12T12:00:27.503000",
+          "diagnosis": "Dx-Luna-20025Z",
+          "prescription": "Rx-Luna-20025Z",
+          "vet_notes": "Follow-up after 3 days for Luna-20025Z (beta-vet-flow-20260212T120025Z)"
+        },
+        {
+          "id": "48184dde-8d1c-4d16-9b09-4c5355487ce9",
+          "pet_id": "c3dd3c9c-b22c-4a9a-82f3-dfd3d2da5135",
+          "title": "Care request 1 beta-vet-flow-20260212T120025Z",
+          "description": "Symptoms for Milo-20025Z (beta-vet-flow-20260212T120025Z)",
+          "location": "Amman",
+          "priority": "high",
+          "status": "completed",
+          "requested_by": "77b18f80-48a2-4e36-bdfe-0dd9a7bc8db6",
+          "requested_by_name": "Beta Vet Flow User",
+          "assigned_vet_id": "1382dcc7-3cd5-4be2-b4e9-8bad76a7d864",
+          "assigned_clinic_id": null,
+          "created_at": "2026-02-12T12:00:27.454000",
+          "updated_at": "2026-02-12T12:00:27.473000",
+          "diagnosis": "Dx-Milo-20025Z",
+          "prescription": "Rx-Milo-20025Z",
+          "vet_notes": "Follow-up after 3 days for Milo-20025Z (beta-vet-flow-20260212T120025Z)"
+        },
+        {
+          "id": "6c220166-a2ca-4c57-bb16-a8a6a1e76f70",
+          "pet_id": "7f36f4cf-1f12-449b-8f1b-00e518458428",
+          "title": "Care request 3 beta-vet-flow-20260212T120010Z",
+          "description": "Symptoms for Kiwi-20010Z (beta-vet-flow-20260212T120010Z)",
+          "location": "Amman",
+          "priority": "normal",
+          "status": "completed",
+          "requested_by": "9c8620f9-b840-48d6-9161-cc288c0f2602",
+          "requested_by_name": "Beta Vet Flow User",
+          "assigned_vet_id": "1382dcc7-3cd5-4be2-b4e9-8bad76a7d864",
+          "assigned_clinic_id": null,
+          "created_at": "2026-02-12T12:00:12.417000",
+          "updated_at": "2026-02-12T12:00:12.442000",
+          "diagnosis": "Dx-Kiwi-20010Z",
+          "prescription": "Rx-Kiwi-20010Z",
+          "vet_notes": "Follow-up after 3 days for Kiwi-20010Z (beta-vet-flow-20260212T120010Z)"
+        },
+        {
+          "id": "acb8449e-198a-4d2d-b0fc-2301a17fa89c",
+          "pet_id": "e7886c16-e943-455b-a297-cfef29c142b7",
+          "title": "Care request 2 beta-vet-flow-20260212T120010Z",
+          "description": "Symptoms for Luna-20010Z (beta-vet-flow-20260212T120010Z)",
+          "location": "Amman",
+          "priority": "normal",
+          "status": "completed",
+          "requested_by": "9c8620f9-b840-48d6-9161-cc288c0f2602",
+          "requested_by_name": "Beta Vet Flow User",
+          "assigned_vet_id": "1382dcc7-3cd5-4be2-b4e9-8bad76a7d864",
+          "assigned_clinic_id": null,
+          "created_at": "2026-02-12T12:00:12.378000",
+          "updated_at": "2026-02-12T12:00:12.401000",
+          "diagnosis": "Dx-Luna-20010Z",
+          "prescription": "Rx-Luna-20010Z",
+          "vet_notes": "Follow-up after 3 days for Luna-20010Z (beta-vet-flow-20260212T120010Z)"
+        },
+        {
+          "id": "e74ca421-7792-4f95-826f-5f40af01c6f3",
+          "pet_id": "1bd95558-63eb-4ab8-a845-d0081b078990",
+          "title": "Care request 1 beta-vet-flow-20260212T120010Z",
+          "description": "Symptoms for Milo-20010Z (beta-vet-flow-20260212T120010Z)",
+          "location": "Amman",
+          "priority": "high",
+          "status": "completed",
+          "requested_by": "9c8620f9-b840-48d6-9161-cc288c0f2602",
+          "requested_by_name": "Beta Vet Flow User",
+          "assigned_vet_id": "1382dcc7-3cd5-4be2-b4e9-8bad76a7d864",
+          "assigned_clinic_id": null,
+          "created_at": "2026-02-12T12:00:12.345000",
+          "updated_at": "2026-02-12T12:00:12.363000",
+          "diagnosis": "Dx-Milo-20010Z",
+          "prescription": "Rx-Milo-20010Z",
+          "vet_notes": "Follow-up after 3 days for Milo-20010Z (beta-vet-flow-20260212T120010Z)"
+        },
+        {
+          "id": "1d44817b-39ee-4504-9d65-2bf867f328db",
+          "pet_id": "3d138dfd-7839-4d1d-8d71-db79bd662d88",
+          "title": "Follow-up case vet-alpha-20260212T115922Z",
+          "description": "Limping after play, needs assessment",
+          "location": "Amman",
+          "priority": "high",
+          "status": "completed",
+          "requested_by": "97052c92-910f-4061-976f-c8a991cdaaf4",
+          "requested_by_name": "Demo Clinic",
+          "assigned_vet_id": "1382dcc7-3cd5-4be2-b4e9-8bad76a7d864",
+          "assigned_clinic_id": null,
+          "created_at": "2026-02-12T11:59:23.458000",
+          "updated_at": "2026-02-12T11:59:23.486000",
+          "diagnosis": "Mild soft-tissue strain in front right leg",
+          "prescription": "Rest 5 days, meloxicam low dose once daily x3 days",
+          "vet_notes": "No fracture signs. Recheck if limping persists >7 days."
+        },
+        {
+          "id": "6dc00315-8752-4f93-a16b-16be008b3edc",
+          "pet_id": "e265a381-0674-45c2-b4ea-ca0f99456b88",
+          "title": "Negative Matrix Care",
+          "description": "for role checks",
+          "location": null,
+          "priority": "normal",
+          "status": "assigned",
+          "requested_by": "e974e25f-3afb-4474-832c-b76635d6c242",
+          "requested_by_name": "qa.user",
+          "assigned_vet_id": null,
+          "assigned_clinic_id": "2f1ccc94-a7ca-43dc-a5f8-4b36685de82a",
+          "created_at": "2026-02-11T06:25:40.556000",
+          "updated_at": "2026-02-11T06:25:40.721000"
+        },
+        {
+          "id": "55bb1dcc-160e-475b-8ef2-d498db4f7aed",
+          "pet_id": "4140bd89-9871-4cc5-8e1c-c2391a02bc03",
+          "title": "Negative Matrix Care",
+          "description": "for role checks",
+          "location": null,
+          "priority": "normal",
+          "status": "assigned",
+          "requested_by": "e974e25f-3afb-4474-832c-b76635d6c242",
+          "requested_by_name": "qa.user",
+          "assigned_vet_id": null,
+          "assigned_clinic_id": "2f1ccc94-a7ca-43dc-a5f8-4b36685de82a",
+          "created_at": "2026-02-11T06:25:30.352000",
+          "updated_at": "2026-02-11T06:25:30.522000"
+        },
+        {
+          "id": "92968467-be94-4acf-b7bd-27bfb90a01eb",
+          "pet_id": "0f9a0969-c393-4abb-9c86-d251dbf72ca8",
+          "title": "QA checkup",
+          "description": "Regression test care request",
+          "location": null,
+          "priority": "normal",
+          "status": "completed",
+          "requested_by": "e974e25f-3afb-4474-832c-b76635d6c242",
+          "requested_by_name": "qa.user",
+          "assigned_vet_id": null,
+          "assigned_clinic_id": null,
+          "created_at": "2026-02-11T06:23:23.641000",
+          "updated_at": "2026-02-11T06:23:23.699000"
+        }
+      ]
+    },
+    {
+      "ts": "2026-02-12T12:50:33.873011+00:00",
+      "method": "PUT",
+      "path": "/vet/care-requests/598cf8e2-7875-4379-8685-ec411c22d5a4",
+      "status": 200,
+      "request": {
+        "action": "accept"
+      },
+      "response": {
+        "id": "598cf8e2-7875-4379-8685-ec411c22d5a4",
+        "pet_id": "616b96bb-6d26-4001-9d50-82921db7c2c7",
+        "title": "Follow-up review medical-gap-close-20260212T125032Z",
+        "description": "Pet still coughing after meds.",
+        "location": "Amman",
+        "priority": "high",
+        "status": "accepted",
+        "requested_by": "cd635635-5146-4845-a47a-b7f04893fe67",
+        "requested_by_name": "Beta Med Gap",
+        "assigned_vet_id": "1382dcc7-3cd5-4be2-b4e9-8bad76a7d864",
+        "assigned_clinic_id": null,
+        "attachments": [
+          "data:image/jpeg;base64,ZmFrZS1hdHRhY2gtMQ==",
+          "data:image/jpeg;base64,ZmFrZS1hdHRhY2gtMg=="
+        ],
+        "follow_up_context": "Symptoms improved for 2 days then returned.",
+        "follow_up_due_date": "2026-02-19",
+        "reminder_enabled": true,
+        "created_at": "2026-02-12T12:50:33.834000",
+        "updated_at": "2026-02-12T12:50:33.852000"
+      }
+    },
+    {
+      "ts": "2026-02-12T12:50:33.873022+00:00",
+      "method": "PUT",
+      "path": "/vet/care-requests/598cf8e2-7875-4379-8685-ec411c22d5a4",
+      "status": 200,
+      "request": {
+        "action": "start"
+      },
+      "response": {
+        "id": "598cf8e2-7875-4379-8685-ec411c22d5a4",
+        "pet_id": "616b96bb-6d26-4001-9d50-82921db7c2c7",
+        "title": "Follow-up review medical-gap-close-20260212T125032Z",
+        "description": "Pet still coughing after meds.",
+        "location": "Amman",
+        "priority": "high",
+        "status": "in_progress",
+        "requested_by": "cd635635-5146-4845-a47a-b7f04893fe67",
+        "requested_by_name": "Beta Med Gap",
+        "assigned_vet_id": "1382dcc7-3cd5-4be2-b4e9-8bad76a7d864",
+        "assigned_clinic_id": null,
+        "attachments": [
+          "data:image/jpeg;base64,ZmFrZS1hdHRhY2gtMQ==",
+          "data:image/jpeg;base64,ZmFrZS1hdHRhY2gtMg=="
+        ],
+        "follow_up_context": "Symptoms improved for 2 days then returned.",
+        "follow_up_due_date": "2026-02-19",
+        "reminder_enabled": true,
+        "created_at": "2026-02-12T12:50:33.834000",
+        "updated_at": "2026-02-12T12:50:33.859000"
+      }
+    },
+    {
+      "ts": "2026-02-12T12:50:33.873026+00:00",
+      "method": "PUT",
+      "path": "/vet/care-requests/598cf8e2-7875-4379-8685-ec411c22d5a4",
+      "status": 200,
+      "request": {
+        "action": "complete"
+      },
+      "response": {
+        "id": "598cf8e2-7875-4379-8685-ec411c22d5a4",
+        "pet_id": "616b96bb-6d26-4001-9d50-82921db7c2c7",
+        "title": "Follow-up review medical-gap-close-20260212T125032Z",
+        "description": "Pet still coughing after meds.",
+        "location": "Amman",
+        "priority": "high",
+        "status": "completed",
+        "requested_by": "cd635635-5146-4845-a47a-b7f04893fe67",
+        "requested_by_name": "Beta Med Gap",
+        "assigned_vet_id": "1382dcc7-3cd5-4be2-b4e9-8bad76a7d864",
+        "assigned_clinic_id": null,
+        "attachments": [
+          "data:image/jpeg;base64,ZmFrZS1hdHRhY2gtMQ==",
+          "data:image/jpeg;base64,ZmFrZS1hdHRhY2gtMg=="
+        ],
+        "follow_up_context": "Symptoms improved for 2 days then returned.",
+        "follow_up_due_date": "2026-02-19",
+        "reminder_enabled": true,
+        "created_at": "2026-02-12T12:50:33.834000",
+        "updated_at": "2026-02-12T12:50:33.867000",
+        "diagnosis": "Upper respiratory inflammation",
+        "prescription": "Continue antibiotics 5 days",
+        "vet_notes": "Hydration + steam"
+      }
+    },
+    {
+      "ts": "2026-02-12T12:50:33.878100+00:00",
+      "method": "GET",
+      "path": "/care-requests/598cf8e2-7875-4379-8685-ec411c22d5a4/timeline",
+      "status": 200,
+      "request": null,
+      "response": [
+        {
+          "id": "97607483-6812-4456-99d2-3730dee3d89a",
+          "request_id": "598cf8e2-7875-4379-8685-ec411c22d5a4",
+          "actor_id": "cd635635-5146-4845-a47a-b7f04893fe67",
+          "actor_name": "Beta Med Gap",
+          "actor_role": "user",
+          "event_type": "created",
+          "status": "pending",
+          "notes": "Pet still coughing after meds.",
+          "created_at": "2026-02-12T12:50:33.834000"
+        },
+        {
+          "id": "36adfa72-7bf0-47ea-8d05-3fb103348d70",
+          "request_id": "598cf8e2-7875-4379-8685-ec411c22d5a4",
+          "actor_id": "1382dcc7-3cd5-4be2-b4e9-8bad76a7d864",
+          "actor_name": "Demo Vet",
+          "actor_role": "vet",
+          "event_type": "accept",
+          "status": "accepted",
+          "notes": null,
+          "created_at": "2026-02-12T12:50:33.853000"
+        },
+        {
+          "id": "ed3a07de-4188-48f1-bc0f-9c7c1d3dcc76",
+          "request_id": "598cf8e2-7875-4379-8685-ec411c22d5a4",
+          "actor_id": "1382dcc7-3cd5-4be2-b4e9-8bad76a7d864",
+          "actor_name": "Demo Vet",
+          "actor_role": "vet",
+          "event_type": "start",
+          "status": "in_progress",
+          "notes": null,
+          "created_at": "2026-02-12T12:50:33.860000"
+        },
+        {
+          "id": "b6b3f136-b4c0-4ec5-a925-ecf76c5d270b",
+          "request_id": "598cf8e2-7875-4379-8685-ec411c22d5a4",
+          "actor_id": "1382dcc7-3cd5-4be2-b4e9-8bad76a7d864",
+          "actor_name": "Demo Vet",
+          "actor_role": "vet",
+          "event_type": "complete",
+          "status": "completed",
+          "notes": "Hydration + steam",
+          "created_at": "2026-02-12T12:50:33.870000"
+        }
+      ]
+    },
+    {
+      "ts": "2026-02-12T12:50:33.882742+00:00",
+      "method": "GET",
+      "path": "/health-records/616b96bb-6d26-4001-9d50-82921db7c2c7",
+      "status": 200,
+      "request": null,
+      "response": [
+        {
+          "id": "dd5ac205-4059-4928-9973-7f8ccf39eb1e",
+          "pet_id": "616b96bb-6d26-4001-9d50-82921db7c2c7",
+          "record_type": "vet_visit",
+          "title": "Follow-up review medical-gap-close-20260212T125032Z",
+          "description": "Pet still coughing after meds.",
+          "date": "2026-02-12",
+          "vet_name": "Demo Vet",
+          "notes": "Diagnosis: Upper respiratory inflammation\nPrescription: Continue antibiotics 5 days\nNotes: Hydration + steam\nFollow-up context: Symptoms improved for 2 days then returned.",
+          "created_at": "2026-02-12T12:50:33.868000"
+        }
+      ]
+    },
+    {
+      "ts": "2026-02-12T12:50:33.888532+00:00",
+      "method": "GET",
+      "path": "/notifications",
+      "status": 200,
+      "request": null,
+      "response": {
+        "items": [
+          {
+            "id": "1072a0fb-8886-48f4-9b42-85f85e89273a",
+            "user_id": "cd635635-5146-4845-a47a-b7f04893fe67",
+            "title": "Care request updated",
+            "body": "Your care request is now completed.",
+            "type": "care_request",
+            "data": {
+              "request_id": "598cf8e2-7875-4379-8685-ec411c22d5a4",
+              "status": "completed",
+              "pet_id": "616b96bb-6d26-4001-9d50-82921db7c2c7",
+              "route": "/health-records?petId=616b96bb-6d26-4001-9d50-82921db7c2c7"
+            },
+            "is_read": false,
+            "created_at": "2026-02-12T12:50:33.871000",
+            "updated_at": "2026-02-12T12:50:33.871000"
+          },
+          {
+            "id": "a0d2e840-53af-46c7-96c9-6d0c6913feda",
+            "user_id": "cd635635-5146-4845-a47a-b7f04893fe67",
+            "title": "Care request updated",
+            "body": "Your care request is now in_progress.",
+            "type": "care_request",
+            "data": {
+              "request_id": "598cf8e2-7875-4379-8685-ec411c22d5a4",
+              "status": "in_progress",
+              "pet_id": "616b96bb-6d26-4001-9d50-82921db7c2c7",
+              "route": "/health-records?petId=616b96bb-6d26-4001-9d50-82921db7c2c7"
+            },
+            "is_read": false,
+            "created_at": "2026-02-12T12:50:33.862000",
+            "updated_at": "2026-02-12T12:50:33.862000"
+          },
+          {
+            "id": "74431e40-e6ff-4379-95db-ef581319a616",
+            "user_id": "cd635635-5146-4845-a47a-b7f04893fe67",
+            "title": "Care request updated",
+            "body": "Your care request is now accepted.",
+            "type": "care_request",
+            "data": {
+              "request_id": "598cf8e2-7875-4379-8685-ec411c22d5a4",
+              "status": "accepted",
+              "pet_id": "616b96bb-6d26-4001-9d50-82921db7c2c7",
+              "route": "/health-records?petId=616b96bb-6d26-4001-9d50-82921db7c2c7"
+            },
+            "is_read": false,
+            "created_at": "2026-02-12T12:50:33.854000",
+            "updated_at": "2026-02-12T12:50:33.854000"
+          },
+          {
+            "id": "533001e9-54a4-4817-822c-212bc259ef54",
+            "user_id": "cd635635-5146-4845-a47a-b7f04893fe67",
+            "title": "Follow-up reminder set",
+            "body": "We'll remind you about your pet follow-up on 2026-02-19.",
+            "type": "care_request",
+            "data": {
+              "request_id": "598cf8e2-7875-4379-8685-ec411c22d5a4",
+              "pet_id": "616b96bb-6d26-4001-9d50-82921db7c2c7",
+              "route": "/health-records?petId=616b96bb-6d26-4001-9d50-82921db7c2c7"
+            },
+            "is_read": false,
+            "created_at": "2026-02-12T12:50:33.840000",
+            "updated_at": "2026-02-12T12:50:33.840000"
+          }
+        ],
+        "total": 4,
+        "limit": 20,
+        "offset": 0,
+        "has_more": false
+      }
+    },
+    {
+      "ts": "2026-02-12T12:50:35.201103+00:00",
+      "method": "GET",
+      "path": "/care-requests/598cf8e2-7875-4379-8685-ec411c22d5a4/timeline",
+      "status": 403,
+      "request": {
+        "as": "other_user"
+      },
+      "response": {
+        "detail": "Access denied"
+      }
+    }
+  ]
+}

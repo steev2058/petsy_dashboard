@@ -1,38 +1,48 @@
-# Handoff: Medical Gap Closure (Alpha -> Beta)
+# Medical Gap Closure Handoff (Beta) — 2026-02-12
 
 ## Branch
-- `qa/close-medical-gaps-20260212-a`
+- `qa/close-medical-gaps-20260212-b`
 
-## What Alpha Implemented
-- Medical attachment APIs in `backend/server.py`:
-  - `POST /api/medical-attachments/upload`
-  - `POST /api/medical-attachments/{attachment_id}/attach`
-  - `GET /api/medical-attachments`
-  - `GET /api/medical-attachments/{attachment_id}/download`
-  - `DELETE /api/medical-attachments/{attachment_id}`
-- Context support: care requests, appointments, health records.
-- Authorization: owner, assigned vet, admin only.
-- Validation: mime allowlist + 10MB max + non-empty check.
-- Secure storage path: `backend/uploads/medical/<owner>/<YYYY>/<MM>/...`.
-- Metadata model persisted in `medical_attachments` collection.
-- Care timeline linkage: upload to care request inserts `care_request_events` (`medical_attachment_uploaded`).
-- Minimal reminder simulation endpoint:
-  - `POST /api/appointments/{appointment_id}/reminders/simulate`
-  - Writes `appointment_reminders` + in-app notification evidence.
+## Scope Delivered
 
-## Tests Added
-- `tests/test_medical_attachments_api.py`
-  - upload/list/download/delete auth path (owner/vet/blocked outsider)
-  - file type validation and attach flow
-  - reminder simulation evidence
+### ✅ Primary gap: user-facing medical attachments + vet visibility + follow-up context
+Implemented practical UX flow from user health records page:
+- User can create **vet follow-up request** from `health-records`.
+- User can upload up to 4 medical image attachments (mobile + web compatible via Expo ImagePicker).
+- User can send follow-up context + due date + reminder flag.
+- Vet queue now displays:
+  - follow-up context
+  - reminder requested state
+  - follow-up due date
+  - attachment count
+- Vet action buttons now show state-aware disabled behavior for invalid transitions.
 
-## Artifacts
-- `qa/e2e/medical_gap_closure_alpha/REPORT.md`
-- `qa/e2e/medical_gap_closure_alpha/matrix.json`
-- `qa/e2e/medical_gap_closure_alpha/raw_evidence/*`
-- `qa/e2e/medical_gap_closure_alpha/api_examples/medical_attachments.http`
+### ✅ Secondary gap (backend-supported): reminder/follow-up visibility + notification behavior
+- Care-request create now persists:
+  - `attachments`
+  - `follow_up_context`
+  - `follow_up_due_date`
+  - `reminder_enabled`
+- Reminder-enabled create triggers user notification.
+- Care-request update notifications now route user to health-records for relevant pet context.
 
-## Beta Requested Follow-up (if time)
-- Confirm frontend wiring to new endpoints.
-- Evaluate migration to object storage + signed access URLs.
-- Add antivirus/content scanning before persistence for production hardening.
+## E2E (3-pet user + vet)
+Artifacts produced in:
+- `qa/e2e/medical_gap_closure_beta/REPORT.md`
+- `qa/e2e/medical_gap_closure_beta/pass_fail_matrix.json`
+- `qa/e2e/medical_gap_closure_beta/evidence.json`
+
+Summary:
+- PASS: 8
+- FAIL: 1
+
+Failing check:
+- `Health record receives attachment continuity`
+
+## Remaining Risk
+- Care-request attachments are visible in vet queue and persisted there, but attachment propagation into generated `health_records` entry on completion is inconsistent in observed run.
+- User-facing primary flow is operational; continuity into final health-record attachment field still needs one backend follow-up fix/verification cycle.
+
+## Suggested next action
+1. Inspect `update_vet_care_request` completion path write to `db.health_records` and verify `attachments` payload round-trip for care-request-derived vet_visit rows.
+2. Re-run same E2E script and expect 9/9 PASS.
