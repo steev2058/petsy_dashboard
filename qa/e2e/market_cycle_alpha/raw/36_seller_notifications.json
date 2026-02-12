@@ -1,0 +1,44 @@
+{
+  "ts": "2026-02-12T13:10:21.304424+00:00",
+  "method": "GET",
+  "path": "/notifications",
+  "status": 200,
+  "params": null,
+  "request": null,
+  "response": {
+    "items": [
+      {
+        "id": "6d6d4965-106d-458f-b66e-1a1243699de1",
+        "user_id": "c3cfc846-1bbb-4182-bd60-83d66dc4565d",
+        "title": "New friend request",
+        "body": "Demo Vet sent you a friend request.",
+        "type": "friend_request",
+        "data": {
+          "route": "/friends",
+          "request_id": "10dbfe3b-f6cc-48a9-8ed6-2fe879067706"
+        },
+        "is_read": false,
+        "created_at": "2026-02-12T13:10:21.264000",
+        "updated_at": "2026-02-12T13:10:21.264000"
+      },
+      {
+        "id": "c26e0dfc-7fa1-4c4f-837c-9e245fc20f73",
+        "user_id": "c3cfc846-1bbb-4182-bd60-83d66dc4565d",
+        "title": "New friend request",
+        "body": "Demo Clinic sent you a friend request.",
+        "type": "friend_request",
+        "data": {
+          "route": "/friends",
+          "request_id": "854a3e47-4616-40cd-b7a5-f95d3e55b628"
+        },
+        "is_read": false,
+        "created_at": "2026-02-12T11:48:17.394000",
+        "updated_at": "2026-02-12T11:48:17.394000"
+      }
+    ],
+    "total": 2,
+    "limit": 20,
+    "offset": 0,
+    "has_more": false
+  }
+}

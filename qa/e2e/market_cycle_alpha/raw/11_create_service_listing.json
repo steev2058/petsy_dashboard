@@ -1,0 +1,32 @@
+{
+  "ts": "2026-02-12T13:10:21.213107+00:00",
+  "method": "POST",
+  "path": "/marketplace/listings",
+  "status": 200,
+  "params": null,
+  "request": {
+    "title": "Alpha QA Service 20260212T131020Z",
+    "description": "Pet grooming at home",
+    "category": "services",
+    "price": 18.5,
+    "location": "Amman",
+    "pet_type": "dog",
+    "condition": "n/a"
+  },
+  "response": {
+    "id": "827e3bc0-82d7-4881-b8da-81a54cfc630c",
+    "user_id": "c3cfc846-1bbb-4182-bd60-83d66dc4565d",
+    "user_name": "Demo Market",
+    "user_avatar": null,
+    "title": "Alpha QA Service 20260212T131020Z",
+    "description": "Pet grooming at home",
+    "category": "services",
+    "price": 18.5,
+    "location": "Amman",
+    "image": null,
+    "pet_type": "dog",
+    "condition": "n/a",
+    "status": "active",
+    "created_at": "2026-02-12T13:10:21.212071"
+  }
+}

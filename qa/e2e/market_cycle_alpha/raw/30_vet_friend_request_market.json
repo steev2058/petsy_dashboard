@@ -1,0 +1,15 @@
+{
+  "ts": "2026-02-12T13:10:21.265827+00:00",
+  "method": "POST",
+  "path": "/friends/requests",
+  "status": 200,
+  "params": null,
+  "request": {
+    "target_user_id": "c3cfc846-1bbb-4182-bd60-83d66dc4565d"
+  },
+  "response": {
+    "success": true,
+    "status": "pending",
+    "request_id": "10dbfe3b-f6cc-48a9-8ed6-2fe879067706"
+  }
+}

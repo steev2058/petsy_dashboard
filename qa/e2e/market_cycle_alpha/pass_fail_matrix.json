@@ -1,0 +1,157 @@
+[
+  {
+    "check": "login_market",
+    "result": "PASS",
+    "detail": ""
+  },
+  {
+    "check": "login_vet",
+    "result": "PASS",
+    "detail": ""
+  },
+  {
+    "check": "login_admin",
+    "result": "PASS",
+    "detail": ""
+  },
+  {
+    "check": "market_role_is_market_owner",
+    "result": "PASS",
+    "detail": "role=market_owner"
+  },
+  {
+    "check": "market_overview_access",
+    "result": "PASS",
+    "detail": ""
+  },
+  {
+    "check": "create_product_listing",
+    "result": "PASS",
+    "detail": ""
+  },
+  {
+    "check": "create_service_listing",
+    "result": "PASS",
+    "detail": ""
+  },
+  {
+    "check": "update_product_listing_price",
+    "result": "PASS",
+    "detail": ""
+  },
+  {
+    "check": "archive_product_listing",
+    "result": "PASS",
+    "detail": ""
+  },
+  {
+    "check": "reactivate_product_listing",
+    "result": "PASS",
+    "detail": ""
+  },
+  {
+    "check": "buyer_create_order_for_market_listing",
+    "result": "PASS",
+    "detail": ""
+  },
+  {
+    "check": "seller_can_view_sales_order",
+    "result": "PASS",
+    "detail": ""
+  },
+  {
+    "check": "seller_order_transition_endpoint_supported",
+    "result": "FAIL",
+    "detail": "status_code=405"
+  },
+  {
+    "check": "admin_transition_confirmed",
+    "result": "PASS",
+    "detail": ""
+  },
+  {
+    "check": "admin_transition_shipped",
+    "result": "PASS",
+    "detail": ""
+  },
+  {
+    "check": "admin_transition_delivered",
+    "result": "PASS",
+    "detail": ""
+  },
+  {
+    "check": "admin_transition_cancelled",
+    "result": "PASS",
+    "detail": ""
+  },
+  {
+    "check": "seller_sees_order_status_updates",
+    "result": "PASS",
+    "detail": "observed=cancelled"
+  },
+  {
+    "check": "buyer_send_friend_request_to_seller",
+    "result": "PASS",
+    "detail": ""
+  },
+  {
+    "check": "seller_accept_friend_request",
+    "result": "PASS",
+    "detail": ""
+  },
+  {
+    "check": "open_direct_conversation",
+    "result": "PASS",
+    "detail": ""
+  },
+  {
+    "check": "buyer_send_message_to_seller",
+    "result": "PASS",
+    "detail": ""
+  },
+  {
+    "check": "seller_can_read_buyer_message",
+    "result": "PASS",
+    "detail": ""
+  },
+  {
+    "check": "seller_notifications_endpoint_access",
+    "result": "PASS",
+    "detail": ""
+  },
+  {
+    "check": "buyer_can_report_listing",
+    "result": "PASS",
+    "detail": ""
+  },
+  {
+    "check": "admin_can_see_listing_report",
+    "result": "PASS",
+    "detail": ""
+  },
+  {
+    "check": "admin_can_archive_reported_listing",
+    "result": "PASS",
+    "detail": ""
+  },
+  {
+    "check": "seller_sees_moderation_status_on_listing",
+    "result": "PASS",
+    "detail": ""
+  },
+  {
+    "check": "seller_cannot_mutate_others_listing",
+    "result": "PASS",
+    "detail": "status=403"
+  },
+  {
+    "check": "seller_cannot_use_admin_order_mutation",
+    "result": "PASS",
+    "detail": "status=403"
+  },
+  {
+    "check": "seller_cannot_read_buyer_order_via_buyer_endpoint",
+    "result": "PASS",
+    "detail": "status=404"
+  }
+]

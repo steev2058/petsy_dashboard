@@ -1,0 +1,14 @@
+{
+  "ts": "2026-02-12T13:10:21.227175+00:00",
+  "method": "PUT",
+  "path": "/marketplace/listings/02304eb7-a3a5-49ff-8e20-99d8e78e52c3/status",
+  "status": 200,
+  "params": null,
+  "request": {
+    "status": "active"
+  },
+  "response": {
+    "message": "Status updated",
+    "status": "active"
+  }
+}

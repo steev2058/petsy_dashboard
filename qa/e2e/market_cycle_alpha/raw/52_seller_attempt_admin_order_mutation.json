@@ -1,0 +1,13 @@
+{
+  "ts": "2026-02-12T13:10:21.349633+00:00",
+  "method": "PUT",
+  "path": "/admin/orders/107ea075-ab24-4265-abc7-582be7f0948c",
+  "status": 403,
+  "params": null,
+  "request": {
+    "status": "delivered"
+  },
+  "response": {
+    "detail": "Admin access required"
+  }
+}

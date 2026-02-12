@@ -1,0 +1,35 @@
+# Step Log (20260212T131020Z)
+
+1. `POST /auth/login` -> 200
+2. `POST /auth/login` -> 200
+3. `POST /auth/login` -> 200
+4. `GET /auth/me` -> 200
+5. `GET /market-owner/overview` -> 200
+6. `POST /marketplace/listings` -> 200
+7. `POST /marketplace/listings` -> 200
+8. `PUT /marketplace/listings/02304eb7-a3a5-49ff-8e20-99d8e78e52c3` -> 200
+9. `PUT /marketplace/listings/02304eb7-a3a5-49ff-8e20-99d8e78e52c3/status` -> 200
+10. `PUT /marketplace/listings/02304eb7-a3a5-49ff-8e20-99d8e78e52c3/status` -> 200
+11. `POST /orders` -> 200
+12. `GET /orders/sales` -> 200
+13. `PUT /orders/107ea075-ab24-4265-abc7-582be7f0948c` -> 405
+14. `PUT /admin/orders/107ea075-ab24-4265-abc7-582be7f0948c` -> 200
+15. `PUT /admin/orders/107ea075-ab24-4265-abc7-582be7f0948c` -> 200
+16. `PUT /admin/orders/107ea075-ab24-4265-abc7-582be7f0948c` -> 200
+17. `PUT /admin/orders/107ea075-ab24-4265-abc7-582be7f0948c` -> 200
+18. `GET /orders/sales` -> 200
+19. `POST /friends/requests` -> 200
+20. `GET /friends/requests` -> 200
+21. `PUT /friends/requests/10dbfe3b-f6cc-48a9-8ed6-2fe879067706` -> 200
+22. `POST /conversations/direct/c3cfc846-1bbb-4182-bd60-83d66dc4565d` -> 200
+23. `POST /conversations/469baa37-8e01-4860-82b0-0a1953269236/messages` -> 200
+24. `GET /conversations/469baa37-8e01-4860-82b0-0a1953269236/messages` -> 200
+25. `GET /notifications` -> 200
+26. `POST /marketplace/listings/02304eb7-a3a5-49ff-8e20-99d8e78e52c3/report` -> 200
+27. `GET /admin/marketplace/reports` -> 200
+28. `PUT /admin/marketplace/listings/02304eb7-a3a5-49ff-8e20-99d8e78e52c3/status` -> 200
+29. `GET /marketplace/listings/02304eb7-a3a5-49ff-8e20-99d8e78e52c3` -> 200
+30. `GET /marketplace/listings` -> 200
+31. `PUT /marketplace/listings/96bee529-929a-4eac-a55e-cc1b29d72c8d/status` -> 403
+32. `PUT /admin/orders/107ea075-ab24-4265-abc7-582be7f0948c` -> 403
+33. `GET /orders/107ea075-ab24-4265-abc7-582be7f0948c` -> 404

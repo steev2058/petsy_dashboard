@@ -1,0 +1,14 @@
+{
+  "ts": "2026-02-12T13:10:21.320007+00:00",
+  "method": "POST",
+  "path": "/marketplace/listings/02304eb7-a3a5-49ff-8e20-99d8e78e52c3/report",
+  "status": 200,
+  "params": null,
+  "request": {
+    "reason": "spam",
+    "notes": "QA report check"
+  },
+  "response": {
+    "message": "Report submitted"
+  }
+}

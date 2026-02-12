@@ -1,0 +1,45 @@
+{
+  "ts": "2026-02-12T13:10:21.233449+00:00",
+  "method": "POST",
+  "path": "/orders",
+  "status": 200,
+  "params": null,
+  "request": {
+    "items": [
+      {
+        "product_id": "02304eb7-a3a5-49ff-8e20-99d8e78e52c3",
+        "name": "Alpha QA Product 20260212T131020Z",
+        "price": 41.0,
+        "quantity": 1
+      }
+    ],
+    "total": 41.0,
+    "shipping_address": "QA street 17",
+    "shipping_city": "Amman",
+    "shipping_phone": "+962700000001",
+    "payment_method": "cash_on_delivery",
+    "notes": "alpha-market-cycle-20260212T131020Z"
+  },
+  "response": {
+    "id": "107ea075-ab24-4265-abc7-582be7f0948c",
+    "user_id": "1382dcc7-3cd5-4be2-b4e9-8bad76a7d864",
+    "items": [
+      {
+        "product_id": "02304eb7-a3a5-49ff-8e20-99d8e78e52c3",
+        "name": "Alpha QA Product 20260212T131020Z",
+        "price": 41.0,
+        "quantity": 1,
+        "image": null,
+        "seller_user_id": "c3cfc846-1bbb-4182-bd60-83d66dc4565d"
+      }
+    ],
+    "total": 41.0,
+    "status": "pending",
+    "shipping_address": "QA street 17",
+    "shipping_city": "Amman",
+    "shipping_phone": "+962700000001",
+    "payment_method": "cash_on_delivery",
+    "notes": "alpha-market-cycle-20260212T131020Z",
+    "created_at": "2026-02-12T13:10:21.231824"
+  }
+}

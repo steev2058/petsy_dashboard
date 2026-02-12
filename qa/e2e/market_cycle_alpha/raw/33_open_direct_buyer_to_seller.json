@@ -1,0 +1,12 @@
+{
+  "ts": "2026-02-12T13:10:21.284863+00:00",
+  "method": "POST",
+  "path": "/conversations/direct/c3cfc846-1bbb-4182-bd60-83d66dc4565d",
+  "status": 200,
+  "params": null,
+  "request": null,
+  "response": {
+    "conversation_id": "469baa37-8e01-4860-82b0-0a1953269236",
+    "is_new": true
+  }
+}
