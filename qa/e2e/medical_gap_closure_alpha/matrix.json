@@ -1,0 +1,43 @@
+{
+  "timestamp_utc": "2026-02-12T12:45:00Z",
+  "scope": "API/backend closure for medical-pack gaps",
+  "checks": [
+    {
+      "id": "M1",
+      "name": "Medical upload endpoint with validation",
+      "status": "PASS",
+      "evidence": "tests/test_medical_attachments_api.py::test_medical_attachment_validation_and_attach_endpoint"
+    },
+    {
+      "id": "M2",
+      "name": "Care-request scoped listing with owner/vet/admin authorization",
+      "status": "PASS",
+      "evidence": "tests/test_medical_attachments_api.py::test_medical_upload_list_download_delete_authorization"
+    },
+    {
+      "id": "M3",
+      "name": "Secure storage metadata model + download",
+      "status": "PASS",
+      "evidence": "backend/server.py medical_attachments endpoints"
+    },
+    {
+      "id": "M4",
+      "name": "Attach existing file to another context",
+      "status": "PASS",
+      "evidence": "POST /api/medical-attachments/{id}/attach test assertion"
+    },
+    {
+      "id": "M5",
+      "name": "Delete attachment + storage cleanup",
+      "status": "PASS",
+      "evidence": "DELETE /api/medical-attachments/{id} implementation + authorization test"
+    },
+    {
+      "id": "R1",
+      "name": "Minimal appointment reminder capability + notification evidence",
+      "status": "PASS",
+      "evidence": "tests/test_medical_attachments_api.py::test_simulate_appointment_reminder_creates_evidence"
+    }
+  ],
+  "residual_gaps": []
+}

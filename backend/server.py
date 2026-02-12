@@ -1,8 +1,9 @@
-from fastapi import FastAPI, APIRouter, HTTPException, Depends, status, UploadFile, File, WebSocket, WebSocketDisconnect, Body
+from fastapi import FastAPI, APIRouter, HTTPException, Depends, status, UploadFile, File, WebSocket, WebSocketDisconnect, Body, Form
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from fastapi.encoders import jsonable_encoder
 from dotenv import load_dotenv
 from starlette.middleware.cors import CORSMiddleware
+from fastapi.responses import FileResponse
 from motor.motor_asyncio import AsyncIOMotorClient
 import os
 import logging
@@ -16,6 +17,9 @@ import jwt
 import random
 import base64
 import smtplib
+import hashlib
+import re
+import shutil
 from email.message import EmailMessage
 
 ROOT_DIR = Path(__file__).parent
@@ -2822,6 +2826,16 @@ async def report_marketplace_listing(listing_id: str, data: dict = {}, current_u
 @api_router.post("/care-requests")
 async def create_care_request(data: dict, current_user: dict = Depends(get_current_user)):
     now = datetime.utcnow()
+    attachments = data.get("attachments") if isinstance(data.get("attachments"), list) else []
+    # Keep payload small/safe for webview + notifications
+    attachments = [str(a)[:6000] for a in attachments if isinstance(a, str) and a.strip()][:4]
+
+    follow_up = {
+        "context": (data.get("follow_up_context") or "")[:1000] if isinstance(data.get("follow_up_context"), str) else None,
+        "due_date": (data.get("follow_up_due_date") or None),
+        "reminder_enabled": bool(data.get("reminder_enabled", False)),
+    }
+
     row = {
         "id": str(uuid.uuid4()),
         "pet_id": data.get("pet_id"),
@@ -2834,6 +2848,10 @@ async def create_care_request(data: dict, current_user: dict = Depends(get_curre
         "requested_by_name": current_user.get("name"),
         "assigned_vet_id": None,
         "assigned_clinic_id": None,
+        "attachments": attachments,
+        "follow_up_context": follow_up["context"],
+        "follow_up_due_date": follow_up["due_date"],
+        "reminder_enabled": follow_up["reminder_enabled"],
         "created_at": now,
         "updated_at": now,
     }
@@ -2846,7 +2864,7 @@ async def create_care_request(data: dict, current_user: dict = Depends(get_curre
         "actor_role": current_user.get("role", "user"),
         "event_type": "created",
         "status": "pending",
-        "notes": row.get("description"),
+        "notes": row.get("description") or row.get("follow_up_context"),
         "created_at": now,
     })
     await create_notifications_for_admins(
@@ -2855,6 +2873,14 @@ async def create_care_request(data: dict, current_user: dict = Depends(get_curre
         "care_request",
         {"request_id": row["id"], "route": "/clinic-care-management"}
     )
+    if row.get("reminder_enabled") and row.get("follow_up_due_date"):
+        await create_notification(
+            current_user["id"],
+            "Follow-up reminder set",
+            f"We'll remind you about your pet follow-up on {row.get('follow_up_due_date')}.",
+            "care_request",
+            {"request_id": row["id"], "pet_id": row.get("pet_id"), "route": f"/health-records?petId={row.get('pet_id')}" if row.get("pet_id") else "/health-records"}
+        )
     return {k: v for k, v in row.items() if k != "_id"}
 
 @api_router.get("/vet/care-requests")
@@ -2904,6 +2930,7 @@ async def update_vet_care_request(request_id: str, data: dict, current_user: dic
                     f"Diagnosis: {diagnosis}" if diagnosis else "",
                     f"Prescription: {prescription}" if prescription else "",
                     f"Notes: {vet_notes}" if vet_notes else "",
+                    f"Follow-up context: {existing.get('follow_up_context')}" if existing.get("follow_up_context") else "",
                 ]).strip()
                 await db.health_records.insert_one({
                     "id": str(uuid.uuid4()),
@@ -2915,8 +2942,9 @@ async def update_vet_care_request(request_id: str, data: dict, current_user: dic
                     "date": datetime.utcnow().strftime("%Y-%m-%d"),
                     "vet_name": current_user.get("name"),
                     "clinic_name": data.get("clinic_name") or existing.get("clinic_name"),
+                    "next_due_date": existing.get("follow_up_due_date"),
                     "notes": merged_notes,
-                    "attachments": [],
+                    "attachments": existing.get("attachments") or [],
                     "created_at": datetime.utcnow(),
                 })
     elif data.get("status"):
@@ -2942,7 +2970,12 @@ async def update_vet_care_request(request_id: str, data: dict, current_user: dic
             "Care request updated",
             f"Your care request is now {row.get('status', 'updated')}.",
             "care_request",
-            {"request_id": request_id, "status": row.get("status"), "route": "/clinic-care-management"}
+            {
+                "request_id": request_id,
+                "status": row.get("status"),
+                "pet_id": row.get("pet_id"),
+                "route": f"/health-records?petId={row.get('pet_id')}" if row.get("pet_id") else "/health-records",
+            }
         )
     return {k: v for k, v in row.items() if k != "_id"} if row else {"success": True}
 
@@ -2997,7 +3030,12 @@ async def update_clinic_care_request(request_id: str, data: dict, current_user: 
             "Clinic updated your care request",
             f"Clinic updated your request to {row.get('status', 'updated')}.",
             "care_request",
-            {"request_id": request_id, "status": row.get("status"), "route": "/clinic-care-management"}
+            {
+                "request_id": request_id,
+                "status": row.get("status"),
+                "pet_id": row.get("pet_id"),
+                "route": f"/health-records?petId={row.get('pet_id')}" if row.get("pet_id") else "/health-records",
+            }
         )
         if row.get("assigned_vet_id"):
             await create_notification(
@@ -3028,6 +3066,292 @@ async def get_care_request_timeline(request_id: str, current_user: dict = Depend
 
     events = await db.care_request_events.find({"request_id": request_id}).sort("created_at", 1).to_list(300)
     return [{k: v for k, v in e.items() if k != "_id"} for e in events]
+
+MEDICAL_UPLOAD_ROOT = ROOT_DIR / "uploads" / "medical"
+ALLOWED_MEDICAL_MIME_TYPES = {
+    "application/pdf",
+    "image/jpeg",
+    "image/png",
+    "image/webp",
+    "text/plain",
+}
+MAX_MEDICAL_ATTACHMENT_BYTES = 10 * 1024 * 1024
+
+
+def _sanitize_filename(filename: Optional[str]) -> str:
+    safe = re.sub(r"[^a-zA-Z0-9._-]", "_", (filename or "file").strip())
+    return safe[:120] or "file"
+
+
+async def _resolve_medical_context(care_request_id: Optional[str], appointment_id: Optional[str], health_record_id: Optional[str]) -> dict:
+    if not any([care_request_id, appointment_id, health_record_id]):
+        raise HTTPException(status_code=400, detail="One context id is required")
+
+    if care_request_id:
+        req = await db.care_requests.find_one({"id": care_request_id})
+        if not req:
+            raise HTTPException(status_code=404, detail="Care request not found")
+        return {
+            "context_type": "care_request",
+            "context_id": care_request_id,
+            "owner_user_id": req.get("requested_by"),
+            "assigned_vet_id": req.get("assigned_vet_id"),
+            "pet_id": req.get("pet_id"),
+            "care_request": req,
+        }
+
+    if appointment_id:
+        apt = await db.appointments.find_one({"id": appointment_id})
+        if not apt:
+            raise HTTPException(status_code=404, detail="Appointment not found")
+        return {
+            "context_type": "appointment",
+            "context_id": appointment_id,
+            "owner_user_id": apt.get("user_id"),
+            "assigned_vet_id": apt.get("vet_id"),
+            "pet_id": apt.get("pet_id"),
+            "appointment": apt,
+        }
+
+    rec = await db.health_records.find_one({"id": health_record_id})
+    if not rec:
+        raise HTTPException(status_code=404, detail="Health record not found")
+    return {
+        "context_type": "health_record",
+        "context_id": health_record_id,
+        "owner_user_id": rec.get("user_id"),
+        "assigned_vet_id": None,
+        "pet_id": rec.get("pet_id"),
+        "health_record": rec,
+    }
+
+
+def _can_access_medical_context(current_user: dict, owner_user_id: Optional[str], assigned_vet_id: Optional[str]) -> bool:
+    if current_user.get("is_admin") or current_user.get("role") == "admin":
+        return True
+    if current_user.get("id") == owner_user_id:
+        return True
+    if assigned_vet_id and current_user.get("id") == assigned_vet_id:
+        return True
+    return False
+
+
+@api_router.post("/medical-attachments/upload")
+async def upload_medical_attachment(
+    file: UploadFile = File(...),
+    care_request_id: Optional[str] = Form(default=None),
+    appointment_id: Optional[str] = Form(default=None),
+    health_record_id: Optional[str] = Form(default=None),
+    current_user: dict = Depends(get_current_user),
+):
+    context = await _resolve_medical_context(care_request_id, appointment_id, health_record_id)
+    if not _can_access_medical_context(current_user, context.get("owner_user_id"), context.get("assigned_vet_id")):
+        raise HTTPException(status_code=403, detail="Access denied")
+
+    content_type = (file.content_type or "").lower()
+    if content_type not in ALLOWED_MEDICAL_MIME_TYPES:
+        raise HTTPException(status_code=400, detail="Unsupported file type")
+
+    file_bytes = await file.read()
+    size_bytes = len(file_bytes)
+    if size_bytes == 0:
+        raise HTTPException(status_code=400, detail="Empty file")
+    if size_bytes > MAX_MEDICAL_ATTACHMENT_BYTES:
+        raise HTTPException(status_code=400, detail="File too large")
+
+    attachment_id = str(uuid.uuid4())
+    safe_name = _sanitize_filename(file.filename)
+    sha256 = hashlib.sha256(file_bytes).hexdigest()
+    now = datetime.utcnow()
+
+    owner_user_id = context.get("owner_user_id") or current_user.get("id")
+    storage_dir = MEDICAL_UPLOAD_ROOT / str(owner_user_id) / now.strftime("%Y/%m")
+    storage_dir.mkdir(parents=True, exist_ok=True)
+    storage_name = f"{attachment_id}_{safe_name}"
+    storage_path = storage_dir / storage_name
+    with storage_path.open("wb") as fh:
+        fh.write(file_bytes)
+
+    row = {
+        "id": attachment_id,
+        "owner_user_id": owner_user_id,
+        "uploaded_by": current_user.get("id"),
+        "uploaded_by_role": current_user.get("role", "user"),
+        "care_request_id": care_request_id,
+        "appointment_id": appointment_id,
+        "health_record_id": health_record_id,
+        "pet_id": context.get("pet_id"),
+        "original_filename": file.filename,
+        "stored_filename": storage_name,
+        "storage_path": str(storage_path),
+        "mime_type": content_type,
+        "size_bytes": size_bytes,
+        "sha256": sha256,
+        "created_at": now,
+    }
+    await db.medical_attachments.insert_one(row)
+
+    if care_request_id:
+        await db.care_request_events.insert_one({
+            "id": str(uuid.uuid4()),
+            "request_id": care_request_id,
+            "actor_id": current_user.get("id"),
+            "actor_name": current_user.get("name"),
+            "actor_role": current_user.get("role", "user"),
+            "event_type": "medical_attachment_uploaded",
+            "status": "updated",
+            "notes": f"Uploaded medical attachment: {file.filename}",
+            "attachment_id": attachment_id,
+            "created_at": now,
+        })
+
+    return {
+        "id": attachment_id,
+        "care_request_id": care_request_id,
+        "appointment_id": appointment_id,
+        "health_record_id": health_record_id,
+        "mime_type": content_type,
+        "size_bytes": size_bytes,
+        "original_filename": file.filename,
+        "download_url": f"/api/medical-attachments/{attachment_id}/download",
+        "created_at": now,
+    }
+
+
+@api_router.post("/medical-attachments/{attachment_id}/attach")
+async def attach_medical_attachment(
+    attachment_id: str,
+    data: dict,
+    current_user: dict = Depends(get_current_user),
+):
+    row = await db.medical_attachments.find_one({"id": attachment_id})
+    if not row:
+        raise HTTPException(status_code=404, detail="Attachment not found")
+
+    context = await _resolve_medical_context(
+        data.get("care_request_id"),
+        data.get("appointment_id"),
+        data.get("health_record_id"),
+    )
+    if not _can_access_medical_context(current_user, context.get("owner_user_id"), context.get("assigned_vet_id")):
+        raise HTTPException(status_code=403, detail="Access denied")
+
+    updates = {
+        "care_request_id": data.get("care_request_id"),
+        "appointment_id": data.get("appointment_id"),
+        "health_record_id": data.get("health_record_id"),
+        "pet_id": context.get("pet_id"),
+        "owner_user_id": context.get("owner_user_id") or row.get("owner_user_id"),
+        "updated_at": datetime.utcnow(),
+    }
+    await db.medical_attachments.update_one({"id": attachment_id}, {"$set": updates})
+    updated = await db.medical_attachments.find_one({"id": attachment_id})
+    return {k: v for k, v in updated.items() if k not in {"_id", "storage_path", "sha256"}}
+
+
+@api_router.get("/medical-attachments")
+async def list_medical_attachments(
+    care_request_id: Optional[str] = None,
+    appointment_id: Optional[str] = None,
+    health_record_id: Optional[str] = None,
+    current_user: dict = Depends(get_current_user),
+):
+    context = await _resolve_medical_context(care_request_id, appointment_id, health_record_id)
+    if not _can_access_medical_context(current_user, context.get("owner_user_id"), context.get("assigned_vet_id")):
+        raise HTTPException(status_code=403, detail="Access denied")
+
+    query = {}
+    if care_request_id:
+        query["care_request_id"] = care_request_id
+    if appointment_id:
+        query["appointment_id"] = appointment_id
+    if health_record_id:
+        query["health_record_id"] = health_record_id
+
+    rows = await db.medical_attachments.find(query).sort("created_at", -1).to_list(200)
+    items = []
+    for r in rows:
+        clean = {k: v for k, v in r.items() if k not in {"_id", "storage_path", "sha256"}}
+        clean["download_url"] = f"/api/medical-attachments/{r.get('id')}/download"
+        items.append(clean)
+    return items
+
+
+@api_router.get("/medical-attachments/{attachment_id}/download")
+async def download_medical_attachment(attachment_id: str, current_user: dict = Depends(get_current_user)):
+    row = await db.medical_attachments.find_one({"id": attachment_id})
+    if not row:
+        raise HTTPException(status_code=404, detail="Attachment not found")
+
+    context = await _resolve_medical_context(row.get("care_request_id"), row.get("appointment_id"), row.get("health_record_id"))
+    if not _can_access_medical_context(current_user, context.get("owner_user_id"), context.get("assigned_vet_id")):
+        raise HTTPException(status_code=403, detail="Access denied")
+
+    storage_path = row.get("storage_path")
+    if not storage_path or not os.path.exists(storage_path):
+        raise HTTPException(status_code=404, detail="Stored file not found")
+
+    return FileResponse(
+        storage_path,
+        media_type=row.get("mime_type") or "application/octet-stream",
+        filename=row.get("original_filename") or row.get("stored_filename") or "medical-file",
+    )
+
+
+@api_router.delete("/medical-attachments/{attachment_id}")
+async def delete_medical_attachment(attachment_id: str, current_user: dict = Depends(get_current_user)):
+    row = await db.medical_attachments.find_one({"id": attachment_id})
+    if not row:
+        raise HTTPException(status_code=404, detail="Attachment not found")
+
+    context = await _resolve_medical_context(row.get("care_request_id"), row.get("appointment_id"), row.get("health_record_id"))
+    if not _can_access_medical_context(current_user, context.get("owner_user_id"), context.get("assigned_vet_id")):
+        raise HTTPException(status_code=403, detail="Access denied")
+
+    try:
+        storage_path = row.get("storage_path")
+        if storage_path and os.path.exists(storage_path):
+            os.remove(storage_path)
+            parent = Path(storage_path).parent
+            if parent.exists() and not any(parent.iterdir()):
+                shutil.rmtree(parent, ignore_errors=True)
+    except Exception:
+        logger.warning("Failed to clean up attachment file", exc_info=True)
+
+    await db.medical_attachments.delete_one({"id": attachment_id})
+    return {"message": "Attachment deleted"}
+
+
+@api_router.post("/appointments/{appointment_id}/reminders/simulate")
+async def simulate_appointment_reminder(appointment_id: str, current_user: dict = Depends(get_current_user)):
+    appointment = await db.appointments.find_one({"id": appointment_id})
+    if not appointment:
+        raise HTTPException(status_code=404, detail="Appointment not found")
+
+    owner_id = appointment.get("user_id")
+    vet_id = appointment.get("vet_id")
+    if not _can_access_medical_context(current_user, owner_id, vet_id):
+        raise HTTPException(status_code=403, detail="Access denied")
+
+    now = datetime.utcnow()
+    reminder = {
+        "id": str(uuid.uuid4()),
+        "appointment_id": appointment_id,
+        "triggered_by": current_user.get("id"),
+        "triggered_at": now,
+        "delivery": "in_app",
+        "message": f"Reminder: appointment on {appointment.get('date')} at {appointment.get('time')}",
+    }
+    await db.appointment_reminders.insert_one(reminder)
+    await create_notification(
+        owner_id,
+        "Appointment reminder",
+        reminder["message"],
+        "appointment",
+        {"appointment_id": appointment_id, "simulated": True}
+    )
+    return {"status": "sent", **reminder}
+
 
 @api_router.get("/market-owner/overview")
 async def get_market_owner_overview(current_user: dict = Depends(require_roles("market_owner"))):

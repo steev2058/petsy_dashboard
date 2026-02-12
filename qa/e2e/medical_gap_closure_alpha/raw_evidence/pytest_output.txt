@@ -1,0 +1,107 @@
+.......                                                                  [100%]
+=============================== warnings summary ===============================
+backend/server.py:4488
+  /root/.openclaw/workspace/petsy_dashboard/backend/server.py:4488: DeprecationWarning: 
+          on_event is deprecated, use lifespan event handlers instead.
+  
+          Read more about it in the
+          [FastAPI docs for Lifespan Events](https://fastapi.tiangolo.com/advanced/events/).
+          
+    @app.on_event("shutdown")
+
+backend/.venv/lib/python3.12/site-packages/fastapi/applications.py:4579
+  /root/.openclaw/workspace/petsy_dashboard/backend/.venv/lib/python3.12/site-packages/fastapi/applications.py:4579: DeprecationWarning: 
+          on_event is deprecated, use lifespan event handlers instead.
+  
+          Read more about it in the
+          [FastAPI docs for Lifespan Events](https://fastapi.tiangolo.com/advanced/events/).
+          
+    return self.router.on_event(event_type)
+
+tests/test_medical_attachments_api.py::test_medical_upload_list_download_delete_authorization
+tests/test_medical_attachments_api.py::test_medical_upload_list_download_delete_authorization
+tests/test_medical_attachments_api.py::test_medical_upload_list_download_delete_authorization
+tests/test_medical_attachments_api.py::test_medical_attachment_validation_and_attach_endpoint
+tests/test_medical_attachments_api.py::test_simulate_appointment_reminder_creates_evidence
+  /root/.openclaw/workspace/petsy_dashboard/tests/test_medical_attachments_api.py:128: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+    "created_at": datetime.utcnow(),
+
+tests/test_medical_attachments_api.py: 5 warnings
+tests/test_api_security_rbac.py: 10 warnings
+  /root/.openclaw/workspace/petsy_dashboard/backend/server.py:586: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+    expire = datetime.utcnow() + timedelta(days=ACCESS_TOKEN_EXPIRE_DAYS)
+
+tests/test_medical_attachments_api.py::test_medical_upload_list_download_delete_authorization
+tests/test_medical_attachments_api.py::test_medical_attachment_validation_and_attach_endpoint
+tests/test_medical_attachments_api.py::test_simulate_appointment_reminder_creates_evidence
+tests/test_api_security_rbac.py::test_rbac_admin_endpoint_user_forbidden_admin_allowed
+tests/test_api_security_rbac.py::test_health_records_require_pet_ownership
+tests/test_api_security_rbac.py::test_forgot_password_does_not_leak_reset_code
+  /root/.openclaw/workspace/petsy_dashboard/backend/.venv/lib/python3.12/site-packages/jwt/api_jwt.py:153: InsecureKeyLengthWarning: The HMAC key is 21 bytes long, which is below the minimum recommended length of 32 bytes for SHA256. See RFC 7518 Section 3.2.
+    return self._jws.encode(
+
+tests/test_medical_attachments_api.py::test_medical_upload_list_download_delete_authorization
+  /root/.openclaw/workspace/petsy_dashboard/tests/test_medical_attachments_api.py:148: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+    "created_at": datetime.utcnow(),
+
+tests/test_medical_attachments_api.py::test_medical_upload_list_download_delete_authorization
+tests/test_medical_attachments_api.py::test_medical_attachment_validation_and_attach_endpoint
+tests/test_medical_attachments_api.py::test_simulate_appointment_reminder_creates_evidence
+tests/test_api_security_rbac.py::test_rbac_admin_endpoint_user_forbidden_admin_allowed
+tests/test_api_security_rbac.py::test_health_records_require_pet_ownership
+  /root/.openclaw/workspace/petsy_dashboard/backend/.venv/lib/python3.12/site-packages/jwt/api_jwt.py:371: InsecureKeyLengthWarning: The HMAC key is 21 bytes long, which is below the minimum recommended length of 32 bytes for SHA256. See RFC 7518 Section 3.2.
+    decoded = self.decode_complete(
+
+tests/test_medical_attachments_api.py::test_medical_upload_list_download_delete_authorization
+tests/test_medical_attachments_api.py::test_medical_attachment_validation_and_attach_endpoint
+  /root/.openclaw/workspace/petsy_dashboard/backend/server.py:3165: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+    now = datetime.utcnow()
+
+tests/test_medical_attachments_api.py::test_medical_attachment_validation_and_attach_endpoint
+  /root/.openclaw/workspace/petsy_dashboard/tests/test_medical_attachments_api.py:223: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+    "created_at": datetime.utcnow(),
+
+tests/test_medical_attachments_api.py::test_medical_attachment_validation_and_attach_endpoint
+  /root/.openclaw/workspace/petsy_dashboard/backend/server.py:3245: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+    "updated_at": datetime.utcnow(),
+
+tests/test_medical_attachments_api.py::test_simulate_appointment_reminder_creates_evidence
+  /root/.openclaw/workspace/petsy_dashboard/backend/server.py:3336: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+    now = datetime.utcnow()
+
+tests/test_medical_attachments_api.py::test_simulate_appointment_reminder_creates_evidence
+  /root/.openclaw/workspace/petsy_dashboard/backend/server.py:122: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+    "created_at": datetime.utcnow(),
+
+tests/test_medical_attachments_api.py::test_simulate_appointment_reminder_creates_evidence
+  /root/.openclaw/workspace/petsy_dashboard/backend/server.py:123: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+    "updated_at": datetime.utcnow(),
+
+tests/test_api_security_rbac.py::test_auth_code_not_leaked_by_default
+tests/test_api_security_rbac.py::test_rbac_admin_endpoint_user_forbidden_admin_allowed
+tests/test_api_security_rbac.py::test_rbac_admin_endpoint_user_forbidden_admin_allowed
+tests/test_api_security_rbac.py::test_health_records_require_pet_ownership
+tests/test_api_security_rbac.py::test_health_records_require_pet_ownership
+tests/test_api_security_rbac.py::test_forgot_password_does_not_leak_reset_code
+  /root/.openclaw/workspace/petsy_dashboard/backend/.venv/lib/python3.12/site-packages/pydantic/main.py:250: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+    validated_self = self.__pydantic_validator__.validate_python(data, self_instance=self)
+
+tests/test_api_security_rbac.py::test_auth_code_not_leaked_by_default
+tests/test_api_security_rbac.py::test_rbac_admin_endpoint_user_forbidden_admin_allowed
+tests/test_api_security_rbac.py::test_rbac_admin_endpoint_user_forbidden_admin_allowed
+tests/test_api_security_rbac.py::test_health_records_require_pet_ownership
+tests/test_api_security_rbac.py::test_health_records_require_pet_ownership
+tests/test_api_security_rbac.py::test_forgot_password_does_not_leak_reset_code
+  /root/.openclaw/workspace/petsy_dashboard/backend/server.py:799: PydanticDeprecatedSince20: The `dict` method is deprecated; use `model_dump` instead. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.12/migration/
+    user_dict = user.dict()
+
+tests/test_api_security_rbac.py::test_health_records_require_pet_ownership
+  /root/.openclaw/workspace/petsy_dashboard/tests/test_api_security_rbac.py:164: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+    "created_at": datetime.utcnow(),
+
+tests/test_api_security_rbac.py::test_forgot_password_does_not_leak_reset_code
+  /root/.openclaw/workspace/petsy_dashboard/backend/server.py:886: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+    expires_at = datetime.utcnow() + timedelta(minutes=15)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+7 passed, 55 warnings in 10.68s

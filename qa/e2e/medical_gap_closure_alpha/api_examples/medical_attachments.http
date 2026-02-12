@@ -1,0 +1,32 @@
+### Upload medical attachment to care request
+POST /api/medical-attachments/upload
+Authorization: Bearer <owner-token>
+Content-Type: multipart/form-data
+
+file=@lab-report.pdf;type=application/pdf
+care_request_id=<care-request-id>
+
+### Attach existing attachment to health record
+POST /api/medical-attachments/<attachment-id>/attach
+Authorization: Bearer <owner-or-assigned-vet-or-admin-token>
+Content-Type: application/json
+
+{
+  "health_record_id": "<health-record-id>"
+}
+
+### List medical attachments in appointment scope
+GET /api/medical-attachments?appointment_id=<appointment-id>
+Authorization: Bearer <owner-or-assigned-vet-or-admin-token>
+
+### Download attachment
+GET /api/medical-attachments/<attachment-id>/download
+Authorization: Bearer <owner-or-assigned-vet-or-admin-token>
+
+### Delete attachment
+DELETE /api/medical-attachments/<attachment-id>
+Authorization: Bearer <owner-or-assigned-vet-or-admin-token>
+
+### Simulate appointment reminder
+POST /api/appointments/<appointment-id>/reminders/simulate
+Authorization: Bearer <owner-or-assigned-vet-or-admin-token>

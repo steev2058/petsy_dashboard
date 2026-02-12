@@ -1,0 +1,11 @@
+{
+  "tests_executed": [
+    "tests/test_medical_attachments_api.py",
+    "tests/test_api_security_rbac.py"
+  ],
+  "command": "backend/.venv/bin/pytest -q tests/test_medical_attachments_api.py tests/test_api_security_rbac.py",
+  "result": "pass",
+  "pass_count": 7,
+  "fail_count": 0,
+  "log_file": "qa/e2e/medical_gap_closure_alpha/raw_evidence/pytest_output.txt"
+}
