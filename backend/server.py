@@ -1276,6 +1276,30 @@ async def get_appointment(appointment_id: str, current_user: dict = Depends(get_
         raise HTTPException(status_code=404, detail="Appointment not found")
     return Appointment(**appointment)
 
+@api_router.put("/appointments/{appointment_id}")
+async def reschedule_appointment(appointment_id: str, data: dict, current_user: dict = Depends(get_current_user)):
+    appointment = await db.appointments.find_one({"id": appointment_id, "user_id": current_user["id"]})
+    if not appointment:
+        raise HTTPException(status_code=404, detail="Appointment not found")
+
+    if appointment.get("status") == "cancelled":
+        raise HTTPException(status_code=400, detail="Cancelled appointment cannot be rescheduled")
+
+    updates = {}
+    for key in ["date", "time", "reason", "notes"]:
+        if key in data and data.get(key) is not None:
+            updates[key] = data.get(key)
+
+    if not updates:
+        raise HTTPException(status_code=400, detail="No reschedule fields provided")
+
+    await db.appointments.update_one(
+        {"id": appointment_id, "user_id": current_user["id"]},
+        {"$set": updates}
+    )
+    row = await db.appointments.find_one({"id": appointment_id})
+    return Appointment(**row)
+
 @api_router.put("/appointments/{appointment_id}/cancel")
 async def cancel_appointment(appointment_id: str, current_user: dict = Depends(get_current_user)):
     result = await db.appointments.update_one(
