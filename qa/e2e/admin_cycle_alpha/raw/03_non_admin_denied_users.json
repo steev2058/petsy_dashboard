@@ -1,0 +1,11 @@
+{
+  "ts": "2026-02-12T15:27:51.624163+00:00",
+  "method": "GET",
+  "path": "/admin/users",
+  "status": 403,
+  "request": null,
+  "params": null,
+  "response": {
+    "detail": "Admin access required"
+  }
+}

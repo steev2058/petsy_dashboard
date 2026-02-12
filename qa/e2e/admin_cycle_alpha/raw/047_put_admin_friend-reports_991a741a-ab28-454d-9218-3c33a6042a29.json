@@ -1,0 +1,14 @@
+{
+  "ts": "2026-02-12T15:29:14.656376+00:00",
+  "method": "PUT",
+  "path": "/admin/friend-reports/991a741a-ab28-454d-9218-3c33a6042a29",
+  "status": 200,
+  "request": {
+    "action": "block_target"
+  },
+  "params": null,
+  "response": {
+    "success": true,
+    "status": "resolved"
+  }
+}

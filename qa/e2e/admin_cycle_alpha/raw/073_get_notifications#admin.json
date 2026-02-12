@@ -1,0 +1,311 @@
+{
+  "ts": "2026-02-12T15:31:02.390980+00:00",
+  "method": "GET",
+  "path": "/notifications#admin",
+  "status": 200,
+  "request": null,
+  "params": null,
+  "response": {
+    "items": [
+      {
+        "id": "5d190c86-24bc-4312-8f7c-139feed8ccc9",
+        "user_id": "cf2af5c6-3ec3-4247-b43e-ff8be5f86e65",
+        "title": "New role request",
+        "body": "Alpha Market requested role: market_owner",
+        "type": "role_request",
+        "data": {
+          "request_id": "2154f870-2c7b-40a9-9ca2-ea208010bcf3",
+          "target_role": "market_owner",
+          "route": "/admin/role-requests"
+        },
+        "is_read": false,
+        "created_at": "2026-02-12T15:31:02.359000",
+        "updated_at": "2026-02-12T15:31:02.359000"
+      },
+      {
+        "id": "fe80521d-603a-4eef-bcf6-23827c219d1c",
+        "user_id": "cf2af5c6-3ec3-4247-b43e-ff8be5f86e65",
+        "title": "New role request",
+        "body": "Alpha Clinic requested role: care_clinic",
+        "type": "role_request",
+        "data": {
+          "request_id": "8533f1f6-0caa-46ab-a0b3-db62110878af",
+          "target_role": "care_clinic",
+          "route": "/admin/role-requests"
+        },
+        "is_read": false,
+        "created_at": "2026-02-12T15:31:02.338000",
+        "updated_at": "2026-02-12T15:31:02.338000"
+      },
+      {
+        "id": "48ed9603-99d7-461e-8377-ce8e0f6f8e24",
+        "user_id": "cf2af5c6-3ec3-4247-b43e-ff8be5f86e65",
+        "title": "New role request",
+        "body": "Alpha Vet requested role: vet",
+        "type": "role_request",
+        "data": {
+          "request_id": "db1364c0-e9b0-4f80-8b6e-21be87d4ccb3",
+          "target_role": "vet",
+          "route": "/admin/role-requests"
+        },
+        "is_read": false,
+        "created_at": "2026-02-12T15:31:02.317000",
+        "updated_at": "2026-02-12T15:31:02.317000"
+      },
+      {
+        "id": "8dc19651-30c3-4dc0-a8c3-9ba5b8038d6b",
+        "user_id": "cf2af5c6-3ec3-4247-b43e-ff8be5f86e65",
+        "title": "User reported",
+        "body": "Alpha User reported a user profile.",
+        "type": "admin",
+        "data": {
+          "route": "/admin/users",
+          "target_user_id": "9ef02715-e265-4379-af3f-f7b4716ea2c5"
+        },
+        "is_read": false,
+        "created_at": "2026-02-12T15:31:02.218000",
+        "updated_at": "2026-02-12T15:31:02.218000"
+      },
+      {
+        "id": "df19bb25-d2e2-494b-bfb3-4119a2d1da87",
+        "user_id": "cf2af5c6-3ec3-4247-b43e-ff8be5f86e65",
+        "title": "New role request",
+        "body": "Alpha Market requested role: market_owner",
+        "type": "role_request",
+        "data": {
+          "request_id": "4c1dff33-6c9c-4ea0-9a8b-429f666a913c",
+          "target_role": "market_owner",
+          "route": "/admin/role-requests"
+        },
+        "is_read": false,
+        "created_at": "2026-02-12T15:30:13.731000",
+        "updated_at": "2026-02-12T15:30:13.731000"
+      },
+      {
+        "id": "87130645-3313-4356-af85-2d8f9a10aecf",
+        "user_id": "cf2af5c6-3ec3-4247-b43e-ff8be5f86e65",
+        "title": "New role request",
+        "body": "Alpha Clinic requested role: care_clinic",
+        "type": "role_request",
+        "data": {
+          "request_id": "beeb7df8-128b-4f7d-b983-fc4d033712f7",
+          "target_role": "care_clinic",
+          "route": "/admin/role-requests"
+        },
+        "is_read": false,
+        "created_at": "2026-02-12T15:30:13.707000",
+        "updated_at": "2026-02-12T15:30:13.707000"
+      },
+      {
+        "id": "11b905d5-9eaa-4b51-b6c6-b80424c9932b",
+        "user_id": "cf2af5c6-3ec3-4247-b43e-ff8be5f86e65",
+        "title": "New role request",
+        "body": "Alpha Vet requested role: vet",
+        "type": "role_request",
+        "data": {
+          "request_id": "27dfdb5e-da00-4935-afc9-101212ebd1ff",
+          "target_role": "vet",
+          "route": "/admin/role-requests"
+        },
+        "is_read": false,
+        "created_at": "2026-02-12T15:30:13.685000",
+        "updated_at": "2026-02-12T15:30:13.685000"
+      },
+      {
+        "id": "355dc59d-c3d9-404f-baa9-57a19eb17d0b",
+        "user_id": "cf2af5c6-3ec3-4247-b43e-ff8be5f86e65",
+        "title": "User reported",
+        "body": "Alpha User reported a user profile.",
+        "type": "admin",
+        "data": {
+          "route": "/admin/users",
+          "target_user_id": "9a0e048d-8877-4dd4-9517-5f6656367767"
+        },
+        "is_read": false,
+        "created_at": "2026-02-12T15:30:13.590000",
+        "updated_at": "2026-02-12T15:30:13.590000"
+      },
+      {
+        "id": "2dc8aec2-cc9d-4318-ae8f-6a2d45d1f8d8",
+        "user_id": "cf2af5c6-3ec3-4247-b43e-ff8be5f86e65",
+        "title": "New role request",
+        "body": "Alpha Market requested role: market_owner",
+        "type": "role_request",
+        "data": {
+          "request_id": "112eb910-be77-4cc8-8c53-8cb608722f35",
+          "target_role": "market_owner",
+          "route": "/admin/role-requests"
+        },
+        "is_read": false,
+        "created_at": "2026-02-12T15:29:50.557000",
+        "updated_at": "2026-02-12T15:29:50.557000"
+      },
+      {
+        "id": "c32a8f0d-2485-4963-96e6-bc500e477774",
+        "user_id": "cf2af5c6-3ec3-4247-b43e-ff8be5f86e65",
+        "title": "New role request",
+        "body": "Alpha Clinic requested role: care_clinic",
+        "type": "role_request",
+        "data": {
+          "request_id": "94edb821-d57e-428a-8d0d-e25be93252c3",
+          "target_role": "care_clinic",
+          "route": "/admin/role-requests"
+        },
+        "is_read": false,
+        "created_at": "2026-02-12T15:29:50.536000",
+        "updated_at": "2026-02-12T15:29:50.536000"
+      },
+      {
+        "id": "93cbfd95-f138-4cd2-a9d3-af7883e6228e",
+        "user_id": "cf2af5c6-3ec3-4247-b43e-ff8be5f86e65",
+        "title": "New role request",
+        "body": "Alpha Vet requested role: vet",
+        "type": "role_request",
+        "data": {
+          "request_id": "9c3ac780-2442-49d1-abfe-23b98b859095",
+          "target_role": "vet",
+          "route": "/admin/role-requests"
+        },
+        "is_read": false,
+        "created_at": "2026-02-12T15:29:50.513000",
+        "updated_at": "2026-02-12T15:29:50.513000"
+      },
+      {
+        "id": "929bba66-54df-492f-9651-ed1c7b96fe87",
+        "user_id": "cf2af5c6-3ec3-4247-b43e-ff8be5f86e65",
+        "title": "User reported",
+        "body": "Alpha User reported a user profile.",
+        "type": "admin",
+        "data": {
+          "route": "/admin/users",
+          "target_user_id": "bf02feb5-1829-4611-82f8-f623b48bd198"
+        },
+        "is_read": false,
+        "created_at": "2026-02-12T15:29:50.416000",
+        "updated_at": "2026-02-12T15:29:50.416000"
+      },
+      {
+        "id": "f8467f0a-cec6-4253-89f0-d00fb5806571",
+        "user_id": "cf2af5c6-3ec3-4247-b43e-ff8be5f86e65",
+        "title": "New role request",
+        "body": "Alpha Market requested role: market_owner",
+        "type": "role_request",
+        "data": {
+          "request_id": "d2ff99b4-566c-48c5-b9f3-d15083a12124",
+          "target_role": "market_owner",
+          "route": "/admin/role-requests"
+        },
+        "is_read": false,
+        "created_at": "2026-02-12T15:29:14.787000",
+        "updated_at": "2026-02-12T15:29:14.787000"
+      },
+      {
+        "id": "d52fa70a-2647-4031-a8ef-cef40d08bdfd",
+        "user_id": "cf2af5c6-3ec3-4247-b43e-ff8be5f86e65",
+        "title": "New role request",
+        "body": "Alpha Clinic requested role: care_clinic",
+        "type": "role_request",
+        "data": {
+          "request_id": "272391e7-dd54-46df-96c5-8c9a67dd773f",
+          "target_role": "care_clinic",
+          "route": "/admin/role-requests"
+        },
+        "is_read": false,
+        "created_at": "2026-02-12T15:29:14.762000",
+        "updated_at": "2026-02-12T15:29:14.762000"
+      },
+      {
+        "id": "00893526-3da1-425f-8aee-e9ee9bb07f81",
+        "user_id": "cf2af5c6-3ec3-4247-b43e-ff8be5f86e65",
+        "title": "New role request",
+        "body": "Alpha Vet requested role: vet",
+        "type": "role_request",
+        "data": {
+          "request_id": "d75c78b5-e971-42f7-b180-8bb72b7636b8",
+          "target_role": "vet",
+          "route": "/admin/role-requests"
+        },
+        "is_read": false,
+        "created_at": "2026-02-12T15:29:14.740000",
+        "updated_at": "2026-02-12T15:29:14.740000"
+      },
+      {
+        "id": "753da3bb-7dff-4c99-8a15-01d0f29cf3d0",
+        "user_id": "cf2af5c6-3ec3-4247-b43e-ff8be5f86e65",
+        "title": "User reported",
+        "body": "Alpha User reported a user profile.",
+        "type": "admin",
+        "data": {
+          "route": "/admin/users",
+          "target_user_id": "dae5ec11-4eec-4191-8db8-a4a45cd70922"
+        },
+        "is_read": false,
+        "created_at": "2026-02-12T15:29:14.642000",
+        "updated_at": "2026-02-12T15:29:14.642000"
+      },
+      {
+        "id": "1336d118-668c-4a44-9ef7-3ec1044eb2cf",
+        "user_id": "cf2af5c6-3ec3-4247-b43e-ff8be5f86e65",
+        "title": "User reported",
+        "body": "Demo Clinic reported a user profile.",
+        "type": "admin",
+        "data": {
+          "route": "/admin/users",
+          "target_user_id": "cf2af5c6-3ec3-4247-b43e-ff8be5f86e65"
+        },
+        "is_read": false,
+        "created_at": "2026-02-12T15:27:51.698000",
+        "updated_at": "2026-02-12T15:27:51.698000"
+      },
+      {
+        "id": "b1beffa0-6ce0-4eb9-937e-6b1445b3b73b",
+        "user_id": "cf2af5c6-3ec3-4247-b43e-ff8be5f86e65",
+        "title": "New role request",
+        "body": "Beta Market requested role: market_owner",
+        "type": "role_request",
+        "data": {
+          "request_id": "a2652488-8498-4ef2-8894-8f07211c5fd5",
+          "target_role": "market_owner",
+          "route": "/admin/role-requests"
+        },
+        "is_read": false,
+        "created_at": "2026-02-12T15:25:41.802000",
+        "updated_at": "2026-02-12T15:25:41.802000"
+      },
+      {
+        "id": "ae4be623-6c5a-422d-92e4-708da3579ace",
+        "user_id": "cf2af5c6-3ec3-4247-b43e-ff8be5f86e65",
+        "title": "New role request",
+        "body": "Beta Clinic requested role: care_clinic",
+        "type": "role_request",
+        "data": {
+          "request_id": "4736b036-1816-4eaa-903f-31eeec550a7b",
+          "target_role": "care_clinic",
+          "route": "/admin/role-requests"
+        },
+        "is_read": false,
+        "created_at": "2026-02-12T15:25:41.780000",
+        "updated_at": "2026-02-12T15:25:41.780000"
+      },
+      {
+        "id": "5c23e2e8-506a-43d5-84f3-a4d714249e22",
+        "user_id": "cf2af5c6-3ec3-4247-b43e-ff8be5f86e65",
+        "title": "New role request",
+        "body": "Beta Vet requested role: vet",
+        "type": "role_request",
+        "data": {
+          "request_id": "09ed729f-9fdb-4634-8e91-e44b698641e4",
+          "target_role": "vet",
+          "route": "/admin/role-requests"
+        },
+        "is_read": false,
+        "created_at": "2026-02-12T15:25:41.755000",
+        "updated_at": "2026-02-12T15:25:41.755000"
+      }
+    ],
+    "total": 81,
+    "limit": 20,
+    "offset": 0,
+    "has_more": true
+  }
+}

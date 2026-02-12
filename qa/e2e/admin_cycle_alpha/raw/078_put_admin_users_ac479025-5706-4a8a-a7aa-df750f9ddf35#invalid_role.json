@@ -1,0 +1,13 @@
+{
+  "ts": "2026-02-12T15:29:14.839553+00:00",
+  "method": "PUT",
+  "path": "/admin/users/ac479025-5706-4a8a-a7aa-df750f9ddf35#invalid_role",
+  "status": 400,
+  "request": {
+    "role": "superadmin"
+  },
+  "params": null,
+  "response": {
+    "detail": "Invalid role. Allowed: admin, care_clinic, market_owner, user, vet"
+  }
+}

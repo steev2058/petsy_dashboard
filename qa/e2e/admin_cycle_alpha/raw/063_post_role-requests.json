@@ -1,0 +1,22 @@
+{
+  "ts": "2026-02-12T15:31:02.340632+00:00",
+  "method": "POST",
+  "path": "/role-requests",
+  "status": 200,
+  "request": {
+    "target_role": "care_clinic",
+    "reason": "alpha-admin-cycle-20260212T153055Z-clinic_actor"
+  },
+  "params": null,
+  "response": {
+    "id": "8533f1f6-0caa-46ab-a0b3-db62110878af",
+    "user_id": "4c502561-40ea-4e3f-a345-1b8abe0e6566",
+    "user_name": "Alpha Clinic",
+    "user_email": "alpha.clinic.1770910255@example.com",
+    "target_role": "care_clinic",
+    "reason": "alpha-admin-cycle-20260212T153055Z-clinic_actor",
+    "status": "pending",
+    "created_at": "2026-02-12T15:31:02.336720",
+    "updated_at": "2026-02-12T15:31:02.336723"
+  }
+}

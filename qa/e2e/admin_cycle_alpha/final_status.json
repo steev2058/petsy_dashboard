@@ -1,0 +1,51 @@
+{
+  "status": "GO",
+  "run_id": "20260212T153055Z",
+  "blockers": [],
+  "matrix": [
+    {
+      "check": "Admin auth/session valid and admin role visible",
+      "result": "PASS"
+    },
+    {
+      "check": "Role management: admin can view users and update+rollback user role",
+      "result": "PASS"
+    },
+    {
+      "check": "Governance boundary: non-admin actors denied on admin endpoints",
+      "result": "PASS"
+    },
+    {
+      "check": "Friend moderation: block_target prevents DM",
+      "result": "PASS"
+    },
+    {
+      "check": "Marketplace moderation: archived listing hidden publicly and visible archived to owner",
+      "result": "PASS"
+    },
+    {
+      "check": "Community moderation: admin can view and delete community post",
+      "result": "PASS"
+    },
+    {
+      "check": "Operational admin: audit log filters and admin notifications visible",
+      "result": "PASS"
+    },
+    {
+      "check": "Role-request decisions reflected in user role and requester history",
+      "result": "PASS"
+    },
+    {
+      "check": "Notifications propagated to impacted actors",
+      "result": "PASS"
+    },
+    {
+      "check": "Governance boundary: non-admin denied admin audit logs",
+      "result": "PASS"
+    },
+    {
+      "check": "High-risk negatives: invalid role, missing IDs, malformed payloads rejected",
+      "result": "PASS"
+    }
+  ]
+}

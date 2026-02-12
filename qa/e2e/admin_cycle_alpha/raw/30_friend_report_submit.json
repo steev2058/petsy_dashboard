@@ -1,0 +1,15 @@
+{
+  "ts": "2026-02-12T15:27:51.700957+00:00",
+  "method": "POST",
+  "path": "/friends/report",
+  "status": 200,
+  "request": {
+    "target_user_id": "cf2af5c6-3ec3-4247-b43e-ff8be5f86e65",
+    "reason": "abuse",
+    "details": "admin-cycle-20260212T152751Z"
+  },
+  "params": null,
+  "response": {
+    "success": true
+  }
+}

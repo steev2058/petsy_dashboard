@@ -1,0 +1,17 @@
+{
+  "ts": "2026-02-12T15:30:59.289364+00:00",
+  "method": "POST",
+  "path": "/auth/signup",
+  "status": 200,
+  "request": {
+    "email": "alpha.clinic.1770910255@example.com",
+    "name": "Alpha Clinic",
+    "password": "***",
+    "phone": "+962701011113"
+  },
+  "params": null,
+  "response": {
+    "message": "User created. Verification code sent to email.",
+    "user_id": "4c502561-40ea-4e3f-a345-1b8abe0e6566"
+  }
+}

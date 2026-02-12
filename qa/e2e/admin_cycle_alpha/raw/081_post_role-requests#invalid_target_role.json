@@ -1,0 +1,14 @@
+{
+  "ts": "2026-02-12T15:29:50.622823+00:00",
+  "method": "POST",
+  "path": "/role-requests#invalid_target_role",
+  "status": 400,
+  "request": {
+    "target_role": "godmode",
+    "reason": "alpha-admin-cycle-20260212T152943Z"
+  },
+  "params": null,
+  "response": {
+    "detail": "Invalid target role"
+  }
+}

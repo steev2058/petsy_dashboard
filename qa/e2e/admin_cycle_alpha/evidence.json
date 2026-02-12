@@ -1,0 +1,311 @@
+{
+  "run_id": "20260212T153055Z",
+  "base": "http://127.0.0.1:8001/api",
+  "marker": "alpha-admin-cycle-20260212T153055Z",
+  "users": {
+    "admin": {
+      "id": "cf2af5c6-3ec3-4247-b43e-ff8be5f86e65",
+      "email": "admin@petsy.com",
+      "role": "admin"
+    },
+    "beta_user": {
+      "id": "6000f5e2-fb25-4116-b1e4-599c2b9a5bde",
+      "email": "alpha.user.1770910255@example.com",
+      "role": "user"
+    },
+    "vet_actor": {
+      "id": "f694e7f5-3c9c-4cb1-939f-c8b7c87a1a35",
+      "email": "alpha.vet.1770910255@example.com"
+    },
+    "clinic_actor": {
+      "id": "4c502561-40ea-4e3f-a345-1b8abe0e6566",
+      "email": "alpha.clinic.1770910255@example.com"
+    },
+    "market_actor": {
+      "id": "e05f0e2a-9077-4705-845b-aa29712d5b85",
+      "email": "alpha.market.1770910255@example.com"
+    },
+    "target_user": {
+      "id": "9ef02715-e265-4379-af3f-f7b4716ea2c5",
+      "email": "alpha.target.1770910255@example.com"
+    }
+  },
+  "entities": {
+    "friend_report_id": "876345e0-1ced-4693-98d3-28eaf1e80ac0",
+    "market_listing_id": "bf22266a-a99d-46aa-b4c6-efd28b675f57",
+    "community_post_id": "1e4fac08-91b1-470f-94f6-eec2464ed690",
+    "role_request_ids": {
+      "vet_actor": "db1364c0-e9b0-4f80-8b6e-21be87d4ccb3",
+      "clinic_actor": "8533f1f6-0caa-46ab-a0b3-db62110878af",
+      "market_actor": "2154f870-2c7b-40a9-9ca2-ea208010bcf3"
+    }
+  },
+  "checks": {
+    "admin_session_ok": true,
+    "users_visible": true,
+    "role_update_ok": true,
+    "role_rollback_ok": true,
+    "non_admin_denials_ok": true,
+    "dm_blocked": true,
+    "listing_hidden_public": true,
+    "owner_sees_archived": true,
+    "community_visible_admin": true,
+    "community_deleted": true,
+    "audit_filters_ok": true,
+    "audit_logs_denied_non_admin": true,
+    "invalid_role_rejected": true,
+    "missing_id_rejected": true,
+    "malformed_payload_rejected": true,
+    "invalid_role_request_rejected": true
+  },
+  "denial_results": [
+    {
+      "actor": "beta_user",
+      "endpoint": "/admin/stats",
+      "status": 403,
+      "denied": true
+    },
+    {
+      "actor": "beta_user",
+      "endpoint": "/admin/users",
+      "status": 403,
+      "denied": true
+    },
+    {
+      "actor": "beta_user",
+      "endpoint": "/admin/audit-logs",
+      "status": 403,
+      "denied": true
+    },
+    {
+      "actor": "beta_user",
+      "endpoint": "/admin/marketplace/reports",
+      "status": 403,
+      "denied": true
+    },
+    {
+      "actor": "beta_user",
+      "endpoint": "/admin/role-requests",
+      "status": 403,
+      "denied": true
+    },
+    {
+      "actor": "beta_user",
+      "endpoint": "/admin/community",
+      "status": 403,
+      "denied": true
+    },
+    {
+      "actor": "beta_user",
+      "endpoint": "/admin/friend-reports",
+      "status": 403,
+      "denied": true
+    },
+    {
+      "actor": "vet_actor",
+      "endpoint": "/admin/stats",
+      "status": 403,
+      "denied": true
+    },
+    {
+      "actor": "vet_actor",
+      "endpoint": "/admin/users",
+      "status": 403,
+      "denied": true
+    },
+    {
+      "actor": "vet_actor",
+      "endpoint": "/admin/audit-logs",
+      "status": 403,
+      "denied": true
+    },
+    {
+      "actor": "vet_actor",
+      "endpoint": "/admin/marketplace/reports",
+      "status": 403,
+      "denied": true
+    },
+    {
+      "actor": "vet_actor",
+      "endpoint": "/admin/role-requests",
+      "status": 403,
+      "denied": true
+    },
+    {
+      "actor": "vet_actor",
+      "endpoint": "/admin/community",
+      "status": 403,
+      "denied": true
+    },
+    {
+      "actor": "vet_actor",
+      "endpoint": "/admin/friend-reports",
+      "status": 403,
+      "denied": true
+    },
+    {
+      "actor": "clinic_actor",
+      "endpoint": "/admin/stats",
+      "status": 403,
+      "denied": true
+    },
+    {
+      "actor": "clinic_actor",
+      "endpoint": "/admin/users",
+      "status": 403,
+      "denied": true
+    },
+    {
+      "actor": "clinic_actor",
+      "endpoint": "/admin/audit-logs",
+      "status": 403,
+      "denied": true
+    },
+    {
+      "actor": "clinic_actor",
+      "endpoint": "/admin/marketplace/reports",
+      "status": 403,
+      "denied": true
+    },
+    {
+      "actor": "clinic_actor",
+      "endpoint": "/admin/role-requests",
+      "status": 403,
+      "denied": true
+    },
+    {
+      "actor": "clinic_actor",
+      "endpoint": "/admin/community",
+      "status": 403,
+      "denied": true
+    },
+    {
+      "actor": "clinic_actor",
+      "endpoint": "/admin/friend-reports",
+      "status": 403,
+      "denied": true
+    },
+    {
+      "actor": "market_actor",
+      "endpoint": "/admin/stats",
+      "status": 403,
+      "denied": true
+    },
+    {
+      "actor": "market_actor",
+      "endpoint": "/admin/users",
+      "status": 403,
+      "denied": true
+    },
+    {
+      "actor": "market_actor",
+      "endpoint": "/admin/audit-logs",
+      "status": 403,
+      "denied": true
+    },
+    {
+      "actor": "market_actor",
+      "endpoint": "/admin/marketplace/reports",
+      "status": 403,
+      "denied": true
+    },
+    {
+      "actor": "market_actor",
+      "endpoint": "/admin/role-requests",
+      "status": 403,
+      "denied": true
+    },
+    {
+      "actor": "market_actor",
+      "endpoint": "/admin/community",
+      "status": 403,
+      "denied": true
+    },
+    {
+      "actor": "market_actor",
+      "endpoint": "/admin/friend-reports",
+      "status": 403,
+      "denied": true
+    }
+  ],
+  "role_changes": [
+    {
+      "actor": "vet_actor",
+      "target_role": "vet",
+      "admin_action": "approve",
+      "auth_me_role": "vet",
+      "request_visible": true,
+      "request_status": "approved"
+    },
+    {
+      "actor": "clinic_actor",
+      "target_role": "care_clinic",
+      "admin_action": "approve",
+      "auth_me_role": "care_clinic",
+      "request_visible": true,
+      "request_status": "approved"
+    },
+    {
+      "actor": "market_actor",
+      "target_role": "market_owner",
+      "admin_action": "reject",
+      "auth_me_role": "user",
+      "request_visible": true,
+      "request_status": "rejected"
+    }
+  ],
+  "notifications": {
+    "admin_got_event_notifs": true,
+    "market_got_listing_update": true,
+    "vet_got_role_update": true,
+    "clinic_got_role_update": true
+  },
+  "matrix": [
+    {
+      "check": "Admin auth/session valid and admin role visible",
+      "result": "PASS"
+    },
+    {
+      "check": "Role management: admin can view users and update+rollback user role",
+      "result": "PASS"
+    },
+    {
+      "check": "Governance boundary: non-admin actors denied on admin endpoints",
+      "result": "PASS"
+    },
+    {
+      "check": "Friend moderation: block_target prevents DM",
+      "result": "PASS"
+    },
+    {
+      "check": "Marketplace moderation: archived listing hidden publicly and visible archived to owner",
+      "result": "PASS"
+    },
+    {
+      "check": "Community moderation: admin can view and delete community post",
+      "result": "PASS"
+    },
+    {
+      "check": "Operational admin: audit log filters and admin notifications visible",
+      "result": "PASS"
+    },
+    {
+      "check": "Role-request decisions reflected in user role and requester history",
+      "result": "PASS"
+    },
+    {
+      "check": "Notifications propagated to impacted actors",
+      "result": "PASS"
+    },
+    {
+      "check": "Governance boundary: non-admin denied admin audit logs",
+      "result": "PASS"
+    },
+    {
+      "check": "High-risk negatives: invalid role, missing IDs, malformed payloads rejected",
+      "result": "PASS"
+    }
+  ],
+  "blockers": [],
+  "step_count": 83
+}

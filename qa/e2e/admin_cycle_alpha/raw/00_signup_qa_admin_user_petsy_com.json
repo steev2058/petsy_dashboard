@@ -1,0 +1,17 @@
+{
+  "ts": "2026-02-12T15:26:30.024462+00:00",
+  "method": "POST",
+  "path": "/auth/signup",
+  "status": 200,
+  "request": {
+    "email": "qa.admin.user@petsy.com",
+    "name": "QA Admin Cycle User",
+    "password": "demo123",
+    "phone": "+962700000000"
+  },
+  "params": null,
+  "response": {
+    "message": "User created. Verification code sent to email.",
+    "user_id": "465d029f-bd5b-4330-8c1e-dd6f60cb518f"
+  }
+}

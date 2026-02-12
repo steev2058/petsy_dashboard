@@ -1,0 +1,13 @@
+{
+  "ts": "2026-02-12T15:27:51.692708+00:00",
+  "method": "PUT",
+  "path": "/admin/marketplace/listings/non-existent-id/status",
+  "status": 200,
+  "request": {
+    "status": "active"
+  },
+  "params": null,
+  "response": {
+    "success": true
+  }
+}

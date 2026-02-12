@@ -1,0 +1,13 @@
+{
+  "ts": "2026-02-12T15:30:13.493191+00:00",
+  "method": "PUT",
+  "path": "/admin/users/6aa69261-6064-4e65-a8e9-b494cddbd47b",
+  "status": 200,
+  "request": {
+    "role": "care_clinic"
+  },
+  "params": null,
+  "response": {
+    "success": true
+  }
+}

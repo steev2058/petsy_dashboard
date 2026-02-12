@@ -1,0 +1,13 @@
+{
+  "ts": "2026-02-12T15:31:02.252736+00:00",
+  "method": "PUT",
+  "path": "/admin/marketplace/listings/bf22266a-a99d-46aa-b4c6-efd28b675f57/status",
+  "status": 200,
+  "request": {
+    "status": "archived"
+  },
+  "params": null,
+  "response": {
+    "success": true
+  }
+}

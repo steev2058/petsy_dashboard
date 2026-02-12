@@ -1,0 +1,33 @@
+{
+  "ts": "2026-02-12T15:27:51.667613+00:00",
+  "method": "POST",
+  "path": "/marketplace/listings",
+  "status": 422,
+  "request": {
+    "title": "AdminCycle Listing admin-cycle-20260212T152751Z",
+    "description": "Listing for admin moderation cycle",
+    "price": 12.5,
+    "category": "other",
+    "city": "Amman"
+  },
+  "params": null,
+  "response": {
+    "detail": [
+      {
+        "type": "missing",
+        "loc": [
+          "body",
+          "location"
+        ],
+        "msg": "Field required",
+        "input": {
+          "title": "AdminCycle Listing admin-cycle-20260212T152751Z",
+          "description": "Listing for admin moderation cycle",
+          "price": 12.5,
+          "category": "other",
+          "city": "Amman"
+        }
+      }
+    ]
+  }
+}

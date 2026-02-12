@@ -1,0 +1,13 @@
+{
+  "ts": "2026-02-12T15:27:51.683120+00:00",
+  "method": "PUT",
+  "path": "/admin/marketplace/listings/None/status",
+  "status": 200,
+  "request": {
+    "status": "archived"
+  },
+  "params": null,
+  "response": {
+    "success": true
+  }
+}

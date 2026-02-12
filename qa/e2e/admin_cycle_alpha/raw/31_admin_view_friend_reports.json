@@ -1,0 +1,31 @@
+{
+  "ts": "2026-02-12T15:27:51.705784+00:00",
+  "method": "GET",
+  "path": "/admin/friend-reports",
+  "status": 200,
+  "request": null,
+  "params": {
+    "target_user_id": "cf2af5c6-3ec3-4247-b43e-ff8be5f86e65"
+  },
+  "response": [
+    {
+      "id": "80d92ef9-b73c-479e-8d58-9895bc37c222",
+      "reason": "abuse",
+      "notes": null,
+      "status": "open",
+      "created_at": "2026-02-12T15:27:51.696000",
+      "reported_by": {
+        "id": "97052c92-910f-4061-976f-c8a991cdaaf4",
+        "name": "Demo Clinic",
+        "email": "demo.clinic@petsy.com"
+      },
+      "target_user": {
+        "id": "cf2af5c6-3ec3-4247-b43e-ff8be5f86e65",
+        "name": "Admin",
+        "email": "admin@petsy.com"
+      },
+      "reviewed_at": null,
+      "reviewed_by": null
+    }
+  ]
+}

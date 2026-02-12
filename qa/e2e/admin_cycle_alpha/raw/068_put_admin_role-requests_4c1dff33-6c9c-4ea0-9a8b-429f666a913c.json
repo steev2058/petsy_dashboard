@@ -1,0 +1,13 @@
+{
+  "ts": "2026-02-12T15:30:13.740011+00:00",
+  "method": "PUT",
+  "path": "/admin/role-requests/4c1dff33-6c9c-4ea0-9a8b-429f666a913c",
+  "status": 200,
+  "request": {
+    "action": "reject"
+  },
+  "params": null,
+  "response": {
+    "success": true
+  }
+}

@@ -1,0 +1,22 @@
+{
+  "ts": "2026-02-12T15:31:02.354960+00:00",
+  "method": "GET",
+  "path": "/role-requests/my#clinic_actor",
+  "status": 200,
+  "request": null,
+  "params": null,
+  "response": [
+    {
+      "id": "8533f1f6-0caa-46ab-a0b3-db62110878af",
+      "user_id": "4c502561-40ea-4e3f-a345-1b8abe0e6566",
+      "user_name": "Alpha Clinic",
+      "user_email": "alpha.clinic.1770910255@example.com",
+      "target_role": "care_clinic",
+      "reason": "alpha-admin-cycle-20260212T153055Z-clinic_actor",
+      "status": "approved",
+      "created_at": "2026-02-12T15:31:02.336000",
+      "updated_at": "2026-02-12T15:31:02.344000",
+      "reviewed_by": "cf2af5c6-3ec3-4247-b43e-ff8be5f86e65"
+    }
+  ]
+}

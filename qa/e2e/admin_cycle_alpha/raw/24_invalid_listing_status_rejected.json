@@ -1,0 +1,13 @@
+{
+  "ts": "2026-02-12T15:27:51.686637+00:00",
+  "method": "PUT",
+  "path": "/admin/marketplace/listings/None/status",
+  "status": 400,
+  "request": {
+    "status": "bad_status"
+  },
+  "params": null,
+  "response": {
+    "detail": "Invalid status"
+  }
+}

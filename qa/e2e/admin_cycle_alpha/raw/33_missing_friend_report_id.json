@@ -1,0 +1,13 @@
+{
+  "ts": "2026-02-12T15:27:51.712537+00:00",
+  "method": "PUT",
+  "path": "/admin/friend-reports/non-existent-id",
+  "status": 400,
+  "request": {
+    "action": "dismiss"
+  },
+  "params": null,
+  "response": {
+    "detail": "Invalid action"
+  }
+}

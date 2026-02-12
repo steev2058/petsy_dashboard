@@ -4226,6 +4226,10 @@ async def get_all_users(admin_user: dict = Depends(get_admin_user)):
 @api_router.put("/admin/users/{user_id}")
 async def update_user_admin(user_id: str, data: dict, admin_user: dict = Depends(get_admin_user)):
     """Update user (admin)"""
+    existing = await db.users.find_one({"id": user_id})
+    if not existing:
+        raise HTTPException(status_code=404, detail="User not found")
+
     if "role" in data:
       role = str(data.get("role") or "").strip()
       if role not in ALLOWED_ROLES:
@@ -4293,8 +4297,11 @@ async def set_marketplace_listing_status_admin(listing_id: str, data: dict, admi
     if status not in ["active", "sold", "archived"]:
         raise HTTPException(status_code=400, detail="Invalid status")
     listing = await db.marketplace_listings.find_one({"id": listing_id})
+    if not listing:
+        raise HTTPException(status_code=404, detail="Listing not found")
+
     await db.marketplace_listings.update_one({"id": listing_id}, {"$set": {"status": status, "updated_at": datetime.utcnow()}})
-    if listing and listing.get("user_id"):
+    if listing.get("user_id"):
         await create_notification(
             listing.get("user_id"),
             "Marketplace listing update",
@@ -4532,13 +4539,17 @@ async def delete_vet_admin(vet_id: str, admin_user: dict = Depends(get_admin_use
 @api_router.get("/admin/community")
 async def get_all_posts_admin(admin_user: dict = Depends(get_admin_user)):
     """Get all community posts for admin"""
-    posts = await db.community_posts.find({}).sort("created_at", -1).to_list(1000)
-    return posts
+    posts = await db.community.find({}).sort("created_at", -1).to_list(1000)
+    return [{k: v for k, v in p.items() if k != "_id"} for p in posts]
 
 @api_router.delete("/admin/community/{post_id}")
 async def delete_post_admin(post_id: str, admin_user: dict = Depends(get_admin_user)):
     """Delete community post (admin)"""
+    deleted_primary = await db.community.delete_one({"id": post_id})
+    # backward compatibility: clear legacy collection if present
     await db.community_posts.delete_one({"id": post_id})
+    if deleted_primary.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="Post not found")
     return {"success": True}
 
 @api_router.get("/admin/payments")

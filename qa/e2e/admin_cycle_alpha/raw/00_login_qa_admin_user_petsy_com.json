@@ -1,0 +1,14 @@
+{
+  "ts": "2026-02-12T15:26:28.743722+00:00",
+  "method": "POST",
+  "path": "/auth/login",
+  "status": 401,
+  "request": {
+    "email": "qa.admin.user@petsy.com",
+    "password": "demo123"
+  },
+  "params": null,
+  "response": {
+    "detail": "Invalid credentials"
+  }
+}

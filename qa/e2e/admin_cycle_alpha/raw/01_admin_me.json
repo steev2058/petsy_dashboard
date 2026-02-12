@@ -1,0 +1,24 @@
+{
+  "ts": "2026-02-12T15:27:51.602913+00:00",
+  "method": "GET",
+  "path": "/auth/me",
+  "status": 200,
+  "request": null,
+  "params": null,
+  "response": {
+    "id": "cf2af5c6-3ec3-4247-b43e-ff8be5f86e65",
+    "email": "admin@petsy.com",
+    "name": "Admin",
+    "username": "adminuser",
+    "user_code": "PET-F86E65",
+    "phone": "+963900000000",
+    "city": null,
+    "bio": null,
+    "avatar": null,
+    "language": "ar",
+    "is_verified": true,
+    "is_admin": true,
+    "role": "admin",
+    "created_at": "2026-02-11T10:16:53.735000"
+  }
+}

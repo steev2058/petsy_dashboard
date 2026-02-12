@@ -1,0 +1,39 @@
+{
+  "ts": "2026-02-12T15:27:51.715843+00:00",
+  "method": "POST",
+  "path": "/community",
+  "status": 422,
+  "request": {
+    "content": "Reported community post admin-cycle-20260212T152751Z",
+    "images": []
+  },
+  "params": null,
+  "response": {
+    "detail": [
+      {
+        "type": "missing",
+        "loc": [
+          "body",
+          "type"
+        ],
+        "msg": "Field required",
+        "input": {
+          "content": "Reported community post admin-cycle-20260212T152751Z",
+          "images": []
+        }
+      },
+      {
+        "type": "missing",
+        "loc": [
+          "body",
+          "title"
+        ],
+        "msg": "Field required",
+        "input": {
+          "content": "Reported community post admin-cycle-20260212T152751Z",
+          "images": []
+        }
+      }
+    ]
+  }
+}

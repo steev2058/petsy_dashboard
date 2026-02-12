@@ -1,0 +1,53 @@
+{
+  "ts": "2026-02-12T15:27:51.737540+00:00",
+  "method": "GET",
+  "path": "/admin/audit-logs",
+  "status": 200,
+  "request": null,
+  "params": {
+    "q": "update_user",
+    "action": "update_user",
+    "limit": 20
+  },
+  "response": [
+    {
+      "id": "2cb23eda-4558-492f-aec1-0515bf496f0b",
+      "admin_user_id": "cf2af5c6-3ec3-4247-b43e-ff8be5f86e65",
+      "admin_email": "admin@petsy.com",
+      "action": "update_user",
+      "target_type": "user",
+      "target_id": "non-existent-id",
+      "payload": {
+        "role": "user",
+        "is_admin": false
+      },
+      "created_at": "2026-02-12T15:27:51.657000"
+    },
+    {
+      "id": "a9177815-856b-40b0-9bb9-d815641fd0d3",
+      "admin_user_id": "cf2af5c6-3ec3-4247-b43e-ff8be5f86e65",
+      "admin_email": "admin@petsy.com",
+      "action": "update_user",
+      "target_type": "user",
+      "target_id": "97052c92-910f-4061-976f-c8a991cdaaf4",
+      "payload": {
+        "role": "care_clinic",
+        "is_admin": false
+      },
+      "created_at": "2026-02-12T15:27:51.647000"
+    },
+    {
+      "id": "d8f017a7-e182-4132-8ec6-83f53b25cef2",
+      "admin_user_id": "cf2af5c6-3ec3-4247-b43e-ff8be5f86e65",
+      "admin_email": "admin@petsy.com",
+      "action": "update_user",
+      "target_type": "user",
+      "target_id": "97052c92-910f-4061-976f-c8a991cdaaf4",
+      "payload": {
+        "role": "vet",
+        "is_admin": false
+      },
+      "created_at": "2026-02-12T15:27:51.632000"
+    }
+  ]
+}

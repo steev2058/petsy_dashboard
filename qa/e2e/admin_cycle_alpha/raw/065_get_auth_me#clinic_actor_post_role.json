@@ -1,0 +1,24 @@
+{
+  "ts": "2026-02-12T15:31:02.350803+00:00",
+  "method": "GET",
+  "path": "/auth/me#clinic_actor_post_role",
+  "status": 200,
+  "request": null,
+  "params": null,
+  "response": {
+    "id": "4c502561-40ea-4e3f-a345-1b8abe0e6566",
+    "email": "alpha.clinic.1770910255@example.com",
+    "name": "Alpha Clinic",
+    "username": "alphaclinic5",
+    "user_code": "PET-0E6566",
+    "phone": "+962701011113",
+    "city": null,
+    "bio": null,
+    "avatar": null,
+    "language": "en",
+    "is_verified": false,
+    "is_admin": false,
+    "role": "care_clinic",
+    "created_at": "2026-02-12T15:30:57.944000"
+  }
+}

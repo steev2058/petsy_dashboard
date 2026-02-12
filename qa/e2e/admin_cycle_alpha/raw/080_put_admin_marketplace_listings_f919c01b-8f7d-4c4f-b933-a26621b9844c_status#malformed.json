@@ -1,0 +1,13 @@
+{
+  "ts": "2026-02-12T15:29:50.619852+00:00",
+  "method": "PUT",
+  "path": "/admin/marketplace/listings/f919c01b-8f7d-4c4f-b933-a26621b9844c/status#malformed",
+  "status": 400,
+  "request": {
+    "status": "DROP TABLE"
+  },
+  "params": null,
+  "response": {
+    "detail": "Invalid status"
+  }
+}

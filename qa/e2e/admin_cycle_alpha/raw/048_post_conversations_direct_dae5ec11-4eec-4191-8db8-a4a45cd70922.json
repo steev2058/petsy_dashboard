@@ -1,0 +1,11 @@
+{
+  "ts": "2026-02-12T15:29:14.660980+00:00",
+  "method": "POST",
+  "path": "/conversations/direct/dae5ec11-4eec-4191-8db8-a4a45cd70922",
+  "status": 403,
+  "request": null,
+  "params": null,
+  "response": {
+    "detail": "Cannot message this user"
+  }
+}

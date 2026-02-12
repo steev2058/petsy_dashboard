@@ -1,0 +1,14 @@
+{
+  "ts": "2026-02-12T15:27:51.672334+00:00",
+  "method": "POST",
+  "path": "/marketplace/listings/None/report",
+  "status": 404,
+  "request": {
+    "reason": "spam",
+    "details": "admin-cycle-20260212T152751Z"
+  },
+  "params": null,
+  "response": {
+    "detail": "Listing not found"
+  }
+}

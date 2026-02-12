@@ -1,0 +1,13 @@
+{
+  "ts": "2026-02-12T15:31:02.417351+00:00",
+  "method": "PUT",
+  "path": "/admin/users/non-existent-id",
+  "status": 404,
+  "request": {
+    "role": "user"
+  },
+  "params": null,
+  "response": {
+    "detail": "User not found"
+  }
+}

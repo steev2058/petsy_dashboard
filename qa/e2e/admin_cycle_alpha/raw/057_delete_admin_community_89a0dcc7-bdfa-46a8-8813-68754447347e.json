@@ -1,0 +1,11 @@
+{
+  "ts": "2026-02-12T15:30:13.644702+00:00",
+  "method": "DELETE",
+  "path": "/admin/community/89a0dcc7-bdfa-46a8-8813-68754447347e",
+  "status": 200,
+  "request": null,
+  "params": null,
+  "response": {
+    "success": true
+  }
+}

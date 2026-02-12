@@ -1,0 +1,14 @@
+{
+  "ts": "2026-02-12T15:29:14.668948+00:00",
+  "method": "POST",
+  "path": "/marketplace/listings/50c2cad9-5844-4c01-bc03-15c3585b6a21/report",
+  "status": 200,
+  "request": {
+    "reason": "fraud",
+    "notes": "alpha-admin-cycle-20260212T152907Z"
+  },
+  "params": null,
+  "response": {
+    "message": "Report submitted"
+  }
+}

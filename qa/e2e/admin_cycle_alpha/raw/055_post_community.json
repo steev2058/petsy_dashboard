@@ -1,0 +1,26 @@
+{
+  "ts": "2026-02-12T15:31:02.266337+00:00",
+  "method": "POST",
+  "path": "/community",
+  "status": 200,
+  "request": {
+    "title": "Alpha admin probe alpha-admin-cycle-20260212T153055Z",
+    "type": "story",
+    "content": "Admin moderation probe alpha-admin-cycle-20260212T153055Z",
+    "images": []
+  },
+  "params": null,
+  "response": {
+    "id": "1e4fac08-91b1-470f-94f6-eec2464ed690",
+    "user_id": "6000f5e2-fb25-4116-b1e4-599c2b9a5bde",
+    "user_name": "Alpha User",
+    "user_avatar": null,
+    "type": "story",
+    "title": "Alpha admin probe alpha-admin-cycle-20260212T153055Z",
+    "content": "Admin moderation probe alpha-admin-cycle-20260212T153055Z",
+    "image": null,
+    "likes": 0,
+    "comments_count": 0,
+    "created_at": "2026-02-12T15:31:02.265108"
+  }
+}

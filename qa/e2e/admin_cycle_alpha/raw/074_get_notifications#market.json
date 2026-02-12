@@ -1,0 +1,47 @@
+{
+  "ts": "2026-02-12T15:31:02.396435+00:00",
+  "method": "GET",
+  "path": "/notifications#market",
+  "status": 200,
+  "request": null,
+  "params": null,
+  "response": {
+    "items": [
+      {
+        "id": "d24ab512-7daf-456f-bb79-db5c329342a0",
+        "user_id": "e05f0e2a-9077-4705-845b-aa29712d5b85",
+        "title": "Role request update",
+        "body": "Your request for market_owner was rejected.",
+        "type": "role_request",
+        "data": {
+          "request_id": "2154f870-2c7b-40a9-9ca2-ea208010bcf3",
+          "status": "rejected",
+          "target_role": "market_owner",
+          "route": "/my-role-requests"
+        },
+        "is_read": false,
+        "created_at": "2026-02-12T15:31:02.365000",
+        "updated_at": "2026-02-12T15:31:02.365000"
+      },
+      {
+        "id": "b963e672-f1ea-48fc-947d-41191ed0b671",
+        "user_id": "e05f0e2a-9077-4705-845b-aa29712d5b85",
+        "title": "Marketplace listing update",
+        "body": "Your listing status is now archived.",
+        "type": "marketplace",
+        "data": {
+          "listing_id": "bf22266a-a99d-46aa-b4c6-efd28b675f57",
+          "status": "archived",
+          "route": "/my-marketplace-listings"
+        },
+        "is_read": false,
+        "created_at": "2026-02-12T15:31:02.251000",
+        "updated_at": "2026-02-12T15:31:02.251000"
+      }
+    ],
+    "total": 2,
+    "limit": 20,
+    "offset": 0,
+    "has_more": false
+  }
+}

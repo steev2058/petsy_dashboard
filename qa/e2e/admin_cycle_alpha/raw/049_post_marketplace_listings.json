@@ -1,0 +1,32 @@
+{
+  "ts": "2026-02-12T15:31:02.240367+00:00",
+  "method": "POST",
+  "path": "/marketplace/listings",
+  "status": 200,
+  "request": {
+    "title": "Alpha listing alpha-admin-cycle-20260212T153055Z",
+    "description": "Listing to moderate alpha-admin-cycle-20260212T153055Z",
+    "price": 42,
+    "category": "pets",
+    "location": "Amman",
+    "images": [],
+    "contact_phone": "+962701099001"
+  },
+  "params": null,
+  "response": {
+    "id": "bf22266a-a99d-46aa-b4c6-efd28b675f57",
+    "user_id": "e05f0e2a-9077-4705-845b-aa29712d5b85",
+    "user_name": "Alpha Market",
+    "user_avatar": null,
+    "title": "Alpha listing alpha-admin-cycle-20260212T153055Z",
+    "description": "Listing to moderate alpha-admin-cycle-20260212T153055Z",
+    "category": "pets",
+    "price": 42.0,
+    "location": "Amman",
+    "image": null,
+    "pet_type": null,
+    "condition": null,
+    "status": "active",
+    "created_at": "2026-02-12T15:31:02.239170"
+  }
+}

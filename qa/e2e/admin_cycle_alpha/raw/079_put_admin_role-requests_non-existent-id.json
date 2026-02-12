@@ -1,0 +1,13 @@
+{
+  "ts": "2026-02-12T15:31:02.414383+00:00",
+  "method": "PUT",
+  "path": "/admin/role-requests/non-existent-id",
+  "status": 404,
+  "request": {
+    "action": "approve"
+  },
+  "params": null,
+  "response": {
+    "detail": "Role request not found"
+  }
+}
