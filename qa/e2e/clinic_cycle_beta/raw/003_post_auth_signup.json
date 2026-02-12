@@ -1,0 +1,16 @@
+{
+  "ts": "2026-02-12T15:14:58.313031+00:00",
+  "method": "POST",
+  "path": "/auth/signup",
+  "status": 200,
+  "request": {
+    "email": "outsider.clinic.1770909295@example.com",
+    "password": "***",
+    "name": "Outsider User"
+  },
+  "params": null,
+  "response": {
+    "message": "User created. Verification code sent to email.",
+    "user_id": "fcb75e5a-d4fe-4665-aa45-4e5011113fac"
+  }
+}

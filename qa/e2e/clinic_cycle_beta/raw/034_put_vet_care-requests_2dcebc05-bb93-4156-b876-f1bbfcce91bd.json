@@ -1,0 +1,13 @@
+{
+  "ts": "2026-02-12T15:14:04.841605+00:00",
+  "method": "PUT",
+  "path": "/vet/care-requests/2dcebc05-bb93-4156-b876-f1bbfcce91bd",
+  "status": 403,
+  "request": {
+    "action": "accept"
+  },
+  "params": null,
+  "response": {
+    "detail": "Access denied for this role"
+  }
+}

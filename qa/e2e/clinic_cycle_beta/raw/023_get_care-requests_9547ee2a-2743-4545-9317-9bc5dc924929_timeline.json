@@ -1,0 +1,54 @@
+{
+  "ts": "2026-02-12T15:14:58.448375+00:00",
+  "method": "GET",
+  "path": "/care-requests/9547ee2a-2743-4545-9317-9bc5dc924929/timeline",
+  "status": 200,
+  "request": null,
+  "params": null,
+  "response": [
+    {
+      "id": "95029d5c-5e5c-49a3-8151-ae80473c3b3f",
+      "request_id": "9547ee2a-2743-4545-9317-9bc5dc924929",
+      "actor_id": "1c510527-ab2b-459c-be79-36a0f65850ec",
+      "actor_name": "Beta Clinic User",
+      "actor_role": "user",
+      "event_type": "created",
+      "status": "pending",
+      "notes": "Symptoms: Mild cough (beta-clinic-cycle-20260212T151455Z)",
+      "created_at": "2026-02-12T15:14:58.348000"
+    },
+    {
+      "id": "7b747795-e80c-4377-8471-ec0bc387290a",
+      "request_id": "9547ee2a-2743-4545-9317-9bc5dc924929",
+      "actor_id": "1382dcc7-3cd5-4be2-b4e9-8bad76a7d864",
+      "actor_name": "Demo Vet",
+      "actor_role": "vet",
+      "event_type": "accept",
+      "status": "accepted",
+      "notes": null,
+      "created_at": "2026-02-12T15:14:58.393000"
+    },
+    {
+      "id": "332ae2a7-27ac-4605-9ed1-9bc5b8edea17",
+      "request_id": "9547ee2a-2743-4545-9317-9bc5dc924929",
+      "actor_id": "1382dcc7-3cd5-4be2-b4e9-8bad76a7d864",
+      "actor_name": "Demo Vet",
+      "actor_role": "vet",
+      "event_type": "start",
+      "status": "in_progress",
+      "notes": "Exam started (beta-clinic-cycle-20260212T151455Z)",
+      "created_at": "2026-02-12T15:14:58.401000"
+    },
+    {
+      "id": "c5d133e5-e7f2-4ee7-aa31-b58217091fb1",
+      "request_id": "9547ee2a-2743-4545-9317-9bc5dc924929",
+      "actor_id": "1382dcc7-3cd5-4be2-b4e9-8bad76a7d864",
+      "actor_name": "Demo Vet",
+      "actor_role": "vet",
+      "event_type": "complete",
+      "status": "completed",
+      "notes": "Follow-up in 3 days (beta-clinic-cycle-20260212T151455Z)",
+      "created_at": "2026-02-12T15:14:58.413000"
+    }
+  ]
+}

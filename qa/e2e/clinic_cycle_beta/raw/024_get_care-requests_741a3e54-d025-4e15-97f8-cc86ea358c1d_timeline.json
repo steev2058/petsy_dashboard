@@ -1,0 +1,54 @@
+{
+  "ts": "2026-02-12T15:14:58.453453+00:00",
+  "method": "GET",
+  "path": "/care-requests/741a3e54-d025-4e15-97f8-cc86ea358c1d/timeline",
+  "status": 200,
+  "request": null,
+  "params": null,
+  "response": [
+    {
+      "id": "0ac61144-77d4-41b9-9c95-5697327e50c2",
+      "request_id": "741a3e54-d025-4e15-97f8-cc86ea358c1d",
+      "actor_id": "1c510527-ab2b-459c-be79-36a0f65850ec",
+      "actor_name": "Beta Clinic User",
+      "actor_role": "user",
+      "event_type": "created",
+      "status": "pending",
+      "notes": "Symptoms: Reduced appetite (beta-clinic-cycle-20260212T151455Z)",
+      "created_at": "2026-02-12T15:14:58.359000"
+    },
+    {
+      "id": "e82ef34d-45e9-4f30-adaa-119eb57853cb",
+      "request_id": "741a3e54-d025-4e15-97f8-cc86ea358c1d",
+      "actor_id": "1382dcc7-3cd5-4be2-b4e9-8bad76a7d864",
+      "actor_name": "Demo Vet",
+      "actor_role": "vet",
+      "event_type": "accept",
+      "status": "accepted",
+      "notes": null,
+      "created_at": "2026-02-12T15:14:58.420000"
+    },
+    {
+      "id": "90730f34-b1c3-483d-a628-dd3934ccdf9e",
+      "request_id": "741a3e54-d025-4e15-97f8-cc86ea358c1d",
+      "actor_id": "1382dcc7-3cd5-4be2-b4e9-8bad76a7d864",
+      "actor_name": "Demo Vet",
+      "actor_role": "vet",
+      "event_type": "start",
+      "status": "in_progress",
+      "notes": "Exam started (beta-clinic-cycle-20260212T151455Z)",
+      "created_at": "2026-02-12T15:14:58.427000"
+    },
+    {
+      "id": "660fcee5-3053-403d-a877-9734e479c829",
+      "request_id": "741a3e54-d025-4e15-97f8-cc86ea358c1d",
+      "actor_id": "1382dcc7-3cd5-4be2-b4e9-8bad76a7d864",
+      "actor_name": "Demo Vet",
+      "actor_role": "vet",
+      "event_type": "complete",
+      "status": "completed",
+      "notes": "Follow-up in 4 days (beta-clinic-cycle-20260212T151455Z)",
+      "created_at": "2026-02-12T15:14:58.436000"
+    }
+  ]
+}

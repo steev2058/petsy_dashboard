@@ -1,0 +1,36 @@
+{
+  "ts": "2026-02-12T15:14:58.333406+00:00",
+  "method": "POST",
+  "path": "/pets",
+  "status": 200,
+  "request": {
+    "name": "Kiwi-51455Z",
+    "species": "bird",
+    "gender": "male",
+    "status": "owned",
+    "description": "beta-clinic-cycle-20260212T151455Z-pet-3",
+    "location": "Amman"
+  },
+  "params": null,
+  "response": {
+    "name": "Kiwi-51455Z",
+    "species": "bird",
+    "breed": null,
+    "age": null,
+    "gender": "male",
+    "color": null,
+    "weight": null,
+    "description": "beta-clinic-cycle-20260212T151455Z-pet-3",
+    "image": null,
+    "status": "owned",
+    "price": null,
+    "location": "Amman",
+    "vaccinated": false,
+    "neutered": false,
+    "id": "acbbb5f0-3269-4781-83bf-da505723a97e",
+    "owner_id": "1c510527-ab2b-459c-be79-36a0f65850ec",
+    "created_at": "2026-02-12T15:14:58.332064",
+    "likes": 0,
+    "views": 0
+  }
+}

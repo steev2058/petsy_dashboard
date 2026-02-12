@@ -1,0 +1,25 @@
+{
+  "ts": "2026-02-12T15:14:58.549042+00:00",
+  "method": "GET",
+  "path": "/health-records/2f259d1b-d314-4a49-839b-b49c14a7d26c",
+  "status": 200,
+  "request": null,
+  "params": null,
+  "response": [
+    {
+      "id": "c490ef24-e8c9-48ac-87d9-e462ddb87bc7",
+      "pet_id": "2f259d1b-d314-4a49-839b-b49c14a7d26c",
+      "user_id": "1c510527-ab2b-459c-be79-36a0f65850ec",
+      "record_type": "vet_visit",
+      "title": "Clinic care #2 beta-clinic-cycle-20260212T151455Z",
+      "description": "Symptoms: Mild cough (beta-clinic-cycle-20260212T151455Z)",
+      "date": "2026-02-12",
+      "vet_name": "Demo Vet",
+      "clinic_name": null,
+      "next_due_date": null,
+      "notes": "Diagnosis: Dx-2-beta-clinic-cycle-20260212T151455Z\nPrescription: Rx-2-beta-clinic-cycle-20260212T151455Z\nNotes: Follow-up in 3 days (beta-clinic-cycle-20260212T151455Z)",
+      "attachments": [],
+      "created_at": "2026-02-12T15:14:58.411000"
+    }
+  ]
+}

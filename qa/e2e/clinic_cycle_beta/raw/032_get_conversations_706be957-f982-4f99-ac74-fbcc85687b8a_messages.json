@@ -1,0 +1,26 @@
+{
+  "ts": "2026-02-12T15:14:04.829742+00:00",
+  "method": "GET",
+  "path": "/conversations/706be957-f982-4f99-ac74-fbcc85687b8a/messages",
+  "status": 200,
+  "request": null,
+  "params": null,
+  "response": [
+    {
+      "id": "be021c3f-1b6b-40e2-af50-0d0e8d33340e",
+      "conversation_id": "706be957-f982-4f99-ac74-fbcc85687b8a",
+      "sender_id": "51857c30-1079-4e36-b925-c911bb7c0f71",
+      "content": "Beta follow-up question (beta-clinic-cycle-20260212T151400Z)",
+      "created_at": "2026-02-12T15:14:04.805000",
+      "is_read": false
+    },
+    {
+      "id": "2b551246-cf39-425b-af45-54e5b775e721",
+      "conversation_id": "706be957-f982-4f99-ac74-fbcc85687b8a",
+      "sender_id": "97052c92-910f-4061-976f-c8a991cdaaf4",
+      "content": "Clinic response with care advice (beta-clinic-cycle-20260212T151400Z)",
+      "created_at": "2026-02-12T15:14:04.815000",
+      "is_read": true
+    }
+  ]
+}

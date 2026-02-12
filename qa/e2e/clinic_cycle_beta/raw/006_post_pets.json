@@ -1,0 +1,36 @@
+{
+  "ts": "2026-02-12T15:14:58.326047+00:00",
+  "method": "POST",
+  "path": "/pets",
+  "status": 200,
+  "request": {
+    "name": "Milo-51455Z",
+    "species": "cat",
+    "gender": "male",
+    "status": "owned",
+    "description": "beta-clinic-cycle-20260212T151455Z-pet-1",
+    "location": "Amman"
+  },
+  "params": null,
+  "response": {
+    "name": "Milo-51455Z",
+    "species": "cat",
+    "breed": null,
+    "age": null,
+    "gender": "male",
+    "color": null,
+    "weight": null,
+    "description": "beta-clinic-cycle-20260212T151455Z-pet-1",
+    "image": null,
+    "status": "owned",
+    "price": null,
+    "location": "Amman",
+    "vaccinated": false,
+    "neutered": false,
+    "id": "737a4811-234a-477c-80f9-ef07cfca0057",
+    "owner_id": "1c510527-ab2b-459c-be79-36a0f65850ec",
+    "created_at": "2026-02-12T15:14:58.324486",
+    "likes": 0,
+    "views": 0
+  }
+}

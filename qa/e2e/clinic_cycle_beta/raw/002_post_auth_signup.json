@@ -1,0 +1,16 @@
+{
+  "ts": "2026-02-12T15:14:56.676165+00:00",
+  "method": "POST",
+  "path": "/auth/signup",
+  "status": 200,
+  "request": {
+    "email": "beta.clinic.1770909295@example.com",
+    "password": "***",
+    "name": "Beta Clinic User"
+  },
+  "params": null,
+  "response": {
+    "message": "User created. Verification code sent to email.",
+    "user_id": "1c510527-ab2b-459c-be79-36a0f65850ec"
+  }
+}

@@ -1,0 +1,146 @@
+{
+  "run_id": "20260212T151455Z",
+  "base": "http://127.0.0.1:8001/api",
+  "marker": "beta-clinic-cycle-20260212T151455Z",
+  "users": {
+    "beta": {
+      "id": "1c510527-ab2b-459c-be79-36a0f65850ec",
+      "email": "beta.clinic.1770909295@example.com",
+      "role": "user"
+    },
+    "outsider": {
+      "id": "fcb75e5a-d4fe-4665-aa45-4e5011113fac",
+      "email": "outsider.clinic.1770909295@example.com",
+      "role": "user"
+    },
+    "provider": {
+      "id": "1382dcc7-3cd5-4be2-b4e9-8bad76a7d864",
+      "email": "demo.vet@petsy.com",
+      "role": "vet"
+    }
+  },
+  "entities": {
+    "pets": [
+      {
+        "id": "737a4811-234a-477c-80f9-ef07cfca0057",
+        "name": "Milo-51455Z",
+        "symptoms": "Vomiting + lethargy",
+        "priority": "high"
+      },
+      {
+        "id": "2f259d1b-d314-4a49-839b-b49c14a7d26c",
+        "name": "Luna-51455Z",
+        "symptoms": "Mild cough",
+        "priority": "normal"
+      },
+      {
+        "id": "acbbb5f0-3269-4781-83bf-da505723a97e",
+        "name": "Kiwi-51455Z",
+        "symptoms": "Reduced appetite",
+        "priority": "urgent"
+      }
+    ],
+    "care_requests": [
+      {
+        "id": "518f2db3-620a-4b5f-b1a0-0fb38ff6a111",
+        "pet_id": "737a4811-234a-477c-80f9-ef07cfca0057",
+        "priority": "high"
+      },
+      {
+        "id": "9547ee2a-2743-4545-9317-9bc5dc924929",
+        "pet_id": "2f259d1b-d314-4a49-839b-b49c14a7d26c",
+        "priority": "normal"
+      },
+      {
+        "id": "741a3e54-d025-4e15-97f8-cc86ea358c1d",
+        "pet_id": "acbbb5f0-3269-4781-83bf-da505723a97e",
+        "priority": "urgent"
+      }
+    ],
+    "conversation_id": "f361ce66-6f6b-4d07-a686-c4ba40f79a00"
+  },
+  "timeline_checks": [
+    {
+      "request_id": "518f2db3-620a-4b5f-b1a0-0fb38ff6a111",
+      "status": 200,
+      "statuses": [
+        "pending",
+        "accepted",
+        "in_progress",
+        "completed"
+      ],
+      "ok": true
+    },
+    {
+      "request_id": "9547ee2a-2743-4545-9317-9bc5dc924929",
+      "status": 200,
+      "statuses": [
+        "pending",
+        "accepted",
+        "in_progress",
+        "completed"
+      ],
+      "ok": true
+    },
+    {
+      "request_id": "741a3e54-d025-4e15-97f8-cc86ea358c1d",
+      "status": 200,
+      "statuses": [
+        "pending",
+        "accepted",
+        "in_progress",
+        "completed"
+      ],
+      "ok": true
+    }
+  ],
+  "privacy": {
+    "outsider_cannot_read_beta_timeline": true,
+    "outsider_cannot_mutate_beta_request": true,
+    "normal_user_cannot_list_vet_queue": true
+  },
+  "matrix": [
+    {
+      "check": "Beta user established",
+      "result": "PASS"
+    },
+    {
+      "check": "Exactly 3 pets created",
+      "result": "PASS"
+    },
+    {
+      "check": "3 care requests submitted with varied priority/symptoms",
+      "result": "PASS"
+    },
+    {
+      "check": "Timeline shows pending->accepted->in_progress->completed",
+      "result": "PASS"
+    },
+    {
+      "check": "Notifications include care_request updates",
+      "result": "PASS"
+    },
+    {
+      "check": "Two-way chat/follow-up user<->provider",
+      "result": "PASS"
+    },
+    {
+      "check": "Health records reflect completed care",
+      "result": "PASS"
+    },
+    {
+      "check": "Privacy: outsider cannot read user clinic timeline",
+      "result": "PASS"
+    },
+    {
+      "check": "Privacy: outsider cannot mutate user care request",
+      "result": "PASS"
+    },
+    {
+      "check": "Privacy: normal user cannot access vet queue",
+      "result": "PASS"
+    }
+  ],
+  "blockers": [],
+  "step_count": 38
+}

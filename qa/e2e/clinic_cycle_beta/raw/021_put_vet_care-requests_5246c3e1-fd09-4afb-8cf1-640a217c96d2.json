@@ -1,0 +1,16 @@
+{
+  "ts": "2026-02-12T15:14:04.685264+00:00",
+  "method": "PUT",
+  "path": "/vet/care-requests/5246c3e1-fd09-4afb-8cf1-640a217c96d2",
+  "status": 403,
+  "request": {
+    "action": "complete",
+    "diagnosis": "Dx-3-beta-clinic-cycle-20260212T151400Z",
+    "prescription": "Rx-3-beta-clinic-cycle-20260212T151400Z",
+    "vet_notes": "Follow-up in 4 days (beta-clinic-cycle-20260212T151400Z)"
+  },
+  "params": null,
+  "response": {
+    "detail": "Access denied for this role"
+  }
+}

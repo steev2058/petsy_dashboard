@@ -1,0 +1,11 @@
+{
+  "ts": "2026-02-12T15:14:58.528864+00:00",
+  "method": "GET",
+  "path": "/care-requests/518f2db3-620a-4b5f-b1a0-0fb38ff6a111/timeline",
+  "status": 403,
+  "request": null,
+  "params": null,
+  "response": {
+    "detail": "Access denied"
+  }
+}

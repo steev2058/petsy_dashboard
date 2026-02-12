@@ -1,0 +1,42 @@
+[
+  {
+    "check": "Beta user established",
+    "result": "PASS"
+  },
+  {
+    "check": "Exactly 3 pets created",
+    "result": "PASS"
+  },
+  {
+    "check": "3 care requests submitted with varied priority/symptoms",
+    "result": "PASS"
+  },
+  {
+    "check": "Timeline shows pending->accepted->in_progress->completed",
+    "result": "PASS"
+  },
+  {
+    "check": "Notifications include care_request updates",
+    "result": "PASS"
+  },
+  {
+    "check": "Two-way chat/follow-up user<->provider",
+    "result": "PASS"
+  },
+  {
+    "check": "Health records reflect completed care",
+    "result": "PASS"
+  },
+  {
+    "check": "Privacy: outsider cannot read user clinic timeline",
+    "result": "PASS"
+  },
+  {
+    "check": "Privacy: outsider cannot mutate user care request",
+    "result": "PASS"
+  },
+  {
+    "check": "Privacy: normal user cannot access vet queue",
+    "result": "PASS"
+  }
+]

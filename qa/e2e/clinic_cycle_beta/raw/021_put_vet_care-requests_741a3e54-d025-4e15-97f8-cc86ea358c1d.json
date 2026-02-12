@@ -1,0 +1,35 @@
+{
+  "ts": "2026-02-12T15:14:58.439160+00:00",
+  "method": "PUT",
+  "path": "/vet/care-requests/741a3e54-d025-4e15-97f8-cc86ea358c1d",
+  "status": 200,
+  "request": {
+    "action": "complete",
+    "diagnosis": "Dx-3-beta-clinic-cycle-20260212T151455Z",
+    "prescription": "Rx-3-beta-clinic-cycle-20260212T151455Z",
+    "vet_notes": "Follow-up in 4 days (beta-clinic-cycle-20260212T151455Z)"
+  },
+  "params": null,
+  "response": {
+    "id": "741a3e54-d025-4e15-97f8-cc86ea358c1d",
+    "pet_id": "acbbb5f0-3269-4781-83bf-da505723a97e",
+    "title": "Clinic care #3 beta-clinic-cycle-20260212T151455Z",
+    "description": "Symptoms: Reduced appetite (beta-clinic-cycle-20260212T151455Z)",
+    "location": "Amman",
+    "priority": "urgent",
+    "status": "completed",
+    "requested_by": "1c510527-ab2b-459c-be79-36a0f65850ec",
+    "requested_by_name": "Beta Clinic User",
+    "assigned_vet_id": "1382dcc7-3cd5-4be2-b4e9-8bad76a7d864",
+    "assigned_clinic_id": null,
+    "attachments": [],
+    "follow_up_context": null,
+    "follow_up_due_date": null,
+    "reminder_enabled": false,
+    "created_at": "2026-02-12T15:14:58.359000",
+    "updated_at": "2026-02-12T15:14:58.433000",
+    "diagnosis": "Dx-3-beta-clinic-cycle-20260212T151455Z",
+    "prescription": "Rx-3-beta-clinic-cycle-20260212T151455Z",
+    "vet_notes": "Follow-up in 4 days (beta-clinic-cycle-20260212T151455Z)"
+  }
+}

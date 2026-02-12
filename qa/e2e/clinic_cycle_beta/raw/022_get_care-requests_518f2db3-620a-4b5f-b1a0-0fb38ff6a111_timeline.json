@@ -1,0 +1,54 @@
+{
+  "ts": "2026-02-12T15:14:58.444036+00:00",
+  "method": "GET",
+  "path": "/care-requests/518f2db3-620a-4b5f-b1a0-0fb38ff6a111/timeline",
+  "status": 200,
+  "request": null,
+  "params": null,
+  "response": [
+    {
+      "id": "5519d11e-8b14-4332-b4c4-0a5c7c6d3a17",
+      "request_id": "518f2db3-620a-4b5f-b1a0-0fb38ff6a111",
+      "actor_id": "1c510527-ab2b-459c-be79-36a0f65850ec",
+      "actor_name": "Beta Clinic User",
+      "actor_role": "user",
+      "event_type": "created",
+      "status": "pending",
+      "notes": "Symptoms: Vomiting + lethargy (beta-clinic-cycle-20260212T151455Z)",
+      "created_at": "2026-02-12T15:14:58.340000"
+    },
+    {
+      "id": "8071147f-5ab3-4181-8be1-055d3a37465e",
+      "request_id": "518f2db3-620a-4b5f-b1a0-0fb38ff6a111",
+      "actor_id": "1382dcc7-3cd5-4be2-b4e9-8bad76a7d864",
+      "actor_name": "Demo Vet",
+      "actor_role": "vet",
+      "event_type": "accept",
+      "status": "accepted",
+      "notes": null,
+      "created_at": "2026-02-12T15:14:58.368000"
+    },
+    {
+      "id": "bace9b02-daf6-45d5-bf44-9f72307468e3",
+      "request_id": "518f2db3-620a-4b5f-b1a0-0fb38ff6a111",
+      "actor_id": "1382dcc7-3cd5-4be2-b4e9-8bad76a7d864",
+      "actor_name": "Demo Vet",
+      "actor_role": "vet",
+      "event_type": "start",
+      "status": "in_progress",
+      "notes": "Exam started (beta-clinic-cycle-20260212T151455Z)",
+      "created_at": "2026-02-12T15:14:58.375000"
+    },
+    {
+      "id": "64b0fca4-c2c7-486a-8047-b71c338af1d0",
+      "request_id": "518f2db3-620a-4b5f-b1a0-0fb38ff6a111",
+      "actor_id": "1382dcc7-3cd5-4be2-b4e9-8bad76a7d864",
+      "actor_name": "Demo Vet",
+      "actor_role": "vet",
+      "event_type": "complete",
+      "status": "completed",
+      "notes": "Follow-up in 2 days (beta-clinic-cycle-20260212T151455Z)",
+      "created_at": "2026-02-12T15:14:58.385000"
+    }
+  ]
+}

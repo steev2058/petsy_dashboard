@@ -1,0 +1,37 @@
+{
+  "ts": "2026-02-12T15:14:58.478788+00:00",
+  "method": "GET",
+  "path": "/friends/requests",
+  "status": 200,
+  "request": null,
+  "params": null,
+  "response": {
+    "incoming": [
+      {
+        "id": "179a60ac-e52f-46f3-ae6c-30edf5af0345",
+        "message": null,
+        "created_at": "2026-02-12T15:14:58.469000",
+        "user": {
+          "id": "1c510527-ab2b-459c-be79-36a0f65850ec",
+          "name": "Beta Clinic User",
+          "avatar": null,
+          "username": "betaclinicuser2",
+          "user_code": "PET-5850EC"
+        }
+      },
+      {
+        "id": "ca2066cb-7b5d-4345-9127-800f7691fef9",
+        "message": null,
+        "created_at": "2026-02-12T12:00:12.313000",
+        "user": {
+          "id": "9c8620f9-b840-48d6-9161-cc288c0f2602",
+          "name": "Beta Vet Flow User",
+          "avatar": null,
+          "username": "betavetflowuser",
+          "user_code": "PET-0F2602"
+        }
+      }
+    ],
+    "outgoing": []
+  }
+}

@@ -1,0 +1,21 @@
+{
+  "ts": "2026-02-12T15:14:04.714512+00:00",
+  "method": "GET",
+  "path": "/care-requests/5246c3e1-fd09-4afb-8cf1-640a217c96d2/timeline",
+  "status": 200,
+  "request": null,
+  "params": null,
+  "response": [
+    {
+      "id": "8055fb30-f6f2-409d-9add-22e34e5b9a83",
+      "request_id": "5246c3e1-fd09-4afb-8cf1-640a217c96d2",
+      "actor_id": "51857c30-1079-4e36-b925-c911bb7c0f71",
+      "actor_name": "Beta Clinic User",
+      "actor_role": "user",
+      "event_type": "created",
+      "status": "pending",
+      "notes": "Symptoms: Reduced appetite (beta-clinic-cycle-20260212T151400Z)",
+      "created_at": "2026-02-12T15:14:04.650000"
+    }
+  ]
+}

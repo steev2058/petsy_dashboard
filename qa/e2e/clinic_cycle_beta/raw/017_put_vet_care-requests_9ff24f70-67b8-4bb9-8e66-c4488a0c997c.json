@@ -1,0 +1,14 @@
+{
+  "ts": "2026-02-12T15:14:04.672715+00:00",
+  "method": "PUT",
+  "path": "/vet/care-requests/9ff24f70-67b8-4bb9-8e66-c4488a0c997c",
+  "status": 403,
+  "request": {
+    "action": "start",
+    "vet_notes": "Exam started (beta-clinic-cycle-20260212T151400Z)"
+  },
+  "params": null,
+  "response": {
+    "detail": "Access denied for this role"
+  }
+}

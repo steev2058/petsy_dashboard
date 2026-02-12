@@ -1,0 +1,36 @@
+{
+  "ts": "2026-02-12T15:14:58.329763+00:00",
+  "method": "POST",
+  "path": "/pets",
+  "status": 200,
+  "request": {
+    "name": "Luna-51455Z",
+    "species": "dog",
+    "gender": "female",
+    "status": "owned",
+    "description": "beta-clinic-cycle-20260212T151455Z-pet-2",
+    "location": "Amman"
+  },
+  "params": null,
+  "response": {
+    "name": "Luna-51455Z",
+    "species": "dog",
+    "breed": null,
+    "age": null,
+    "gender": "female",
+    "color": null,
+    "weight": null,
+    "description": "beta-clinic-cycle-20260212T151455Z-pet-2",
+    "image": null,
+    "status": "owned",
+    "price": null,
+    "location": "Amman",
+    "vaccinated": false,
+    "neutered": false,
+    "id": "2f259d1b-d314-4a49-839b-b49c14a7d26c",
+    "owner_id": "1c510527-ab2b-459c-be79-36a0f65850ec",
+    "created_at": "2026-02-12T15:14:58.328382",
+    "likes": 0,
+    "views": 0
+  }
+}

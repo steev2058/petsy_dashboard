@@ -1,0 +1,24 @@
+{
+  "ts": "2026-02-12T15:14:58.321588+00:00",
+  "method": "GET",
+  "path": "/auth/me",
+  "status": 200,
+  "request": null,
+  "params": null,
+  "response": {
+    "id": "fcb75e5a-d4fe-4665-aa45-4e5011113fac",
+    "email": "outsider.clinic.1770909295@example.com",
+    "name": "Outsider User",
+    "username": "outsideruser2",
+    "user_code": "PET-113FAC",
+    "phone": "+962700003333",
+    "city": null,
+    "bio": null,
+    "avatar": null,
+    "language": "en",
+    "is_verified": false,
+    "is_admin": false,
+    "role": "user",
+    "created_at": "2026-02-12T15:14:56.686000"
+  }
+}

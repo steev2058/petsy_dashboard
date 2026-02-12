@@ -1,0 +1,160 @@
+{
+  "ts": "2026-02-12T15:14:58.461859+00:00",
+  "method": "GET",
+  "path": "/notifications",
+  "status": 200,
+  "request": null,
+  "params": null,
+  "response": {
+    "items": [
+      {
+        "id": "740b3a18-195d-421a-8a4f-d2db4c5d791d",
+        "user_id": "1c510527-ab2b-459c-be79-36a0f65850ec",
+        "title": "Care request updated",
+        "body": "Your care request is now completed.",
+        "type": "care_request",
+        "data": {
+          "request_id": "741a3e54-d025-4e15-97f8-cc86ea358c1d",
+          "status": "completed",
+          "pet_id": "acbbb5f0-3269-4781-83bf-da505723a97e",
+          "route": "/health-records?petId=acbbb5f0-3269-4781-83bf-da505723a97e"
+        },
+        "is_read": false,
+        "created_at": "2026-02-12T15:14:58.437000",
+        "updated_at": "2026-02-12T15:14:58.437000"
+      },
+      {
+        "id": "e9f38384-0319-4c64-a254-7287dc799a12",
+        "user_id": "1c510527-ab2b-459c-be79-36a0f65850ec",
+        "title": "Care request updated",
+        "body": "Your care request is now in_progress.",
+        "type": "care_request",
+        "data": {
+          "request_id": "741a3e54-d025-4e15-97f8-cc86ea358c1d",
+          "status": "in_progress",
+          "pet_id": "acbbb5f0-3269-4781-83bf-da505723a97e",
+          "route": "/health-records?petId=acbbb5f0-3269-4781-83bf-da505723a97e"
+        },
+        "is_read": false,
+        "created_at": "2026-02-12T15:14:58.429000",
+        "updated_at": "2026-02-12T15:14:58.429000"
+      },
+      {
+        "id": "45839255-c285-4fd4-9fd0-cb50fa57958f",
+        "user_id": "1c510527-ab2b-459c-be79-36a0f65850ec",
+        "title": "Care request updated",
+        "body": "Your care request is now accepted.",
+        "type": "care_request",
+        "data": {
+          "request_id": "741a3e54-d025-4e15-97f8-cc86ea358c1d",
+          "status": "accepted",
+          "pet_id": "acbbb5f0-3269-4781-83bf-da505723a97e",
+          "route": "/health-records?petId=acbbb5f0-3269-4781-83bf-da505723a97e"
+        },
+        "is_read": false,
+        "created_at": "2026-02-12T15:14:58.421000",
+        "updated_at": "2026-02-12T15:14:58.421000"
+      },
+      {
+        "id": "a15c2aad-e654-412c-b6e7-517d2bdb77df",
+        "user_id": "1c510527-ab2b-459c-be79-36a0f65850ec",
+        "title": "Care request updated",
+        "body": "Your care request is now completed.",
+        "type": "care_request",
+        "data": {
+          "request_id": "9547ee2a-2743-4545-9317-9bc5dc924929",
+          "status": "completed",
+          "pet_id": "2f259d1b-d314-4a49-839b-b49c14a7d26c",
+          "route": "/health-records?petId=2f259d1b-d314-4a49-839b-b49c14a7d26c"
+        },
+        "is_read": false,
+        "created_at": "2026-02-12T15:14:58.414000",
+        "updated_at": "2026-02-12T15:14:58.414000"
+      },
+      {
+        "id": "43c462f1-997b-4a12-9cec-df49dc6ad3e1",
+        "user_id": "1c510527-ab2b-459c-be79-36a0f65850ec",
+        "title": "Care request updated",
+        "body": "Your care request is now in_progress.",
+        "type": "care_request",
+        "data": {
+          "request_id": "9547ee2a-2743-4545-9317-9bc5dc924929",
+          "status": "in_progress",
+          "pet_id": "2f259d1b-d314-4a49-839b-b49c14a7d26c",
+          "route": "/health-records?petId=2f259d1b-d314-4a49-839b-b49c14a7d26c"
+        },
+        "is_read": false,
+        "created_at": "2026-02-12T15:14:58.403000",
+        "updated_at": "2026-02-12T15:14:58.403000"
+      },
+      {
+        "id": "64adedd6-c358-4fe1-848e-4a7bef0c3498",
+        "user_id": "1c510527-ab2b-459c-be79-36a0f65850ec",
+        "title": "Care request updated",
+        "body": "Your care request is now accepted.",
+        "type": "care_request",
+        "data": {
+          "request_id": "9547ee2a-2743-4545-9317-9bc5dc924929",
+          "status": "accepted",
+          "pet_id": "2f259d1b-d314-4a49-839b-b49c14a7d26c",
+          "route": "/health-records?petId=2f259d1b-d314-4a49-839b-b49c14a7d26c"
+        },
+        "is_read": false,
+        "created_at": "2026-02-12T15:14:58.394000",
+        "updated_at": "2026-02-12T15:14:58.394000"
+      },
+      {
+        "id": "8dd522a8-fe1b-4993-a597-4dfa532eda32",
+        "user_id": "1c510527-ab2b-459c-be79-36a0f65850ec",
+        "title": "Care request updated",
+        "body": "Your care request is now completed.",
+        "type": "care_request",
+        "data": {
+          "request_id": "518f2db3-620a-4b5f-b1a0-0fb38ff6a111",
+          "status": "completed",
+          "pet_id": "737a4811-234a-477c-80f9-ef07cfca0057",
+          "route": "/health-records?petId=737a4811-234a-477c-80f9-ef07cfca0057"
+        },
+        "is_read": false,
+        "created_at": "2026-02-12T15:14:58.386000",
+        "updated_at": "2026-02-12T15:14:58.386000"
+      },
+      {
+        "id": "f4b242a1-c66a-48eb-b183-0e9c9c2d706b",
+        "user_id": "1c510527-ab2b-459c-be79-36a0f65850ec",
+        "title": "Care request updated",
+        "body": "Your care request is now in_progress.",
+        "type": "care_request",
+        "data": {
+          "request_id": "518f2db3-620a-4b5f-b1a0-0fb38ff6a111",
+          "status": "in_progress",
+          "pet_id": "737a4811-234a-477c-80f9-ef07cfca0057",
+          "route": "/health-records?petId=737a4811-234a-477c-80f9-ef07cfca0057"
+        },
+        "is_read": false,
+        "created_at": "2026-02-12T15:14:58.376000",
+        "updated_at": "2026-02-12T15:14:58.376000"
+      },
+      {
+        "id": "d887a250-f7dc-4900-8e06-afbae5462808",
+        "user_id": "1c510527-ab2b-459c-be79-36a0f65850ec",
+        "title": "Care request updated",
+        "body": "Your care request is now accepted.",
+        "type": "care_request",
+        "data": {
+          "request_id": "518f2db3-620a-4b5f-b1a0-0fb38ff6a111",
+          "status": "accepted",
+          "pet_id": "737a4811-234a-477c-80f9-ef07cfca0057",
+          "route": "/health-records?petId=737a4811-234a-477c-80f9-ef07cfca0057"
+        },
+        "is_read": false,
+        "created_at": "2026-02-12T15:14:58.369000",
+        "updated_at": "2026-02-12T15:14:58.369000"
+      }
+    ],
+    "total": 9,
+    "limit": 20,
+    "offset": 0,
+    "has_more": false
+  }
+}

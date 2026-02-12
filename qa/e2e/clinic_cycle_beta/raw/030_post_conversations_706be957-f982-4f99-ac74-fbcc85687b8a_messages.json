@@ -1,0 +1,18 @@
+{
+  "ts": "2026-02-12T15:14:04.811138+00:00",
+  "method": "POST",
+  "path": "/conversations/706be957-f982-4f99-ac74-fbcc85687b8a/messages",
+  "status": 200,
+  "request": null,
+  "params": {
+    "content": "Beta follow-up question (beta-clinic-cycle-20260212T151400Z)"
+  },
+  "response": {
+    "id": "be021c3f-1b6b-40e2-af50-0d0e8d33340e",
+    "conversation_id": "706be957-f982-4f99-ac74-fbcc85687b8a",
+    "sender_id": "51857c30-1079-4e36-b925-c911bb7c0f71",
+    "content": "Beta follow-up question (beta-clinic-cycle-20260212T151400Z)",
+    "created_at": "2026-02-12T15:14:04.805416",
+    "is_read": false
+  }
+}
