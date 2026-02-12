@@ -1,0 +1,2248 @@
+{
+  "summary": {
+    "run_id": "20260212T151529Z",
+    "marker": "clinic-alpha-20260212T151529Z",
+    "base": "http://127.0.0.1:8001/api",
+    "handoff_path_used": "/root/.openclaw/workspace/petsy_dashboard/qa/handoff/vet_user_flow.md",
+    "handoff": {
+      "beta_user_id": "77b18f80-48a2-4e36-bdfe-0dd9a7bc8db6",
+      "vet_user_id": "1382dcc7-3cd5-4be2-b4e9-8bad76a7d864",
+      "beta_care_request_ids": [
+        "48184dde-8d1c-4d16-9b09-4c5355487ce9",
+        "8a545aae-0dab-4827-8eed-4fa2cf8ff768",
+        "15bbf200-e4e7-4a02-93e4-f8959af8959c"
+      ]
+    },
+    "users": {
+      "clinic": {
+        "id": "97052c92-910f-4061-976f-c8a991cdaaf4",
+        "email": "demo.clinic@petsy.com"
+      },
+      "vet": {
+        "id": "1382dcc7-3cd5-4be2-b4e9-8bad76a7d864",
+        "email": "demo.vet@petsy.com"
+      }
+    },
+    "entities": {
+      "pet_id": "4a2b9e1c-6ae9-4168-a86c-a5a5278ad2ea",
+      "care_request_id": "b76fe716-ced2-4300-a603-521917d02231",
+      "initial_vet_id": "1382dcc7-3cd5-4be2-b4e9-8bad76a7d864",
+      "reassign_target_vet_id": "1382dcc7-3cd5-4be2-b4e9-8bad76a7d864",
+      "unrelated_care_request_id": "48184dde-8d1c-4d16-9b09-4c5355487ce9"
+    },
+    "matrix": [
+      {
+        "check": "login_clinic",
+        "result": "PASS"
+      },
+      {
+        "check": "login_vet",
+        "result": "PASS"
+      },
+      {
+        "check": "clinic_queue_access",
+        "result": "PASS"
+      },
+      {
+        "check": "clinic_can_list_vets",
+        "result": "PASS"
+      },
+      {
+        "check": "clinic_create_pet",
+        "result": "PASS"
+      },
+      {
+        "check": "clinic_create_care_request",
+        "result": "PASS"
+      },
+      {
+        "check": "clinic_assign_vet",
+        "result": "PASS"
+      },
+      {
+        "check": "clinic_reassign_or_reaffirm_vet",
+        "result": "PASS"
+      },
+      {
+        "check": "clinic_status_to_completed",
+        "result": "PASS"
+      },
+      {
+        "check": "timeline_integrity_clinic_updates",
+        "result": "PASS"
+      },
+      {
+        "check": "vet_notified_of_clinic_assignment",
+        "result": "PASS"
+      },
+      {
+        "check": "vet_can_continue_handoff",
+        "result": "PASS"
+      },
+      {
+        "check": "clinic_receives_vet_handoff_notification",
+        "result": "PASS"
+      },
+      {
+        "check": "timeline_contains_cross_role_handoff",
+        "result": "PASS"
+      },
+      {
+        "check": "clinic_blocked_from_vet_mutation_endpoint",
+        "result": "PASS"
+      },
+      {
+        "check": "clinic_blocked_from_unrelated_timeline",
+        "result": "PASS"
+      },
+      {
+        "check": "clinic_blocked_from_market_owner_sales_mutation",
+        "result": "PASS"
+      },
+      {
+        "check": "clinic_blocked_from_admin_endpoint",
+        "result": "PASS"
+      }
+    ],
+    "blockers": [],
+    "steps_count": 20
+  },
+  "steps": [
+    {
+      "ts": "2026-02-12T15:15:29.620048+00:00",
+      "method": "POST",
+      "path": "/auth/login",
+      "status": 200,
+      "request": {
+        "email": "demo.clinic@petsy.com",
+        "password": "***"
+      },
+      "params": null,
+      "response": {
+        "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI5NzA1MmM5Mi05MTBmLTQwNjEtOTc2Zi1jOGE5OTFjZGFhZjQiLCJleHAiOjE3NzM1MDEzMjl9.H3-8UGC7ZfGMUgLgQS_fL9AX-hsyPgiMVguGsmUpS3o",
+        "token_type": "bearer",
+        "user": {
+          "id": "97052c92-910f-4061-976f-c8a991cdaaf4",
+          "email": "demo.clinic@petsy.com",
+          "name": "Demo Clinic",
+          "username": "demo.clinic",
+          "user_code": "PET-CDAAF4",
+          "phone": null,
+          "city": null,
+          "bio": null,
+          "avatar": null,
+          "language": "ar",
+          "is_verified": true,
+          "is_admin": false,
+          "role": "care_clinic",
+          "created_at": "2026-02-12T11:45:54.330000"
+        }
+      }
+    },
+    {
+      "ts": "2026-02-12T15:15:29.623703+00:00",
+      "method": "GET",
+      "path": "/auth/me",
+      "status": 200,
+      "request": null,
+      "params": null,
+      "response": {
+        "id": "97052c92-910f-4061-976f-c8a991cdaaf4",
+        "email": "demo.clinic@petsy.com",
+        "name": "Demo Clinic",
+        "username": "demo.clinic",
+        "user_code": "PET-CDAAF4",
+        "phone": null,
+        "city": null,
+        "bio": null,
+        "avatar": null,
+        "language": "ar",
+        "is_verified": true,
+        "is_admin": false,
+        "role": "care_clinic",
+        "created_at": "2026-02-12T11:45:54.330000"
+      }
+    },
+    {
+      "ts": "2026-02-12T15:15:29.862546+00:00",
+      "method": "POST",
+      "path": "/auth/login",
+      "status": 200,
+      "request": {
+        "email": "demo.vet@petsy.com",
+        "password": "***"
+      },
+      "params": null,
+      "response": {
+        "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMzgyZGNjNy0zY2Q1LTRiZTItYjRlOS04YmFkNzZhN2Q4NjQiLCJleHAiOjE3NzM1MDEzMjl9.RafFtvYOGP8V4unZpeQ1v_e7LNUKqmRBMFo4Ygmn41U",
+        "token_type": "bearer",
+        "user": {
+          "id": "1382dcc7-3cd5-4be2-b4e9-8bad76a7d864",
+          "email": "demo.vet@petsy.com",
+          "name": "Demo Vet",
+          "username": "demo.vet",
+          "user_code": "PET-A7D864",
+          "phone": null,
+          "city": null,
+          "bio": null,
+          "avatar": null,
+          "language": "ar",
+          "is_verified": true,
+          "is_admin": false,
+          "role": "vet",
+          "created_at": "2026-02-12T11:45:53.977000"
+        }
+      }
+    },
+    {
+      "ts": "2026-02-12T15:15:29.867112+00:00",
+      "method": "GET",
+      "path": "/auth/me",
+      "status": 200,
+      "request": null,
+      "params": null,
+      "response": {
+        "id": "1382dcc7-3cd5-4be2-b4e9-8bad76a7d864",
+        "email": "demo.vet@petsy.com",
+        "name": "Demo Vet",
+        "username": "demo.vet",
+        "user_code": "PET-A7D864",
+        "phone": null,
+        "city": null,
+        "bio": null,
+        "avatar": null,
+        "language": "ar",
+        "is_verified": true,
+        "is_admin": false,
+        "role": "vet",
+        "created_at": "2026-02-12T11:45:53.977000"
+      }
+    },
+    {
+      "ts": "2026-02-12T15:15:29.874861+00:00",
+      "method": "GET",
+      "path": "/clinic/care-requests",
+      "status": 200,
+      "request": null,
+      "params": null,
+      "response": [
+        {
+          "id": "d6903509-65a7-4975-98bf-e3f8dc6c39e0",
+          "pet_id": "37a4bc4e-ff58-4f04-bb90-ddf836786dfd",
+          "title": "Clinic triage clinic-alpha-20260212T151504Z",
+          "description": "Intermittent cough and lower appetite",
+          "location": "Amman",
+          "priority": "medium",
+          "status": "in_progress",
+          "requested_by": "97052c92-910f-4061-976f-c8a991cdaaf4",
+          "requested_by_name": "Demo Clinic",
+          "assigned_vet_id": "1382dcc7-3cd5-4be2-b4e9-8bad76a7d864",
+          "assigned_clinic_id": "97052c92-910f-4061-976f-c8a991cdaaf4",
+          "attachments": [],
+          "follow_up_context": null,
+          "follow_up_due_date": null,
+          "reminder_enabled": false,
+          "created_at": "2026-02-12T15:15:04.685000",
+          "updated_at": "2026-02-12T15:15:04.739000",
+          "clinic_notes": "clinic-handoff-complete-clinic-alpha-20260212T151504Z"
+        },
+        {
+          "id": "741a3e54-d025-4e15-97f8-cc86ea358c1d",
+          "pet_id": "acbbb5f0-3269-4781-83bf-da505723a97e",
+          "title": "Clinic care #3 beta-clinic-cycle-20260212T151455Z",
+          "description": "Symptoms: Reduced appetite (beta-clinic-cycle-20260212T151455Z)",
+          "location": "Amman",
+          "priority": "urgent",
+          "status": "completed",
+          "requested_by": "1c510527-ab2b-459c-be79-36a0f65850ec",
+          "requested_by_name": "Beta Clinic User",
+          "assigned_vet_id": "1382dcc7-3cd5-4be2-b4e9-8bad76a7d864",
+          "assigned_clinic_id": null,
+          "attachments": [],
+          "follow_up_context": null,
+          "follow_up_due_date": null,
+          "reminder_enabled": false,
+          "created_at": "2026-02-12T15:14:58.359000",
+          "updated_at": "2026-02-12T15:14:58.433000",
+          "diagnosis": "Dx-3-beta-clinic-cycle-20260212T151455Z",
+          "prescription": "Rx-3-beta-clinic-cycle-20260212T151455Z",
+          "vet_notes": "Follow-up in 4 days (beta-clinic-cycle-20260212T151455Z)"
+        },
+        {
+          "id": "9547ee2a-2743-4545-9317-9bc5dc924929",
+          "pet_id": "2f259d1b-d314-4a49-839b-b49c14a7d26c",
+          "title": "Clinic care #2 beta-clinic-cycle-20260212T151455Z",
+          "description": "Symptoms: Mild cough (beta-clinic-cycle-20260212T151455Z)",
+          "location": "Amman",
+          "priority": "normal",
+          "status": "completed",
+          "requested_by": "1c510527-ab2b-459c-be79-36a0f65850ec",
+          "requested_by_name": "Beta Clinic User",
+          "assigned_vet_id": "1382dcc7-3cd5-4be2-b4e9-8bad76a7d864",
+          "assigned_clinic_id": null,
+          "attachments": [],
+          "follow_up_context": null,
+          "follow_up_due_date": null,
+          "reminder_enabled": false,
+          "created_at": "2026-02-12T15:14:58.348000",
+          "updated_at": "2026-02-12T15:14:58.409000",
+          "diagnosis": "Dx-2-beta-clinic-cycle-20260212T151455Z",
+          "prescription": "Rx-2-beta-clinic-cycle-20260212T151455Z",
+          "vet_notes": "Follow-up in 3 days (beta-clinic-cycle-20260212T151455Z)"
+        },
+        {
+          "id": "518f2db3-620a-4b5f-b1a0-0fb38ff6a111",
+          "pet_id": "737a4811-234a-477c-80f9-ef07cfca0057",
+          "title": "Clinic care #1 beta-clinic-cycle-20260212T151455Z",
+          "description": "Symptoms: Vomiting + lethargy (beta-clinic-cycle-20260212T151455Z)",
+          "location": "Amman",
+          "priority": "high",
+          "status": "completed",
+          "requested_by": "1c510527-ab2b-459c-be79-36a0f65850ec",
+          "requested_by_name": "Beta Clinic User",
+          "assigned_vet_id": "1382dcc7-3cd5-4be2-b4e9-8bad76a7d864",
+          "assigned_clinic_id": null,
+          "attachments": [],
+          "follow_up_context": null,
+          "follow_up_due_date": null,
+          "reminder_enabled": false,
+          "created_at": "2026-02-12T15:14:58.340000",
+          "updated_at": "2026-02-12T15:14:58.382000",
+          "diagnosis": "Dx-1-beta-clinic-cycle-20260212T151455Z",
+          "prescription": "Rx-1-beta-clinic-cycle-20260212T151455Z",
+          "vet_notes": "Follow-up in 2 days (beta-clinic-cycle-20260212T151455Z)"
+        },
+        {
+          "id": "5246c3e1-fd09-4afb-8cf1-640a217c96d2",
+          "pet_id": "f79566c1-1ff1-4bff-926f-9e857ad333c1",
+          "title": "Clinic care #3 beta-clinic-cycle-20260212T151400Z",
+          "description": "Symptoms: Reduced appetite (beta-clinic-cycle-20260212T151400Z)",
+          "location": "Amman",
+          "priority": "urgent",
+          "status": "pending",
+          "requested_by": "51857c30-1079-4e36-b925-c911bb7c0f71",
+          "requested_by_name": "Beta Clinic User",
+          "assigned_vet_id": null,
+          "assigned_clinic_id": null,
+          "attachments": [],
+          "follow_up_context": null,
+          "follow_up_due_date": null,
+          "reminder_enabled": false,
+          "created_at": "2026-02-12T15:14:04.650000",
+          "updated_at": "2026-02-12T15:14:04.650000"
+        },
+        {
+          "id": "9ff24f70-67b8-4bb9-8e66-c4488a0c997c",
+          "pet_id": "41e4f263-952b-4310-a937-2729543d7ff5",
+          "title": "Clinic care #2 beta-clinic-cycle-20260212T151400Z",
+          "description": "Symptoms: Mild cough (beta-clinic-cycle-20260212T151400Z)",
+          "location": "Amman",
+          "priority": "normal",
+          "status": "pending",
+          "requested_by": "51857c30-1079-4e36-b925-c911bb7c0f71",
+          "requested_by_name": "Beta Clinic User",
+          "assigned_vet_id": null,
+          "assigned_clinic_id": null,
+          "attachments": [],
+          "follow_up_context": null,
+          "follow_up_due_date": null,
+          "reminder_enabled": false,
+          "created_at": "2026-02-12T15:14:04.641000",
+          "updated_at": "2026-02-12T15:14:04.641000"
+        },
+        {
+          "id": "2dcebc05-bb93-4156-b876-f1bbfcce91bd",
+          "pet_id": "7665e4a4-434a-43d5-a18a-c1a0c9563455",
+          "title": "Clinic care #1 beta-clinic-cycle-20260212T151400Z",
+          "description": "Symptoms: Vomiting + lethargy (beta-clinic-cycle-20260212T151400Z)",
+          "location": "Amman",
+          "priority": "high",
+          "status": "pending",
+          "requested_by": "51857c30-1079-4e36-b925-c911bb7c0f71",
+          "requested_by_name": "Beta Clinic User",
+          "assigned_vet_id": null,
+          "assigned_clinic_id": null,
+          "attachments": [],
+          "follow_up_context": null,
+          "follow_up_due_date": null,
+          "reminder_enabled": false,
+          "created_at": "2026-02-12T15:14:04.627000",
+          "updated_at": "2026-02-12T15:14:04.627000"
+        },
+        {
+          "id": "63a3a3e5-b74a-4dc0-809a-6e418e621358",
+          "pet_id": "1918dd1c-6b34-4037-9698-07fc1eb23477",
+          "title": "Attachment Continuity attach-fix-20260212T130147Z #11",
+          "description": "Loop 11",
+          "location": "Amman",
+          "priority": "high",
+          "status": "completed",
+          "requested_by": "199cd06e-0ac0-4ddc-beaa-2392c4195880",
+          "requested_by_name": "Attach Fix User",
+          "assigned_vet_id": "1382dcc7-3cd5-4be2-b4e9-8bad76a7d864",
+          "assigned_clinic_id": null,
+          "attachments": [
+            "inline://attach-fix-20260212T130147Z-11-a",
+            "inline://attach-fix-20260212T130147Z-11-b"
+          ],
+          "follow_up_context": "Loop-11",
+          "follow_up_due_date": null,
+          "reminder_enabled": false,
+          "created_at": "2026-02-12T13:01:49.898000",
+          "updated_at": "2026-02-12T13:01:49.925000",
+          "diagnosis": "Dx-11",
+          "prescription": "Rx-11",
+          "vet_notes": null
+        },
+        {
+          "id": "acc03be8-e83d-4805-a5e7-cac65e9d97ca",
+          "pet_id": "1918dd1c-6b34-4037-9698-07fc1eb23477",
+          "title": "Attachment Continuity attach-fix-20260212T130147Z #10",
+          "description": "Loop 10",
+          "location": "Amman",
+          "priority": "high",
+          "status": "completed",
+          "requested_by": "199cd06e-0ac0-4ddc-beaa-2392c4195880",
+          "requested_by_name": "Attach Fix User",
+          "assigned_vet_id": "1382dcc7-3cd5-4be2-b4e9-8bad76a7d864",
+          "assigned_clinic_id": null,
+          "attachments": [
+            "inline://attach-fix-20260212T130147Z-10-a",
+            "inline://attach-fix-20260212T130147Z-10-b"
+          ],
+          "follow_up_context": "Loop-10",
+          "follow_up_due_date": null,
+          "reminder_enabled": false,
+          "created_at": "2026-02-12T13:01:49.869000",
+          "updated_at": "2026-02-12T13:01:49.887000",
+          "diagnosis": "Dx-10",
+          "prescription": "Rx-10",
+          "vet_notes": null
+        },
+        {
+          "id": "0f0af582-d29c-4f37-a4ff-e8da4f41df53",
+          "pet_id": "1918dd1c-6b34-4037-9698-07fc1eb23477",
+          "title": "Attachment Continuity attach-fix-20260212T130147Z #9",
+          "description": "Loop 9",
+          "location": "Amman",
+          "priority": "high",
+          "status": "completed",
+          "requested_by": "199cd06e-0ac0-4ddc-beaa-2392c4195880",
+          "requested_by_name": "Attach Fix User",
+          "assigned_vet_id": "1382dcc7-3cd5-4be2-b4e9-8bad76a7d864",
+          "assigned_clinic_id": null,
+          "attachments": [
+            "inline://attach-fix-20260212T130147Z-9-a",
+            "inline://attach-fix-20260212T130147Z-9-b"
+          ],
+          "follow_up_context": "Loop-9",
+          "follow_up_due_date": null,
+          "reminder_enabled": false,
+          "created_at": "2026-02-12T13:01:49.837000",
+          "updated_at": "2026-02-12T13:01:49.859000",
+          "diagnosis": "Dx-9",
+          "prescription": "Rx-9",
+          "vet_notes": null
+        },
+        {
+          "id": "fe555b6a-de37-498f-a351-6ca28c38c955",
+          "pet_id": "1918dd1c-6b34-4037-9698-07fc1eb23477",
+          "title": "Attachment Continuity attach-fix-20260212T130147Z #8",
+          "description": "Loop 8",
+          "location": "Amman",
+          "priority": "high",
+          "status": "completed",
+          "requested_by": "199cd06e-0ac0-4ddc-beaa-2392c4195880",
+          "requested_by_name": "Attach Fix User",
+          "assigned_vet_id": "1382dcc7-3cd5-4be2-b4e9-8bad76a7d864",
+          "assigned_clinic_id": null,
+          "attachments": [
+            "inline://attach-fix-20260212T130147Z-8-a",
+            "inline://attach-fix-20260212T130147Z-8-b"
+          ],
+          "follow_up_context": "Loop-8",
+          "follow_up_due_date": null,
+          "reminder_enabled": false,
+          "created_at": "2026-02-12T13:01:49.809000",
+          "updated_at": "2026-02-12T13:01:49.828000",
+          "diagnosis": "Dx-8",
+          "prescription": "Rx-8",
+          "vet_notes": null
+        },
+        {
+          "id": "6a6d3327-4de0-4e9d-8b6b-0de04a8ed519",
+          "pet_id": "1918dd1c-6b34-4037-9698-07fc1eb23477",
+          "title": "Attachment Continuity attach-fix-20260212T130147Z #7",
+          "description": "Loop 7",
+          "location": "Amman",
+          "priority": "high",
+          "status": "completed",
+          "requested_by": "199cd06e-0ac0-4ddc-beaa-2392c4195880",
+          "requested_by_name": "Attach Fix User",
+          "assigned_vet_id": "1382dcc7-3cd5-4be2-b4e9-8bad76a7d864",
+          "assigned_clinic_id": null,
+          "attachments": [
+            "inline://attach-fix-20260212T130147Z-7-a",
+            "inline://attach-fix-20260212T130147Z-7-b"
+          ],
+          "follow_up_context": "Loop-7",
+          "follow_up_due_date": null,
+          "reminder_enabled": false,
+          "created_at": "2026-02-12T13:01:49.779000",
+          "updated_at": "2026-02-12T13:01:49.799000",
+          "diagnosis": "Dx-7",
+          "prescription": "Rx-7",
+          "vet_notes": null
+        },
+        {
+          "id": "796111c7-b4a3-45ed-a1ab-683f1811c902",
+          "pet_id": "1918dd1c-6b34-4037-9698-07fc1eb23477",
+          "title": "Attachment Continuity attach-fix-20260212T130147Z #6",
+          "description": "Loop 6",
+          "location": "Amman",
+          "priority": "high",
+          "status": "completed",
+          "requested_by": "199cd06e-0ac0-4ddc-beaa-2392c4195880",
+          "requested_by_name": "Attach Fix User",
+          "assigned_vet_id": "1382dcc7-3cd5-4be2-b4e9-8bad76a7d864",
+          "assigned_clinic_id": null,
+          "attachments": [
+            "inline://attach-fix-20260212T130147Z-6-a",
+            "inline://attach-fix-20260212T130147Z-6-b"
+          ],
+          "follow_up_context": "Loop-6",
+          "follow_up_due_date": null,
+          "reminder_enabled": false,
+          "created_at": "2026-02-12T13:01:49.749000",
+          "updated_at": "2026-02-12T13:01:49.768000",
+          "diagnosis": "Dx-6",
+          "prescription": "Rx-6",
+          "vet_notes": null
+        },
+        {
+          "id": "1712b58d-cbc3-43c3-9999-74631e9a6e48",
+          "pet_id": "1918dd1c-6b34-4037-9698-07fc1eb23477",
+          "title": "Attachment Continuity attach-fix-20260212T130147Z #5",
+          "description": "Loop 5",
+          "location": "Amman",
+          "priority": "high",
+          "status": "completed",
+          "requested_by": "199cd06e-0ac0-4ddc-beaa-2392c4195880",
+          "requested_by_name": "Attach Fix User",
+          "assigned_vet_id": "1382dcc7-3cd5-4be2-b4e9-8bad76a7d864",
+          "assigned_clinic_id": null,
+          "attachments": [
+            "inline://attach-fix-20260212T130147Z-5-a",
+            "inline://attach-fix-20260212T130147Z-5-b"
+          ],
+          "follow_up_context": "Loop-5",
+          "follow_up_due_date": null,
+          "reminder_enabled": false,
+          "created_at": "2026-02-12T13:01:49.722000",
+          "updated_at": "2026-02-12T13:01:49.740000",
+          "diagnosis": "Dx-5",
+          "prescription": "Rx-5",
+          "vet_notes": null
+        },
+        {
+          "id": "d5ed639b-3d87-4523-a018-7a1e4b3df13c",
+          "pet_id": "1918dd1c-6b34-4037-9698-07fc1eb23477",
+          "title": "Attachment Continuity attach-fix-20260212T130147Z #4",
+          "description": "Loop 4",
+          "location": "Amman",
+          "priority": "high",
+          "status": "completed",
+          "requested_by": "199cd06e-0ac0-4ddc-beaa-2392c4195880",
+          "requested_by_name": "Attach Fix User",
+          "assigned_vet_id": "1382dcc7-3cd5-4be2-b4e9-8bad76a7d864",
+          "assigned_clinic_id": null,
+          "attachments": [
+            "inline://attach-fix-20260212T130147Z-4-a",
+            "inline://attach-fix-20260212T130147Z-4-b"
+          ],
+          "follow_up_context": "Loop-4",
+          "follow_up_due_date": null,
+          "reminder_enabled": false,
+          "created_at": "2026-02-12T13:01:49.692000",
+          "updated_at": "2026-02-12T13:01:49.713000",
+          "diagnosis": "Dx-4",
+          "prescription": "Rx-4",
+          "vet_notes": null
+        },
+        {
+          "id": "961ca18d-bf15-40bd-9c53-46d9026ac1ae",
+          "pet_id": "1918dd1c-6b34-4037-9698-07fc1eb23477",
+          "title": "Attachment Continuity attach-fix-20260212T130147Z #3",
+          "description": "Loop 3",
+          "location": "Amman",
+          "priority": "high",
+          "status": "completed",
+          "requested_by": "199cd06e-0ac0-4ddc-beaa-2392c4195880",
+          "requested_by_name": "Attach Fix User",
+          "assigned_vet_id": "1382dcc7-3cd5-4be2-b4e9-8bad76a7d864",
+          "assigned_clinic_id": null,
+          "attachments": [
+            "inline://attach-fix-20260212T130147Z-3-a",
+            "inline://attach-fix-20260212T130147Z-3-b"
+          ],
+          "follow_up_context": "Loop-3",
+          "follow_up_due_date": null,
+          "reminder_enabled": false,
+          "created_at": "2026-02-12T13:01:49.663000",
+          "updated_at": "2026-02-12T13:01:49.683000",
+          "diagnosis": "Dx-3",
+          "prescription": "Rx-3",
+          "vet_notes": null
+        },
+        {
+          "id": "1e815e6f-5e68-4d80-9abe-47a93d9c42f5",
+          "pet_id": "1918dd1c-6b34-4037-9698-07fc1eb23477",
+          "title": "Attachment Continuity attach-fix-20260212T130147Z #2",
+          "description": "Loop 2",
+          "location": "Amman",
+          "priority": "high",
+          "status": "completed",
+          "requested_by": "199cd06e-0ac0-4ddc-beaa-2392c4195880",
+          "requested_by_name": "Attach Fix User",
+          "assigned_vet_id": "1382dcc7-3cd5-4be2-b4e9-8bad76a7d864",
+          "assigned_clinic_id": null,
+          "attachments": [
+            "inline://attach-fix-20260212T130147Z-2-a",
+            "inline://attach-fix-20260212T130147Z-2-b"
+          ],
+          "follow_up_context": "Loop-2",
+          "follow_up_due_date": null,
+          "reminder_enabled": false,
+          "created_at": "2026-02-12T13:01:49.627000",
+          "updated_at": "2026-02-12T13:01:49.652000",
+          "diagnosis": "Dx-2",
+          "prescription": "Rx-2",
+          "vet_notes": null
+        },
+        {
+          "id": "8f9a27e9-b1ed-40e4-bd26-ac2bbfa9e6f4",
+          "pet_id": "1918dd1c-6b34-4037-9698-07fc1eb23477",
+          "title": "Attachment Continuity attach-fix-20260212T130147Z #1",
+          "description": "Loop 1",
+          "location": "Amman",
+          "priority": "high",
+          "status": "completed",
+          "requested_by": "199cd06e-0ac0-4ddc-beaa-2392c4195880",
+          "requested_by_name": "Attach Fix User",
+          "assigned_vet_id": "1382dcc7-3cd5-4be2-b4e9-8bad76a7d864",
+          "assigned_clinic_id": null,
+          "attachments": [
+            "inline://attach-fix-20260212T130147Z-1-a",
+            "inline://attach-fix-20260212T130147Z-1-b"
+          ],
+          "follow_up_context": "Loop-1",
+          "follow_up_due_date": null,
+          "reminder_enabled": false,
+          "created_at": "2026-02-12T13:01:49.597000",
+          "updated_at": "2026-02-12T13:01:49.617000",
+          "diagnosis": "Dx-1",
+          "prescription": "Rx-1",
+          "vet_notes": null
+        },
+        {
+          "id": "18ef11e2-0593-4b4c-bc97-29c60e48e0e9",
+          "pet_id": "1918dd1c-6b34-4037-9698-07fc1eb23477",
+          "title": "Attachment Continuity attach-fix-20260212T130147Z #0",
+          "description": "Loop 0",
+          "location": "Amman",
+          "priority": "high",
+          "status": "completed",
+          "requested_by": "199cd06e-0ac0-4ddc-beaa-2392c4195880",
+          "requested_by_name": "Attach Fix User",
+          "assigned_vet_id": "1382dcc7-3cd5-4be2-b4e9-8bad76a7d864",
+          "assigned_clinic_id": null,
+          "attachments": [
+            "inline://attach-fix-20260212T130147Z-0-a",
+            "inline://attach-fix-20260212T130147Z-0-b"
+          ],
+          "follow_up_context": "Loop-0",
+          "follow_up_due_date": null,
+          "reminder_enabled": false,
+          "created_at": "2026-02-12T13:01:49.564000",
+          "updated_at": "2026-02-12T13:01:49.586000",
+          "diagnosis": "Dx-0",
+          "prescription": "Rx-0",
+          "vet_notes": null
+        },
+        {
+          "id": "888496de-31a2-4259-b357-dd619c9ab25a",
+          "pet_id": "b854ca0c-bdcb-4a5b-acb2-72763ff5a72b",
+          "title": "Attachment Continuity attach-fix-20260212T130126Z #11",
+          "description": "Loop 11",
+          "location": "Amman",
+          "priority": "high",
+          "status": "completed",
+          "requested_by": "bc5617a8-1953-43e2-bba0-aec72d151720",
+          "requested_by_name": "Attach Fix User",
+          "assigned_vet_id": "1382dcc7-3cd5-4be2-b4e9-8bad76a7d864",
+          "assigned_clinic_id": null,
+          "attachments": [
+            "inline://attach-fix-20260212T130126Z-11-a",
+            "inline://attach-fix-20260212T130126Z-11-b"
+          ],
+          "follow_up_context": "Loop-11",
+          "follow_up_due_date": null,
+          "reminder_enabled": false,
+          "created_at": "2026-02-12T13:01:28.558000",
+          "updated_at": "2026-02-12T13:01:28.582000",
+          "diagnosis": "Dx-11",
+          "prescription": "Rx-11",
+          "vet_notes": null
+        },
+        {
+          "id": "2c8edac8-443b-4c69-9721-46110c3a2e4d",
+          "pet_id": "b854ca0c-bdcb-4a5b-acb2-72763ff5a72b",
+          "title": "Attachment Continuity attach-fix-20260212T130126Z #10",
+          "description": "Loop 10",
+          "location": "Amman",
+          "priority": "high",
+          "status": "completed",
+          "requested_by": "bc5617a8-1953-43e2-bba0-aec72d151720",
+          "requested_by_name": "Attach Fix User",
+          "assigned_vet_id": "1382dcc7-3cd5-4be2-b4e9-8bad76a7d864",
+          "assigned_clinic_id": null,
+          "attachments": [
+            "inline://attach-fix-20260212T130126Z-10-a",
+            "inline://attach-fix-20260212T130126Z-10-b"
+          ],
+          "follow_up_context": "Loop-10",
+          "follow_up_due_date": null,
+          "reminder_enabled": false,
+          "created_at": "2026-02-12T13:01:28.526000",
+          "updated_at": "2026-02-12T13:01:28.548000",
+          "diagnosis": "Dx-10",
+          "prescription": "Rx-10",
+          "vet_notes": null
+        },
+        {
+          "id": "00bf9ec8-26c8-4ffa-b1d8-6f3cbdf71853",
+          "pet_id": "b854ca0c-bdcb-4a5b-acb2-72763ff5a72b",
+          "title": "Attachment Continuity attach-fix-20260212T130126Z #9",
+          "description": "Loop 9",
+          "location": "Amman",
+          "priority": "high",
+          "status": "completed",
+          "requested_by": "bc5617a8-1953-43e2-bba0-aec72d151720",
+          "requested_by_name": "Attach Fix User",
+          "assigned_vet_id": "1382dcc7-3cd5-4be2-b4e9-8bad76a7d864",
+          "assigned_clinic_id": null,
+          "attachments": [
+            "inline://attach-fix-20260212T130126Z-9-a",
+            "inline://attach-fix-20260212T130126Z-9-b"
+          ],
+          "follow_up_context": "Loop-9",
+          "follow_up_due_date": null,
+          "reminder_enabled": false,
+          "created_at": "2026-02-12T13:01:28.497000",
+          "updated_at": "2026-02-12T13:01:28.518000",
+          "diagnosis": "Dx-9",
+          "prescription": "Rx-9",
+          "vet_notes": null
+        },
+        {
+          "id": "4a4175c2-bd2b-4df7-90a8-b0390b6ca91e",
+          "pet_id": "b854ca0c-bdcb-4a5b-acb2-72763ff5a72b",
+          "title": "Attachment Continuity attach-fix-20260212T130126Z #8",
+          "description": "Loop 8",
+          "location": "Amman",
+          "priority": "high",
+          "status": "completed",
+          "requested_by": "bc5617a8-1953-43e2-bba0-aec72d151720",
+          "requested_by_name": "Attach Fix User",
+          "assigned_vet_id": "1382dcc7-3cd5-4be2-b4e9-8bad76a7d864",
+          "assigned_clinic_id": null,
+          "attachments": [
+            "inline://attach-fix-20260212T130126Z-8-a",
+            "inline://attach-fix-20260212T130126Z-8-b"
+          ],
+          "follow_up_context": "Loop-8",
+          "follow_up_due_date": null,
+          "reminder_enabled": false,
+          "created_at": "2026-02-12T13:01:28.471000",
+          "updated_at": "2026-02-12T13:01:28.489000",
+          "diagnosis": "Dx-8",
+          "prescription": "Rx-8",
+          "vet_notes": null
+        },
+        {
+          "id": "da4d8ed9-4479-4c18-9760-a61004ff557e",
+          "pet_id": "b854ca0c-bdcb-4a5b-acb2-72763ff5a72b",
+          "title": "Attachment Continuity attach-fix-20260212T130126Z #7",
+          "description": "Loop 7",
+          "location": "Amman",
+          "priority": "high",
+          "status": "completed",
+          "requested_by": "bc5617a8-1953-43e2-bba0-aec72d151720",
+          "requested_by_name": "Attach Fix User",
+          "assigned_vet_id": "1382dcc7-3cd5-4be2-b4e9-8bad76a7d864",
+          "assigned_clinic_id": null,
+          "attachments": [
+            "inline://attach-fix-20260212T130126Z-7-a",
+            "inline://attach-fix-20260212T130126Z-7-b"
+          ],
+          "follow_up_context": "Loop-7",
+          "follow_up_due_date": null,
+          "reminder_enabled": false,
+          "created_at": "2026-02-12T13:01:28.446000",
+          "updated_at": "2026-02-12T13:01:28.463000",
+          "diagnosis": "Dx-7",
+          "prescription": "Rx-7",
+          "vet_notes": null
+        },
+        {
+          "id": "f26f2270-35ae-4a2a-9612-2c708e3608a9",
+          "pet_id": "b854ca0c-bdcb-4a5b-acb2-72763ff5a72b",
+          "title": "Attachment Continuity attach-fix-20260212T130126Z #6",
+          "description": "Loop 6",
+          "location": "Amman",
+          "priority": "high",
+          "status": "completed",
+          "requested_by": "bc5617a8-1953-43e2-bba0-aec72d151720",
+          "requested_by_name": "Attach Fix User",
+          "assigned_vet_id": "1382dcc7-3cd5-4be2-b4e9-8bad76a7d864",
+          "assigned_clinic_id": null,
+          "attachments": [
+            "inline://attach-fix-20260212T130126Z-6-a",
+            "inline://attach-fix-20260212T130126Z-6-b"
+          ],
+          "follow_up_context": "Loop-6",
+          "follow_up_due_date": null,
+          "reminder_enabled": false,
+          "created_at": "2026-02-12T13:01:28.418000",
+          "updated_at": "2026-02-12T13:01:28.436000",
+          "diagnosis": "Dx-6",
+          "prescription": "Rx-6",
+          "vet_notes": null
+        },
+        {
+          "id": "e2e2a5cf-fe27-4601-88de-c871d6484d59",
+          "pet_id": "b854ca0c-bdcb-4a5b-acb2-72763ff5a72b",
+          "title": "Attachment Continuity attach-fix-20260212T130126Z #5",
+          "description": "Loop 5",
+          "location": "Amman",
+          "priority": "high",
+          "status": "completed",
+          "requested_by": "bc5617a8-1953-43e2-bba0-aec72d151720",
+          "requested_by_name": "Attach Fix User",
+          "assigned_vet_id": "1382dcc7-3cd5-4be2-b4e9-8bad76a7d864",
+          "assigned_clinic_id": null,
+          "attachments": [
+            "inline://attach-fix-20260212T130126Z-5-a",
+            "inline://attach-fix-20260212T130126Z-5-b"
+          ],
+          "follow_up_context": "Loop-5",
+          "follow_up_due_date": null,
+          "reminder_enabled": false,
+          "created_at": "2026-02-12T13:01:28.394000",
+          "updated_at": "2026-02-12T13:01:28.410000",
+          "diagnosis": "Dx-5",
+          "prescription": "Rx-5",
+          "vet_notes": null
+        },
+        {
+          "id": "f46ec615-a6c0-4829-83b2-f988862fc40d",
+          "pet_id": "b854ca0c-bdcb-4a5b-acb2-72763ff5a72b",
+          "title": "Attachment Continuity attach-fix-20260212T130126Z #4",
+          "description": "Loop 4",
+          "location": "Amman",
+          "priority": "high",
+          "status": "completed",
+          "requested_by": "bc5617a8-1953-43e2-bba0-aec72d151720",
+          "requested_by_name": "Attach Fix User",
+          "assigned_vet_id": "1382dcc7-3cd5-4be2-b4e9-8bad76a7d864",
+          "assigned_clinic_id": null,
+          "attachments": [
+            "inline://attach-fix-20260212T130126Z-4-a",
+            "inline://attach-fix-20260212T130126Z-4-b"
+          ],
+          "follow_up_context": "Loop-4",
+          "follow_up_due_date": null,
+          "reminder_enabled": false,
+          "created_at": "2026-02-12T13:01:28.368000",
+          "updated_at": "2026-02-12T13:01:28.385000",
+          "diagnosis": "Dx-4",
+          "prescription": "Rx-4",
+          "vet_notes": null
+        },
+        {
+          "id": "26752216-18c5-484c-8205-7e24e101153c",
+          "pet_id": "b854ca0c-bdcb-4a5b-acb2-72763ff5a72b",
+          "title": "Attachment Continuity attach-fix-20260212T130126Z #3",
+          "description": "Loop 3",
+          "location": "Amman",
+          "priority": "high",
+          "status": "completed",
+          "requested_by": "bc5617a8-1953-43e2-bba0-aec72d151720",
+          "requested_by_name": "Attach Fix User",
+          "assigned_vet_id": "1382dcc7-3cd5-4be2-b4e9-8bad76a7d864",
+          "assigned_clinic_id": null,
+          "attachments": [
+            "inline://attach-fix-20260212T130126Z-3-a",
+            "inline://attach-fix-20260212T130126Z-3-b"
+          ],
+          "follow_up_context": "Loop-3",
+          "follow_up_due_date": null,
+          "reminder_enabled": false,
+          "created_at": "2026-02-12T13:01:28.344000",
+          "updated_at": "2026-02-12T13:01:28.360000",
+          "diagnosis": "Dx-3",
+          "prescription": "Rx-3",
+          "vet_notes": null
+        },
+        {
+          "id": "f5902707-203d-4e74-b6c8-64605d8c1691",
+          "pet_id": "b854ca0c-bdcb-4a5b-acb2-72763ff5a72b",
+          "title": "Attachment Continuity attach-fix-20260212T130126Z #2",
+          "description": "Loop 2",
+          "location": "Amman",
+          "priority": "high",
+          "status": "completed",
+          "requested_by": "bc5617a8-1953-43e2-bba0-aec72d151720",
+          "requested_by_name": "Attach Fix User",
+          "assigned_vet_id": "1382dcc7-3cd5-4be2-b4e9-8bad76a7d864",
+          "assigned_clinic_id": null,
+          "attachments": [
+            "inline://attach-fix-20260212T130126Z-2-a",
+            "inline://attach-fix-20260212T130126Z-2-b"
+          ],
+          "follow_up_context": "Loop-2",
+          "follow_up_due_date": null,
+          "reminder_enabled": false,
+          "created_at": "2026-02-12T13:01:28.318000",
+          "updated_at": "2026-02-12T13:01:28.335000",
+          "diagnosis": "Dx-2",
+          "prescription": "Rx-2",
+          "vet_notes": null
+        },
+        {
+          "id": "b6b6015a-b5dd-4627-bd1c-275c750766ba",
+          "pet_id": "b854ca0c-bdcb-4a5b-acb2-72763ff5a72b",
+          "title": "Attachment Continuity attach-fix-20260212T130126Z #1",
+          "description": "Loop 1",
+          "location": "Amman",
+          "priority": "high",
+          "status": "completed",
+          "requested_by": "bc5617a8-1953-43e2-bba0-aec72d151720",
+          "requested_by_name": "Attach Fix User",
+          "assigned_vet_id": "1382dcc7-3cd5-4be2-b4e9-8bad76a7d864",
+          "assigned_clinic_id": null,
+          "attachments": [
+            "inline://attach-fix-20260212T130126Z-1-a",
+            "inline://attach-fix-20260212T130126Z-1-b"
+          ],
+          "follow_up_context": "Loop-1",
+          "follow_up_due_date": null,
+          "reminder_enabled": false,
+          "created_at": "2026-02-12T13:01:28.294000",
+          "updated_at": "2026-02-12T13:01:28.311000",
+          "diagnosis": "Dx-1",
+          "prescription": "Rx-1",
+          "vet_notes": null
+        },
+        {
+          "id": "6b2acf5d-fc03-4e37-ab49-30caed5ebeae",
+          "pet_id": "b854ca0c-bdcb-4a5b-acb2-72763ff5a72b",
+          "title": "Attachment Continuity attach-fix-20260212T130126Z #0",
+          "description": "Loop 0",
+          "location": "Amman",
+          "priority": "high",
+          "status": "completed",
+          "requested_by": "bc5617a8-1953-43e2-bba0-aec72d151720",
+          "requested_by_name": "Attach Fix User",
+          "assigned_vet_id": "1382dcc7-3cd5-4be2-b4e9-8bad76a7d864",
+          "assigned_clinic_id": null,
+          "attachments": [
+            "inline://attach-fix-20260212T130126Z-0-a",
+            "inline://attach-fix-20260212T130126Z-0-b"
+          ],
+          "follow_up_context": "Loop-0",
+          "follow_up_due_date": null,
+          "reminder_enabled": false,
+          "created_at": "2026-02-12T13:01:28.260000",
+          "updated_at": "2026-02-12T13:01:28.286000",
+          "diagnosis": "Dx-0",
+          "prescription": "Rx-0",
+          "vet_notes": null
+        },
+        {
+          "id": "598cf8e2-7875-4379-8685-ec411c22d5a4",
+          "pet_id": "616b96bb-6d26-4001-9d50-82921db7c2c7",
+          "title": "Follow-up review medical-gap-close-20260212T125032Z",
+          "description": "Pet still coughing after meds.",
+          "location": "Amman",
+          "priority": "high",
+          "status": "completed",
+          "requested_by": "cd635635-5146-4845-a47a-b7f04893fe67",
+          "requested_by_name": "Beta Med Gap",
+          "assigned_vet_id": "1382dcc7-3cd5-4be2-b4e9-8bad76a7d864",
+          "assigned_clinic_id": null,
+          "attachments": [
+            "data:image/jpeg;base64,ZmFrZS1hdHRhY2gtMQ==",
+            "data:image/jpeg;base64,ZmFrZS1hdHRhY2gtMg=="
+          ],
+          "follow_up_context": "Symptoms improved for 2 days then returned.",
+          "follow_up_due_date": "2026-02-19",
+          "reminder_enabled": true,
+          "created_at": "2026-02-12T12:50:33.834000",
+          "updated_at": "2026-02-12T12:50:33.867000",
+          "diagnosis": "Upper respiratory inflammation",
+          "prescription": "Continue antibiotics 5 days",
+          "vet_notes": "Hydration + steam"
+        },
+        {
+          "id": "921cf7e8-fcdd-4b1b-872c-f25196807698",
+          "pet_id": "ecc50b7f-2b81-4edb-8926-f1444c1f7052",
+          "title": "Follow-up review medical-gap-close-20260212T124955Z",
+          "description": "Pet still coughing after meds.",
+          "location": "Amman",
+          "priority": "high",
+          "status": "completed",
+          "requested_by": "41a9e141-75de-423e-a7ac-6b13efe61b09",
+          "requested_by_name": "Beta Med Gap",
+          "assigned_vet_id": "1382dcc7-3cd5-4be2-b4e9-8bad76a7d864",
+          "assigned_clinic_id": null,
+          "created_at": "2026-02-12T12:49:57.465000",
+          "updated_at": "2026-02-12T12:49:57.492000",
+          "diagnosis": "Upper respiratory inflammation",
+          "prescription": "Continue antibiotics 5 days",
+          "vet_notes": "Hydration + steam"
+        },
+        {
+          "id": "faf235bf-7126-4334-afb2-aba0a1ed906d",
+          "pet_id": "221cf038-a6b7-422d-9303-3d767fd32c88",
+          "title": "Continuity visit 2 final-medical-beta-20260212T123719Z",
+          "description": "Continuity symptoms #2",
+          "location": "Amman",
+          "priority": "normal",
+          "status": "completed",
+          "requested_by": "30c4a5aa-f7ad-49fb-9a41-8d8af873fc65",
+          "requested_by_name": "Beta Final Medical",
+          "assigned_vet_id": "1382dcc7-3cd5-4be2-b4e9-8bad76a7d864",
+          "assigned_clinic_id": null,
+          "created_at": "2026-02-12T12:37:25.542000",
+          "updated_at": "2026-02-12T12:37:25.560000",
+          "diagnosis": "Dx2",
+          "prescription": "Rx2",
+          "vet_notes": "Follow-up 2"
+        },
+        {
+          "id": "ee9894ec-482b-4420-a92c-7545dc6227e1",
+          "pet_id": "221cf038-a6b7-422d-9303-3d767fd32c88",
+          "title": "Continuity visit 1 final-medical-beta-20260212T123719Z",
+          "description": "Continuity symptoms #1",
+          "location": "Amman",
+          "priority": "normal",
+          "status": "completed",
+          "requested_by": "30c4a5aa-f7ad-49fb-9a41-8d8af873fc65",
+          "requested_by_name": "Beta Final Medical",
+          "assigned_vet_id": "1382dcc7-3cd5-4be2-b4e9-8bad76a7d864",
+          "assigned_clinic_id": null,
+          "created_at": "2026-02-12T12:37:25.507000",
+          "updated_at": "2026-02-12T12:37:25.531000",
+          "diagnosis": "Dx1",
+          "prescription": "Rx1",
+          "vet_notes": "Follow-up 1"
+        },
+        {
+          "id": "6b4e14dd-e294-4553-b5a1-4e8737d62fd8",
+          "pet_id": "dc441305-86f8-4405-9484-8ad973998f35",
+          "title": "final-med-20260212T123634Z-attach-check",
+          "description": "need tests",
+          "location": null,
+          "priority": "normal",
+          "status": "in_progress",
+          "requested_by": "97052c92-910f-4061-976f-c8a991cdaaf4",
+          "requested_by_name": "Demo Clinic",
+          "assigned_vet_id": "1382dcc7-3cd5-4be2-b4e9-8bad76a7d864",
+          "assigned_clinic_id": null,
+          "created_at": "2026-02-12T12:36:34.892000",
+          "updated_at": "2026-02-12T12:36:34.899000"
+        },
+        {
+          "id": "7fe66ca8-a6cd-4b6f-a831-5dd0fe9c7161",
+          "pet_id": "d9986129-0f9f-4671-b145-21f395369df9",
+          "title": "Continuity visit 2 final-medical-beta-20260212T123613Z",
+          "description": "Continuity symptoms #2",
+          "location": "Amman",
+          "priority": "normal",
+          "status": "completed",
+          "requested_by": "c186ed9f-e1d8-4d07-967d-79fac2636d37",
+          "requested_by_name": "Beta Final Medical",
+          "assigned_vet_id": "1382dcc7-3cd5-4be2-b4e9-8bad76a7d864",
+          "assigned_clinic_id": null,
+          "created_at": "2026-02-12T12:36:16.604000",
+          "updated_at": "2026-02-12T12:36:16.621000",
+          "diagnosis": "Dx2",
+          "prescription": "Rx2",
+          "vet_notes": "Follow-up 2"
+        },
+        {
+          "id": "8338ac43-0fa3-4a17-8c10-e471c3a1ca70",
+          "pet_id": "d9986129-0f9f-4671-b145-21f395369df9",
+          "title": "Continuity visit 1 final-medical-beta-20260212T123613Z",
+          "description": "Continuity symptoms #1",
+          "location": "Amman",
+          "priority": "normal",
+          "status": "completed",
+          "requested_by": "c186ed9f-e1d8-4d07-967d-79fac2636d37",
+          "requested_by_name": "Beta Final Medical",
+          "assigned_vet_id": "1382dcc7-3cd5-4be2-b4e9-8bad76a7d864",
+          "assigned_clinic_id": null,
+          "created_at": "2026-02-12T12:36:16.579000",
+          "updated_at": "2026-02-12T12:36:16.595000",
+          "diagnosis": "Dx1",
+          "prescription": "Rx1",
+          "vet_notes": "Follow-up 1"
+        },
+        {
+          "id": "1ab1b52e-5d18-40bc-841b-cc515af21e7d",
+          "pet_id": "b1c97255-3efb-4073-bf42-30cf31f9dbd7",
+          "title": "Continuity visit 2 final-medical-beta-20260212T123508Z",
+          "description": "Continuity symptoms #2",
+          "location": "Amman",
+          "priority": "normal",
+          "status": "completed",
+          "requested_by": "b6067667-1c01-4570-a5dd-08ff2e00f261",
+          "requested_by_name": "Beta Final Medical",
+          "assigned_vet_id": "1382dcc7-3cd5-4be2-b4e9-8bad76a7d864",
+          "assigned_clinic_id": null,
+          "created_at": "2026-02-12T12:35:12.718000",
+          "updated_at": "2026-02-12T12:35:12.735000",
+          "diagnosis": "Dx2",
+          "prescription": "Rx2",
+          "vet_notes": "Follow-up 2"
+        },
+        {
+          "id": "9d0b0cb3-b1e0-4b2c-a5a5-959cbc769e80",
+          "pet_id": "b1c97255-3efb-4073-bf42-30cf31f9dbd7",
+          "title": "Continuity visit 1 final-medical-beta-20260212T123508Z",
+          "description": "Continuity symptoms #1",
+          "location": "Amman",
+          "priority": "normal",
+          "status": "completed",
+          "requested_by": "b6067667-1c01-4570-a5dd-08ff2e00f261",
+          "requested_by_name": "Beta Final Medical",
+          "assigned_vet_id": "1382dcc7-3cd5-4be2-b4e9-8bad76a7d864",
+          "assigned_clinic_id": null,
+          "created_at": "2026-02-12T12:35:12.689000",
+          "updated_at": "2026-02-12T12:35:12.707000",
+          "diagnosis": "Dx1",
+          "prescription": "Rx1",
+          "vet_notes": "Follow-up 1"
+        },
+        {
+          "id": "a18e9911-7a94-4920-96c3-1413dc4274ad",
+          "pet_id": "1ebda4ce-8258-4e75-a654-91ec9817d5bf",
+          "title": "Continuity visit 2 final-medical-beta-20260212T123423Z",
+          "description": "Continuity symptoms #2",
+          "location": "Amman",
+          "priority": "normal",
+          "status": "completed",
+          "requested_by": "10bb4191-3c83-47ba-81c2-9cbfc810f2c2",
+          "requested_by_name": "Beta Final Medical",
+          "assigned_vet_id": "1382dcc7-3cd5-4be2-b4e9-8bad76a7d864",
+          "assigned_clinic_id": null,
+          "created_at": "2026-02-12T12:34:26.927000",
+          "updated_at": "2026-02-12T12:34:26.948000",
+          "diagnosis": "Dx2",
+          "prescription": "Rx2",
+          "vet_notes": "Follow-up 2"
+        },
+        {
+          "id": "00d72ead-bd30-4f17-9ef3-1de1eeaa61e2",
+          "pet_id": "1ebda4ce-8258-4e75-a654-91ec9817d5bf",
+          "title": "Continuity visit 1 final-medical-beta-20260212T123423Z",
+          "description": "Continuity symptoms #1",
+          "location": "Amman",
+          "priority": "normal",
+          "status": "completed",
+          "requested_by": "10bb4191-3c83-47ba-81c2-9cbfc810f2c2",
+          "requested_by_name": "Beta Final Medical",
+          "assigned_vet_id": "1382dcc7-3cd5-4be2-b4e9-8bad76a7d864",
+          "assigned_clinic_id": null,
+          "created_at": "2026-02-12T12:34:26.883000",
+          "updated_at": "2026-02-12T12:34:26.912000",
+          "diagnosis": "Dx1",
+          "prescription": "Rx1",
+          "vet_notes": "Follow-up 1"
+        },
+        {
+          "id": "21c3e205-6653-4ded-9af0-0132d0a4344f",
+          "pet_id": "ee622311-41f3-4d1b-854d-8fa86688be23",
+          "title": "Care request 3 beta-vet-flow-20260212T120139Z",
+          "description": "Symptoms for Kiwi-20139Z (beta-vet-flow-20260212T120139Z)",
+          "location": "Amman",
+          "priority": "normal",
+          "status": "completed",
+          "requested_by": "8de895c8-8aaf-42ba-b87b-cd9ff8d1e7b8",
+          "requested_by_name": "Beta Vet Flow User",
+          "assigned_vet_id": "1382dcc7-3cd5-4be2-b4e9-8bad76a7d864",
+          "assigned_clinic_id": null,
+          "created_at": "2026-02-12T12:01:41.422000",
+          "updated_at": "2026-02-12T12:01:41.442000",
+          "diagnosis": "Dx-Kiwi-20139Z",
+          "prescription": "Rx-Kiwi-20139Z",
+          "vet_notes": "Follow-up after 3 days for Kiwi-20139Z (beta-vet-flow-20260212T120139Z)"
+        },
+        {
+          "id": "376ada76-f43e-4943-b6e6-f4ea5989e577",
+          "pet_id": "8b587bd9-2569-4921-b2a6-663c11fd6add",
+          "title": "Care request 2 beta-vet-flow-20260212T120139Z",
+          "description": "Symptoms for Luna-20139Z (beta-vet-flow-20260212T120139Z)",
+          "location": "Amman",
+          "priority": "normal",
+          "status": "completed",
+          "requested_by": "8de895c8-8aaf-42ba-b87b-cd9ff8d1e7b8",
+          "requested_by_name": "Beta Vet Flow User",
+          "assigned_vet_id": "1382dcc7-3cd5-4be2-b4e9-8bad76a7d864",
+          "assigned_clinic_id": null,
+          "created_at": "2026-02-12T12:01:41.383000",
+          "updated_at": "2026-02-12T12:01:41.407000",
+          "diagnosis": "Dx-Luna-20139Z",
+          "prescription": "Rx-Luna-20139Z",
+          "vet_notes": "Follow-up after 3 days for Luna-20139Z (beta-vet-flow-20260212T120139Z)"
+        },
+        {
+          "id": "9771b7cf-f05c-433c-848a-02bb4912b0d4",
+          "pet_id": "f4f86b97-8773-42ca-bda7-fbe3292c65af",
+          "title": "Care request 1 beta-vet-flow-20260212T120139Z",
+          "description": "Symptoms for Milo-20139Z (beta-vet-flow-20260212T120139Z)",
+          "location": "Amman",
+          "priority": "high",
+          "status": "completed",
+          "requested_by": "8de895c8-8aaf-42ba-b87b-cd9ff8d1e7b8",
+          "requested_by_name": "Beta Vet Flow User",
+          "assigned_vet_id": "1382dcc7-3cd5-4be2-b4e9-8bad76a7d864",
+          "assigned_clinic_id": null,
+          "created_at": "2026-02-12T12:01:41.336000",
+          "updated_at": "2026-02-12T12:01:41.355000",
+          "diagnosis": "Dx-Milo-20139Z",
+          "prescription": "Rx-Milo-20139Z",
+          "vet_notes": "Follow-up after 3 days for Milo-20139Z (beta-vet-flow-20260212T120139Z)"
+        },
+        {
+          "id": "15bbf200-e4e7-4a02-93e4-f8959af8959c",
+          "pet_id": "1cf7609d-3f7b-4f8f-a52d-edbe5647da3c",
+          "title": "Care request 3 beta-vet-flow-20260212T120025Z",
+          "description": "Symptoms for Kiwi-20025Z (beta-vet-flow-20260212T120025Z)",
+          "location": "Amman",
+          "priority": "normal",
+          "status": "completed",
+          "requested_by": "77b18f80-48a2-4e36-bdfe-0dd9a7bc8db6",
+          "requested_by_name": "Beta Vet Flow User",
+          "assigned_vet_id": "1382dcc7-3cd5-4be2-b4e9-8bad76a7d864",
+          "assigned_clinic_id": null,
+          "created_at": "2026-02-12T12:00:27.516000",
+          "updated_at": "2026-02-12T12:00:27.534000",
+          "diagnosis": "Dx-Kiwi-20025Z",
+          "prescription": "Rx-Kiwi-20025Z",
+          "vet_notes": "Follow-up after 3 days for Kiwi-20025Z (beta-vet-flow-20260212T120025Z)"
+        },
+        {
+          "id": "8a545aae-0dab-4827-8eed-4fa2cf8ff768",
+          "pet_id": "8937ac8b-73d4-4ebd-81ae-6a334cfbbb2c",
+          "title": "Care request 2 beta-vet-flow-20260212T120025Z",
+          "description": "Symptoms for Luna-20025Z (beta-vet-flow-20260212T120025Z)",
+          "location": "Amman",
+          "priority": "normal",
+          "status": "completed",
+          "requested_by": "77b18f80-48a2-4e36-bdfe-0dd9a7bc8db6",
+          "requested_by_name": "Beta Vet Flow User",
+          "assigned_vet_id": "1382dcc7-3cd5-4be2-b4e9-8bad76a7d864",
+          "assigned_clinic_id": null,
+          "created_at": "2026-02-12T12:00:27.485000",
+          "updated_at": "2026-02-12T12:00:27.503000",
+          "diagnosis": "Dx-Luna-20025Z",
+          "prescription": "Rx-Luna-20025Z",
+          "vet_notes": "Follow-up after 3 days for Luna-20025Z (beta-vet-flow-20260212T120025Z)"
+        },
+        {
+          "id": "48184dde-8d1c-4d16-9b09-4c5355487ce9",
+          "pet_id": "c3dd3c9c-b22c-4a9a-82f3-dfd3d2da5135",
+          "title": "Care request 1 beta-vet-flow-20260212T120025Z",
+          "description": "Symptoms for Milo-20025Z (beta-vet-flow-20260212T120025Z)",
+          "location": "Amman",
+          "priority": "high",
+          "status": "completed",
+          "requested_by": "77b18f80-48a2-4e36-bdfe-0dd9a7bc8db6",
+          "requested_by_name": "Beta Vet Flow User",
+          "assigned_vet_id": "1382dcc7-3cd5-4be2-b4e9-8bad76a7d864",
+          "assigned_clinic_id": null,
+          "created_at": "2026-02-12T12:00:27.454000",
+          "updated_at": "2026-02-12T12:00:27.473000",
+          "diagnosis": "Dx-Milo-20025Z",
+          "prescription": "Rx-Milo-20025Z",
+          "vet_notes": "Follow-up after 3 days for Milo-20025Z (beta-vet-flow-20260212T120025Z)"
+        },
+        {
+          "id": "6c220166-a2ca-4c57-bb16-a8a6a1e76f70",
+          "pet_id": "7f36f4cf-1f12-449b-8f1b-00e518458428",
+          "title": "Care request 3 beta-vet-flow-20260212T120010Z",
+          "description": "Symptoms for Kiwi-20010Z (beta-vet-flow-20260212T120010Z)",
+          "location": "Amman",
+          "priority": "normal",
+          "status": "completed",
+          "requested_by": "9c8620f9-b840-48d6-9161-cc288c0f2602",
+          "requested_by_name": "Beta Vet Flow User",
+          "assigned_vet_id": "1382dcc7-3cd5-4be2-b4e9-8bad76a7d864",
+          "assigned_clinic_id": null,
+          "created_at": "2026-02-12T12:00:12.417000",
+          "updated_at": "2026-02-12T12:00:12.442000",
+          "diagnosis": "Dx-Kiwi-20010Z",
+          "prescription": "Rx-Kiwi-20010Z",
+          "vet_notes": "Follow-up after 3 days for Kiwi-20010Z (beta-vet-flow-20260212T120010Z)"
+        },
+        {
+          "id": "acb8449e-198a-4d2d-b0fc-2301a17fa89c",
+          "pet_id": "e7886c16-e943-455b-a297-cfef29c142b7",
+          "title": "Care request 2 beta-vet-flow-20260212T120010Z",
+          "description": "Symptoms for Luna-20010Z (beta-vet-flow-20260212T120010Z)",
+          "location": "Amman",
+          "priority": "normal",
+          "status": "completed",
+          "requested_by": "9c8620f9-b840-48d6-9161-cc288c0f2602",
+          "requested_by_name": "Beta Vet Flow User",
+          "assigned_vet_id": "1382dcc7-3cd5-4be2-b4e9-8bad76a7d864",
+          "assigned_clinic_id": null,
+          "created_at": "2026-02-12T12:00:12.378000",
+          "updated_at": "2026-02-12T12:00:12.401000",
+          "diagnosis": "Dx-Luna-20010Z",
+          "prescription": "Rx-Luna-20010Z",
+          "vet_notes": "Follow-up after 3 days for Luna-20010Z (beta-vet-flow-20260212T120010Z)"
+        },
+        {
+          "id": "e74ca421-7792-4f95-826f-5f40af01c6f3",
+          "pet_id": "1bd95558-63eb-4ab8-a845-d0081b078990",
+          "title": "Care request 1 beta-vet-flow-20260212T120010Z",
+          "description": "Symptoms for Milo-20010Z (beta-vet-flow-20260212T120010Z)",
+          "location": "Amman",
+          "priority": "high",
+          "status": "completed",
+          "requested_by": "9c8620f9-b840-48d6-9161-cc288c0f2602",
+          "requested_by_name": "Beta Vet Flow User",
+          "assigned_vet_id": "1382dcc7-3cd5-4be2-b4e9-8bad76a7d864",
+          "assigned_clinic_id": null,
+          "created_at": "2026-02-12T12:00:12.345000",
+          "updated_at": "2026-02-12T12:00:12.363000",
+          "diagnosis": "Dx-Milo-20010Z",
+          "prescription": "Rx-Milo-20010Z",
+          "vet_notes": "Follow-up after 3 days for Milo-20010Z (beta-vet-flow-20260212T120010Z)"
+        },
+        {
+          "id": "1d44817b-39ee-4504-9d65-2bf867f328db",
+          "pet_id": "3d138dfd-7839-4d1d-8d71-db79bd662d88",
+          "title": "Follow-up case vet-alpha-20260212T115922Z",
+          "description": "Limping after play, needs assessment",
+          "location": "Amman",
+          "priority": "high",
+          "status": "completed",
+          "requested_by": "97052c92-910f-4061-976f-c8a991cdaaf4",
+          "requested_by_name": "Demo Clinic",
+          "assigned_vet_id": "1382dcc7-3cd5-4be2-b4e9-8bad76a7d864",
+          "assigned_clinic_id": null,
+          "created_at": "2026-02-12T11:59:23.458000",
+          "updated_at": "2026-02-12T11:59:23.486000",
+          "diagnosis": "Mild soft-tissue strain in front right leg",
+          "prescription": "Rest 5 days, meloxicam low dose once daily x3 days",
+          "vet_notes": "No fracture signs. Recheck if limping persists >7 days."
+        },
+        {
+          "id": "6dc00315-8752-4f93-a16b-16be008b3edc",
+          "pet_id": "e265a381-0674-45c2-b4ea-ca0f99456b88",
+          "title": "Negative Matrix Care",
+          "description": "for role checks",
+          "location": null,
+          "priority": "normal",
+          "status": "assigned",
+          "requested_by": "e974e25f-3afb-4474-832c-b76635d6c242",
+          "requested_by_name": "qa.user",
+          "assigned_vet_id": null,
+          "assigned_clinic_id": "2f1ccc94-a7ca-43dc-a5f8-4b36685de82a",
+          "created_at": "2026-02-11T06:25:40.556000",
+          "updated_at": "2026-02-11T06:25:40.721000"
+        },
+        {
+          "id": "55bb1dcc-160e-475b-8ef2-d498db4f7aed",
+          "pet_id": "4140bd89-9871-4cc5-8e1c-c2391a02bc03",
+          "title": "Negative Matrix Care",
+          "description": "for role checks",
+          "location": null,
+          "priority": "normal",
+          "status": "assigned",
+          "requested_by": "e974e25f-3afb-4474-832c-b76635d6c242",
+          "requested_by_name": "qa.user",
+          "assigned_vet_id": null,
+          "assigned_clinic_id": "2f1ccc94-a7ca-43dc-a5f8-4b36685de82a",
+          "created_at": "2026-02-11T06:25:30.352000",
+          "updated_at": "2026-02-11T06:25:30.522000"
+        },
+        {
+          "id": "92968467-be94-4acf-b7bd-27bfb90a01eb",
+          "pet_id": "0f9a0969-c393-4abb-9c86-d251dbf72ca8",
+          "title": "QA checkup",
+          "description": "Regression test care request",
+          "location": null,
+          "priority": "normal",
+          "status": "completed",
+          "requested_by": "e974e25f-3afb-4474-832c-b76635d6c242",
+          "requested_by_name": "qa.user",
+          "assigned_vet_id": null,
+          "assigned_clinic_id": null,
+          "created_at": "2026-02-11T06:23:23.641000",
+          "updated_at": "2026-02-11T06:23:23.699000"
+        }
+      ]
+    },
+    {
+      "ts": "2026-02-12T15:15:29.880894+00:00",
+      "method": "GET",
+      "path": "/clinic/vets",
+      "status": 200,
+      "request": null,
+      "params": null,
+      "response": [
+        {
+          "id": "e974e25f-3afb-4474-832c-b76635d6c242",
+          "name": "qa.user",
+          "email": "qa.user@petsy.com",
+          "city": null
+        },
+        {
+          "id": "6e506837-8409-4201-8cd9-cdb0412cb767",
+          "name": "qa.vet",
+          "email": "qa.vet@petsy.com",
+          "city": null
+        },
+        {
+          "id": "a76ee988-0dcf-4c95-b7f7-9d379dbeb4cc",
+          "name": "Vet User",
+          "email": "vet@petsy.com",
+          "city": null
+        },
+        {
+          "id": "51cab4dc-aea0-4275-af85-894d8dff3652",
+          "name": "QA 2",
+          "email": "qa2_1770810273@example.com",
+          "city": null
+        },
+        {
+          "id": "8fdf338b-41a2-4f1f-a99a-738918c70571",
+          "name": "Phase QA 2",
+          "email": "qa_phase_2_1770810391@example.com",
+          "city": null
+        },
+        {
+          "id": "1382dcc7-3cd5-4be2-b4e9-8bad76a7d864",
+          "name": "Demo Vet",
+          "email": "demo.vet@petsy.com",
+          "city": null
+        }
+      ]
+    },
+    {
+      "ts": "2026-02-12T15:15:29.884852+00:00",
+      "method": "POST",
+      "path": "/pets",
+      "status": 200,
+      "request": {
+        "name": "ClinicFlowPet-clinic-alpha-20260212T151529Z",
+        "species": "dog",
+        "gender": "male",
+        "status": "owned"
+      },
+      "params": null,
+      "response": {
+        "name": "ClinicFlowPet-clinic-alpha-20260212T151529Z",
+        "species": "dog",
+        "breed": null,
+        "age": null,
+        "gender": "male",
+        "color": null,
+        "weight": null,
+        "description": null,
+        "image": null,
+        "status": "owned",
+        "price": null,
+        "location": null,
+        "vaccinated": false,
+        "neutered": false,
+        "id": "4a2b9e1c-6ae9-4168-a86c-a5a5278ad2ea",
+        "owner_id": "97052c92-910f-4061-976f-c8a991cdaaf4",
+        "created_at": "2026-02-12T15:15:29.883480",
+        "likes": 0,
+        "views": 0
+      }
+    },
+    {
+      "ts": "2026-02-12T15:15:29.893413+00:00",
+      "method": "POST",
+      "path": "/care-requests",
+      "status": 200,
+      "request": {
+        "pet_id": "4a2b9e1c-6ae9-4168-a86c-a5a5278ad2ea",
+        "title": "Clinic triage clinic-alpha-20260212T151529Z",
+        "description": "Intermittent cough and lower appetite",
+        "priority": "medium",
+        "location": "Amman"
+      },
+      "params": null,
+      "response": {
+        "id": "b76fe716-ced2-4300-a603-521917d02231",
+        "pet_id": "4a2b9e1c-6ae9-4168-a86c-a5a5278ad2ea",
+        "title": "Clinic triage clinic-alpha-20260212T151529Z",
+        "description": "Intermittent cough and lower appetite",
+        "location": "Amman",
+        "priority": "medium",
+        "status": "pending",
+        "requested_by": "97052c92-910f-4061-976f-c8a991cdaaf4",
+        "requested_by_name": "Demo Clinic",
+        "assigned_vet_id": null,
+        "assigned_clinic_id": null,
+        "attachments": [],
+        "follow_up_context": null,
+        "follow_up_due_date": null,
+        "reminder_enabled": false,
+        "created_at": "2026-02-12T15:15:29.887353",
+        "updated_at": "2026-02-12T15:15:29.887353"
+      }
+    },
+    {
+      "ts": "2026-02-12T15:15:29.900513+00:00",
+      "method": "PUT",
+      "path": "/clinic/care-requests/b76fe716-ced2-4300-a603-521917d02231",
+      "status": 200,
+      "request": {
+        "status": "accepted",
+        "assigned_vet_id": "1382dcc7-3cd5-4be2-b4e9-8bad76a7d864",
+        "clinic_notes": "assigned-first-clinic-alpha-20260212T151529Z"
+      },
+      "params": null,
+      "response": {
+        "id": "b76fe716-ced2-4300-a603-521917d02231",
+        "pet_id": "4a2b9e1c-6ae9-4168-a86c-a5a5278ad2ea",
+        "title": "Clinic triage clinic-alpha-20260212T151529Z",
+        "description": "Intermittent cough and lower appetite",
+        "location": "Amman",
+        "priority": "medium",
+        "status": "accepted",
+        "requested_by": "97052c92-910f-4061-976f-c8a991cdaaf4",
+        "requested_by_name": "Demo Clinic",
+        "assigned_vet_id": "1382dcc7-3cd5-4be2-b4e9-8bad76a7d864",
+        "assigned_clinic_id": "97052c92-910f-4061-976f-c8a991cdaaf4",
+        "attachments": [],
+        "follow_up_context": null,
+        "follow_up_due_date": null,
+        "reminder_enabled": false,
+        "created_at": "2026-02-12T15:15:29.887000",
+        "updated_at": "2026-02-12T15:15:29.895000",
+        "clinic_notes": "assigned-first-clinic-alpha-20260212T151529Z"
+      }
+    },
+    {
+      "ts": "2026-02-12T15:15:29.909178+00:00",
+      "method": "PUT",
+      "path": "/clinic/care-requests/b76fe716-ced2-4300-a603-521917d02231",
+      "status": 200,
+      "request": {
+        "status": "in_progress",
+        "assigned_vet_id": "1382dcc7-3cd5-4be2-b4e9-8bad76a7d864",
+        "clinic_notes": "reassign-clinic-alpha-20260212T151529Z"
+      },
+      "params": null,
+      "response": {
+        "id": "b76fe716-ced2-4300-a603-521917d02231",
+        "pet_id": "4a2b9e1c-6ae9-4168-a86c-a5a5278ad2ea",
+        "title": "Clinic triage clinic-alpha-20260212T151529Z",
+        "description": "Intermittent cough and lower appetite",
+        "location": "Amman",
+        "priority": "medium",
+        "status": "in_progress",
+        "requested_by": "97052c92-910f-4061-976f-c8a991cdaaf4",
+        "requested_by_name": "Demo Clinic",
+        "assigned_vet_id": "1382dcc7-3cd5-4be2-b4e9-8bad76a7d864",
+        "assigned_clinic_id": "97052c92-910f-4061-976f-c8a991cdaaf4",
+        "attachments": [],
+        "follow_up_context": null,
+        "follow_up_due_date": null,
+        "reminder_enabled": false,
+        "created_at": "2026-02-12T15:15:29.887000",
+        "updated_at": "2026-02-12T15:15:29.904000",
+        "clinic_notes": "reassign-clinic-alpha-20260212T151529Z"
+      }
+    },
+    {
+      "ts": "2026-02-12T15:15:29.917403+00:00",
+      "method": "PUT",
+      "path": "/clinic/care-requests/b76fe716-ced2-4300-a603-521917d02231",
+      "status": 200,
+      "request": {
+        "status": "completed",
+        "clinic_notes": "clinic-handoff-complete-clinic-alpha-20260212T151529Z"
+      },
+      "params": null,
+      "response": {
+        "id": "b76fe716-ced2-4300-a603-521917d02231",
+        "pet_id": "4a2b9e1c-6ae9-4168-a86c-a5a5278ad2ea",
+        "title": "Clinic triage clinic-alpha-20260212T151529Z",
+        "description": "Intermittent cough and lower appetite",
+        "location": "Amman",
+        "priority": "medium",
+        "status": "completed",
+        "requested_by": "97052c92-910f-4061-976f-c8a991cdaaf4",
+        "requested_by_name": "Demo Clinic",
+        "assigned_vet_id": "1382dcc7-3cd5-4be2-b4e9-8bad76a7d864",
+        "assigned_clinic_id": "97052c92-910f-4061-976f-c8a991cdaaf4",
+        "attachments": [],
+        "follow_up_context": null,
+        "follow_up_due_date": null,
+        "reminder_enabled": false,
+        "created_at": "2026-02-12T15:15:29.887000",
+        "updated_at": "2026-02-12T15:15:29.912000",
+        "clinic_notes": "clinic-handoff-complete-clinic-alpha-20260212T151529Z"
+      }
+    },
+    {
+      "ts": "2026-02-12T15:15:29.926274+00:00",
+      "method": "GET",
+      "path": "/care-requests/b76fe716-ced2-4300-a603-521917d02231/timeline",
+      "status": 200,
+      "request": null,
+      "params": null,
+      "response": [
+        {
+          "id": "9080b47a-c3d0-4574-9c9f-079e8242c715",
+          "request_id": "b76fe716-ced2-4300-a603-521917d02231",
+          "actor_id": "97052c92-910f-4061-976f-c8a991cdaaf4",
+          "actor_name": "Demo Clinic",
+          "actor_role": "care_clinic",
+          "event_type": "created",
+          "status": "pending",
+          "notes": "Intermittent cough and lower appetite",
+          "created_at": "2026-02-12T15:15:29.887000"
+        },
+        {
+          "id": "1c3a816b-a990-4d2e-b884-687077f1d839",
+          "request_id": "b76fe716-ced2-4300-a603-521917d02231",
+          "actor_id": "97052c92-910f-4061-976f-c8a991cdaaf4",
+          "actor_name": "Demo Clinic",
+          "actor_role": "care_clinic",
+          "event_type": "clinic_update",
+          "status": "accepted",
+          "notes": "assigned-first-clinic-alpha-20260212T151529Z",
+          "created_at": "2026-02-12T15:15:29.896000"
+        },
+        {
+          "id": "bdb3c928-a36a-4838-a610-260f2b3fc867",
+          "request_id": "b76fe716-ced2-4300-a603-521917d02231",
+          "actor_id": "97052c92-910f-4061-976f-c8a991cdaaf4",
+          "actor_name": "Demo Clinic",
+          "actor_role": "care_clinic",
+          "event_type": "clinic_update",
+          "status": "in_progress",
+          "notes": "reassign-clinic-alpha-20260212T151529Z",
+          "created_at": "2026-02-12T15:15:29.905000"
+        },
+        {
+          "id": "020ccd2b-6a0f-448a-829e-c598798cd417",
+          "request_id": "b76fe716-ced2-4300-a603-521917d02231",
+          "actor_id": "97052c92-910f-4061-976f-c8a991cdaaf4",
+          "actor_name": "Demo Clinic",
+          "actor_role": "care_clinic",
+          "event_type": "clinic_update",
+          "status": "completed",
+          "notes": "clinic-handoff-complete-clinic-alpha-20260212T151529Z",
+          "created_at": "2026-02-12T15:15:29.913000"
+        }
+      ]
+    },
+    {
+      "ts": "2026-02-12T15:15:29.934224+00:00",
+      "method": "GET",
+      "path": "/notifications",
+      "status": 200,
+      "request": null,
+      "params": {
+        "limit": 30
+      },
+      "response": {
+        "items": [
+          {
+            "id": "e36cf5f0-142e-4db8-aa72-6ebf27fe01d6",
+            "user_id": "1382dcc7-3cd5-4be2-b4e9-8bad76a7d864",
+            "title": "Assigned to care request",
+            "body": "A clinic assigned you to a care request.",
+            "type": "care_request",
+            "data": {
+              "request_id": "b76fe716-ced2-4300-a603-521917d02231",
+              "route": "/vet-care-requests"
+            },
+            "is_read": false,
+            "created_at": "2026-02-12T15:15:29.915000",
+            "updated_at": "2026-02-12T15:15:29.915000"
+          },
+          {
+            "id": "9e76bde0-f190-430e-b83b-a5c5de8b9253",
+            "user_id": "1382dcc7-3cd5-4be2-b4e9-8bad76a7d864",
+            "title": "Assigned to care request",
+            "body": "A clinic assigned you to a care request.",
+            "type": "care_request",
+            "data": {
+              "request_id": "b76fe716-ced2-4300-a603-521917d02231",
+              "route": "/vet-care-requests"
+            },
+            "is_read": false,
+            "created_at": "2026-02-12T15:15:29.907000",
+            "updated_at": "2026-02-12T15:15:29.907000"
+          },
+          {
+            "id": "53dd4092-6b76-4af3-9c8a-a8533dca1ca5",
+            "user_id": "1382dcc7-3cd5-4be2-b4e9-8bad76a7d864",
+            "title": "Assigned to care request",
+            "body": "A clinic assigned you to a care request.",
+            "type": "care_request",
+            "data": {
+              "request_id": "b76fe716-ced2-4300-a603-521917d02231",
+              "route": "/vet-care-requests"
+            },
+            "is_read": false,
+            "created_at": "2026-02-12T15:15:29.899000",
+            "updated_at": "2026-02-12T15:15:29.899000"
+          },
+          {
+            "id": "7b243559-7b8b-4c70-9fd3-891f8947255b",
+            "user_id": "1382dcc7-3cd5-4be2-b4e9-8bad76a7d864",
+            "title": "New friend request",
+            "body": "Beta Clinic User sent you a friend request.",
+            "type": "friend_request",
+            "data": {
+              "route": "/friends",
+              "request_id": "179a60ac-e52f-46f3-ae6c-30edf5af0345"
+            },
+            "is_read": false,
+            "created_at": "2026-02-12T15:14:58.470000",
+            "updated_at": "2026-02-12T15:14:58.470000"
+          },
+          {
+            "id": "3d17c7c1-a75d-4ab1-9c3d-29a36c93452e",
+            "user_id": "1382dcc7-3cd5-4be2-b4e9-8bad76a7d864",
+            "title": "Friend request update",
+            "body": "Demo Market accepted your friend request.",
+            "type": "friend_request",
+            "data": {
+              "route": "/friends",
+              "request_id": "10dbfe3b-f6cc-48a9-8ed6-2fe879067706",
+              "status": "accepted"
+            },
+            "is_read": false,
+            "created_at": "2026-02-12T13:10:21.276000",
+            "updated_at": "2026-02-12T13:10:21.276000"
+          },
+          {
+            "id": "e3b109ea-5afa-48da-89bd-83fc5797c7ee",
+            "user_id": "1382dcc7-3cd5-4be2-b4e9-8bad76a7d864",
+            "title": "New friend request",
+            "body": "Beta Vet Flow User sent you a friend request.",
+            "type": "friend_request",
+            "data": {
+              "route": "/friends",
+              "request_id": "336b33cc-0dec-407b-933a-bf80083d8093"
+            },
+            "is_read": false,
+            "created_at": "2026-02-12T12:01:41.276000",
+            "updated_at": "2026-02-12T12:01:41.276000"
+          },
+          {
+            "id": "5c0bdeca-279b-44eb-9fcb-defb73578c77",
+            "user_id": "1382dcc7-3cd5-4be2-b4e9-8bad76a7d864",
+            "title": "New friend request",
+            "body": "Beta Vet Flow User sent you a friend request.",
+            "type": "friend_request",
+            "data": {
+              "route": "/friends",
+              "request_id": "9ce7d761-260b-4144-9499-d959f76691c9"
+            },
+            "is_read": false,
+            "created_at": "2026-02-12T12:00:27.397000",
+            "updated_at": "2026-02-12T12:00:27.397000"
+          },
+          {
+            "id": "3d9ba5bd-7b0c-42c0-b2f2-93b1747e4a0c",
+            "user_id": "1382dcc7-3cd5-4be2-b4e9-8bad76a7d864",
+            "title": "New friend request",
+            "body": "Beta Vet Flow User sent you a friend request.",
+            "type": "friend_request",
+            "data": {
+              "route": "/friends",
+              "request_id": "ca2066cb-7b5d-4345-9127-800f7691fef9"
+            },
+            "is_read": false,
+            "created_at": "2026-02-12T12:00:12.314000",
+            "updated_at": "2026-02-12T12:00:12.314000"
+          },
+          {
+            "id": "9208202a-c538-4216-8b22-ca20486b25d2",
+            "user_id": "1382dcc7-3cd5-4be2-b4e9-8bad76a7d864",
+            "title": "New friend request",
+            "body": "Demo Clinic sent you a friend request.",
+            "type": "friend_request",
+            "data": {
+              "route": "/friends",
+              "request_id": "6ea4ac20-7572-4d5c-b4a5-819934d75f7c"
+            },
+            "is_read": false,
+            "created_at": "2026-02-12T11:49:55.982000",
+            "updated_at": "2026-02-12T11:49:55.982000"
+          }
+        ],
+        "total": 9,
+        "limit": 30,
+        "offset": 0,
+        "has_more": false
+      }
+    },
+    {
+      "ts": "2026-02-12T15:15:29.942699+00:00",
+      "method": "PUT",
+      "path": "/vet/care-requests/b76fe716-ced2-4300-a603-521917d02231",
+      "status": 200,
+      "request": {
+        "action": "start",
+        "vet_notes": "vet acknowledged clinic handoff clinic-alpha-20260212T151529Z"
+      },
+      "params": null,
+      "response": {
+        "id": "b76fe716-ced2-4300-a603-521917d02231",
+        "pet_id": "4a2b9e1c-6ae9-4168-a86c-a5a5278ad2ea",
+        "title": "Clinic triage clinic-alpha-20260212T151529Z",
+        "description": "Intermittent cough and lower appetite",
+        "location": "Amman",
+        "priority": "medium",
+        "status": "in_progress",
+        "requested_by": "97052c92-910f-4061-976f-c8a991cdaaf4",
+        "requested_by_name": "Demo Clinic",
+        "assigned_vet_id": "1382dcc7-3cd5-4be2-b4e9-8bad76a7d864",
+        "assigned_clinic_id": "97052c92-910f-4061-976f-c8a991cdaaf4",
+        "attachments": [],
+        "follow_up_context": null,
+        "follow_up_due_date": null,
+        "reminder_enabled": false,
+        "created_at": "2026-02-12T15:15:29.887000",
+        "updated_at": "2026-02-12T15:15:29.938000",
+        "clinic_notes": "clinic-handoff-complete-clinic-alpha-20260212T151529Z"
+      }
+    },
+    {
+      "ts": "2026-02-12T15:15:29.951107+00:00",
+      "method": "GET",
+      "path": "/notifications",
+      "status": 200,
+      "request": null,
+      "params": {
+        "limit": 30
+      },
+      "response": {
+        "items": [
+          {
+            "id": "d77e35be-8d39-48ee-8d5b-df7f32481d0c",
+            "user_id": "97052c92-910f-4061-976f-c8a991cdaaf4",
+            "title": "Care request updated",
+            "body": "Your care request is now in_progress.",
+            "type": "care_request",
+            "data": {
+              "request_id": "b76fe716-ced2-4300-a603-521917d02231",
+              "status": "in_progress",
+              "pet_id": "4a2b9e1c-6ae9-4168-a86c-a5a5278ad2ea",
+              "route": "/health-records?petId=4a2b9e1c-6ae9-4168-a86c-a5a5278ad2ea"
+            },
+            "is_read": false,
+            "created_at": "2026-02-12T15:15:29.941000",
+            "updated_at": "2026-02-12T15:15:29.941000"
+          },
+          {
+            "id": "d60ac462-eba0-4358-9be1-1371bf7c258e",
+            "user_id": "97052c92-910f-4061-976f-c8a991cdaaf4",
+            "title": "Clinic updated your care request",
+            "body": "Clinic updated your request to completed.",
+            "type": "care_request",
+            "data": {
+              "request_id": "b76fe716-ced2-4300-a603-521917d02231",
+              "status": "completed",
+              "pet_id": "4a2b9e1c-6ae9-4168-a86c-a5a5278ad2ea",
+              "route": "/health-records?petId=4a2b9e1c-6ae9-4168-a86c-a5a5278ad2ea"
+            },
+            "is_read": false,
+            "created_at": "2026-02-12T15:15:29.915000",
+            "updated_at": "2026-02-12T15:15:29.915000"
+          },
+          {
+            "id": "bbab1f79-48b0-46d0-937f-eb663af1abff",
+            "user_id": "97052c92-910f-4061-976f-c8a991cdaaf4",
+            "title": "Clinic updated your care request",
+            "body": "Clinic updated your request to in_progress.",
+            "type": "care_request",
+            "data": {
+              "request_id": "b76fe716-ced2-4300-a603-521917d02231",
+              "status": "in_progress",
+              "pet_id": "4a2b9e1c-6ae9-4168-a86c-a5a5278ad2ea",
+              "route": "/health-records?petId=4a2b9e1c-6ae9-4168-a86c-a5a5278ad2ea"
+            },
+            "is_read": false,
+            "created_at": "2026-02-12T15:15:29.906000",
+            "updated_at": "2026-02-12T15:15:29.906000"
+          },
+          {
+            "id": "a2f90659-342e-4b0d-97b3-502d29cd7f4d",
+            "user_id": "97052c92-910f-4061-976f-c8a991cdaaf4",
+            "title": "Clinic updated your care request",
+            "body": "Clinic updated your request to accepted.",
+            "type": "care_request",
+            "data": {
+              "request_id": "b76fe716-ced2-4300-a603-521917d02231",
+              "status": "accepted",
+              "pet_id": "4a2b9e1c-6ae9-4168-a86c-a5a5278ad2ea",
+              "route": "/health-records?petId=4a2b9e1c-6ae9-4168-a86c-a5a5278ad2ea"
+            },
+            "is_read": false,
+            "created_at": "2026-02-12T15:15:29.897000",
+            "updated_at": "2026-02-12T15:15:29.897000"
+          },
+          {
+            "id": "e2b9b8cc-9bf4-4303-b1cb-845ed67715a7",
+            "user_id": "97052c92-910f-4061-976f-c8a991cdaaf4",
+            "title": "Care request updated",
+            "body": "Your care request is now in_progress.",
+            "type": "care_request",
+            "data": {
+              "request_id": "d6903509-65a7-4975-98bf-e3f8dc6c39e0",
+              "status": "in_progress",
+              "pet_id": "37a4bc4e-ff58-4f04-bb90-ddf836786dfd",
+              "route": "/health-records?petId=37a4bc4e-ff58-4f04-bb90-ddf836786dfd"
+            },
+            "is_read": false,
+            "created_at": "2026-02-12T15:15:04.741000",
+            "updated_at": "2026-02-12T15:15:04.741000"
+          },
+          {
+            "id": "59330c6c-80d0-4a79-8ef5-842fa03d7dad",
+            "user_id": "97052c92-910f-4061-976f-c8a991cdaaf4",
+            "title": "Clinic updated your care request",
+            "body": "Clinic updated your request to completed.",
+            "type": "care_request",
+            "data": {
+              "request_id": "d6903509-65a7-4975-98bf-e3f8dc6c39e0",
+              "status": "completed",
+              "pet_id": "37a4bc4e-ff58-4f04-bb90-ddf836786dfd",
+              "route": "/health-records?petId=37a4bc4e-ff58-4f04-bb90-ddf836786dfd"
+            },
+            "is_read": false,
+            "created_at": "2026-02-12T15:15:04.719000",
+            "updated_at": "2026-02-12T15:15:04.719000"
+          },
+          {
+            "id": "192f27b7-2585-481a-86ab-475add759e94",
+            "user_id": "97052c92-910f-4061-976f-c8a991cdaaf4",
+            "title": "Clinic updated your care request",
+            "body": "Clinic updated your request to in_progress.",
+            "type": "care_request",
+            "data": {
+              "request_id": "d6903509-65a7-4975-98bf-e3f8dc6c39e0",
+              "status": "in_progress",
+              "pet_id": "37a4bc4e-ff58-4f04-bb90-ddf836786dfd",
+              "route": "/health-records?petId=37a4bc4e-ff58-4f04-bb90-ddf836786dfd"
+            },
+            "is_read": false,
+            "created_at": "2026-02-12T15:15:04.711000",
+            "updated_at": "2026-02-12T15:15:04.711000"
+          },
+          {
+            "id": "e8f65c91-6c43-4daf-abaa-b463599632f0",
+            "user_id": "97052c92-910f-4061-976f-c8a991cdaaf4",
+            "title": "Clinic updated your care request",
+            "body": "Clinic updated your request to accepted.",
+            "type": "care_request",
+            "data": {
+              "request_id": "d6903509-65a7-4975-98bf-e3f8dc6c39e0",
+              "status": "accepted",
+              "pet_id": "37a4bc4e-ff58-4f04-bb90-ddf836786dfd",
+              "route": "/health-records?petId=37a4bc4e-ff58-4f04-bb90-ddf836786dfd"
+            },
+            "is_read": false,
+            "created_at": "2026-02-12T15:15:04.699000",
+            "updated_at": "2026-02-12T15:15:04.699000"
+          },
+          {
+            "id": "c0da9840-9be4-4972-867b-8b6df2e48565",
+            "user_id": "97052c92-910f-4061-976f-c8a991cdaaf4",
+            "title": "New friend request",
+            "body": "Beta Clinic User sent you a friend request.",
+            "type": "friend_request",
+            "data": {
+              "route": "/friends",
+              "request_id": "8a0cf3ee-2dd4-4f05-9680-cb23192baf80"
+            },
+            "is_read": false,
+            "created_at": "2026-02-12T15:14:04.757000",
+            "updated_at": "2026-02-12T15:14:04.757000"
+          },
+          {
+            "id": "930570f1-3542-4c0c-afb5-cd33da91924b",
+            "user_id": "97052c92-910f-4061-976f-c8a991cdaaf4",
+            "title": "Appointment status updated",
+            "body": "Your appointment is now completed. Reason: visit done",
+            "type": "appointment",
+            "data": {
+              "appointment_id": "7540de0d-f5f1-4ea0-8e56-1dee0ccc5fde",
+              "status": "completed",
+              "reason": "visit done"
+            },
+            "is_read": false,
+            "created_at": "2026-02-12T12:36:34.908000",
+            "updated_at": "2026-02-12T12:36:34.908000"
+          },
+          {
+            "id": "dc8c1897-0dac-47c7-b0f1-ac5e2fbe7137",
+            "user_id": "97052c92-910f-4061-976f-c8a991cdaaf4",
+            "title": "Care request updated",
+            "body": "Your care request is now in_progress.",
+            "type": "care_request",
+            "data": {
+              "request_id": "6b4e14dd-e294-4553-b5a1-4e8737d62fd8",
+              "status": "in_progress",
+              "route": "/clinic-care-management"
+            },
+            "is_read": false,
+            "created_at": "2026-02-12T12:36:34.901000",
+            "updated_at": "2026-02-12T12:36:34.901000"
+          },
+          {
+            "id": "f568f4a2-c8ad-4a63-bbb9-87cf8a30ac58",
+            "user_id": "97052c92-910f-4061-976f-c8a991cdaaf4",
+            "title": "Appointment status updated",
+            "body": "Your appointment is now rejected. Reason: Duplicate booking",
+            "type": "appointment",
+            "data": {
+              "appointment_id": "212f30be-8252-45c0-9fd8-773161302312",
+              "status": "rejected",
+              "reason": "Duplicate booking"
+            },
+            "is_read": false,
+            "created_at": "2026-02-12T12:36:34.870000",
+            "updated_at": "2026-02-12T12:36:34.870000"
+          },
+          {
+            "id": "c4809e83-a88e-49b6-ad43-a9a7a0320130",
+            "user_id": "97052c92-910f-4061-976f-c8a991cdaaf4",
+            "title": "Appointment status updated",
+            "body": "Your appointment is now no_show. Reason: Owner did not arrive",
+            "type": "appointment",
+            "data": {
+              "appointment_id": "8fedcdf9-19cc-4076-9bdc-701366e9592e",
+              "status": "no_show",
+              "reason": "Owner did not arrive"
+            },
+            "is_read": false,
+            "created_at": "2026-02-12T12:36:34.862000",
+            "updated_at": "2026-02-12T12:36:34.862000"
+          },
+          {
+            "id": "ab329592-1e7c-47f6-a4c2-5ec689039ddd",
+            "user_id": "97052c92-910f-4061-976f-c8a991cdaaf4",
+            "title": "Care request updated",
+            "body": "Your care request is now completed.",
+            "type": "care_request",
+            "data": {
+              "request_id": "1d44817b-39ee-4504-9d65-2bf867f328db",
+              "status": "completed",
+              "route": "/clinic-care-management"
+            },
+            "is_read": false,
+            "created_at": "2026-02-12T11:59:23.501000",
+            "updated_at": "2026-02-12T11:59:23.501000"
+          },
+          {
+            "id": "5a16c5f0-fc9e-4e96-b528-32582b783109",
+            "user_id": "97052c92-910f-4061-976f-c8a991cdaaf4",
+            "title": "Care request updated",
+            "body": "Your care request is now in_progress.",
+            "type": "care_request",
+            "data": {
+              "request_id": "1d44817b-39ee-4504-9d65-2bf867f328db",
+              "status": "in_progress",
+              "route": "/clinic-care-management"
+            },
+            "is_read": false,
+            "created_at": "2026-02-12T11:59:23.478000",
+            "updated_at": "2026-02-12T11:59:23.478000"
+          },
+          {
+            "id": "52ab4e92-7919-4175-b58c-6b8d640a52ba",
+            "user_id": "97052c92-910f-4061-976f-c8a991cdaaf4",
+            "title": "Care request updated",
+            "body": "Your care request is now accepted.",
+            "type": "care_request",
+            "data": {
+              "request_id": "1d44817b-39ee-4504-9d65-2bf867f328db",
+              "status": "accepted",
+              "route": "/clinic-care-management"
+            },
+            "is_read": false,
+            "created_at": "2026-02-12T11:59:23.473000",
+            "updated_at": "2026-02-12T11:59:23.473000"
+          },
+          {
+            "id": "f5a522d1-6780-417e-8d15-10da4b297456",
+            "user_id": "97052c92-910f-4061-976f-c8a991cdaaf4",
+            "title": "Friend request update",
+            "body": "Demo Vet accepted your friend request.",
+            "type": "friend_request",
+            "data": {
+              "route": "/friends",
+              "request_id": "6ea4ac20-7572-4d5c-b4a5-819934d75f7c",
+              "status": "accepted"
+            },
+            "is_read": false,
+            "created_at": "2026-02-12T11:49:55.994000",
+            "updated_at": "2026-02-12T11:49:55.994000"
+          },
+          {
+            "id": "bcd89a3c-65ee-493b-8f48-43bba9b4c03e",
+            "user_id": "97052c92-910f-4061-976f-c8a991cdaaf4",
+            "title": "Friend request update",
+            "body": "Demo Market accepted your friend request.",
+            "type": "friend_request",
+            "data": {
+              "route": "/friends",
+              "request_id": "854a3e47-4616-40cd-b7a5-f95d3e55b628",
+              "status": "accepted"
+            },
+            "is_read": false,
+            "created_at": "2026-02-12T11:48:17.401000",
+            "updated_at": "2026-02-12T11:48:17.401000"
+          }
+        ],
+        "total": 18,
+        "limit": 30,
+        "offset": 0,
+        "has_more": false
+      }
+    },
+    {
+      "ts": "2026-02-12T15:15:29.958825+00:00",
+      "method": "GET",
+      "path": "/care-requests/b76fe716-ced2-4300-a603-521917d02231/timeline",
+      "status": 200,
+      "request": null,
+      "params": null,
+      "response": [
+        {
+          "id": "9080b47a-c3d0-4574-9c9f-079e8242c715",
+          "request_id": "b76fe716-ced2-4300-a603-521917d02231",
+          "actor_id": "97052c92-910f-4061-976f-c8a991cdaaf4",
+          "actor_name": "Demo Clinic",
+          "actor_role": "care_clinic",
+          "event_type": "created",
+          "status": "pending",
+          "notes": "Intermittent cough and lower appetite",
+          "created_at": "2026-02-12T15:15:29.887000"
+        },
+        {
+          "id": "1c3a816b-a990-4d2e-b884-687077f1d839",
+          "request_id": "b76fe716-ced2-4300-a603-521917d02231",
+          "actor_id": "97052c92-910f-4061-976f-c8a991cdaaf4",
+          "actor_name": "Demo Clinic",
+          "actor_role": "care_clinic",
+          "event_type": "clinic_update",
+          "status": "accepted",
+          "notes": "assigned-first-clinic-alpha-20260212T151529Z",
+          "created_at": "2026-02-12T15:15:29.896000"
+        },
+        {
+          "id": "bdb3c928-a36a-4838-a610-260f2b3fc867",
+          "request_id": "b76fe716-ced2-4300-a603-521917d02231",
+          "actor_id": "97052c92-910f-4061-976f-c8a991cdaaf4",
+          "actor_name": "Demo Clinic",
+          "actor_role": "care_clinic",
+          "event_type": "clinic_update",
+          "status": "in_progress",
+          "notes": "reassign-clinic-alpha-20260212T151529Z",
+          "created_at": "2026-02-12T15:15:29.905000"
+        },
+        {
+          "id": "020ccd2b-6a0f-448a-829e-c598798cd417",
+          "request_id": "b76fe716-ced2-4300-a603-521917d02231",
+          "actor_id": "97052c92-910f-4061-976f-c8a991cdaaf4",
+          "actor_name": "Demo Clinic",
+          "actor_role": "care_clinic",
+          "event_type": "clinic_update",
+          "status": "completed",
+          "notes": "clinic-handoff-complete-clinic-alpha-20260212T151529Z",
+          "created_at": "2026-02-12T15:15:29.913000"
+        },
+        {
+          "id": "a2e90437-a404-4459-91ac-60be56f6cf96",
+          "request_id": "b76fe716-ced2-4300-a603-521917d02231",
+          "actor_id": "1382dcc7-3cd5-4be2-b4e9-8bad76a7d864",
+          "actor_name": "Demo Vet",
+          "actor_role": "vet",
+          "event_type": "start",
+          "status": "in_progress",
+          "notes": "vet acknowledged clinic handoff clinic-alpha-20260212T151529Z",
+          "created_at": "2026-02-12T15:15:29.939000"
+        }
+      ]
+    },
+    {
+      "ts": "2026-02-12T15:15:29.962171+00:00",
+      "method": "PUT",
+      "path": "/vet/care-requests/48184dde-8d1c-4d16-9b09-4c5355487ce9",
+      "status": 403,
+      "request": {
+        "action": "accept"
+      },
+      "params": null,
+      "response": {
+        "detail": "Access denied for this role"
+      }
+    },
+    {
+      "ts": "2026-02-12T15:15:29.967609+00:00",
+      "method": "GET",
+      "path": "/care-requests/48184dde-8d1c-4d16-9b09-4c5355487ce9/timeline",
+      "status": 403,
+      "request": null,
+      "params": null,
+      "response": {
+        "detail": "Access denied"
+      }
+    },
+    {
+      "ts": "2026-02-12T15:15:29.970984+00:00",
+      "method": "PUT",
+      "path": "/orders/sales/non-existent/status",
+      "status": 403,
+      "request": {
+        "status": "delivered"
+      },
+      "params": null,
+      "response": {
+        "detail": "Access denied for this role"
+      }
+    },
+    {
+      "ts": "2026-02-12T15:15:29.973811+00:00",
+      "method": "GET",
+      "path": "/admin/sponsorships",
+      "status": 403,
+      "request": null,
+      "params": null,
+      "response": {
+        "detail": "Admin access required"
+      }
+    }
+  ]
+}

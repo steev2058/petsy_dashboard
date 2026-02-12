@@ -1,0 +1,13 @@
+{
+  "ts": "2026-02-12T15:15:29.970984+00:00",
+  "method": "PUT",
+  "path": "/orders/sales/non-existent/status",
+  "status": 403,
+  "request": {
+    "status": "delivered"
+  },
+  "params": null,
+  "response": {
+    "detail": "Access denied for this role"
+  }
+}

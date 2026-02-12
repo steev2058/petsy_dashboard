@@ -1,0 +1,46 @@
+{
+  "ts": "2026-02-12T15:15:29.880894+00:00",
+  "method": "GET",
+  "path": "/clinic/vets",
+  "status": 200,
+  "request": null,
+  "params": null,
+  "response": [
+    {
+      "id": "e974e25f-3afb-4474-832c-b76635d6c242",
+      "name": "qa.user",
+      "email": "qa.user@petsy.com",
+      "city": null
+    },
+    {
+      "id": "6e506837-8409-4201-8cd9-cdb0412cb767",
+      "name": "qa.vet",
+      "email": "qa.vet@petsy.com",
+      "city": null
+    },
+    {
+      "id": "a76ee988-0dcf-4c95-b7f7-9d379dbeb4cc",
+      "name": "Vet User",
+      "email": "vet@petsy.com",
+      "city": null
+    },
+    {
+      "id": "51cab4dc-aea0-4275-af85-894d8dff3652",
+      "name": "QA 2",
+      "email": "qa2_1770810273@example.com",
+      "city": null
+    },
+    {
+      "id": "8fdf338b-41a2-4f1f-a99a-738918c70571",
+      "name": "Phase QA 2",
+      "email": "qa_phase_2_1770810391@example.com",
+      "city": null
+    },
+    {
+      "id": "1382dcc7-3cd5-4be2-b4e9-8bad76a7d864",
+      "name": "Demo Vet",
+      "email": "demo.vet@petsy.com",
+      "city": null
+    }
+  ]
+}

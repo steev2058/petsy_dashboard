@@ -1,0 +1,145 @@
+{
+  "ts": "2026-02-12T15:15:29.934224+00:00",
+  "method": "GET",
+  "path": "/notifications",
+  "status": 200,
+  "request": null,
+  "params": {
+    "limit": 30
+  },
+  "response": {
+    "items": [
+      {
+        "id": "e36cf5f0-142e-4db8-aa72-6ebf27fe01d6",
+        "user_id": "1382dcc7-3cd5-4be2-b4e9-8bad76a7d864",
+        "title": "Assigned to care request",
+        "body": "A clinic assigned you to a care request.",
+        "type": "care_request",
+        "data": {
+          "request_id": "b76fe716-ced2-4300-a603-521917d02231",
+          "route": "/vet-care-requests"
+        },
+        "is_read": false,
+        "created_at": "2026-02-12T15:15:29.915000",
+        "updated_at": "2026-02-12T15:15:29.915000"
+      },
+      {
+        "id": "9e76bde0-f190-430e-b83b-a5c5de8b9253",
+        "user_id": "1382dcc7-3cd5-4be2-b4e9-8bad76a7d864",
+        "title": "Assigned to care request",
+        "body": "A clinic assigned you to a care request.",
+        "type": "care_request",
+        "data": {
+          "request_id": "b76fe716-ced2-4300-a603-521917d02231",
+          "route": "/vet-care-requests"
+        },
+        "is_read": false,
+        "created_at": "2026-02-12T15:15:29.907000",
+        "updated_at": "2026-02-12T15:15:29.907000"
+      },
+      {
+        "id": "53dd4092-6b76-4af3-9c8a-a8533dca1ca5",
+        "user_id": "1382dcc7-3cd5-4be2-b4e9-8bad76a7d864",
+        "title": "Assigned to care request",
+        "body": "A clinic assigned you to a care request.",
+        "type": "care_request",
+        "data": {
+          "request_id": "b76fe716-ced2-4300-a603-521917d02231",
+          "route": "/vet-care-requests"
+        },
+        "is_read": false,
+        "created_at": "2026-02-12T15:15:29.899000",
+        "updated_at": "2026-02-12T15:15:29.899000"
+      },
+      {
+        "id": "7b243559-7b8b-4c70-9fd3-891f8947255b",
+        "user_id": "1382dcc7-3cd5-4be2-b4e9-8bad76a7d864",
+        "title": "New friend request",
+        "body": "Beta Clinic User sent you a friend request.",
+        "type": "friend_request",
+        "data": {
+          "route": "/friends",
+          "request_id": "179a60ac-e52f-46f3-ae6c-30edf5af0345"
+        },
+        "is_read": false,
+        "created_at": "2026-02-12T15:14:58.470000",
+        "updated_at": "2026-02-12T15:14:58.470000"
+      },
+      {
+        "id": "3d17c7c1-a75d-4ab1-9c3d-29a36c93452e",
+        "user_id": "1382dcc7-3cd5-4be2-b4e9-8bad76a7d864",
+        "title": "Friend request update",
+        "body": "Demo Market accepted your friend request.",
+        "type": "friend_request",
+        "data": {
+          "route": "/friends",
+          "request_id": "10dbfe3b-f6cc-48a9-8ed6-2fe879067706",
+          "status": "accepted"
+        },
+        "is_read": false,
+        "created_at": "2026-02-12T13:10:21.276000",
+        "updated_at": "2026-02-12T13:10:21.276000"
+      },
+      {
+        "id": "e3b109ea-5afa-48da-89bd-83fc5797c7ee",
+        "user_id": "1382dcc7-3cd5-4be2-b4e9-8bad76a7d864",
+        "title": "New friend request",
+        "body": "Beta Vet Flow User sent you a friend request.",
+        "type": "friend_request",
+        "data": {
+          "route": "/friends",
+          "request_id": "336b33cc-0dec-407b-933a-bf80083d8093"
+        },
+        "is_read": false,
+        "created_at": "2026-02-12T12:01:41.276000",
+        "updated_at": "2026-02-12T12:01:41.276000"
+      },
+      {
+        "id": "5c0bdeca-279b-44eb-9fcb-defb73578c77",
+        "user_id": "1382dcc7-3cd5-4be2-b4e9-8bad76a7d864",
+        "title": "New friend request",
+        "body": "Beta Vet Flow User sent you a friend request.",
+        "type": "friend_request",
+        "data": {
+          "route": "/friends",
+          "request_id": "9ce7d761-260b-4144-9499-d959f76691c9"
+        },
+        "is_read": false,
+        "created_at": "2026-02-12T12:00:27.397000",
+        "updated_at": "2026-02-12T12:00:27.397000"
+      },
+      {
+        "id": "3d9ba5bd-7b0c-42c0-b2f2-93b1747e4a0c",
+        "user_id": "1382dcc7-3cd5-4be2-b4e9-8bad76a7d864",
+        "title": "New friend request",
+        "body": "Beta Vet Flow User sent you a friend request.",
+        "type": "friend_request",
+        "data": {
+          "route": "/friends",
+          "request_id": "ca2066cb-7b5d-4345-9127-800f7691fef9"
+        },
+        "is_read": false,
+        "created_at": "2026-02-12T12:00:12.314000",
+        "updated_at": "2026-02-12T12:00:12.314000"
+      },
+      {
+        "id": "9208202a-c538-4216-8b22-ca20486b25d2",
+        "user_id": "1382dcc7-3cd5-4be2-b4e9-8bad76a7d864",
+        "title": "New friend request",
+        "body": "Demo Clinic sent you a friend request.",
+        "type": "friend_request",
+        "data": {
+          "route": "/friends",
+          "request_id": "6ea4ac20-7572-4d5c-b4a5-819934d75f7c"
+        },
+        "is_read": false,
+        "created_at": "2026-02-12T11:49:55.982000",
+        "updated_at": "2026-02-12T11:49:55.982000"
+      }
+    ],
+    "total": 9,
+    "limit": 30,
+    "offset": 0,
+    "has_more": false
+  }
+}

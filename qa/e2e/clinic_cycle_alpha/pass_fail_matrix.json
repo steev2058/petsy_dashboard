@@ -1,0 +1,74 @@
+[
+  {
+    "check": "login_clinic",
+    "result": "PASS"
+  },
+  {
+    "check": "login_vet",
+    "result": "PASS"
+  },
+  {
+    "check": "clinic_queue_access",
+    "result": "PASS"
+  },
+  {
+    "check": "clinic_can_list_vets",
+    "result": "PASS"
+  },
+  {
+    "check": "clinic_create_pet",
+    "result": "PASS"
+  },
+  {
+    "check": "clinic_create_care_request",
+    "result": "PASS"
+  },
+  {
+    "check": "clinic_assign_vet",
+    "result": "PASS"
+  },
+  {
+    "check": "clinic_reassign_or_reaffirm_vet",
+    "result": "PASS"
+  },
+  {
+    "check": "clinic_status_to_completed",
+    "result": "PASS"
+  },
+  {
+    "check": "timeline_integrity_clinic_updates",
+    "result": "PASS"
+  },
+  {
+    "check": "vet_notified_of_clinic_assignment",
+    "result": "PASS"
+  },
+  {
+    "check": "vet_can_continue_handoff",
+    "result": "PASS"
+  },
+  {
+    "check": "clinic_receives_vet_handoff_notification",
+    "result": "PASS"
+  },
+  {
+    "check": "timeline_contains_cross_role_handoff",
+    "result": "PASS"
+  },
+  {
+    "check": "clinic_blocked_from_vet_mutation_endpoint",
+    "result": "PASS"
+  },
+  {
+    "check": "clinic_blocked_from_unrelated_timeline",
+    "result": "PASS"
+  },
+  {
+    "check": "clinic_blocked_from_market_owner_sales_mutation",
+    "result": "PASS"
+  },
+  {
+    "check": "clinic_blocked_from_admin_endpoint",
+    "result": "PASS"
+  }
+]

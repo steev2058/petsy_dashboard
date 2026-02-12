@@ -1,0 +1,31 @@
+{
+  "ts": "2026-02-12T15:15:29.620048+00:00",
+  "method": "POST",
+  "path": "/auth/login",
+  "status": 200,
+  "request": {
+    "email": "demo.clinic@petsy.com",
+    "password": "demo123"
+  },
+  "params": null,
+  "response": {
+    "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI5NzA1MmM5Mi05MTBmLTQwNjEtOTc2Zi1jOGE5OTFjZGFhZjQiLCJleHAiOjE3NzM1MDEzMjl9.H3-8UGC7ZfGMUgLgQS_fL9AX-hsyPgiMVguGsmUpS3o",
+    "token_type": "bearer",
+    "user": {
+      "id": "97052c92-910f-4061-976f-c8a991cdaaf4",
+      "email": "demo.clinic@petsy.com",
+      "name": "Demo Clinic",
+      "username": "demo.clinic",
+      "user_code": "PET-CDAAF4",
+      "phone": null,
+      "city": null,
+      "bio": null,
+      "avatar": null,
+      "language": "ar",
+      "is_verified": true,
+      "is_admin": false,
+      "role": "care_clinic",
+      "created_at": "2026-02-12T11:45:54.330000"
+    }
+  }
+}
