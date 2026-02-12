@@ -1,0 +1,1390 @@
+{
+  "summary": {
+    "run_id": "20260212T123634Z",
+    "status": "GO",
+    "base": "http://127.0.0.1:8001/api",
+    "marker": "final-med-20260212T123634Z",
+    "entities": {
+      "pet_id": "dc441305-86f8-4405-9484-8ad973998f35",
+      "no_show_appt_id": "8fedcdf9-19cc-4076-9bdc-701366e9592e",
+      "reject_appt_id": "212f30be-8252-45c0-9fd8-773161302312",
+      "series_id": "cc5be5da-e8dd-4ef0-97bb-d9f2bf68d9d9",
+      "care_id": "6b4e14dd-e294-4553-b5a1-4e8737d62fd8",
+      "treatment_appt_id": "7540de0d-f5f1-4ea0-8e56-1dee0ccc5fde",
+      "payment_appt_id": "c98b84e6-81a0-48ed-9cfd-16683272bf7c"
+    },
+    "matrix": [
+      {
+        "scenario": "login",
+        "check": "login_vet",
+        "result": "PASS"
+      },
+      {
+        "scenario": "login",
+        "check": "login_clinic",
+        "result": "PASS"
+      },
+      {
+        "scenario": "login",
+        "check": "login_market",
+        "result": "PASS"
+      },
+      {
+        "scenario": "1_no_show",
+        "check": "vet_can_mark_no_show",
+        "result": "PASS"
+      },
+      {
+        "scenario": "2_vet_cancel_reject_reason",
+        "check": "reason_visible_to_user",
+        "result": "PASS"
+      },
+      {
+        "scenario": "3_followup_chain",
+        "check": "visit_series_continuity",
+        "result": "PASS"
+      },
+      {
+        "scenario": "4_attachments_messages",
+        "check": "api_support_or_gap_documented",
+        "result": "PASS"
+      },
+      {
+        "scenario": "5_treatment_versioning",
+        "check": "version_increments_and_history",
+        "result": "PASS"
+      },
+      {
+        "scenario": "6_authorization",
+        "check": "cross_user_cross_role_denied",
+        "result": "PASS"
+      },
+      {
+        "scenario": "7_concurrency",
+        "check": "one_conflicting_transition_rejected",
+        "result": "PASS"
+      },
+      {
+        "scenario": "8_payment_link",
+        "check": "payment_auto_confirms_appointment",
+        "result": "PASS"
+      },
+      {
+        "scenario": "9_reminders",
+        "check": "feature_exists_or_backlog",
+        "result": "PASS"
+      },
+      {
+        "scenario": "10_mobile_webview",
+        "check": "bearer_json_api_compatible",
+        "result": "PASS"
+      }
+    ],
+    "blockers": [
+      {
+        "id": "REMINDERS_BACKLOG",
+        "detail": "No automated appointment reminder job/endpoint observed in API."
+      }
+    ],
+    "fails": [],
+    "steps_count": 31
+  },
+  "steps": [
+    {
+      "ts": "2026-02-12T12:36:34.356604+00:00",
+      "method": "POST",
+      "path": "/auth/login",
+      "status": 200,
+      "request": {
+        "email": "demo.vet@petsy.com",
+        "password": "***"
+      },
+      "params": null,
+      "response": {
+        "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMzgyZGNjNy0zY2Q1LTRiZTItYjRlOS04YmFkNzZhN2Q4NjQiLCJleHAiOjE3NzM0OTE3OTR9.nvOlr7jxqXb3dZYpcjtYab4G8bJZIYutPhOmQ_6d-cQ",
+        "token_type": "bearer",
+        "user": {
+          "id": "1382dcc7-3cd5-4be2-b4e9-8bad76a7d864",
+          "email": "demo.vet@petsy.com",
+          "name": "Demo Vet",
+          "username": "demo.vet",
+          "user_code": "PET-A7D864",
+          "phone": null,
+          "city": null,
+          "bio": null,
+          "avatar": null,
+          "language": "ar",
+          "is_verified": true,
+          "is_admin": false,
+          "role": "vet",
+          "created_at": "2026-02-12T11:45:53.977000"
+        }
+      }
+    },
+    {
+      "ts": "2026-02-12T12:36:34.363023+00:00",
+      "method": "GET",
+      "path": "/auth/me",
+      "status": 200,
+      "request": null,
+      "params": null,
+      "response": {
+        "id": "1382dcc7-3cd5-4be2-b4e9-8bad76a7d864",
+        "email": "demo.vet@petsy.com",
+        "name": "Demo Vet",
+        "username": "demo.vet",
+        "user_code": "PET-A7D864",
+        "phone": null,
+        "city": null,
+        "bio": null,
+        "avatar": null,
+        "language": "ar",
+        "is_verified": true,
+        "is_admin": false,
+        "role": "vet",
+        "created_at": "2026-02-12T11:45:53.977000"
+      }
+    },
+    {
+      "ts": "2026-02-12T12:36:34.600207+00:00",
+      "method": "POST",
+      "path": "/auth/login",
+      "status": 200,
+      "request": {
+        "email": "demo.clinic@petsy.com",
+        "password": "***"
+      },
+      "params": null,
+      "response": {
+        "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI5NzA1MmM5Mi05MTBmLTQwNjEtOTc2Zi1jOGE5OTFjZGFhZjQiLCJleHAiOjE3NzM0OTE3OTR9.U5WZXd8XKLz4P0wSTb5XKqOaFzrNl5DjQ8csxBR622c",
+        "token_type": "bearer",
+        "user": {
+          "id": "97052c92-910f-4061-976f-c8a991cdaaf4",
+          "email": "demo.clinic@petsy.com",
+          "name": "Demo Clinic",
+          "username": "demo.clinic",
+          "user_code": "PET-CDAAF4",
+          "phone": null,
+          "city": null,
+          "bio": null,
+          "avatar": null,
+          "language": "ar",
+          "is_verified": true,
+          "is_admin": false,
+          "role": "care_clinic",
+          "created_at": "2026-02-12T11:45:54.330000"
+        }
+      }
+    },
+    {
+      "ts": "2026-02-12T12:36:34.606474+00:00",
+      "method": "GET",
+      "path": "/auth/me",
+      "status": 200,
+      "request": null,
+      "params": null,
+      "response": {
+        "id": "97052c92-910f-4061-976f-c8a991cdaaf4",
+        "email": "demo.clinic@petsy.com",
+        "name": "Demo Clinic",
+        "username": "demo.clinic",
+        "user_code": "PET-CDAAF4",
+        "phone": null,
+        "city": null,
+        "bio": null,
+        "avatar": null,
+        "language": "ar",
+        "is_verified": true,
+        "is_admin": false,
+        "role": "care_clinic",
+        "created_at": "2026-02-12T11:45:54.330000"
+      }
+    },
+    {
+      "ts": "2026-02-12T12:36:34.843010+00:00",
+      "method": "POST",
+      "path": "/auth/login",
+      "status": 200,
+      "request": {
+        "email": "demo.market@petsy.com",
+        "password": "***"
+      },
+      "params": null,
+      "response": {
+        "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJjM2NmYzg0Ni0xYmJiLTQxODItYmQ2MC04M2Q2NmRjNDU2NWQiLCJleHAiOjE3NzM0OTE3OTR9.0ssqT8Mvvp74lcDhfo6dAIW0CCkuvNcCdksacDsmMiI",
+        "token_type": "bearer",
+        "user": {
+          "id": "c3cfc846-1bbb-4182-bd60-83d66dc4565d",
+          "email": "demo.market@petsy.com",
+          "name": "Demo Market",
+          "username": "demo.market",
+          "user_code": "PET-C4565D",
+          "phone": null,
+          "city": null,
+          "bio": null,
+          "avatar": null,
+          "language": "ar",
+          "is_verified": true,
+          "is_admin": false,
+          "role": "market_owner",
+          "created_at": "2026-02-12T11:45:54.565000"
+        }
+      }
+    },
+    {
+      "ts": "2026-02-12T12:36:34.847066+00:00",
+      "method": "GET",
+      "path": "/auth/me",
+      "status": 200,
+      "request": null,
+      "params": null,
+      "response": {
+        "id": "c3cfc846-1bbb-4182-bd60-83d66dc4565d",
+        "email": "demo.market@petsy.com",
+        "name": "Demo Market",
+        "username": "demo.market",
+        "user_code": "PET-C4565D",
+        "phone": null,
+        "city": null,
+        "bio": null,
+        "avatar": null,
+        "language": "ar",
+        "is_verified": true,
+        "is_admin": false,
+        "role": "market_owner",
+        "created_at": "2026-02-12T11:45:54.565000"
+      }
+    },
+    {
+      "ts": "2026-02-12T12:36:34.851611+00:00",
+      "method": "POST",
+      "path": "/pets",
+      "status": 200,
+      "request": {
+        "name": "PackPet-final-med-20260212T123634Z",
+        "species": "dog",
+        "gender": "male",
+        "status": "owned"
+      },
+      "params": null,
+      "response": {
+        "name": "PackPet-final-med-20260212T123634Z",
+        "species": "dog",
+        "breed": null,
+        "age": null,
+        "gender": "male",
+        "color": null,
+        "weight": null,
+        "description": null,
+        "image": null,
+        "status": "owned",
+        "price": null,
+        "location": null,
+        "vaccinated": false,
+        "neutered": false,
+        "id": "dc441305-86f8-4405-9484-8ad973998f35",
+        "owner_id": "97052c92-910f-4061-976f-c8a991cdaaf4",
+        "created_at": "2026-02-12T12:36:34.850134",
+        "likes": 0,
+        "views": 0
+      }
+    },
+    {
+      "ts": "2026-02-12T12:36:34.855028+00:00",
+      "method": "POST",
+      "path": "/appointments",
+      "status": 200,
+      "request": {
+        "vet_id": "1382dcc7-3cd5-4be2-b4e9-8bad76a7d864",
+        "pet_id": "dc441305-86f8-4405-9484-8ad973998f35",
+        "date": "2026-03-10",
+        "time": "10:00",
+        "reason": "final-med-20260212T123634Z-noshow"
+      },
+      "params": null,
+      "response": {
+        "id": "8fedcdf9-19cc-4076-9bdc-701366e9592e",
+        "user_id": "97052c92-910f-4061-976f-c8a991cdaaf4",
+        "vet_id": "1382dcc7-3cd5-4be2-b4e9-8bad76a7d864",
+        "pet_id": "dc441305-86f8-4405-9484-8ad973998f35",
+        "visit_series_id": "8fedcdf9-19cc-4076-9bdc-701366e9592e",
+        "follow_up_of": null,
+        "date": "2026-03-10",
+        "time": "10:00",
+        "reason": "final-med-20260212T123634Z-noshow",
+        "status": "pending",
+        "notes": null,
+        "status_reason": null,
+        "cancelled_by": null,
+        "treatment_version": 0,
+        "treatment_updates": [],
+        "updated_at": "2026-02-12T12:36:34.853772",
+        "created_at": "2026-02-12T12:36:34.853799"
+      }
+    },
+    {
+      "ts": "2026-02-12T12:36:34.864223+00:00",
+      "method": "PUT",
+      "path": "/vet/appointments/8fedcdf9-19cc-4076-9bdc-701366e9592e/status",
+      "status": 200,
+      "request": {
+        "action": "no_show",
+        "reason": "Owner did not arrive"
+      },
+      "params": null,
+      "response": {
+        "id": "8fedcdf9-19cc-4076-9bdc-701366e9592e",
+        "user_id": "97052c92-910f-4061-976f-c8a991cdaaf4",
+        "vet_id": "1382dcc7-3cd5-4be2-b4e9-8bad76a7d864",
+        "pet_id": "dc441305-86f8-4405-9484-8ad973998f35",
+        "visit_series_id": "8fedcdf9-19cc-4076-9bdc-701366e9592e",
+        "follow_up_of": null,
+        "date": "2026-03-10",
+        "time": "10:00",
+        "reason": "final-med-20260212T123634Z-noshow",
+        "status": "no_show",
+        "notes": null,
+        "status_reason": "Owner did not arrive",
+        "cancelled_by": null,
+        "treatment_version": 0,
+        "treatment_updates": [],
+        "updated_at": "2026-02-12T12:36:34.862000",
+        "created_at": "2026-02-12T12:36:34.853000"
+      }
+    },
+    {
+      "ts": "2026-02-12T12:36:34.867221+00:00",
+      "method": "POST",
+      "path": "/appointments",
+      "status": 200,
+      "request": {
+        "vet_id": "1382dcc7-3cd5-4be2-b4e9-8bad76a7d864",
+        "pet_id": "dc441305-86f8-4405-9484-8ad973998f35",
+        "date": "2026-03-11",
+        "time": "11:00",
+        "reason": "final-med-20260212T123634Z-reject"
+      },
+      "params": null,
+      "response": {
+        "id": "212f30be-8252-45c0-9fd8-773161302312",
+        "user_id": "97052c92-910f-4061-976f-c8a991cdaaf4",
+        "vet_id": "1382dcc7-3cd5-4be2-b4e9-8bad76a7d864",
+        "pet_id": "dc441305-86f8-4405-9484-8ad973998f35",
+        "visit_series_id": "212f30be-8252-45c0-9fd8-773161302312",
+        "follow_up_of": null,
+        "date": "2026-03-11",
+        "time": "11:00",
+        "reason": "final-med-20260212T123634Z-reject",
+        "status": "pending",
+        "notes": null,
+        "status_reason": null,
+        "cancelled_by": null,
+        "treatment_version": 0,
+        "treatment_updates": [],
+        "updated_at": "2026-02-12T12:36:34.866018",
+        "created_at": "2026-02-12T12:36:34.866037"
+      }
+    },
+    {
+      "ts": "2026-02-12T12:36:34.871596+00:00",
+      "method": "PUT",
+      "path": "/vet/appointments/212f30be-8252-45c0-9fd8-773161302312/status",
+      "status": 200,
+      "request": {
+        "action": "reject",
+        "reason": "Duplicate booking"
+      },
+      "params": null,
+      "response": {
+        "id": "212f30be-8252-45c0-9fd8-773161302312",
+        "user_id": "97052c92-910f-4061-976f-c8a991cdaaf4",
+        "vet_id": "1382dcc7-3cd5-4be2-b4e9-8bad76a7d864",
+        "pet_id": "dc441305-86f8-4405-9484-8ad973998f35",
+        "visit_series_id": "212f30be-8252-45c0-9fd8-773161302312",
+        "follow_up_of": null,
+        "date": "2026-03-11",
+        "time": "11:00",
+        "reason": "final-med-20260212T123634Z-reject",
+        "status": "rejected",
+        "notes": null,
+        "status_reason": "Duplicate booking",
+        "cancelled_by": "1382dcc7-3cd5-4be2-b4e9-8bad76a7d864",
+        "treatment_version": 0,
+        "treatment_updates": [],
+        "updated_at": "2026-02-12T12:36:34.869000",
+        "created_at": "2026-02-12T12:36:34.866000"
+      }
+    },
+    {
+      "ts": "2026-02-12T12:36:34.874832+00:00",
+      "method": "GET",
+      "path": "/appointments/212f30be-8252-45c0-9fd8-773161302312",
+      "status": 200,
+      "request": null,
+      "params": null,
+      "response": {
+        "id": "212f30be-8252-45c0-9fd8-773161302312",
+        "user_id": "97052c92-910f-4061-976f-c8a991cdaaf4",
+        "vet_id": "1382dcc7-3cd5-4be2-b4e9-8bad76a7d864",
+        "pet_id": "dc441305-86f8-4405-9484-8ad973998f35",
+        "visit_series_id": "212f30be-8252-45c0-9fd8-773161302312",
+        "follow_up_of": null,
+        "date": "2026-03-11",
+        "time": "11:00",
+        "reason": "final-med-20260212T123634Z-reject",
+        "status": "rejected",
+        "notes": null,
+        "status_reason": "Duplicate booking",
+        "cancelled_by": "1382dcc7-3cd5-4be2-b4e9-8bad76a7d864",
+        "treatment_version": 0,
+        "treatment_updates": [],
+        "updated_at": "2026-02-12T12:36:34.869000",
+        "created_at": "2026-02-12T12:36:34.866000"
+      }
+    },
+    {
+      "ts": "2026-02-12T12:36:34.877814+00:00",
+      "method": "POST",
+      "path": "/appointments",
+      "status": 200,
+      "request": {
+        "vet_id": "1382dcc7-3cd5-4be2-b4e9-8bad76a7d864",
+        "pet_id": "dc441305-86f8-4405-9484-8ad973998f35",
+        "date": "2026-03-12",
+        "time": "12:00",
+        "reason": "final-med-20260212T123634Z-series-base"
+      },
+      "params": null,
+      "response": {
+        "id": "cc5be5da-e8dd-4ef0-97bb-d9f2bf68d9d9",
+        "user_id": "97052c92-910f-4061-976f-c8a991cdaaf4",
+        "vet_id": "1382dcc7-3cd5-4be2-b4e9-8bad76a7d864",
+        "pet_id": "dc441305-86f8-4405-9484-8ad973998f35",
+        "visit_series_id": "cc5be5da-e8dd-4ef0-97bb-d9f2bf68d9d9",
+        "follow_up_of": null,
+        "date": "2026-03-12",
+        "time": "12:00",
+        "reason": "final-med-20260212T123634Z-series-base",
+        "status": "pending",
+        "notes": null,
+        "status_reason": null,
+        "cancelled_by": null,
+        "treatment_version": 0,
+        "treatment_updates": [],
+        "updated_at": "2026-02-12T12:36:34.876752",
+        "created_at": "2026-02-12T12:36:34.876774"
+      }
+    },
+    {
+      "ts": "2026-02-12T12:36:34.881880+00:00",
+      "method": "POST",
+      "path": "/appointments",
+      "status": 200,
+      "request": {
+        "vet_id": "1382dcc7-3cd5-4be2-b4e9-8bad76a7d864",
+        "pet_id": "dc441305-86f8-4405-9484-8ad973998f35",
+        "date": "2026-03-19",
+        "time": "12:00",
+        "reason": "final-med-20260212T123634Z-series-fu1",
+        "notes": "follow_up_of:cc5be5da-e8dd-4ef0-97bb-d9f2bf68d9d9"
+      },
+      "params": null,
+      "response": {
+        "id": "dce71314-0ac5-49cd-90b9-dd6cf50edd36",
+        "user_id": "97052c92-910f-4061-976f-c8a991cdaaf4",
+        "vet_id": "1382dcc7-3cd5-4be2-b4e9-8bad76a7d864",
+        "pet_id": "dc441305-86f8-4405-9484-8ad973998f35",
+        "visit_series_id": "cc5be5da-e8dd-4ef0-97bb-d9f2bf68d9d9",
+        "follow_up_of": "cc5be5da-e8dd-4ef0-97bb-d9f2bf68d9d9",
+        "date": "2026-03-19",
+        "time": "12:00",
+        "reason": "final-med-20260212T123634Z-series-fu1",
+        "status": "pending",
+        "notes": "follow_up_of:cc5be5da-e8dd-4ef0-97bb-d9f2bf68d9d9",
+        "status_reason": null,
+        "cancelled_by": null,
+        "treatment_version": 0,
+        "treatment_updates": [],
+        "updated_at": "2026-02-12T12:36:34.880948",
+        "created_at": "2026-02-12T12:36:34.880971"
+      }
+    },
+    {
+      "ts": "2026-02-12T12:36:34.886186+00:00",
+      "method": "POST",
+      "path": "/appointments",
+      "status": 200,
+      "request": {
+        "vet_id": "1382dcc7-3cd5-4be2-b4e9-8bad76a7d864",
+        "pet_id": "dc441305-86f8-4405-9484-8ad973998f35",
+        "date": "2026-03-26",
+        "time": "12:00",
+        "reason": "final-med-20260212T123634Z-series-fu2",
+        "notes": "follow_up_of:dce71314-0ac5-49cd-90b9-dd6cf50edd36"
+      },
+      "params": null,
+      "response": {
+        "id": "4d28eccd-06eb-4c5c-8366-fbd39d7868b7",
+        "user_id": "97052c92-910f-4061-976f-c8a991cdaaf4",
+        "vet_id": "1382dcc7-3cd5-4be2-b4e9-8bad76a7d864",
+        "pet_id": "dc441305-86f8-4405-9484-8ad973998f35",
+        "visit_series_id": "cc5be5da-e8dd-4ef0-97bb-d9f2bf68d9d9",
+        "follow_up_of": "dce71314-0ac5-49cd-90b9-dd6cf50edd36",
+        "date": "2026-03-26",
+        "time": "12:00",
+        "reason": "final-med-20260212T123634Z-series-fu2",
+        "status": "pending",
+        "notes": "follow_up_of:dce71314-0ac5-49cd-90b9-dd6cf50edd36",
+        "status_reason": null,
+        "cancelled_by": null,
+        "treatment_version": 0,
+        "treatment_updates": [],
+        "updated_at": "2026-02-12T12:36:34.885173",
+        "created_at": "2026-02-12T12:36:34.885194"
+      }
+    },
+    {
+      "ts": "2026-02-12T12:36:34.890152+00:00",
+      "method": "GET",
+      "path": "/appointments",
+      "status": 200,
+      "request": null,
+      "params": null,
+      "response": [
+        {
+          "id": "4d28eccd-06eb-4c5c-8366-fbd39d7868b7",
+          "user_id": "97052c92-910f-4061-976f-c8a991cdaaf4",
+          "vet_id": "1382dcc7-3cd5-4be2-b4e9-8bad76a7d864",
+          "pet_id": "dc441305-86f8-4405-9484-8ad973998f35",
+          "visit_series_id": "cc5be5da-e8dd-4ef0-97bb-d9f2bf68d9d9",
+          "follow_up_of": "dce71314-0ac5-49cd-90b9-dd6cf50edd36",
+          "date": "2026-03-26",
+          "time": "12:00",
+          "reason": "final-med-20260212T123634Z-series-fu2",
+          "status": "pending",
+          "notes": "follow_up_of:dce71314-0ac5-49cd-90b9-dd6cf50edd36",
+          "status_reason": null,
+          "cancelled_by": null,
+          "treatment_version": 0,
+          "treatment_updates": [],
+          "updated_at": "2026-02-12T12:36:34.885000",
+          "created_at": "2026-02-12T12:36:34.885000"
+        },
+        {
+          "id": "dce71314-0ac5-49cd-90b9-dd6cf50edd36",
+          "user_id": "97052c92-910f-4061-976f-c8a991cdaaf4",
+          "vet_id": "1382dcc7-3cd5-4be2-b4e9-8bad76a7d864",
+          "pet_id": "dc441305-86f8-4405-9484-8ad973998f35",
+          "visit_series_id": "cc5be5da-e8dd-4ef0-97bb-d9f2bf68d9d9",
+          "follow_up_of": "cc5be5da-e8dd-4ef0-97bb-d9f2bf68d9d9",
+          "date": "2026-03-19",
+          "time": "12:00",
+          "reason": "final-med-20260212T123634Z-series-fu1",
+          "status": "pending",
+          "notes": "follow_up_of:cc5be5da-e8dd-4ef0-97bb-d9f2bf68d9d9",
+          "status_reason": null,
+          "cancelled_by": null,
+          "treatment_version": 0,
+          "treatment_updates": [],
+          "updated_at": "2026-02-12T12:36:34.880000",
+          "created_at": "2026-02-12T12:36:34.880000"
+        },
+        {
+          "id": "cc5be5da-e8dd-4ef0-97bb-d9f2bf68d9d9",
+          "user_id": "97052c92-910f-4061-976f-c8a991cdaaf4",
+          "vet_id": "1382dcc7-3cd5-4be2-b4e9-8bad76a7d864",
+          "pet_id": "dc441305-86f8-4405-9484-8ad973998f35",
+          "visit_series_id": "cc5be5da-e8dd-4ef0-97bb-d9f2bf68d9d9",
+          "follow_up_of": null,
+          "date": "2026-03-12",
+          "time": "12:00",
+          "reason": "final-med-20260212T123634Z-series-base",
+          "status": "pending",
+          "notes": null,
+          "status_reason": null,
+          "cancelled_by": null,
+          "treatment_version": 0,
+          "treatment_updates": [],
+          "updated_at": "2026-02-12T12:36:34.876000",
+          "created_at": "2026-02-12T12:36:34.876000"
+        },
+        {
+          "id": "212f30be-8252-45c0-9fd8-773161302312",
+          "user_id": "97052c92-910f-4061-976f-c8a991cdaaf4",
+          "vet_id": "1382dcc7-3cd5-4be2-b4e9-8bad76a7d864",
+          "pet_id": "dc441305-86f8-4405-9484-8ad973998f35",
+          "visit_series_id": "212f30be-8252-45c0-9fd8-773161302312",
+          "follow_up_of": null,
+          "date": "2026-03-11",
+          "time": "11:00",
+          "reason": "final-med-20260212T123634Z-reject",
+          "status": "rejected",
+          "notes": null,
+          "status_reason": "Duplicate booking",
+          "cancelled_by": "1382dcc7-3cd5-4be2-b4e9-8bad76a7d864",
+          "treatment_version": 0,
+          "treatment_updates": [],
+          "updated_at": "2026-02-12T12:36:34.869000",
+          "created_at": "2026-02-12T12:36:34.866000"
+        },
+        {
+          "id": "8fedcdf9-19cc-4076-9bdc-701366e9592e",
+          "user_id": "97052c92-910f-4061-976f-c8a991cdaaf4",
+          "vet_id": "1382dcc7-3cd5-4be2-b4e9-8bad76a7d864",
+          "pet_id": "dc441305-86f8-4405-9484-8ad973998f35",
+          "visit_series_id": "8fedcdf9-19cc-4076-9bdc-701366e9592e",
+          "follow_up_of": null,
+          "date": "2026-03-10",
+          "time": "10:00",
+          "reason": "final-med-20260212T123634Z-noshow",
+          "status": "no_show",
+          "notes": null,
+          "status_reason": "Owner did not arrive",
+          "cancelled_by": null,
+          "treatment_version": 0,
+          "treatment_updates": [],
+          "updated_at": "2026-02-12T12:36:34.862000",
+          "created_at": "2026-02-12T12:36:34.853000"
+        },
+        {
+          "id": "bfc3e2fd-d91c-4342-8378-f83d34d596ce",
+          "user_id": "97052c92-910f-4061-976f-c8a991cdaaf4",
+          "vet_id": "1382dcc7-3cd5-4be2-b4e9-8bad76a7d864",
+          "pet_id": "1daffa26-bc07-42e5-b45b-636af1cf20c7",
+          "visit_series_id": "bfc3e2fd-d91c-4342-8378-f83d34d596ce",
+          "follow_up_of": null,
+          "date": "2026-02-22",
+          "time": "09:30",
+          "reason": "reciprocal-appointment-beta-final-20260212T115315Z",
+          "status": "pending",
+          "notes": null,
+          "status_reason": null,
+          "cancelled_by": null,
+          "treatment_version": 0,
+          "treatment_updates": [],
+          "updated_at": null,
+          "created_at": "2026-02-12T11:53:17"
+        },
+        {
+          "id": "b1925acc-3b2a-42a0-8712-e0d43af3bed2",
+          "user_id": "97052c92-910f-4061-976f-c8a991cdaaf4",
+          "vet_id": "29904761-d70f-44f2-a803-573e4ac9570f",
+          "pet_id": "e03a504c-8412-49c6-a623-29634e6659fc",
+          "visit_series_id": "b1925acc-3b2a-42a0-8712-e0d43af3bed2",
+          "follow_up_of": null,
+          "date": "2026-02-23",
+          "time": "11:00",
+          "reason": "Alpha booking cycle 20260212T115311Z",
+          "status": "pending",
+          "notes": "QA final alpha",
+          "status_reason": null,
+          "cancelled_by": null,
+          "treatment_version": 0,
+          "treatment_updates": [],
+          "updated_at": null,
+          "created_at": "2026-02-12T11:53:13.138000"
+        },
+        {
+          "id": "30700eed-2e94-4d03-8f5c-c57748dfbc47",
+          "user_id": "97052c92-910f-4061-976f-c8a991cdaaf4",
+          "vet_id": "29904761-d70f-44f2-a803-573e4ac9570f",
+          "pet_id": "e03a504c-8412-49c6-a623-29634e6659fc",
+          "visit_series_id": "30700eed-2e94-4d03-8f5c-c57748dfbc47",
+          "follow_up_of": null,
+          "date": "2026-02-23",
+          "time": "11:00",
+          "reason": "Alpha booking cycle 20260212T115255Z",
+          "status": "pending",
+          "notes": "QA final alpha",
+          "status_reason": null,
+          "cancelled_by": null,
+          "treatment_version": 0,
+          "treatment_updates": [],
+          "updated_at": null,
+          "created_at": "2026-02-12T11:52:56.943000"
+        },
+        {
+          "id": "17d0bad1-7b11-461c-b101-db4595a287c6",
+          "user_id": "97052c92-910f-4061-976f-c8a991cdaaf4",
+          "vet_id": "1382dcc7-3cd5-4be2-b4e9-8bad76a7d864",
+          "pet_id": "510388c7-db04-4399-b9f2-131e16371dfb",
+          "visit_series_id": "17d0bad1-7b11-461c-b101-db4595a287c6",
+          "follow_up_of": null,
+          "date": "2026-02-22",
+          "time": "09:30",
+          "reason": "reciprocal-appointment-beta-final-20260212T115222Z",
+          "status": "pending",
+          "notes": null,
+          "status_reason": null,
+          "cancelled_by": null,
+          "treatment_version": 0,
+          "treatment_updates": [],
+          "updated_at": null,
+          "created_at": "2026-02-12T11:52:23.767000"
+        },
+        {
+          "id": "3c2a5a01-bbd3-4f8c-9caf-c1ef71e7d21f",
+          "user_id": "97052c92-910f-4061-976f-c8a991cdaaf4",
+          "vet_id": "29904761-d70f-44f2-a803-573e4ac9570f",
+          "pet_id": "e03a504c-8412-49c6-a623-29634e6659fc",
+          "visit_series_id": "3c2a5a01-bbd3-4f8c-9caf-c1ef71e7d21f",
+          "follow_up_of": null,
+          "date": "2026-02-23",
+          "time": "11:00",
+          "reason": "Alpha booking cycle 20260212T115207Z",
+          "status": "pending",
+          "notes": "QA final alpha",
+          "status_reason": null,
+          "cancelled_by": null,
+          "treatment_version": 0,
+          "treatment_updates": [],
+          "updated_at": null,
+          "created_at": "2026-02-12T11:52:08.997000"
+        },
+        {
+          "id": "3ea783df-3121-409c-a9ab-bd66532be4dc",
+          "user_id": "97052c92-910f-4061-976f-c8a991cdaaf4",
+          "vet_id": "1382dcc7-3cd5-4be2-b4e9-8bad76a7d864",
+          "pet_id": "cf87a18e-716d-4afa-a77b-c2adb3fe10e0",
+          "visit_series_id": "3ea783df-3121-409c-a9ab-bd66532be4dc",
+          "follow_up_of": null,
+          "date": "2026-02-22",
+          "time": "09:30",
+          "reason": "reciprocal-appointment-beta-final-20260212T115135Z",
+          "status": "pending",
+          "notes": null,
+          "status_reason": null,
+          "cancelled_by": null,
+          "treatment_version": 0,
+          "treatment_updates": [],
+          "updated_at": null,
+          "created_at": "2026-02-12T11:51:36.391000"
+        },
+        {
+          "id": "e9599787-4d96-4b8f-8610-3de20a30bafd",
+          "user_id": "97052c92-910f-4061-976f-c8a991cdaaf4",
+          "vet_id": "29904761-d70f-44f2-a803-573e4ac9570f",
+          "pet_id": "e03a504c-8412-49c6-a623-29634e6659fc",
+          "visit_series_id": "e9599787-4d96-4b8f-8610-3de20a30bafd",
+          "follow_up_of": null,
+          "date": "2026-02-23",
+          "time": "11:00",
+          "reason": "Alpha booking cycle 20260212T115130Z",
+          "status": "pending",
+          "notes": "QA final alpha",
+          "status_reason": null,
+          "cancelled_by": null,
+          "treatment_version": 0,
+          "treatment_updates": [],
+          "updated_at": null,
+          "created_at": "2026-02-12T11:51:31.219000"
+        },
+        {
+          "id": "bb5055a5-12da-4b6d-ab59-3ac391d9dabc",
+          "user_id": "97052c92-910f-4061-976f-c8a991cdaaf4",
+          "vet_id": "29904761-d70f-44f2-a803-573e4ac9570f",
+          "pet_id": "e03a504c-8412-49c6-a623-29634e6659fc",
+          "visit_series_id": "bb5055a5-12da-4b6d-ab59-3ac391d9dabc",
+          "follow_up_of": null,
+          "date": "2026-02-23",
+          "time": "11:00",
+          "reason": "Alpha booking cycle 20260212T115048Z",
+          "status": "pending",
+          "notes": "QA final alpha",
+          "status_reason": null,
+          "cancelled_by": null,
+          "treatment_version": 0,
+          "treatment_updates": [],
+          "updated_at": null,
+          "created_at": "2026-02-12T11:50:49.282000"
+        },
+        {
+          "id": "72cbb37d-2b53-4974-9dc5-f2f6e4b17758",
+          "user_id": "97052c92-910f-4061-976f-c8a991cdaaf4",
+          "vet_id": "29904761-d70f-44f2-a803-573e4ac9570f",
+          "pet_id": "e03a504c-8412-49c6-a623-29634e6659fc",
+          "visit_series_id": "72cbb37d-2b53-4974-9dc5-f2f6e4b17758",
+          "follow_up_of": null,
+          "date": "2026-02-23",
+          "time": "11:00",
+          "reason": "Alpha booking cycle 20260212T114954Z",
+          "status": "pending",
+          "notes": "QA final alpha",
+          "status_reason": null,
+          "cancelled_by": null,
+          "treatment_version": 0,
+          "treatment_updates": [],
+          "updated_at": null,
+          "created_at": "2026-02-12T11:49:56.048000"
+        },
+        {
+          "id": "9fd3cdca-1375-4e8d-8028-a90b2c951df3",
+          "user_id": "97052c92-910f-4061-976f-c8a991cdaaf4",
+          "vet_id": "29904761-d70f-44f2-a803-573e4ac9570f",
+          "pet_id": "e03a504c-8412-49c6-a623-29634e6659fc",
+          "visit_series_id": "9fd3cdca-1375-4e8d-8028-a90b2c951df3",
+          "follow_up_of": null,
+          "date": "2026-02-23",
+          "time": "11:00",
+          "reason": "Alpha booking cycle 20260212T114839Z",
+          "status": "pending",
+          "notes": "QA final alpha",
+          "status_reason": null,
+          "cancelled_by": null,
+          "treatment_version": 0,
+          "treatment_updates": [],
+          "updated_at": null,
+          "created_at": "2026-02-12T11:48:40.266000"
+        },
+        {
+          "id": "98a93b58-9397-4985-87d4-806fc3e7ddbf",
+          "user_id": "97052c92-910f-4061-976f-c8a991cdaaf4",
+          "vet_id": "1382dcc7-3cd5-4be2-b4e9-8bad76a7d864",
+          "pet_id": "0b723f2d-eab7-4521-83b7-8f6646ef7eb6",
+          "visit_series_id": "98a93b58-9397-4985-87d4-806fc3e7ddbf",
+          "follow_up_of": null,
+          "date": "2026-02-21",
+          "time": "11:00",
+          "reason": "qa",
+          "status": "pending",
+          "notes": null,
+          "status_reason": null,
+          "cancelled_by": null,
+          "treatment_version": 0,
+          "treatment_updates": [],
+          "updated_at": null,
+          "created_at": "2026-02-12T11:48:34.494000"
+        },
+        {
+          "id": "05afc83d-d81b-4030-8f1f-51345a6b094d",
+          "user_id": "97052c92-910f-4061-976f-c8a991cdaaf4",
+          "vet_id": "1382dcc7-3cd5-4be2-b4e9-8bad76a7d864",
+          "pet_id": null,
+          "visit_series_id": "05afc83d-d81b-4030-8f1f-51345a6b094d",
+          "follow_up_of": null,
+          "date": "2026-02-21",
+          "time": "11:00",
+          "reason": "qa",
+          "status": "pending",
+          "notes": null,
+          "status_reason": null,
+          "cancelled_by": null,
+          "treatment_version": 0,
+          "treatment_updates": [],
+          "updated_at": null,
+          "created_at": "2026-02-12T11:48:17.444000"
+        }
+      ]
+    },
+    {
+      "ts": "2026-02-12T12:36:34.896431+00:00",
+      "method": "POST",
+      "path": "/care-requests",
+      "status": 200,
+      "request": {
+        "pet_id": "dc441305-86f8-4405-9484-8ad973998f35",
+        "title": "final-med-20260212T123634Z-attach-check",
+        "description": "need tests"
+      },
+      "params": null,
+      "response": {
+        "id": "6b4e14dd-e294-4553-b5a1-4e8737d62fd8",
+        "pet_id": "dc441305-86f8-4405-9484-8ad973998f35",
+        "title": "final-med-20260212T123634Z-attach-check",
+        "description": "need tests",
+        "location": null,
+        "priority": "normal",
+        "status": "pending",
+        "requested_by": "97052c92-910f-4061-976f-c8a991cdaaf4",
+        "requested_by_name": "Demo Clinic",
+        "assigned_vet_id": null,
+        "assigned_clinic_id": null,
+        "created_at": "2026-02-12T12:36:34.892503",
+        "updated_at": "2026-02-12T12:36:34.892503"
+      }
+    },
+    {
+      "ts": "2026-02-12T12:36:34.902248+00:00",
+      "method": "PUT",
+      "path": "/vet/care-requests/6b4e14dd-e294-4553-b5a1-4e8737d62fd8",
+      "status": 200,
+      "request": {
+        "action": "start",
+        "vet_notes": "with attachment placeholder",
+        "attachments": [
+          "xray://demo"
+        ]
+      },
+      "params": null,
+      "response": {
+        "id": "6b4e14dd-e294-4553-b5a1-4e8737d62fd8",
+        "pet_id": "dc441305-86f8-4405-9484-8ad973998f35",
+        "title": "final-med-20260212T123634Z-attach-check",
+        "description": "need tests",
+        "location": null,
+        "priority": "normal",
+        "status": "in_progress",
+        "requested_by": "97052c92-910f-4061-976f-c8a991cdaaf4",
+        "requested_by_name": "Demo Clinic",
+        "assigned_vet_id": "1382dcc7-3cd5-4be2-b4e9-8bad76a7d864",
+        "assigned_clinic_id": null,
+        "created_at": "2026-02-12T12:36:34.892000",
+        "updated_at": "2026-02-12T12:36:34.899000"
+      }
+    },
+    {
+      "ts": "2026-02-12T12:36:34.904834+00:00",
+      "method": "POST",
+      "path": "/appointments",
+      "status": 200,
+      "request": {
+        "vet_id": "1382dcc7-3cd5-4be2-b4e9-8bad76a7d864",
+        "pet_id": "dc441305-86f8-4405-9484-8ad973998f35",
+        "date": "2026-03-13",
+        "time": "13:00",
+        "reason": "final-med-20260212T123634Z-treatment"
+      },
+      "params": null,
+      "response": {
+        "id": "7540de0d-f5f1-4ea0-8e56-1dee0ccc5fde",
+        "user_id": "97052c92-910f-4061-976f-c8a991cdaaf4",
+        "vet_id": "1382dcc7-3cd5-4be2-b4e9-8bad76a7d864",
+        "pet_id": "dc441305-86f8-4405-9484-8ad973998f35",
+        "visit_series_id": "7540de0d-f5f1-4ea0-8e56-1dee0ccc5fde",
+        "follow_up_of": null,
+        "date": "2026-03-13",
+        "time": "13:00",
+        "reason": "final-med-20260212T123634Z-treatment",
+        "status": "pending",
+        "notes": null,
+        "status_reason": null,
+        "cancelled_by": null,
+        "treatment_version": 0,
+        "treatment_updates": [],
+        "updated_at": "2026-02-12T12:36:34.903974",
+        "created_at": "2026-02-12T12:36:34.904010"
+      }
+    },
+    {
+      "ts": "2026-02-12T12:36:34.914760+00:00",
+      "method": "PUT",
+      "path": "/vet/appointments/7540de0d-f5f1-4ea0-8e56-1dee0ccc5fde/treatment",
+      "status": 200,
+      "request": {
+        "notes": "Initial treatment plan"
+      },
+      "params": null,
+      "response": {
+        "id": "7540de0d-f5f1-4ea0-8e56-1dee0ccc5fde",
+        "user_id": "97052c92-910f-4061-976f-c8a991cdaaf4",
+        "vet_id": "1382dcc7-3cd5-4be2-b4e9-8bad76a7d864",
+        "pet_id": "dc441305-86f8-4405-9484-8ad973998f35",
+        "visit_series_id": "7540de0d-f5f1-4ea0-8e56-1dee0ccc5fde",
+        "follow_up_of": null,
+        "date": "2026-03-13",
+        "time": "13:00",
+        "reason": "final-med-20260212T123634Z-treatment",
+        "status": "completed",
+        "notes": null,
+        "status_reason": "visit done",
+        "cancelled_by": null,
+        "treatment_version": 1,
+        "treatment_updates": [
+          {
+            "version": 1,
+            "notes": "Initial treatment plan",
+            "updated_by": "1382dcc7-3cd5-4be2-b4e9-8bad76a7d864",
+            "updated_at": "2026-02-12T12:36:34.913000"
+          }
+        ],
+        "updated_at": "2026-02-12T12:36:34.913000",
+        "created_at": "2026-02-12T12:36:34.904000"
+      }
+    },
+    {
+      "ts": "2026-02-12T12:36:34.919200+00:00",
+      "method": "PUT",
+      "path": "/vet/appointments/7540de0d-f5f1-4ea0-8e56-1dee0ccc5fde/treatment",
+      "status": 200,
+      "request": {
+        "notes": "Adjusted dose day 2"
+      },
+      "params": null,
+      "response": {
+        "id": "7540de0d-f5f1-4ea0-8e56-1dee0ccc5fde",
+        "user_id": "97052c92-910f-4061-976f-c8a991cdaaf4",
+        "vet_id": "1382dcc7-3cd5-4be2-b4e9-8bad76a7d864",
+        "pet_id": "dc441305-86f8-4405-9484-8ad973998f35",
+        "visit_series_id": "7540de0d-f5f1-4ea0-8e56-1dee0ccc5fde",
+        "follow_up_of": null,
+        "date": "2026-03-13",
+        "time": "13:00",
+        "reason": "final-med-20260212T123634Z-treatment",
+        "status": "completed",
+        "notes": null,
+        "status_reason": "visit done",
+        "cancelled_by": null,
+        "treatment_version": 2,
+        "treatment_updates": [
+          {
+            "version": 1,
+            "notes": "Initial treatment plan",
+            "updated_by": "1382dcc7-3cd5-4be2-b4e9-8bad76a7d864",
+            "updated_at": "2026-02-12T12:36:34.913000"
+          },
+          {
+            "version": 2,
+            "notes": "Adjusted dose day 2",
+            "updated_by": "1382dcc7-3cd5-4be2-b4e9-8bad76a7d864",
+            "updated_at": "2026-02-12T12:36:34.917000"
+          }
+        ],
+        "updated_at": "2026-02-12T12:36:34.917000",
+        "created_at": "2026-02-12T12:36:34.904000"
+      }
+    },
+    {
+      "ts": "2026-02-12T12:36:34.922126+00:00",
+      "method": "GET",
+      "path": "/appointments/7540de0d-f5f1-4ea0-8e56-1dee0ccc5fde",
+      "status": 404,
+      "request": null,
+      "params": null,
+      "response": {
+        "detail": "Appointment not found"
+      }
+    },
+    {
+      "ts": "2026-02-12T12:36:34.924305+00:00",
+      "method": "PUT",
+      "path": "/vet/appointments/7540de0d-f5f1-4ea0-8e56-1dee0ccc5fde/status",
+      "status": 403,
+      "request": {
+        "action": "cancel",
+        "reason": "bad"
+      },
+      "params": null,
+      "response": {
+        "detail": "Access denied for this role"
+      }
+    },
+    {
+      "ts": "2026-02-12T12:36:34.927169+00:00",
+      "method": "POST",
+      "path": "/appointments",
+      "status": 200,
+      "request": {
+        "vet_id": "1382dcc7-3cd5-4be2-b4e9-8bad76a7d864",
+        "pet_id": "dc441305-86f8-4405-9484-8ad973998f35",
+        "date": "2026-03-14",
+        "time": "14:00",
+        "reason": "final-med-20260212T123634Z-race"
+      },
+      "params": null,
+      "response": {
+        "id": "28a3eb27-385c-4380-877e-d40a7115387a",
+        "user_id": "97052c92-910f-4061-976f-c8a991cdaaf4",
+        "vet_id": "1382dcc7-3cd5-4be2-b4e9-8bad76a7d864",
+        "pet_id": "dc441305-86f8-4405-9484-8ad973998f35",
+        "visit_series_id": "28a3eb27-385c-4380-877e-d40a7115387a",
+        "follow_up_of": null,
+        "date": "2026-03-14",
+        "time": "14:00",
+        "reason": "final-med-20260212T123634Z-race",
+        "status": "pending",
+        "notes": null,
+        "status_reason": null,
+        "cancelled_by": null,
+        "treatment_version": 0,
+        "treatment_updates": [],
+        "updated_at": "2026-02-12T12:36:34.926099",
+        "created_at": "2026-02-12T12:36:34.926126"
+      }
+    },
+    {
+      "ts": "2026-02-12T12:36:34.935483+00:00",
+      "method": "PUT",
+      "path": "/appointments/28a3eb27-385c-4380-877e-d40a7115387a/cancel",
+      "status": 200,
+      "request": {
+        "reason": "owner cancel race"
+      },
+      "params": null,
+      "response": {
+        "message": "Appointment cancelled"
+      }
+    },
+    {
+      "ts": "2026-02-12T12:36:34.938376+00:00",
+      "method": "PUT",
+      "path": "/appointments/28a3eb27-385c-4380-877e-d40a7115387a",
+      "status": 400,
+      "request": {
+        "time": "14:30"
+      },
+      "params": null,
+      "response": {
+        "detail": "Appointment in terminal state cannot be rescheduled"
+      }
+    },
+    {
+      "ts": "2026-02-12T12:36:34.941084+00:00",
+      "method": "POST",
+      "path": "/appointments",
+      "status": 200,
+      "request": {
+        "vet_id": "1382dcc7-3cd5-4be2-b4e9-8bad76a7d864",
+        "pet_id": "dc441305-86f8-4405-9484-8ad973998f35",
+        "date": "2026-03-15",
+        "time": "15:00",
+        "reason": "final-med-20260212T123634Z-pay"
+      },
+      "params": null,
+      "response": {
+        "id": "c98b84e6-81a0-48ed-9cfd-16683272bf7c",
+        "user_id": "97052c92-910f-4061-976f-c8a991cdaaf4",
+        "vet_id": "1382dcc7-3cd5-4be2-b4e9-8bad76a7d864",
+        "pet_id": "dc441305-86f8-4405-9484-8ad973998f35",
+        "visit_series_id": "c98b84e6-81a0-48ed-9cfd-16683272bf7c",
+        "follow_up_of": null,
+        "date": "2026-03-15",
+        "time": "15:00",
+        "reason": "final-med-20260212T123634Z-pay",
+        "status": "pending",
+        "notes": null,
+        "status_reason": null,
+        "cancelled_by": null,
+        "treatment_version": 0,
+        "treatment_updates": [],
+        "updated_at": "2026-02-12T12:36:34.940080",
+        "created_at": "2026-02-12T12:36:34.940109"
+      }
+    },
+    {
+      "ts": "2026-02-12T12:36:34.946147+00:00",
+      "method": "POST",
+      "path": "/payments/process",
+      "status": 200,
+      "request": {
+        "amount": 25,
+        "payment_method": "cash_on_delivery",
+        "appointment_id": "c98b84e6-81a0-48ed-9cfd-16683272bf7c",
+        "points_to_use": 0
+      },
+      "params": null,
+      "response": {
+        "success": true,
+        "payment_id": "d57d0af7-171c-4248-a1ad-adea4a5561a2",
+        "amount": 25.0,
+        "original_amount": 25.0,
+        "points_used": 0,
+        "points_discount": 0.0,
+        "method": "cash_on_delivery",
+        "message": "Cash on delivery confirmed",
+        "points_earned": 25
+      }
+    },
+    {
+      "ts": "2026-02-12T12:36:34.951069+00:00",
+      "method": "GET",
+      "path": "/appointments/c98b84e6-81a0-48ed-9cfd-16683272bf7c",
+      "status": 200,
+      "request": null,
+      "params": null,
+      "response": {
+        "id": "c98b84e6-81a0-48ed-9cfd-16683272bf7c",
+        "user_id": "97052c92-910f-4061-976f-c8a991cdaaf4",
+        "vet_id": "1382dcc7-3cd5-4be2-b4e9-8bad76a7d864",
+        "pet_id": "dc441305-86f8-4405-9484-8ad973998f35",
+        "visit_series_id": "c98b84e6-81a0-48ed-9cfd-16683272bf7c",
+        "follow_up_of": null,
+        "date": "2026-03-15",
+        "time": "15:00",
+        "reason": "final-med-20260212T123634Z-pay",
+        "status": "confirmed",
+        "notes": null,
+        "status_reason": "auto_confirmed_by_payment",
+        "cancelled_by": null,
+        "treatment_version": 0,
+        "treatment_updates": [],
+        "updated_at": "2026-02-12T12:36:34.945000",
+        "created_at": "2026-02-12T12:36:34.940000"
+      }
+    },
+    {
+      "ts": "2026-02-12T12:36:34.955195+00:00",
+      "method": "GET",
+      "path": "/notifications",
+      "status": 200,
+      "request": null,
+      "params": null,
+      "response": {
+        "items": [
+          {
+            "id": "930570f1-3542-4c0c-afb5-cd33da91924b",
+            "user_id": "97052c92-910f-4061-976f-c8a991cdaaf4",
+            "title": "Appointment status updated",
+            "body": "Your appointment is now completed. Reason: visit done",
+            "type": "appointment",
+            "data": {
+              "appointment_id": "7540de0d-f5f1-4ea0-8e56-1dee0ccc5fde",
+              "status": "completed",
+              "reason": "visit done"
+            },
+            "is_read": false,
+            "created_at": "2026-02-12T12:36:34.908000",
+            "updated_at": "2026-02-12T12:36:34.908000"
+          },
+          {
+            "id": "dc8c1897-0dac-47c7-b0f1-ac5e2fbe7137",
+            "user_id": "97052c92-910f-4061-976f-c8a991cdaaf4",
+            "title": "Care request updated",
+            "body": "Your care request is now in_progress.",
+            "type": "care_request",
+            "data": {
+              "request_id": "6b4e14dd-e294-4553-b5a1-4e8737d62fd8",
+              "status": "in_progress",
+              "route": "/clinic-care-management"
+            },
+            "is_read": false,
+            "created_at": "2026-02-12T12:36:34.901000",
+            "updated_at": "2026-02-12T12:36:34.901000"
+          },
+          {
+            "id": "f568f4a2-c8ad-4a63-bbb9-87cf8a30ac58",
+            "user_id": "97052c92-910f-4061-976f-c8a991cdaaf4",
+            "title": "Appointment status updated",
+            "body": "Your appointment is now rejected. Reason: Duplicate booking",
+            "type": "appointment",
+            "data": {
+              "appointment_id": "212f30be-8252-45c0-9fd8-773161302312",
+              "status": "rejected",
+              "reason": "Duplicate booking"
+            },
+            "is_read": false,
+            "created_at": "2026-02-12T12:36:34.870000",
+            "updated_at": "2026-02-12T12:36:34.870000"
+          },
+          {
+            "id": "c4809e83-a88e-49b6-ad43-a9a7a0320130",
+            "user_id": "97052c92-910f-4061-976f-c8a991cdaaf4",
+            "title": "Appointment status updated",
+            "body": "Your appointment is now no_show. Reason: Owner did not arrive",
+            "type": "appointment",
+            "data": {
+              "appointment_id": "8fedcdf9-19cc-4076-9bdc-701366e9592e",
+              "status": "no_show",
+              "reason": "Owner did not arrive"
+            },
+            "is_read": false,
+            "created_at": "2026-02-12T12:36:34.862000",
+            "updated_at": "2026-02-12T12:36:34.862000"
+          },
+          {
+            "id": "ab329592-1e7c-47f6-a4c2-5ec689039ddd",
+            "user_id": "97052c92-910f-4061-976f-c8a991cdaaf4",
+            "title": "Care request updated",
+            "body": "Your care request is now completed.",
+            "type": "care_request",
+            "data": {
+              "request_id": "1d44817b-39ee-4504-9d65-2bf867f328db",
+              "status": "completed",
+              "route": "/clinic-care-management"
+            },
+            "is_read": false,
+            "created_at": "2026-02-12T11:59:23.501000",
+            "updated_at": "2026-02-12T11:59:23.501000"
+          },
+          {
+            "id": "5a16c5f0-fc9e-4e96-b528-32582b783109",
+            "user_id": "97052c92-910f-4061-976f-c8a991cdaaf4",
+            "title": "Care request updated",
+            "body": "Your care request is now in_progress.",
+            "type": "care_request",
+            "data": {
+              "request_id": "1d44817b-39ee-4504-9d65-2bf867f328db",
+              "status": "in_progress",
+              "route": "/clinic-care-management"
+            },
+            "is_read": false,
+            "created_at": "2026-02-12T11:59:23.478000",
+            "updated_at": "2026-02-12T11:59:23.478000"
+          },
+          {
+            "id": "52ab4e92-7919-4175-b58c-6b8d640a52ba",
+            "user_id": "97052c92-910f-4061-976f-c8a991cdaaf4",
+            "title": "Care request updated",
+            "body": "Your care request is now accepted.",
+            "type": "care_request",
+            "data": {
+              "request_id": "1d44817b-39ee-4504-9d65-2bf867f328db",
+              "status": "accepted",
+              "route": "/clinic-care-management"
+            },
+            "is_read": false,
+            "created_at": "2026-02-12T11:59:23.473000",
+            "updated_at": "2026-02-12T11:59:23.473000"
+          },
+          {
+            "id": "f5a522d1-6780-417e-8d15-10da4b297456",
+            "user_id": "97052c92-910f-4061-976f-c8a991cdaaf4",
+            "title": "Friend request update",
+            "body": "Demo Vet accepted your friend request.",
+            "type": "friend_request",
+            "data": {
+              "route": "/friends",
+              "request_id": "6ea4ac20-7572-4d5c-b4a5-819934d75f7c",
+              "status": "accepted"
+            },
+            "is_read": false,
+            "created_at": "2026-02-12T11:49:55.994000",
+            "updated_at": "2026-02-12T11:49:55.994000"
+          },
+          {
+            "id": "bcd89a3c-65ee-493b-8f48-43bba9b4c03e",
+            "user_id": "97052c92-910f-4061-976f-c8a991cdaaf4",
+            "title": "Friend request update",
+            "body": "Demo Market accepted your friend request.",
+            "type": "friend_request",
+            "data": {
+              "route": "/friends",
+              "request_id": "854a3e47-4616-40cd-b7a5-f95d3e55b628",
+              "status": "accepted"
+            },
+            "is_read": false,
+            "created_at": "2026-02-12T11:48:17.401000",
+            "updated_at": "2026-02-12T11:48:17.401000"
+          }
+        ],
+        "total": 9,
+        "limit": 20,
+        "offset": 0,
+        "has_more": false
+      }
+    },
+    {
+      "ts": "2026-02-12T12:36:34.957537+00:00",
+      "method": "GET",
+      "path": "/auth/me",
+      "status": 200,
+      "request": null,
+      "params": null,
+      "response": {
+        "id": "1382dcc7-3cd5-4be2-b4e9-8bad76a7d864",
+        "email": "demo.vet@petsy.com",
+        "name": "Demo Vet",
+        "username": "demo.vet",
+        "user_code": "PET-A7D864",
+        "phone": null,
+        "city": null,
+        "bio": null,
+        "avatar": null,
+        "language": "ar",
+        "is_verified": true,
+        "is_admin": false,
+        "role": "vet",
+        "created_at": "2026-02-12T11:45:53.977000"
+      }
+    }
+  ]
+}

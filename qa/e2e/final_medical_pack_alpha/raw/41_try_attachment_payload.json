@@ -1,0 +1,29 @@
+{
+  "ts": "2026-02-12T12:36:34.902248+00:00",
+  "method": "PUT",
+  "path": "/vet/care-requests/6b4e14dd-e294-4553-b5a1-4e8737d62fd8",
+  "status": 200,
+  "request": {
+    "action": "start",
+    "vet_notes": "with attachment placeholder",
+    "attachments": [
+      "xray://demo"
+    ]
+  },
+  "params": null,
+  "response": {
+    "id": "6b4e14dd-e294-4553-b5a1-4e8737d62fd8",
+    "pet_id": "dc441305-86f8-4405-9484-8ad973998f35",
+    "title": "final-med-20260212T123634Z-attach-check",
+    "description": "need tests",
+    "location": null,
+    "priority": "normal",
+    "status": "in_progress",
+    "requested_by": "97052c92-910f-4061-976f-c8a991cdaaf4",
+    "requested_by_name": "Demo Clinic",
+    "assigned_vet_id": "1382dcc7-3cd5-4be2-b4e9-8bad76a7d864",
+    "assigned_clinic_id": null,
+    "created_at": "2026-02-12T12:36:34.892000",
+    "updated_at": "2026-02-12T12:36:34.899000"
+  }
+}

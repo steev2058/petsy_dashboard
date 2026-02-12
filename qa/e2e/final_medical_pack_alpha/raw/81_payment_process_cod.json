@@ -1,0 +1,24 @@
+{
+  "ts": "2026-02-12T12:36:34.946147+00:00",
+  "method": "POST",
+  "path": "/payments/process",
+  "status": 200,
+  "request": {
+    "amount": 25,
+    "payment_method": "cash_on_delivery",
+    "appointment_id": "c98b84e6-81a0-48ed-9cfd-16683272bf7c",
+    "points_to_use": 0
+  },
+  "params": null,
+  "response": {
+    "success": true,
+    "payment_id": "d57d0af7-171c-4248-a1ad-adea4a5561a2",
+    "amount": 25.0,
+    "original_amount": 25.0,
+    "points_used": 0,
+    "points_discount": 0.0,
+    "method": "cash_on_delivery",
+    "message": "Cash on delivery confirmed",
+    "points_earned": 25
+  }
+}

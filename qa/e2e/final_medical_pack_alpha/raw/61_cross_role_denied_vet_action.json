@@ -1,0 +1,14 @@
+{
+  "ts": "2026-02-12T12:36:34.924305+00:00",
+  "method": "PUT",
+  "path": "/vet/appointments/7540de0d-f5f1-4ea0-8e56-1dee0ccc5fde/status",
+  "status": 403,
+  "request": {
+    "action": "cancel",
+    "reason": "bad"
+  },
+  "params": null,
+  "response": {
+    "detail": "Access denied for this role"
+  }
+}

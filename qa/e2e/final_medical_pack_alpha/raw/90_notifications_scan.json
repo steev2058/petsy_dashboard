@@ -1,0 +1,151 @@
+{
+  "ts": "2026-02-12T12:36:34.955195+00:00",
+  "method": "GET",
+  "path": "/notifications",
+  "status": 200,
+  "request": null,
+  "params": null,
+  "response": {
+    "items": [
+      {
+        "id": "930570f1-3542-4c0c-afb5-cd33da91924b",
+        "user_id": "97052c92-910f-4061-976f-c8a991cdaaf4",
+        "title": "Appointment status updated",
+        "body": "Your appointment is now completed. Reason: visit done",
+        "type": "appointment",
+        "data": {
+          "appointment_id": "7540de0d-f5f1-4ea0-8e56-1dee0ccc5fde",
+          "status": "completed",
+          "reason": "visit done"
+        },
+        "is_read": false,
+        "created_at": "2026-02-12T12:36:34.908000",
+        "updated_at": "2026-02-12T12:36:34.908000"
+      },
+      {
+        "id": "dc8c1897-0dac-47c7-b0f1-ac5e2fbe7137",
+        "user_id": "97052c92-910f-4061-976f-c8a991cdaaf4",
+        "title": "Care request updated",
+        "body": "Your care request is now in_progress.",
+        "type": "care_request",
+        "data": {
+          "request_id": "6b4e14dd-e294-4553-b5a1-4e8737d62fd8",
+          "status": "in_progress",
+          "route": "/clinic-care-management"
+        },
+        "is_read": false,
+        "created_at": "2026-02-12T12:36:34.901000",
+        "updated_at": "2026-02-12T12:36:34.901000"
+      },
+      {
+        "id": "f568f4a2-c8ad-4a63-bbb9-87cf8a30ac58",
+        "user_id": "97052c92-910f-4061-976f-c8a991cdaaf4",
+        "title": "Appointment status updated",
+        "body": "Your appointment is now rejected. Reason: Duplicate booking",
+        "type": "appointment",
+        "data": {
+          "appointment_id": "212f30be-8252-45c0-9fd8-773161302312",
+          "status": "rejected",
+          "reason": "Duplicate booking"
+        },
+        "is_read": false,
+        "created_at": "2026-02-12T12:36:34.870000",
+        "updated_at": "2026-02-12T12:36:34.870000"
+      },
+      {
+        "id": "c4809e83-a88e-49b6-ad43-a9a7a0320130",
+        "user_id": "97052c92-910f-4061-976f-c8a991cdaaf4",
+        "title": "Appointment status updated",
+        "body": "Your appointment is now no_show. Reason: Owner did not arrive",
+        "type": "appointment",
+        "data": {
+          "appointment_id": "8fedcdf9-19cc-4076-9bdc-701366e9592e",
+          "status": "no_show",
+          "reason": "Owner did not arrive"
+        },
+        "is_read": false,
+        "created_at": "2026-02-12T12:36:34.862000",
+        "updated_at": "2026-02-12T12:36:34.862000"
+      },
+      {
+        "id": "ab329592-1e7c-47f6-a4c2-5ec689039ddd",
+        "user_id": "97052c92-910f-4061-976f-c8a991cdaaf4",
+        "title": "Care request updated",
+        "body": "Your care request is now completed.",
+        "type": "care_request",
+        "data": {
+          "request_id": "1d44817b-39ee-4504-9d65-2bf867f328db",
+          "status": "completed",
+          "route": "/clinic-care-management"
+        },
+        "is_read": false,
+        "created_at": "2026-02-12T11:59:23.501000",
+        "updated_at": "2026-02-12T11:59:23.501000"
+      },
+      {
+        "id": "5a16c5f0-fc9e-4e96-b528-32582b783109",
+        "user_id": "97052c92-910f-4061-976f-c8a991cdaaf4",
+        "title": "Care request updated",
+        "body": "Your care request is now in_progress.",
+        "type": "care_request",
+        "data": {
+          "request_id": "1d44817b-39ee-4504-9d65-2bf867f328db",
+          "status": "in_progress",
+          "route": "/clinic-care-management"
+        },
+        "is_read": false,
+        "created_at": "2026-02-12T11:59:23.478000",
+        "updated_at": "2026-02-12T11:59:23.478000"
+      },
+      {
+        "id": "52ab4e92-7919-4175-b58c-6b8d640a52ba",
+        "user_id": "97052c92-910f-4061-976f-c8a991cdaaf4",
+        "title": "Care request updated",
+        "body": "Your care request is now accepted.",
+        "type": "care_request",
+        "data": {
+          "request_id": "1d44817b-39ee-4504-9d65-2bf867f328db",
+          "status": "accepted",
+          "route": "/clinic-care-management"
+        },
+        "is_read": false,
+        "created_at": "2026-02-12T11:59:23.473000",
+        "updated_at": "2026-02-12T11:59:23.473000"
+      },
+      {
+        "id": "f5a522d1-6780-417e-8d15-10da4b297456",
+        "user_id": "97052c92-910f-4061-976f-c8a991cdaaf4",
+        "title": "Friend request update",
+        "body": "Demo Vet accepted your friend request.",
+        "type": "friend_request",
+        "data": {
+          "route": "/friends",
+          "request_id": "6ea4ac20-7572-4d5c-b4a5-819934d75f7c",
+          "status": "accepted"
+        },
+        "is_read": false,
+        "created_at": "2026-02-12T11:49:55.994000",
+        "updated_at": "2026-02-12T11:49:55.994000"
+      },
+      {
+        "id": "bcd89a3c-65ee-493b-8f48-43bba9b4c03e",
+        "user_id": "97052c92-910f-4061-976f-c8a991cdaaf4",
+        "title": "Friend request update",
+        "body": "Demo Market accepted your friend request.",
+        "type": "friend_request",
+        "data": {
+          "route": "/friends",
+          "request_id": "854a3e47-4616-40cd-b7a5-f95d3e55b628",
+          "status": "accepted"
+        },
+        "is_read": false,
+        "created_at": "2026-02-12T11:48:17.401000",
+        "updated_at": "2026-02-12T11:48:17.401000"
+      }
+    ],
+    "total": 9,
+    "limit": 20,
+    "offset": 0,
+    "has_more": false
+  }
+}

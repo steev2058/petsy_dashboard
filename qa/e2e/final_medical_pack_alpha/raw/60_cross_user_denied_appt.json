@@ -1,0 +1,11 @@
+{
+  "ts": "2026-02-12T12:36:34.922126+00:00",
+  "method": "GET",
+  "path": "/appointments/7540de0d-f5f1-4ea0-8e56-1dee0ccc5fde",
+  "status": 404,
+  "request": null,
+  "params": null,
+  "response": {
+    "detail": "Appointment not found"
+  }
+}

@@ -1,0 +1,27 @@
+{
+  "ts": "2026-02-12T12:36:34.951069+00:00",
+  "method": "GET",
+  "path": "/appointments/c98b84e6-81a0-48ed-9cfd-16683272bf7c",
+  "status": 200,
+  "request": null,
+  "params": null,
+  "response": {
+    "id": "c98b84e6-81a0-48ed-9cfd-16683272bf7c",
+    "user_id": "97052c92-910f-4061-976f-c8a991cdaaf4",
+    "vet_id": "1382dcc7-3cd5-4be2-b4e9-8bad76a7d864",
+    "pet_id": "dc441305-86f8-4405-9484-8ad973998f35",
+    "visit_series_id": "c98b84e6-81a0-48ed-9cfd-16683272bf7c",
+    "follow_up_of": null,
+    "date": "2026-03-15",
+    "time": "15:00",
+    "reason": "final-med-20260212T123634Z-pay",
+    "status": "confirmed",
+    "notes": null,
+    "status_reason": "auto_confirmed_by_payment",
+    "cancelled_by": null,
+    "treatment_version": 0,
+    "treatment_updates": [],
+    "updated_at": "2026-02-12T12:36:34.945000",
+    "created_at": "2026-02-12T12:36:34.940000"
+  }
+}

@@ -407,11 +407,18 @@ class Appointment(BaseModel):
     user_id: str
     vet_id: str
     pet_id: Optional[str] = None
+    visit_series_id: Optional[str] = None
+    follow_up_of: Optional[str] = None
     date: str
     time: str
     reason: str
-    status: str = "pending"  # pending, confirmed, completed, cancelled
+    status: str = "pending"  # pending, confirmed, completed, cancelled, rejected, no_show
     notes: Optional[str] = None
+    status_reason: Optional[str] = None
+    cancelled_by: Optional[str] = None  # user_id or vet_id
+    treatment_version: int = 0
+    treatment_updates: List[dict] = Field(default_factory=list)
+    updated_at: Optional[datetime] = None
     created_at: datetime = Field(default_factory=datetime.utcnow)
 
 class AppointmentCreate(BaseModel):
@@ -1247,11 +1254,30 @@ async def get_vet(vet_id: str):
 
 # ========================= APPOINTMENTS =========================
 
+def _normalize_appointment(row: dict) -> Appointment:
+    clean = {k: v for k, v in row.items() if k != "_id"}
+    if not clean.get("visit_series_id"):
+        clean["visit_series_id"] = clean.get("id")
+    return Appointment(**clean)
+
+
 @api_router.post("/appointments", response_model=Appointment)
 async def create_appointment(apt: AppointmentCreate, current_user: dict = Depends(get_current_user)):
-    appointment = Appointment(**apt.dict(), user_id=current_user["id"])
+    follow_up_of = (apt.notes or "").strip().split("follow_up_of:")[-1].strip() if "follow_up_of:" in (apt.notes or "") else None
+    parent = await db.appointments.find_one({"id": follow_up_of, "user_id": current_user["id"]}) if follow_up_of else None
+    visit_series_id = (parent or {}).get("visit_series_id") or (parent or {}).get("id")
+    appointment = Appointment(
+        **apt.dict(),
+        user_id=current_user["id"],
+        follow_up_of=follow_up_of,
+        visit_series_id=visit_series_id,
+        updated_at=datetime.utcnow(),
+    )
+    if not appointment.visit_series_id:
+        appointment.visit_series_id = appointment.id
     await db.appointments.insert_one(appointment.dict())
     return appointment
+
 
 @api_router.get("/appointments", response_model=List[Appointment])
 async def get_appointments(current_user: dict = Depends(get_current_user)):
@@ -1261,7 +1287,8 @@ async def get_appointments(current_user: dict = Depends(get_current_user)):
             {"vet_id": current_user["id"]}
         ]
     }).sort("created_at", -1).to_list(100)
-    return [Appointment(**a) for a in appointments]
+    return [_normalize_appointment(a) for a in appointments]
+
 
 @api_router.get("/appointments/{appointment_id}")
 async def get_appointment(appointment_id: str, current_user: dict = Depends(get_current_user)):
@@ -1274,7 +1301,8 @@ async def get_appointment(appointment_id: str, current_user: dict = Depends(get_
     })
     if not appointment:
         raise HTTPException(status_code=404, detail="Appointment not found")
-    return Appointment(**appointment)
+    return _normalize_appointment(appointment)
+
 
 @api_router.put("/appointments/{appointment_id}")
 async def reschedule_appointment(appointment_id: str, data: dict, current_user: dict = Depends(get_current_user)):
@@ -1282,33 +1310,125 @@ async def reschedule_appointment(appointment_id: str, data: dict, current_user: 
     if not appointment:
         raise HTTPException(status_code=404, detail="Appointment not found")
 
-    if appointment.get("status") == "cancelled":
-        raise HTTPException(status_code=400, detail="Cancelled appointment cannot be rescheduled")
+    if appointment.get("status") in {"cancelled", "rejected", "no_show", "completed"}:
+        raise HTTPException(status_code=400, detail="Appointment in terminal state cannot be rescheduled")
 
-    updates = {}
+    updates = {"updated_at": datetime.utcnow()}
     for key in ["date", "time", "reason", "notes"]:
         if key in data and data.get(key) is not None:
             updates[key] = data.get(key)
 
-    if not updates:
+    if len(updates) == 1:
         raise HTTPException(status_code=400, detail="No reschedule fields provided")
 
-    await db.appointments.update_one(
-        {"id": appointment_id, "user_id": current_user["id"]},
+    result = await db.appointments.update_one(
+        {"id": appointment_id, "user_id": current_user["id"], "status": appointment.get("status")},
         {"$set": updates}
     )
+    if result.modified_count == 0:
+        raise HTTPException(status_code=409, detail="Appointment changed concurrently; refresh and retry")
     row = await db.appointments.find_one({"id": appointment_id})
-    return Appointment(**row)
+    return _normalize_appointment(row)
+
 
 @api_router.put("/appointments/{appointment_id}/cancel")
-async def cancel_appointment(appointment_id: str, current_user: dict = Depends(get_current_user)):
+async def cancel_appointment(appointment_id: str, current_user: dict = Depends(get_current_user), data: dict = Body(default={})):
+    existing = await db.appointments.find_one({"id": appointment_id, "user_id": current_user["id"]})
+    if not existing:
+        raise HTTPException(status_code=404, detail="Appointment not found")
+    if existing.get("status") in {"cancelled", "rejected", "no_show", "completed"}:
+        raise HTTPException(status_code=400, detail="Appointment cannot be cancelled from current state")
+
+    reason = (data or {}).get("reason")
     result = await db.appointments.update_one(
-        {"id": appointment_id, "user_id": current_user["id"]},
-        {"$set": {"status": "cancelled"}}
+        {"id": appointment_id, "user_id": current_user["id"], "status": existing.get("status")},
+        {"$set": {"status": "cancelled", "status_reason": reason, "cancelled_by": current_user["id"], "updated_at": datetime.utcnow()}}
     )
     if result.modified_count == 0:
-        raise HTTPException(status_code=404, detail="Appointment not found")
+        raise HTTPException(status_code=409, detail="Appointment changed concurrently; refresh and retry")
     return {"message": "Appointment cancelled"}
+
+
+@api_router.put("/vet/appointments/{appointment_id}/status", response_model=Appointment)
+async def vet_update_appointment_status(appointment_id: str, data: dict, current_user: dict = Depends(require_roles("vet"))):
+    appointment = await db.appointments.find_one({"id": appointment_id, "vet_id": current_user["id"]})
+    if not appointment:
+        raise HTTPException(status_code=404, detail="Appointment not found")
+
+    action = (data.get("action") or "").strip().lower()  # confirm|complete|cancel|reject|no_show
+    reason = data.get("reason")
+    if action not in {"confirm", "complete", "cancel", "reject", "no_show"}:
+        raise HTTPException(status_code=400, detail="Invalid action")
+
+    from_status = appointment.get("status")
+    transition_map = {
+        "confirm": {"pending"},
+        "complete": {"confirmed", "in_progress", "pending"},
+        "cancel": {"pending", "confirmed"},
+        "reject": {"pending"},
+        "no_show": {"confirmed"},
+    }
+    if from_status not in transition_map[action]:
+        raise HTTPException(status_code=400, detail=f"Cannot {action} appointment from status={from_status}")
+
+    next_status = {
+        "confirm": "confirmed",
+        "complete": "completed",
+        "cancel": "cancelled",
+        "reject": "rejected",
+        "no_show": "no_show",
+    }[action]
+
+    result = await db.appointments.update_one(
+        {"id": appointment_id, "vet_id": current_user["id"], "status": from_status},
+        {"$set": {
+            "status": next_status,
+            "status_reason": reason,
+            "cancelled_by": current_user["id"] if next_status in {"cancelled", "rejected"} else appointment.get("cancelled_by"),
+            "updated_at": datetime.utcnow(),
+        }}
+    )
+    if result.modified_count == 0:
+        raise HTTPException(status_code=409, detail="Appointment changed concurrently; refresh and retry")
+
+    if next_status in {"cancelled", "rejected", "no_show", "completed"}:
+        await create_notification(
+            appointment.get("user_id"),
+            "Appointment status updated",
+            f"Your appointment is now {next_status}." + (f" Reason: {reason}" if reason else ""),
+            "appointment",
+            {"appointment_id": appointment_id, "status": next_status, "reason": reason}
+        )
+
+    row = await db.appointments.find_one({"id": appointment_id})
+    return _normalize_appointment(row)
+
+
+@api_router.put("/vet/appointments/{appointment_id}/treatment", response_model=Appointment)
+async def vet_update_appointment_treatment(appointment_id: str, data: dict, current_user: dict = Depends(require_roles("vet"))):
+    appointment = await db.appointments.find_one({"id": appointment_id, "vet_id": current_user["id"]})
+    if not appointment:
+        raise HTTPException(status_code=404, detail="Appointment not found")
+    if appointment.get("status") != "completed":
+        raise HTTPException(status_code=400, detail="Treatment updates allowed only after completion")
+
+    notes = (data.get("notes") or "").strip()
+    if not notes:
+        raise HTTPException(status_code=400, detail="notes is required")
+
+    new_version = int(appointment.get("treatment_version") or 0) + 1
+    update_row = {
+        "version": new_version,
+        "notes": notes,
+        "updated_by": current_user["id"],
+        "updated_at": datetime.utcnow(),
+    }
+    await db.appointments.update_one(
+        {"id": appointment_id, "vet_id": current_user["id"]},
+        {"$set": {"treatment_version": new_version, "updated_at": datetime.utcnow()}, "$push": {"treatment_updates": update_row}}
+    )
+    row = await db.appointments.find_one({"id": appointment_id})
+    return _normalize_appointment(row)
 
 # ========================= CART =========================
 
@@ -2369,8 +2489,13 @@ async def create_health_record(record: HealthRecordCreate, current_user: dict = 
 
 @api_router.get("/health-records/{pet_id}")
 async def get_health_records(pet_id: str, current_user: dict = Depends(get_current_user)):
+    pet = await db.pets.find_one({"id": pet_id})
+    if not pet:
+        raise HTTPException(status_code=404, detail="Pet not found")
+    if pet.get("owner_id") != current_user["id"] and not current_user.get("is_admin", False):
+        raise HTTPException(status_code=403, detail="Access denied")
     records = await db.health_records.find({"pet_id": pet_id}).sort("date", -1).to_list(100)
-    return records
+    return [{k: v for k, v in r.items() if k != "_id"} for r in records]
 
 @api_router.delete("/health-records/{record_id}")
 async def delete_health_record(record_id: str, current_user: dict = Depends(get_current_user)):
@@ -3397,13 +3522,14 @@ async def process_payment(payment: PaymentRequest, current_user: dict = Depends(
             payment_result["points_earned"] = points_earned
         
         # Store payment record
+        payment_status = "succeeded" if payment.payment_method == "cash_on_delivery" else "pending"
         await db.payments.insert_one({
             "id": payment_result["payment_id"],
             "user_id": current_user["id"],
             "amount": final_amount,
             "original_amount": payment.amount,
             "payment_method": payment.payment_method,
-            "status": "succeeded" if payment.payment_method == "cash_on_delivery" else "pending",
+            "status": payment_status,
             "order_id": payment.order_id,
             "appointment_id": payment.appointment_id,
             "sponsorship_id": payment.sponsorship_id,
@@ -3411,7 +3537,13 @@ async def process_payment(payment: PaymentRequest, current_user: dict = Depends(
             "points_earned": points_earned,
             "created_at": datetime.utcnow()
         })
-        
+
+        if payment_status == "succeeded" and payment.appointment_id:
+            await db.appointments.update_one(
+                {"id": payment.appointment_id, "user_id": current_user["id"], "status": "pending"},
+                {"$set": {"status": "confirmed", "status_reason": "auto_confirmed_by_payment", "updated_at": datetime.utcnow()}}
+            )
+
         return payment_result
         
     except Exception as e:
@@ -3429,7 +3561,14 @@ async def confirm_payment(payment_id: str, current_user: dict = Depends(get_curr
         {"id": payment_id},
         {"$set": {"status": "succeeded", "confirmed_at": datetime.utcnow()}}
     )
-    
+
+    appointment_id = payment.get("appointment_id")
+    if appointment_id:
+        await db.appointments.update_one(
+            {"id": appointment_id, "user_id": current_user["id"], "status": "pending"},
+            {"$set": {"status": "confirmed", "status_reason": "auto_confirmed_by_payment", "updated_at": datetime.utcnow()}}
+        )
+
     return {"success": True, "message": "Payment confirmed"}
 
 @api_router.get("/payments/history")

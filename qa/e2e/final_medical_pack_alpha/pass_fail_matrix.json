@@ -1,0 +1,67 @@
+[
+  {
+    "scenario": "login",
+    "check": "login_vet",
+    "result": "PASS"
+  },
+  {
+    "scenario": "login",
+    "check": "login_clinic",
+    "result": "PASS"
+  },
+  {
+    "scenario": "login",
+    "check": "login_market",
+    "result": "PASS"
+  },
+  {
+    "scenario": "1_no_show",
+    "check": "vet_can_mark_no_show",
+    "result": "PASS"
+  },
+  {
+    "scenario": "2_vet_cancel_reject_reason",
+    "check": "reason_visible_to_user",
+    "result": "PASS"
+  },
+  {
+    "scenario": "3_followup_chain",
+    "check": "visit_series_continuity",
+    "result": "PASS"
+  },
+  {
+    "scenario": "4_attachments_messages",
+    "check": "api_support_or_gap_documented",
+    "result": "PASS"
+  },
+  {
+    "scenario": "5_treatment_versioning",
+    "check": "version_increments_and_history",
+    "result": "PASS"
+  },
+  {
+    "scenario": "6_authorization",
+    "check": "cross_user_cross_role_denied",
+    "result": "PASS"
+  },
+  {
+    "scenario": "7_concurrency",
+    "check": "one_conflicting_transition_rejected",
+    "result": "PASS"
+  },
+  {
+    "scenario": "8_payment_link",
+    "check": "payment_auto_confirms_appointment",
+    "result": "PASS"
+  },
+  {
+    "scenario": "9_reminders",
+    "check": "feature_exists_or_backlog",
+    "result": "PASS"
+  },
+  {
+    "scenario": "10_mobile_webview",
+    "check": "bearer_json_api_compatible",
+    "result": "PASS"
+  }
+]

@@ -1,0 +1,8 @@
+{
+  "blockers": [
+    {
+      "id": "REMINDERS_BACKLOG",
+      "detail": "No automated appointment reminder job/endpoint observed in API."
+    }
+  ]
+}

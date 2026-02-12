@@ -1,0 +1,34 @@
+{
+  "ts": "2026-02-12T12:36:34.886186+00:00",
+  "method": "POST",
+  "path": "/appointments",
+  "status": 200,
+  "request": {
+    "vet_id": "1382dcc7-3cd5-4be2-b4e9-8bad76a7d864",
+    "pet_id": "dc441305-86f8-4405-9484-8ad973998f35",
+    "date": "2026-03-26",
+    "time": "12:00",
+    "reason": "final-med-20260212T123634Z-series-fu2",
+    "notes": "follow_up_of:dce71314-0ac5-49cd-90b9-dd6cf50edd36"
+  },
+  "params": null,
+  "response": {
+    "id": "4d28eccd-06eb-4c5c-8366-fbd39d7868b7",
+    "user_id": "97052c92-910f-4061-976f-c8a991cdaaf4",
+    "vet_id": "1382dcc7-3cd5-4be2-b4e9-8bad76a7d864",
+    "pet_id": "dc441305-86f8-4405-9484-8ad973998f35",
+    "visit_series_id": "cc5be5da-e8dd-4ef0-97bb-d9f2bf68d9d9",
+    "follow_up_of": "dce71314-0ac5-49cd-90b9-dd6cf50edd36",
+    "date": "2026-03-26",
+    "time": "12:00",
+    "reason": "final-med-20260212T123634Z-series-fu2",
+    "status": "pending",
+    "notes": "follow_up_of:dce71314-0ac5-49cd-90b9-dd6cf50edd36",
+    "status_reason": null,
+    "cancelled_by": null,
+    "treatment_version": 0,
+    "treatment_updates": [],
+    "updated_at": "2026-02-12T12:36:34.885173",
+    "created_at": "2026-02-12T12:36:34.885194"
+  }
+}

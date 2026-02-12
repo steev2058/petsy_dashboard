@@ -1,0 +1,36 @@
+{
+  "ts": "2026-02-12T12:36:34.914760+00:00",
+  "method": "PUT",
+  "path": "/vet/appointments/7540de0d-f5f1-4ea0-8e56-1dee0ccc5fde/treatment",
+  "status": 200,
+  "request": {
+    "notes": "Initial treatment plan"
+  },
+  "params": null,
+  "response": {
+    "id": "7540de0d-f5f1-4ea0-8e56-1dee0ccc5fde",
+    "user_id": "97052c92-910f-4061-976f-c8a991cdaaf4",
+    "vet_id": "1382dcc7-3cd5-4be2-b4e9-8bad76a7d864",
+    "pet_id": "dc441305-86f8-4405-9484-8ad973998f35",
+    "visit_series_id": "7540de0d-f5f1-4ea0-8e56-1dee0ccc5fde",
+    "follow_up_of": null,
+    "date": "2026-03-13",
+    "time": "13:00",
+    "reason": "final-med-20260212T123634Z-treatment",
+    "status": "completed",
+    "notes": null,
+    "status_reason": "visit done",
+    "cancelled_by": null,
+    "treatment_version": 1,
+    "treatment_updates": [
+      {
+        "version": 1,
+        "notes": "Initial treatment plan",
+        "updated_by": "1382dcc7-3cd5-4be2-b4e9-8bad76a7d864",
+        "updated_at": "2026-02-12T12:36:34.913000"
+      }
+    ],
+    "updated_at": "2026-02-12T12:36:34.913000",
+    "created_at": "2026-02-12T12:36:34.904000"
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "ts": "2026-02-12T12:36:34.935483+00:00",
+  "method": "PUT",
+  "path": "/appointments/28a3eb27-385c-4380-877e-d40a7115387a/cancel",
+  "status": 200,
+  "request": {
+    "reason": "owner cancel race"
+  },
+  "params": null,
+  "response": {
+    "message": "Appointment cancelled"
+  }
+}
