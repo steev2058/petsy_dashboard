@@ -1,0 +1,18 @@
+{
+  "ts": "2026-02-12T11:53:13.096938+00:00",
+  "method": "POST",
+  "path": "/conversations/13907a7f-935d-4c31-910c-60c450215dd9/messages",
+  "status": 200,
+  "request": null,
+  "params": {
+    "content": "Alpha seeded chat ping (20260212T115311Z)"
+  },
+  "response": {
+    "id": "393dbcf8-3f8d-4a24-a61c-d671c1b84f53",
+    "conversation_id": "13907a7f-935d-4c31-910c-60c450215dd9",
+    "sender_id": "97052c92-910f-4061-976f-c8a991cdaaf4",
+    "content": "Alpha seeded chat ping (20260212T115311Z)",
+    "created_at": "2026-02-12T11:53:13.091213",
+    "is_read": false
+  }
+}

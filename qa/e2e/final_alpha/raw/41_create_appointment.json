@@ -1,0 +1,27 @@
+{
+  "ts": "2026-02-12T11:53:13.139588+00:00",
+  "method": "POST",
+  "path": "/appointments",
+  "status": 200,
+  "request": {
+    "vet_id": "29904761-d70f-44f2-a803-573e4ac9570f",
+    "pet_id": "e03a504c-8412-49c6-a623-29634e6659fc",
+    "date": "2026-02-23",
+    "time": "11:00",
+    "reason": "Alpha booking cycle 20260212T115311Z",
+    "notes": "QA final alpha"
+  },
+  "params": null,
+  "response": {
+    "id": "b1925acc-3b2a-42a0-8712-e0d43af3bed2",
+    "user_id": "97052c92-910f-4061-976f-c8a991cdaaf4",
+    "vet_id": "29904761-d70f-44f2-a803-573e4ac9570f",
+    "pet_id": "e03a504c-8412-49c6-a623-29634e6659fc",
+    "date": "2026-02-23",
+    "time": "11:00",
+    "reason": "Alpha booking cycle 20260212T115311Z",
+    "status": "pending",
+    "notes": "QA final alpha",
+    "created_at": "2026-02-12T11:53:13.138153"
+  }
+}

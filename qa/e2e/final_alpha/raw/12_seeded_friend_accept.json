@@ -1,0 +1,14 @@
+{
+  "ts": "2026-02-12T11:49:55.995243+00:00",
+  "method": "PUT",
+  "path": "/friends/requests/6ea4ac20-7572-4d5c-b4a5-819934d75f7c",
+  "status": 200,
+  "request": {
+    "action": "accept"
+  },
+  "params": null,
+  "response": {
+    "success": true,
+    "status": "accepted"
+  }
+}

@@ -1,0 +1,14 @@
+{
+  "ts": "2026-02-12T11:53:13.071407+00:00",
+  "method": "POST",
+  "path": "/friends/requests",
+  "status": 200,
+  "request": {
+    "target_user_id": "1382dcc7-3cd5-4be2-b4e9-8bad76a7d864"
+  },
+  "params": null,
+  "response": {
+    "success": true,
+    "status": "already_friends"
+  }
+}

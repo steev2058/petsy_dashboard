@@ -1,0 +1,26 @@
+{
+  "ts": "2026-02-12T11:53:13.124874+00:00",
+  "method": "POST",
+  "path": "/sponsorships",
+  "status": 200,
+  "request": {
+    "pet_id": "e03a504c-8412-49c6-a623-29634e6659fc",
+    "amount": 20.0,
+    "message": "Alpha side sponsorship 20260212T115311Z",
+    "is_anonymous": false,
+    "is_recurring": false
+  },
+  "params": null,
+  "response": {
+    "id": "aa3a7643-8a13-4b91-9087-8c6796cafcae",
+    "pet_id": "e03a504c-8412-49c6-a623-29634e6659fc",
+    "user_id": "97052c92-910f-4061-976f-c8a991cdaaf4",
+    "user_name": "Demo Clinic",
+    "amount": 20.0,
+    "message": "Alpha side sponsorship 20260212T115311Z",
+    "is_anonymous": false,
+    "is_recurring": false,
+    "status": "pending",
+    "created_at": "2026-02-12T11:53:13.123079"
+  }
+}

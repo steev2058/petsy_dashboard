@@ -1,0 +1,12 @@
+{
+  "ts": "2026-02-12T11:53:13.078702+00:00",
+  "method": "GET",
+  "path": "/friends/requests",
+  "status": 200,
+  "request": null,
+  "params": null,
+  "response": {
+    "incoming": [],
+    "outgoing": []
+  }
+}

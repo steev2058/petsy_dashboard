@@ -1,0 +1,142 @@
+{
+  "ts": "2026-02-12T11:53:13.145188+00:00",
+  "method": "GET",
+  "path": "/appointments",
+  "status": 200,
+  "request": null,
+  "params": null,
+  "response": [
+    {
+      "id": "b1925acc-3b2a-42a0-8712-e0d43af3bed2",
+      "user_id": "97052c92-910f-4061-976f-c8a991cdaaf4",
+      "vet_id": "29904761-d70f-44f2-a803-573e4ac9570f",
+      "pet_id": "e03a504c-8412-49c6-a623-29634e6659fc",
+      "date": "2026-02-23",
+      "time": "11:00",
+      "reason": "Alpha booking cycle 20260212T115311Z",
+      "status": "pending",
+      "notes": "QA final alpha",
+      "created_at": "2026-02-12T11:53:13.138000"
+    },
+    {
+      "id": "30700eed-2e94-4d03-8f5c-c57748dfbc47",
+      "user_id": "97052c92-910f-4061-976f-c8a991cdaaf4",
+      "vet_id": "29904761-d70f-44f2-a803-573e4ac9570f",
+      "pet_id": "e03a504c-8412-49c6-a623-29634e6659fc",
+      "date": "2026-02-23",
+      "time": "11:00",
+      "reason": "Alpha booking cycle 20260212T115255Z",
+      "status": "pending",
+      "notes": "QA final alpha",
+      "created_at": "2026-02-12T11:52:56.943000"
+    },
+    {
+      "id": "17d0bad1-7b11-461c-b101-db4595a287c6",
+      "user_id": "97052c92-910f-4061-976f-c8a991cdaaf4",
+      "vet_id": "1382dcc7-3cd5-4be2-b4e9-8bad76a7d864",
+      "pet_id": "510388c7-db04-4399-b9f2-131e16371dfb",
+      "date": "2026-02-22",
+      "time": "09:30",
+      "reason": "reciprocal-appointment-beta-final-20260212T115222Z",
+      "status": "pending",
+      "notes": null,
+      "created_at": "2026-02-12T11:52:23.767000"
+    },
+    {
+      "id": "3c2a5a01-bbd3-4f8c-9caf-c1ef71e7d21f",
+      "user_id": "97052c92-910f-4061-976f-c8a991cdaaf4",
+      "vet_id": "29904761-d70f-44f2-a803-573e4ac9570f",
+      "pet_id": "e03a504c-8412-49c6-a623-29634e6659fc",
+      "date": "2026-02-23",
+      "time": "11:00",
+      "reason": "Alpha booking cycle 20260212T115207Z",
+      "status": "pending",
+      "notes": "QA final alpha",
+      "created_at": "2026-02-12T11:52:08.997000"
+    },
+    {
+      "id": "3ea783df-3121-409c-a9ab-bd66532be4dc",
+      "user_id": "97052c92-910f-4061-976f-c8a991cdaaf4",
+      "vet_id": "1382dcc7-3cd5-4be2-b4e9-8bad76a7d864",
+      "pet_id": "cf87a18e-716d-4afa-a77b-c2adb3fe10e0",
+      "date": "2026-02-22",
+      "time": "09:30",
+      "reason": "reciprocal-appointment-beta-final-20260212T115135Z",
+      "status": "pending",
+      "notes": null,
+      "created_at": "2026-02-12T11:51:36.391000"
+    },
+    {
+      "id": "e9599787-4d96-4b8f-8610-3de20a30bafd",
+      "user_id": "97052c92-910f-4061-976f-c8a991cdaaf4",
+      "vet_id": "29904761-d70f-44f2-a803-573e4ac9570f",
+      "pet_id": "e03a504c-8412-49c6-a623-29634e6659fc",
+      "date": "2026-02-23",
+      "time": "11:00",
+      "reason": "Alpha booking cycle 20260212T115130Z",
+      "status": "pending",
+      "notes": "QA final alpha",
+      "created_at": "2026-02-12T11:51:31.219000"
+    },
+    {
+      "id": "bb5055a5-12da-4b6d-ab59-3ac391d9dabc",
+      "user_id": "97052c92-910f-4061-976f-c8a991cdaaf4",
+      "vet_id": "29904761-d70f-44f2-a803-573e4ac9570f",
+      "pet_id": "e03a504c-8412-49c6-a623-29634e6659fc",
+      "date": "2026-02-23",
+      "time": "11:00",
+      "reason": "Alpha booking cycle 20260212T115048Z",
+      "status": "pending",
+      "notes": "QA final alpha",
+      "created_at": "2026-02-12T11:50:49.282000"
+    },
+    {
+      "id": "72cbb37d-2b53-4974-9dc5-f2f6e4b17758",
+      "user_id": "97052c92-910f-4061-976f-c8a991cdaaf4",
+      "vet_id": "29904761-d70f-44f2-a803-573e4ac9570f",
+      "pet_id": "e03a504c-8412-49c6-a623-29634e6659fc",
+      "date": "2026-02-23",
+      "time": "11:00",
+      "reason": "Alpha booking cycle 20260212T114954Z",
+      "status": "pending",
+      "notes": "QA final alpha",
+      "created_at": "2026-02-12T11:49:56.048000"
+    },
+    {
+      "id": "9fd3cdca-1375-4e8d-8028-a90b2c951df3",
+      "user_id": "97052c92-910f-4061-976f-c8a991cdaaf4",
+      "vet_id": "29904761-d70f-44f2-a803-573e4ac9570f",
+      "pet_id": "e03a504c-8412-49c6-a623-29634e6659fc",
+      "date": "2026-02-23",
+      "time": "11:00",
+      "reason": "Alpha booking cycle 20260212T114839Z",
+      "status": "pending",
+      "notes": "QA final alpha",
+      "created_at": "2026-02-12T11:48:40.266000"
+    },
+    {
+      "id": "98a93b58-9397-4985-87d4-806fc3e7ddbf",
+      "user_id": "97052c92-910f-4061-976f-c8a991cdaaf4",
+      "vet_id": "1382dcc7-3cd5-4be2-b4e9-8bad76a7d864",
+      "pet_id": "0b723f2d-eab7-4521-83b7-8f6646ef7eb6",
+      "date": "2026-02-21",
+      "time": "11:00",
+      "reason": "qa",
+      "status": "pending",
+      "notes": null,
+      "created_at": "2026-02-12T11:48:34.494000"
+    },
+    {
+      "id": "05afc83d-d81b-4030-8f1f-51345a6b094d",
+      "user_id": "97052c92-910f-4061-976f-c8a991cdaaf4",
+      "vet_id": "1382dcc7-3cd5-4be2-b4e9-8bad76a7d864",
+      "pet_id": null,
+      "date": "2026-02-21",
+      "time": "11:00",
+      "reason": "qa",
+      "status": "pending",
+      "notes": null,
+      "created_at": "2026-02-12T11:48:17.444000"
+    }
+  ]
+}

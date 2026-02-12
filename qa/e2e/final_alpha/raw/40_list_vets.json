@@ -1,0 +1,81 @@
+{
+  "ts": "2026-02-12T11:53:13.135354+00:00",
+  "method": "GET",
+  "path": "/vets",
+  "status": 200,
+  "request": null,
+  "params": null,
+  "response": [
+    {
+      "name": "Dr. Ahmad Hassan",
+      "specialty": "all",
+      "experience_years": 15,
+      "phone": "+963912345678",
+      "email": null,
+      "clinic_name": "Damascus Pet Care",
+      "address": "Mezzeh, Damascus",
+      "city": "Damascus",
+      "latitude": null,
+      "longitude": null,
+      "rating": 4.8,
+      "reviews_count": 124,
+      "image": null,
+      "available_hours": "9:00 AM - 6:00 PM",
+      "services": [
+        "checkup",
+        "vaccination",
+        "surgery",
+        "dental"
+      ],
+      "id": "29904761-d70f-44f2-a803-573e4ac9570f",
+      "created_at": "2026-02-11T10:09:30.187000"
+    },
+    {
+      "name": "Dr. Layla Nouri",
+      "specialty": "cats",
+      "experience_years": 10,
+      "phone": "+963923456789",
+      "email": null,
+      "clinic_name": "Feline Friends Clinic",
+      "address": "Malki, Damascus",
+      "city": "Damascus",
+      "latitude": null,
+      "longitude": null,
+      "rating": 4.9,
+      "reviews_count": 89,
+      "image": null,
+      "available_hours": "10:00 AM - 8:00 PM",
+      "services": [
+        "checkup",
+        "vaccination",
+        "grooming"
+      ],
+      "id": "b1a6dbd4-38db-48a8-86ae-972f67720f55",
+      "created_at": "2026-02-11T10:09:30.200000"
+    },
+    {
+      "name": "Dr. Omar Khalil",
+      "specialty": "dogs",
+      "experience_years": 12,
+      "phone": "+963934567890",
+      "email": null,
+      "clinic_name": "Canine Care Center",
+      "address": "Aleppo City Center",
+      "city": "Aleppo",
+      "latitude": null,
+      "longitude": null,
+      "rating": 4.7,
+      "reviews_count": 156,
+      "image": null,
+      "available_hours": "24/7 Emergency",
+      "services": [
+        "checkup",
+        "vaccination",
+        "surgery",
+        "emergency"
+      ],
+      "id": "8151c494-2ee4-4a92-bc78-fc3e0bdbe8d9",
+      "created_at": "2026-02-11T10:09:30.202000"
+    }
+  ]
+}

@@ -1,0 +1,58 @@
+{
+  "ts": "2026-02-12T11:53:13.103291+00:00",
+  "method": "GET",
+  "path": "/conversations/13907a7f-935d-4c31-910c-60c450215dd9/messages",
+  "status": 200,
+  "request": null,
+  "params": null,
+  "response": [
+    {
+      "id": "0231bb6f-d654-4ed6-8443-7f0b35331681",
+      "conversation_id": "13907a7f-935d-4c31-910c-60c450215dd9",
+      "sender_id": "97052c92-910f-4061-976f-c8a991cdaaf4",
+      "content": "Alpha seeded chat ping (20260212T114954Z)",
+      "created_at": "2026-02-12T11:49:56.007000",
+      "is_read": true
+    },
+    {
+      "id": "2a468cad-f596-4496-b2a3-5c4c68c7efd1",
+      "conversation_id": "13907a7f-935d-4c31-910c-60c450215dd9",
+      "sender_id": "97052c92-910f-4061-976f-c8a991cdaaf4",
+      "content": "Alpha seeded chat ping (20260212T115048Z)",
+      "created_at": "2026-02-12T11:50:49.221000",
+      "is_read": true
+    },
+    {
+      "id": "da0befa0-e964-4f71-aa06-931dc672b09d",
+      "conversation_id": "13907a7f-935d-4c31-910c-60c450215dd9",
+      "sender_id": "97052c92-910f-4061-976f-c8a991cdaaf4",
+      "content": "Alpha seeded chat ping (20260212T115130Z)",
+      "created_at": "2026-02-12T11:51:31.180000",
+      "is_read": true
+    },
+    {
+      "id": "2ffc6efb-d928-484d-bd3e-0ca22f555887",
+      "conversation_id": "13907a7f-935d-4c31-910c-60c450215dd9",
+      "sender_id": "97052c92-910f-4061-976f-c8a991cdaaf4",
+      "content": "Alpha seeded chat ping (20260212T115207Z)",
+      "created_at": "2026-02-12T11:52:08.949000",
+      "is_read": true
+    },
+    {
+      "id": "b946bb0c-0936-4b89-8360-ded3cda98762",
+      "conversation_id": "13907a7f-935d-4c31-910c-60c450215dd9",
+      "sender_id": "97052c92-910f-4061-976f-c8a991cdaaf4",
+      "content": "Alpha seeded chat ping (20260212T115255Z)",
+      "created_at": "2026-02-12T11:52:56.899000",
+      "is_read": true
+    },
+    {
+      "id": "393dbcf8-3f8d-4a24-a61c-d671c1b84f53",
+      "conversation_id": "13907a7f-935d-4c31-910c-60c450215dd9",
+      "sender_id": "97052c92-910f-4061-976f-c8a991cdaaf4",
+      "content": "Alpha seeded chat ping (20260212T115311Z)",
+      "created_at": "2026-02-12T11:53:13.091000",
+      "is_read": true
+    }
+  ]
+}

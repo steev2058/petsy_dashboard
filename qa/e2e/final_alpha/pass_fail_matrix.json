@@ -1,0 +1,74 @@
+[
+  {
+    "check": "login_admin",
+    "result": "PASS"
+  },
+  {
+    "check": "login_vet",
+    "result": "PASS"
+  },
+  {
+    "check": "login_clinic",
+    "result": "PASS"
+  },
+  {
+    "check": "login_market",
+    "result": "PASS"
+  },
+  {
+    "check": "friend_request_seeded",
+    "result": "PASS"
+  },
+  {
+    "check": "friend_accept_seeded",
+    "result": "PASS"
+  },
+  {
+    "check": "open_direct_seeded",
+    "result": "PASS"
+  },
+  {
+    "check": "send_chat_message_seeded",
+    "result": "PASS"
+  },
+  {
+    "check": "chat_visible_to_counterpart_seeded",
+    "result": "PASS"
+  },
+  {
+    "check": "beta_handoff_ping_attempted",
+    "result": "PASS"
+  },
+  {
+    "check": "create_order",
+    "result": "PASS"
+  },
+  {
+    "check": "order_visible_to_buyer",
+    "result": "PASS"
+  },
+  {
+    "check": "create_sponsorship",
+    "result": "PASS"
+  },
+  {
+    "check": "sponsorship_visible_to_creator",
+    "result": "PASS"
+  },
+  {
+    "check": "sponsorship_visible_on_pet_feed",
+    "result": "PASS"
+  },
+  {
+    "check": "list_vets",
+    "result": "PASS"
+  },
+  {
+    "check": "create_appointment",
+    "result": "PASS"
+  },
+  {
+    "check": "appointment_visible_to_booker",
+    "result": "PASS"
+  }
+]

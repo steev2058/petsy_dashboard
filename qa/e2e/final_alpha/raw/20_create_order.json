@@ -1,0 +1,45 @@
+{
+  "ts": "2026-02-12T11:53:13.117288+00:00",
+  "method": "POST",
+  "path": "/orders",
+  "status": 200,
+  "request": {
+    "items": [
+      {
+        "product_id": "15c1f4b2-d9dd-4028-a7ec-3dd70f6299a4",
+        "name": "UserB Premium Pet Bed",
+        "price": 49.99,
+        "quantity": 1
+      }
+    ],
+    "total": 49.99,
+    "shipping_address": "Alpha QA Street 7",
+    "shipping_city": "Amman",
+    "shipping_phone": "+19990001111",
+    "payment_method": "cash_on_delivery",
+    "notes": "alpha-side-order-20260212T115311Z"
+  },
+  "params": null,
+  "response": {
+    "id": "63cf6c06-207b-403d-ade1-72b345aa034b",
+    "user_id": "97052c92-910f-4061-976f-c8a991cdaaf4",
+    "items": [
+      {
+        "product_id": "15c1f4b2-d9dd-4028-a7ec-3dd70f6299a4",
+        "name": "UserB Premium Pet Bed",
+        "price": 49.99,
+        "quantity": 1,
+        "image": null,
+        "seller_user_id": "f106f48e-de19-4340-829b-3d9005d8ef7e"
+      }
+    ],
+    "total": 49.99,
+    "status": "pending",
+    "shipping_address": "Alpha QA Street 7",
+    "shipping_city": "Amman",
+    "shipping_phone": "+19990001111",
+    "payment_method": "cash_on_delivery",
+    "notes": "alpha-side-order-20260212T115311Z",
+    "created_at": "2026-02-12T11:53:13.116214"
+  }
+}
