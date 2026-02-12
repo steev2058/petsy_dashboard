@@ -30,6 +30,7 @@ db = client[os.environ.get('DB_NAME', 'petsy_db')]
 SECRET_KEY = os.environ.get('JWT_SECRET', 'petsy-secret-key-2025')
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_DAYS = 30
+ALLOW_INSECURE_AUTH_CODE_RESPONSE = os.environ.get("ALLOW_INSECURE_AUTH_CODE_RESPONSE", "false").lower() == "true"
 
 # Create the main app
 app = FastAPI(title="Petsy API", version="1.0.0")
@@ -799,10 +800,15 @@ async def signup(user_data: UserCreate):
             return {"message": "User created. Verification code sent to email.", "user_id": user.id}
         except Exception as e:
             logger.error(f"SMTP send failed on signup: {e}")
-            # Fallback to demo mode response when SMTP fails
-            return {"message": "User created. Email sending failed; using demo code.", "user_id": user.id, "verification_code": verification_code}
+            if ALLOW_INSECURE_AUTH_CODE_RESPONSE:
+                # Explicitly opt-in dev fallback only
+                return {"message": "User created. Email sending failed; using demo code.", "user_id": user.id, "verification_code": verification_code}
+            return {"message": "User created. Email delivery failed. Please retry resend verification.", "user_id": user.id}
 
-    return {"message": "User created. Please verify your account.", "user_id": user.id, "verification_code": verification_code}
+    if ALLOW_INSECURE_AUTH_CODE_RESPONSE:
+        return {"message": "User created. Please verify your account.", "user_id": user.id, "verification_code": verification_code}
+
+    return {"message": "User created. Please verify your account.", "user_id": user.id}
 
 @api_router.post("/auth/resend-verification", response_model=dict)
 async def resend_verification(req: ResendVerificationRequest):
@@ -830,10 +836,13 @@ async def resend_verification(req: ResendVerificationRequest):
         except Exception as e:
             logger.error(f"SMTP send failed on resend verification: {e}")
 
-    return {
-        "message": "Verification code generated.",
-        "verification_code": verification_code,
-    }
+    if ALLOW_INSECURE_AUTH_CODE_RESPONSE:
+        return {
+            "message": "Verification code generated.",
+            "verification_code": verification_code,
+        }
+
+    return {"message": "Verification code generated. If email delivery is configured, check your inbox."}
 
 @api_router.post("/auth/verify", response_model=TokenResponse)
 async def verify_account(user_id: str, code: str):
@@ -882,10 +891,16 @@ async def forgot_password(req: ForgotPasswordRequest):
         except Exception as e:
             logger.error(f"SMTP send failed on forgot password: {e}")
 
-    # Dev mode fallback: return code directly
+    if ALLOW_INSECURE_AUTH_CODE_RESPONSE:
+        # Explicitly opt-in dev fallback: return code directly
+        return {
+            "message": "Password reset code generated.",
+            "reset_code": reset_code,
+            "expires_at": expires_at.isoformat(),
+        }
+
     return {
-        "message": "Password reset code generated.",
-        "reset_code": reset_code,
+        "message": "If that email exists, a reset code has been generated.",
         "expires_at": expires_at.isoformat(),
     }
 
@@ -1203,6 +1218,9 @@ async def create_health_record(record: HealthRecordCreate, current_user: dict = 
 
 @api_router.get("/health-records/{pet_id}", response_model=List[HealthRecord])
 async def get_health_records(pet_id: str, current_user: dict = Depends(get_current_user)):
+    pet = await db.pets.find_one({"id": pet_id, "owner_id": current_user["id"]})
+    if not pet:
+        raise HTTPException(status_code=404, detail="Pet not found")
     records = await db.health_records.find({"pet_id": pet_id}).to_list(100)
     return [HealthRecord(**r) for r in records]
 
