@@ -3583,6 +3583,8 @@ async def get_payment_history(current_user: dict = Depends(get_current_user)):
             "status": p.get("status"),
             "created_at": p.get("created_at"),
             "order_id": p.get("order_id"),
+            "appointment_id": p.get("appointment_id"),
+            "sponsorship_id": p.get("sponsorship_id"),
             "points_used": p.get("points_used", 0),
             "points_earned": p.get("points_earned", 0),
         }
