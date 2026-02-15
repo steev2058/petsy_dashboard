@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import {
   View,
   Text,
@@ -7,15 +7,15 @@ import {
   KeyboardAvoidingView,
   Platform,
   ScrollView,
-  Alert,
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { Button, Input } from '../../src/components';
-import { Colors, FontSize, Spacing } from '../../src/constants/theme';
+import { Colors, FontSize, Spacing, BorderRadius } from '../../src/constants/theme';
 import { authAPI } from '../../src/services/api';
 import { useTranslation } from '../../src/hooks/useTranslation';
+import { getApiErrorMessage } from '../../src/utils/apiError';
 
 export default function SignupScreen() {
   const router = useRouter();
@@ -29,6 +29,16 @@ export default function SignupScreen() {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [toast, setToast] = useState<{ visible: boolean; message: string; type: 'success' | 'error' }>({ visible: false, message: '', type: 'error' });
+  const toastTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const showToast = (message: string, type: 'success' | 'error' = 'error') => {
+    if (toastTimerRef.current) clearTimeout(toastTimerRef.current);
+    setToast({ visible: true, message, type });
+    toastTimerRef.current = setTimeout(() => {
+      setToast((prev) => ({ ...prev, visible: false }));
+    }, 2200);
+  };
 
   const validate = () => {
     const newErrors: Record<string, string> = {};
@@ -54,23 +64,21 @@ export default function SignupScreen() {
 
   const handleSignup = async () => {
     if (!validate()) return;
-    
+
     setLoading(true);
     try {
       const response = await authAPI.signup({ email, name, password, phone });
+      showToast(response?.data?.message || 'Account created. Please verify your email.', 'success');
       router.push({
         pathname: '/(auth)/verify',
         params: {
           userId: response.data.user_id,
           email,
-          verificationCode: response.data.verification_code // For demo purposes
+          verificationCode: response.data.verification_code, // only present in dev/demo
         },
       });
     } catch (error: any) {
-      Alert.alert(
-        'Signup Failed',
-        error.response?.data?.detail || 'Could not create account. Please try again.'
-      );
+      showToast(getApiErrorMessage(error, 'Could not create account. Please try again.'), 'error');
     } finally {
       setLoading(false);
     }
@@ -86,6 +94,17 @@ export default function SignupScreen() {
           contentContainerStyle={styles.scrollContent}
           showsVerticalScrollIndicator={false}
         >
+          {toast.visible && (
+            <View style={[styles.toast, toast.type === 'error' ? styles.toastError : styles.toastSuccess]}>
+              <Ionicons
+                name={toast.type === 'error' ? 'alert-circle' : 'checkmark-circle'}
+                size={16}
+                color={Colors.white}
+              />
+              <Text style={styles.toastText}>{toast.message}</Text>
+            </View>
+          )}
+
           {/* Header */}
           <View style={styles.header}>
             <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
@@ -231,5 +250,26 @@ const styles = StyleSheet.create({
     color: Colors.primary,
     fontSize: FontSize.md,
     fontWeight: '600',
+  },
+  toast: {
+    borderRadius: BorderRadius.md,
+    paddingVertical: 10,
+    paddingHorizontal: 12,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    marginBottom: Spacing.sm,
+  },
+  toastSuccess: {
+    backgroundColor: Colors.success,
+  },
+  toastError: {
+    backgroundColor: Colors.error,
+  },
+  toastText: {
+    color: Colors.white,
+    fontSize: FontSize.sm,
+    fontWeight: '600',
+    flex: 1,
   },
 });

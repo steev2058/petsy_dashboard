@@ -15,6 +15,7 @@ import { Colors, FontSize, Spacing, BorderRadius } from '../../src/constants/the
 import { authAPI } from '../../src/services/api';
 import { useStore } from '../../src/store/useStore';
 import { useTranslation } from '../../src/hooks/useTranslation';
+import { getApiErrorMessage } from '../../src/utils/apiError';
 
 export default function VerifyScreen() {
   const router = useRouter();
@@ -91,7 +92,7 @@ export default function VerifyScreen() {
       setUser(response.data.user);
       router.replace('/(tabs)/home');
     } catch (error: any) {
-      showToast(error.response?.data?.detail || 'The code is wrong. Please try again.', 'error');
+      showToast(getApiErrorMessage(error, 'The code is wrong. Please try again.'), 'error');
     } finally {
       setLoading(false);
     }
@@ -119,7 +120,7 @@ export default function VerifyScreen() {
       }
       showToast(response?.data?.message || 'Verification code resent', 'success');
     } catch (error: any) {
-      showToast(error?.response?.data?.detail || 'Failed to resend code', 'error');
+      showToast(getApiErrorMessage(error, 'Failed to resend code'), 'error');
     }
   };
 

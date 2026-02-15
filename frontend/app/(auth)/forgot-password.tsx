@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import {
   View,
   Text,
@@ -13,8 +13,9 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { Button, Input } from '../../src/components';
-import { Colors, FontSize, Spacing } from '../../src/constants/theme';
+import { Colors, FontSize, Spacing, BorderRadius } from '../../src/constants/theme';
 import { authAPI } from '../../src/services/api';
+import { getApiErrorMessage } from '../../src/utils/apiError';
 
 export default function ForgotPasswordScreen() {
   const router = useRouter();
@@ -24,6 +25,16 @@ export default function ForgotPasswordScreen() {
   const [newPassword, setNewPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [requested, setRequested] = useState(false);
+  const [toast, setToast] = useState<{ visible: boolean; message: string; type: 'success' | 'error' }>({ visible: false, message: '', type: 'error' });
+  const toastTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const showToast = (message: string, type: 'success' | 'error' = 'error') => {
+    if (toastTimerRef.current) clearTimeout(toastTimerRef.current);
+    setToast({ visible: true, message, type });
+    toastTimerRef.current = setTimeout(() => {
+      setToast((prev) => ({ ...prev, visible: false }));
+    }, 2200);
+  };
 
   const requestCode = async () => {
     if (!email.trim()) {
@@ -41,7 +52,7 @@ export default function ForgotPasswordScreen() {
         Alert.alert('Success', 'If your email exists, a reset code has been sent.');
       }
     } catch (error: any) {
-      Alert.alert('Error', error?.response?.data?.detail || 'Failed to request reset code');
+      showToast(getApiErrorMessage(error, 'Failed to request reset code'), 'error');
     } finally {
       setLoading(false);
     }
@@ -68,7 +79,7 @@ export default function ForgotPasswordScreen() {
         { text: 'OK', onPress: () => router.replace('/(auth)/login') },
       ]);
     } catch (error: any) {
-      Alert.alert('Error', error?.response?.data?.detail || 'Failed to reset password');
+      showToast(getApiErrorMessage(error, 'Failed to reset password'), 'error');
     } finally {
       setLoading(false);
     }
@@ -78,6 +89,16 @@ export default function ForgotPasswordScreen() {
     <SafeAreaView style={styles.container}>
       <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={styles.keyboardView}>
         <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
+          {toast.visible && (
+            <View style={[styles.toast, toast.type === 'error' ? styles.toastError : styles.toastSuccess]}>
+              <Ionicons
+                name={toast.type === 'error' ? 'alert-circle' : 'checkmark-circle'}
+                size={16}
+                color={Colors.white}
+              />
+              <Text style={styles.toastText}>{toast.message}</Text>
+            </View>
+          )}
           <View style={styles.header}>
             <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
               <Ionicons name="arrow-back" size={24} color={Colors.text} />
@@ -123,4 +144,25 @@ const styles = StyleSheet.create({
   backButton: { marginRight: Spacing.md },
   title: { fontSize: FontSize.xxl, fontWeight: '700', color: Colors.text },
   button: { marginTop: Spacing.md },
+  toast: {
+    borderRadius: BorderRadius.md,
+    paddingVertical: 10,
+    paddingHorizontal: 12,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    marginBottom: Spacing.sm,
+  },
+  toastSuccess: {
+    backgroundColor: Colors.success,
+  },
+  toastError: {
+    backgroundColor: Colors.error,
+  },
+  toastText: {
+    color: Colors.white,
+    fontSize: FontSize.sm,
+    fontWeight: '600',
+    flex: 1,
+  },
 });

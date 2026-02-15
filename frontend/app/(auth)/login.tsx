@@ -16,6 +16,7 @@ import { Colors, FontSize, Spacing, BorderRadius } from '../../src/constants/the
 import { authAPI } from '../../src/services/api';
 import { useStore } from '../../src/store/useStore';
 import { useTranslation } from '../../src/hooks/useTranslation';
+import { getApiErrorMessage } from '../../src/utils/apiError';
 
 export default function LoginScreen() {
   const router = useRouter();
@@ -69,14 +70,7 @@ export default function LoginScreen() {
       setUser(response.data.user);
       router.replace('/(tabs)/home');
     } catch (error: any) {
-      let message = 'Login failed. Please try again.';
-      if (error?.response?.status === 401) {
-        message = 'Email or password is not correct';
-      } else if (!error?.response) {
-        message = 'Unable to reach server. Please check your connection and try again.';
-      } else {
-        message = error.response?.data?.detail || message;
-      }
+      const message = getApiErrorMessage(error, 'Login failed. Please try again.');
       showToast(message, 'error');
       setLoginError(message);
     } finally {
