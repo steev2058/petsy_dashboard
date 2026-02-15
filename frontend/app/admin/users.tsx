@@ -37,6 +37,9 @@ export default function AdminUsersScreen() {
     setMarket: language === 'ar' ? 'تعيين سوق' : 'Set Market',
     setClinic: language === 'ar' ? 'تعيين عيادة' : 'Set Clinic',
     setAdmin: language === 'ar' ? 'تعيين مشرف' : 'Set Admin',
+    removeAdmin: language === 'ar' ? 'إزالة صلاحية مشرف' : 'Remove Admin',
+    forceVerify: language === 'ar' ? 'تفعيل الحساب' : 'Force Verify',
+    forceUnverify: language === 'ar' ? 'إلغاء تفعيل الحساب' : 'Force Unverify',
     reports: language === 'ar' ? 'البلاغات' : 'Reports',
     block: language === 'ar' ? 'حظر' : 'Block',
     unblock: language === 'ar' ? 'إلغاء الحظر' : 'Unblock',
@@ -195,9 +198,30 @@ export default function AdminUsersScreen() {
   const handleToggleVerification = async (user: any) => {
     try {
       await api.put(`/admin/users/${user.id}`, { is_verified: !user.is_verified });
-      setUsers(users.map(u => u.id === user.id ? { ...u, is_verified: !u.is_verified } : u));
+      const nextVerified = !user.is_verified;
+      setUsers(users.map(u => u.id === user.id ? { ...u, is_verified: nextVerified } : u));
+      setSelectedUser((prev: any) => (prev?.id === user.id ? { ...prev, is_verified: nextVerified } : prev));
+      setAuthFields((prev: any) => (prev?.id === user.id ? { ...prev, is_verified: nextVerified } : prev));
     } catch (error) {
       Alert.alert('Error', 'Failed to update user');
+    }
+  };
+
+  const handleAdminToggle = async (user: any) => {
+    try {
+      if (user?.is_admin || user?.role === 'admin') {
+        await api.post(`/admin/users/${user.id}/remove-admin`);
+        setUsers(users.map(u => u.id === user.id ? { ...u, is_admin: false, role: 'user' } : u));
+        setSelectedUser((prev: any) => (prev?.id === user.id ? { ...prev, is_admin: false, role: 'user' } : prev));
+        setAuthFields((prev: any) => (prev?.id === user.id ? { ...prev, is_admin: false, role: 'user' } : prev));
+      } else {
+        await api.post(`/admin/users/${user.id}/make-admin`);
+        setUsers(users.map(u => u.id === user.id ? { ...u, is_admin: true, role: 'admin' } : u));
+        setSelectedUser((prev: any) => (prev?.id === user.id ? { ...prev, is_admin: true, role: 'admin' } : prev));
+        setAuthFields((prev: any) => (prev?.id === user.id ? { ...prev, is_admin: true, role: 'admin' } : prev));
+      }
+    } catch {
+      Alert.alert('Error', 'Failed to update admin status');
     }
   };
 
@@ -365,6 +389,23 @@ export default function AdminUsersScreen() {
               </View>
             ) : (
               <View style={{ paddingVertical: Spacing.sm }}>
+                {!!authFields && (
+                  <View style={[styles.row, { marginTop: 0 }]}> 
+                    <TouchableOpacity
+                      style={[styles.smallBtn, { backgroundColor: (authFields.is_verified ? Colors.error : Colors.success) }]}
+                      onPress={() => handleToggleVerification(selectedUser)}
+                    >
+                      <Text style={styles.smallBtnText}>{authFields.is_verified ? L.forceUnverify : L.forceVerify}</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                      style={[styles.smallBtn, { backgroundColor: (authFields.is_admin || authFields.role === 'admin') ? Colors.error : Colors.primary }]}
+                      onPress={() => handleAdminToggle(selectedUser)}
+                    >
+                      <Text style={styles.smallBtnText}>{(authFields.is_admin || authFields.role === 'admin') ? L.removeAdmin : L.setAdmin}</Text>
+                    </TouchableOpacity>
+                  </View>
+                )}
+
                 <Text style={styles.fieldLabel}>{L.verificationCode}</Text>
                 <TextInput
                   style={styles.fieldInput}
