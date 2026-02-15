@@ -78,7 +78,7 @@ export default function SignupScreen() {
         },
       });
     } catch (error: any) {
-      showToast(getApiErrorMessage(error, 'Could not create account. Please try again.'), 'error');
+      showToast(getApiErrorMessage(error, 'Could not create account. Please try again.', t), 'error');
     } finally {
       setLoading(false);
     }

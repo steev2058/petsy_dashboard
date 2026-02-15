@@ -16,9 +16,11 @@ import { Button, Input } from '../../src/components';
 import { Colors, FontSize, Spacing, BorderRadius } from '../../src/constants/theme';
 import { authAPI } from '../../src/services/api';
 import { getApiErrorMessage } from '../../src/utils/apiError';
+import { useTranslation } from '../../src/hooks/useTranslation';
 
 export default function ForgotPasswordScreen() {
   const router = useRouter();
+  const { t } = useTranslation();
 
   const [email, setEmail] = useState('');
   const [code, setCode] = useState('');
@@ -52,7 +54,7 @@ export default function ForgotPasswordScreen() {
         Alert.alert('Success', 'If your email exists, a reset code has been sent.');
       }
     } catch (error: any) {
-      showToast(getApiErrorMessage(error, 'Failed to request reset code'), 'error');
+      showToast(getApiErrorMessage(error, 'Failed to request reset code', t), 'error');
     } finally {
       setLoading(false);
     }
@@ -79,7 +81,7 @@ export default function ForgotPasswordScreen() {
         { text: 'OK', onPress: () => router.replace('/(auth)/login') },
       ]);
     } catch (error: any) {
-      showToast(getApiErrorMessage(error, 'Failed to reset password'), 'error');
+      showToast(getApiErrorMessage(error, 'Failed to reset password', t), 'error');
     } finally {
       setLoading(false);
     }

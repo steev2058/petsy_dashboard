@@ -70,7 +70,7 @@ export default function LoginScreen() {
       setUser(response.data.user);
       router.replace('/(tabs)/home');
     } catch (error: any) {
-      const message = getApiErrorMessage(error, 'Login failed. Please try again.');
+      const message = getApiErrorMessage(error, 'Login failed. Please try again.', t);
       showToast(message, 'error');
       setLoginError(message);
     } finally {

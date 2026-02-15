@@ -564,6 +564,13 @@ class TokenResponse(BaseModel):
 
 # ========================= HELPERS =========================
 
+def error_detail(code: str, message: str) -> dict:
+    """Standard API error payload.
+
+    Frontend can use `code` for i18n, and display `message` as fallback.
+    """
+    return {"code": code, "message": message}
+
 def hash_password(password: str) -> str:
     return bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
 
@@ -766,7 +773,7 @@ DEFAULT_USER_SETTINGS = {
 async def signup(user_data: UserCreate):
     existing = await db.users.find_one({"email": user_data.email})
     if existing:
-        raise HTTPException(status_code=400, detail="Email already registered")
+        raise HTTPException(status_code=400, detail=error_detail("AUTH_EMAIL_EXISTS", "Email already registered"))
     
     verification_code = generate_verification_code()
 
@@ -849,10 +856,10 @@ async def resend_verification(req: ResendVerificationRequest):
 async def verify_account(user_id: str, code: str):
     user = await db.users.find_one({"id": user_id})
     if not user:
-        raise HTTPException(status_code=404, detail="User not found")
-    
+        raise HTTPException(status_code=404, detail=error_detail("AUTH_USER_NOT_FOUND", "User not found"))
+
     if user.get("verification_code") != code:
-        raise HTTPException(status_code=400, detail="Invalid verification code")
+        raise HTTPException(status_code=400, detail=error_detail("AUTH_INVALID_VERIFICATION_CODE", "Invalid verification code"))
     
     await db.users.update_one({"id": user_id}, {"$set": {"is_verified": True, "verification_code": None}})
     
@@ -909,15 +916,15 @@ async def forgot_password(req: ForgotPasswordRequest):
 async def reset_password(req: ResetPasswordRequest):
     user = await db.users.find_one({"email": req.email})
     if not user:
-        raise HTTPException(status_code=404, detail="User not found")
+        raise HTTPException(status_code=404, detail=error_detail("AUTH_USER_NOT_FOUND", "User not found"))
 
     code = user.get("reset_code")
     exp = user.get("reset_code_expires_at")
     if not code or not exp:
-        raise HTTPException(status_code=400, detail="No reset request found")
+        raise HTTPException(status_code=400, detail=error_detail("AUTH_RESET_NOT_REQUESTED", "No reset request found"))
 
     if req.code != code:
-        raise HTTPException(status_code=400, detail="Invalid reset code")
+        raise HTTPException(status_code=400, detail=error_detail("AUTH_INVALID_RESET_CODE", "Invalid reset code"))
 
     if isinstance(exp, str):
         try:
@@ -926,7 +933,7 @@ async def reset_password(req: ResetPasswordRequest):
             exp = None
 
     if not exp or exp < datetime.utcnow():
-        raise HTTPException(status_code=400, detail="Reset code expired")
+        raise HTTPException(status_code=400, detail=error_detail("AUTH_RESET_CODE_EXPIRED", "Reset code expired"))
 
     await db.users.update_one(
         {"id": user["id"]},
@@ -942,13 +949,13 @@ async def reset_password(req: ResetPasswordRequest):
 async def login(credentials: UserLogin):
     user = await db.users.find_one({"email": credentials.email})
     if not user:
-        raise HTTPException(status_code=401, detail="Invalid credentials")
+        raise HTTPException(status_code=401, detail=error_detail("AUTH_INVALID_CREDENTIALS", "Invalid credentials"))
 
     if not verify_password(credentials.password, user.get("password_hash", "")):
-        raise HTTPException(status_code=401, detail="Invalid credentials")
+        raise HTTPException(status_code=401, detail=error_detail("AUTH_INVALID_CREDENTIALS", "Invalid credentials"))
 
     if not user.get("is_verified", False):
-        raise HTTPException(status_code=403, detail="Please verify your account before login")
+        raise HTTPException(status_code=403, detail=error_detail("AUTH_NOT_VERIFIED", "Please verify your account before login"))
 
     patch = {}
     if not user.get("username"):

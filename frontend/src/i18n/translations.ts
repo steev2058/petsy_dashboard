@@ -34,6 +34,16 @@ export const translations = {
     verification_code: 'Verification Code',
     enter_code: 'Enter the 4-digit code',
     resend_code: 'Resend Code',
+
+    // Auth Errors
+    err_auth_email_exists: 'Email already registered',
+    err_auth_invalid_credentials: 'Email or password is not correct',
+    err_auth_not_verified: 'Please verify your account before login',
+    err_auth_user_not_found: 'User not found',
+    err_auth_invalid_verification_code: 'Invalid verification code',
+    err_auth_reset_not_requested: 'No reset request found',
+    err_auth_invalid_reset_code: 'Invalid reset code',
+    err_auth_reset_code_expired: 'Reset code expired',
     
     // Navigation
     home: 'Home',
@@ -203,6 +213,16 @@ export const translations = {
     verification_code: 'رمز التحقق',
     enter_code: 'أدخل الرمز المكون من 4 أرقام',
     resend_code: 'إعادة إرسال الرمز',
+
+    // Auth Errors
+    err_auth_email_exists: 'البريد الإلكتروني مستخدم مسبقاً',
+    err_auth_invalid_credentials: 'البريد الإلكتروني أو كلمة المرور غير صحيحة',
+    err_auth_not_verified: 'يرجى تفعيل الحساب قبل تسجيل الدخول',
+    err_auth_user_not_found: 'المستخدم غير موجود',
+    err_auth_invalid_verification_code: 'رمز التحقق غير صحيح',
+    err_auth_reset_not_requested: 'لا يوجد طلب لإعادة تعيين كلمة المرور',
+    err_auth_invalid_reset_code: 'رمز إعادة التعيين غير صحيح',
+    err_auth_reset_code_expired: 'انتهت صلاحية رمز إعادة التعيين',
     
     // Navigation
     home: 'الرئيسية',

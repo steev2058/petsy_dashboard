@@ -92,7 +92,7 @@ export default function VerifyScreen() {
       setUser(response.data.user);
       router.replace('/(tabs)/home');
     } catch (error: any) {
-      showToast(getApiErrorMessage(error, 'The code is wrong. Please try again.'), 'error');
+      showToast(getApiErrorMessage(error, 'The code is wrong. Please try again.', t), 'error');
     } finally {
       setLoading(false);
     }
@@ -120,7 +120,7 @@ export default function VerifyScreen() {
       }
       showToast(response?.data?.message || 'Verification code resent', 'success');
     } catch (error: any) {
-      showToast(getApiErrorMessage(error, 'Failed to resend code'), 'error');
+      showToast(getApiErrorMessage(error, 'Failed to resend code', t), 'error');
     }
   };
 
