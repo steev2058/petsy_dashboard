@@ -128,7 +128,9 @@ export default function PetTrackingScreen() {
     if (!petTag) return;
 
     try {
-      const webBase = (process.env.EXPO_PUBLIC_BACKEND_URL || 'http://76.13.151.33:8000').replace(':8000', ':3000');
+      const webBase = (typeof window !== 'undefined' && window.location)
+        ? window.location.origin
+        : (process.env.EXPO_PUBLIC_SITE_URL || process.env.EXPO_PUBLIC_BACKEND_URL || 'https://petsy.company');
       const scanUrl = `${webBase}/tag/${petTag.tag_code}`;
       await Share.share({
         message: `If you found my pet (${selectedPet.name}), please open this link: ${scanUrl}`,

@@ -6,8 +6,7 @@ const BACKEND_URL = process.env.EXPO_PUBLIC_BACKEND_URL || '';
 const resolveBackendUrl = () => {
   if (BACKEND_URL) return BACKEND_URL;
   if (typeof window !== 'undefined' && window.location) {
-    const { protocol, hostname } = window.location;
-    return `${protocol}//${hostname}:8000`;
+    return window.location.origin;
   }
   return '';
 };
