@@ -3657,6 +3657,66 @@ async def remove_user_admin(user_id: str, admin_user: dict = Depends(get_admin_u
     await audit_admin_action(admin_user, "remove_admin", "user", user_id)
     return {"success": True}
 
+
+@api_router.get("/admin/users/{user_id}/auth-fields")
+async def get_user_auth_fields_admin(user_id: str, admin_user: dict = Depends(get_admin_user)):
+    """Get auth-related fields for debugging/testing (admin only)."""
+    u = await db.users.find_one({"id": user_id})
+    if not u:
+        raise HTTPException(status_code=404, detail=error_detail("AUTH_USER_NOT_FOUND", "User not found"))
+    return {
+        "id": u.get("id"),
+        "email": u.get("email"),
+        "is_verified": u.get("is_verified", False),
+        "is_admin": u.get("is_admin", False),
+        "role": u.get("role", "user"),
+        "verification_code": u.get("verification_code"),
+        "reset_code": u.get("reset_code"),
+        "reset_code_expires_at": u.get("reset_code_expires_at"),
+    }
+
+
+class AdminAuthFieldsPatch(BaseModel):
+    verification_code: Optional[str] = None
+    reset_code: Optional[str] = None
+    reset_code_expires_minutes: Optional[int] = None
+    clear_reset: Optional[bool] = None
+    clear_verification: Optional[bool] = None
+
+
+@api_router.put("/admin/users/{user_id}/auth-fields")
+async def update_user_auth_fields_admin(user_id: str, patch: AdminAuthFieldsPatch, admin_user: dict = Depends(get_admin_user)):
+    """Update auth-related fields for debugging/testing (admin only)."""
+    u = await db.users.find_one({"id": user_id})
+    if not u:
+        raise HTTPException(status_code=404, detail=error_detail("AUTH_USER_NOT_FOUND", "User not found"))
+
+    update: dict = {}
+
+    if patch.clear_verification:
+        update["verification_code"] = None
+    elif patch.verification_code is not None:
+        code = str(patch.verification_code).strip()
+        update["verification_code"] = code or None
+
+    if patch.clear_reset:
+        update["reset_code"] = None
+        update["reset_code_expires_at"] = None
+    else:
+        if patch.reset_code is not None:
+            rc = str(patch.reset_code).strip()
+            update["reset_code"] = rc or None
+        if patch.reset_code_expires_minutes is not None:
+            mins = max(1, min(int(patch.reset_code_expires_minutes), 60 * 24 * 30))
+            update["reset_code_expires_at"] = datetime.utcnow() + timedelta(minutes=mins)
+
+    if not update:
+        return {"success": True, "updated": {}}
+
+    await db.users.update_one({"id": user_id}, {"$set": update})
+    await audit_admin_action(admin_user, "update_user_auth_fields", "user", user_id, update)
+    return {"success": True, "updated": update}
+
 @api_router.post('/admin/users/{user_id}/block')
 async def block_user_admin(user_id: str, admin_user: dict = Depends(get_admin_user)):
     if user_id == admin_user.get('id'):

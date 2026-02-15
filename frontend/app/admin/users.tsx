@@ -45,6 +45,12 @@ export default function AdminUsersScreen() {
     reportsOpen: language === 'ar' ? 'بلاغات مفتوحة' : 'Reports',
     blocked: language === 'ar' ? 'محظور' : 'Blocked',
     loading: language === 'ar' ? 'جاري تحميل البيانات...' : 'Loading data...',
+    authTools: language === 'ar' ? 'أدوات التحقق' : 'Auth Tools',
+    verificationCode: language === 'ar' ? 'رمز التحقق' : 'Verification code',
+    resetCode: language === 'ar' ? 'رمز إعادة التعيين' : 'Reset code',
+    resetExpiryMins: language === 'ar' ? 'صلاحية الرمز (دقائق)' : 'Reset expiry (minutes)',
+    save: language === 'ar' ? 'حفظ' : 'Save',
+    clear: language === 'ar' ? 'مسح' : 'Clear',
   };
   const [users, setUsers] = useState<any[]>([]);
   const [filteredUsers, setFilteredUsers] = useState<any[]>([]);
@@ -53,6 +59,13 @@ export default function AdminUsersScreen() {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedUser, setSelectedUser] = useState<any>(null);
   const [showModal, setShowModal] = useState(false);
+
+  const [showAuthModal, setShowAuthModal] = useState(false);
+  const [authLoading, setAuthLoading] = useState(false);
+  const [authFields, setAuthFields] = useState<any>(null);
+  const [verificationCodeInput, setVerificationCodeInput] = useState('');
+  const [resetCodeInput, setResetCodeInput] = useState('');
+  const [resetExpiryMinsInput, setResetExpiryMinsInput] = useState('15');
 
   useEffect(() => {
     loadUsers();
@@ -113,6 +126,70 @@ export default function AdminUsersScreen() {
         },
       },
     ]);
+  };
+
+  const openAuthTools = async (user: any) => {
+    setAuthLoading(true);
+    setShowAuthModal(true);
+    try {
+      const res = await api.get(`/admin/users/${user.id}/auth-fields`);
+      setAuthFields(res.data);
+      setVerificationCodeInput(res.data?.verification_code || '');
+      setResetCodeInput(res.data?.reset_code || '');
+      setResetExpiryMinsInput('15');
+    } catch (e) {
+      Alert.alert('Error', 'Failed to load auth fields');
+      setShowAuthModal(false);
+    } finally {
+      setAuthLoading(false);
+    }
+  };
+
+  const saveAuthTools = async () => {
+    if (!selectedUser) return;
+    setAuthLoading(true);
+    try {
+      const payload: any = {
+        verification_code: verificationCodeInput,
+        reset_code: resetCodeInput,
+      };
+      const mins = parseInt(resetExpiryMinsInput || '0', 10);
+      if (!Number.isNaN(mins) && mins > 0) payload.reset_code_expires_minutes = mins;
+
+      const res = await api.put(`/admin/users/${selectedUser.id}/auth-fields`, payload);
+      // refresh current view
+      const next = { ...(authFields || {}), ...(res.data?.updated || {}) };
+      setAuthFields(next);
+      Alert.alert('Success', 'Updated');
+    } catch (e: any) {
+      Alert.alert('Error', e?.response?.data?.detail?.message || e?.response?.data?.detail || 'Failed to update');
+    } finally {
+      setAuthLoading(false);
+    }
+  };
+
+  const clearVerification = async () => {
+    if (!selectedUser) return;
+    setAuthLoading(true);
+    try {
+      await api.put(`/admin/users/${selectedUser.id}/auth-fields`, { clear_verification: true });
+      setVerificationCodeInput('');
+      setAuthFields((prev: any) => ({ ...(prev || {}), verification_code: null }));
+    } finally {
+      setAuthLoading(false);
+    }
+  };
+
+  const clearReset = async () => {
+    if (!selectedUser) return;
+    setAuthLoading(true);
+    try {
+      await api.put(`/admin/users/${selectedUser.id}/auth-fields`, { clear_reset: true });
+      setResetCodeInput('');
+      setAuthFields((prev: any) => ({ ...(prev || {}), reset_code: null, reset_code_expires_at: null }));
+    } finally {
+      setAuthLoading(false);
+    }
   };
 
   const handleToggleVerification = async (user: any) => {
@@ -271,6 +348,72 @@ export default function AdminUsersScreen() {
         }
       />
 
+      {/* Auth Tools Modal */}
+      <Modal visible={showAuthModal} transparent animationType="slide">
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            <View style={styles.modalHeader}>
+              <Text style={[styles.modalTitle, isRTL && styles.rtlText]}>{L.authTools}</Text>
+              <TouchableOpacity onPress={() => setShowAuthModal(false)}>
+                <Ionicons name="close" size={24} color={Colors.text} />
+              </TouchableOpacity>
+            </View>
+
+            {authLoading ? (
+              <View style={{ padding: Spacing.lg, alignItems: 'center' }}>
+                <ActivityIndicator color={Colors.primary} />
+              </View>
+            ) : (
+              <View style={{ paddingVertical: Spacing.sm }}>
+                <Text style={styles.fieldLabel}>{L.verificationCode}</Text>
+                <TextInput
+                  style={styles.fieldInput}
+                  placeholder="1234"
+                  value={verificationCodeInput}
+                  onChangeText={setVerificationCodeInput}
+                />
+                <View style={styles.row}>
+                  <TouchableOpacity style={styles.smallBtn} onPress={saveAuthTools}>
+                    <Text style={styles.smallBtnText}>{L.save}</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity style={[styles.smallBtn, styles.smallBtnDanger]} onPress={clearVerification}>
+                    <Text style={[styles.smallBtnText, { color: Colors.error }]}>{L.clear}</Text>
+                  </TouchableOpacity>
+                </View>
+
+                <Text style={[styles.fieldLabel, { marginTop: Spacing.md }]}>{L.resetCode}</Text>
+                <TextInput
+                  style={styles.fieldInput}
+                  placeholder="4321"
+                  value={resetCodeInput}
+                  onChangeText={setResetCodeInput}
+                />
+                <Text style={styles.fieldLabel}>{L.resetExpiryMins}</Text>
+                <TextInput
+                  style={styles.fieldInput}
+                  placeholder="15"
+                  value={resetExpiryMinsInput}
+                  onChangeText={setResetExpiryMinsInput}
+                  keyboardType="number-pad"
+                />
+                <View style={styles.row}>
+                  <TouchableOpacity style={styles.smallBtn} onPress={saveAuthTools}>
+                    <Text style={styles.smallBtnText}>{L.save}</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity style={[styles.smallBtn, styles.smallBtnDanger]} onPress={clearReset}>
+                    <Text style={[styles.smallBtnText, { color: Colors.error }]}>{L.clear}</Text>
+                  </TouchableOpacity>
+                </View>
+
+                {!!authFields?.reset_code_expires_at && (
+                  <Text style={styles.hintText}>reset_code_expires_at: {String(authFields.reset_code_expires_at)}</Text>
+                )}
+              </View>
+            )}
+          </View>
+        </View>
+      </Modal>
+
       {/* User Detail Modal */}
       <Modal visible={showModal} transparent animationType="slide">
         <View style={styles.modalOverlay}>
@@ -311,6 +454,10 @@ export default function AdminUsersScreen() {
                     <Ionicons name="shield-checkmark" size={24} color={Colors.primary} />
                     <Text style={styles.modalActionText}>{L.setAdmin}</Text>
                   </TouchableOpacity>
+                  <TouchableOpacity style={styles.modalAction} onPress={() => { setShowModal(false); openAuthTools(selectedUser); }}>
+                    <Ionicons name="key" size={24} color={Colors.primary} />
+                    <Text style={styles.modalActionText}>{L.authTools}</Text>
+                  </TouchableOpacity>
                   <TouchableOpacity style={styles.modalAction} onPress={() => { setShowModal(false); router.push(`/admin/friend-reports?target_user_id=${selectedUser.id}` as any); }}>
                     <Ionicons name="flag" size={24} color={Colors.warning} />
                     <Text style={styles.modalActionText}>{L.reports}</Text>
@@ -341,6 +488,13 @@ const styles = StyleSheet.create({
   addButton: { width: 40, height: 40, borderRadius: 12, backgroundColor: Colors.primary + '20', justifyContent: 'center', alignItems: 'center' },
   searchContainer: { flexDirection: 'row', alignItems: 'center', backgroundColor: Colors.white, marginHorizontal: Spacing.md, marginTop: Spacing.sm, paddingHorizontal: Spacing.md, paddingVertical: Spacing.sm, borderRadius: BorderRadius.lg, gap: Spacing.sm },
   searchInput: { flex: 1, fontSize: FontSize.md, color: Colors.text },
+  fieldLabel: { fontSize: FontSize.sm, color: Colors.textSecondary, marginTop: Spacing.sm },
+  fieldInput: { backgroundColor: Colors.backgroundDark, borderRadius: 12, paddingHorizontal: 12, paddingVertical: 10, borderWidth: 1, borderColor: Colors.border, color: Colors.text },
+  row: { flexDirection: 'row', gap: Spacing.sm, marginTop: Spacing.sm },
+  smallBtn: { flex: 1, paddingVertical: 10, borderRadius: 12, backgroundColor: Colors.primary, alignItems: 'center' },
+  smallBtnDanger: { backgroundColor: Colors.error + '20' },
+  smallBtnText: { color: Colors.white, fontWeight: '700' },
+  hintText: { marginTop: Spacing.sm, fontSize: FontSize.xs, color: Colors.textSecondary },
   statsBar: { flexDirection: 'row', backgroundColor: Colors.white, marginHorizontal: Spacing.md, marginTop: Spacing.sm, padding: Spacing.md, borderRadius: BorderRadius.lg },
   statItem: { flex: 1, alignItems: 'center' },
   statValue: { fontSize: FontSize.xl, fontWeight: '700', color: Colors.text },
