@@ -64,7 +64,7 @@ export default function ChatScreen() {
   const [sending, setSending] = useState(false);
   const [otherTyping, setOtherTyping] = useState(false);
   const [otherOnline, setOtherOnline] = useState(false);
-  const [seenByOther, setSeenByOther] = useState(false);
+  // read receipts are tracked on each message via `is_read`
   const typingStopTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
@@ -133,7 +133,7 @@ export default function ChatScreen() {
           } else if (data.type === 'messages_read' && data.conversation_id === id) {
             const readerId = data.payload?.reader_id;
             if (readerId && readerId !== user?.id) {
-              setSeenByOther(true);
+              setMessages((prev) => prev.map((m) => (m.sender_id === user?.id ? { ...m, is_read: true } : m)));
             }
           } else if (data.type === 'presence_update') {
             const pUserId = data.payload?.user_id;
@@ -192,7 +192,7 @@ export default function ChatScreen() {
 
     const messageContent = inputText.trim();
     setSending(true);
-    setSeenByOther(false);
+    // reset read receipt indicator for new outgoing messages
     
     // Optimistically add the message to the UI
     const optimisticMessage: ChatMessage = {
@@ -291,16 +291,18 @@ export default function ChatScreen() {
           ]}>
             {item.content}
           </Text>
-          <Text style={[
-            styles.messageTime,
-            isOwnMessage && styles.messageTimeOwn,
-          ]}>
-            {formatTime(item.created_at)}
-          </Text>
-          {isOwnMessage && index === messages.length - 1 && seenByOther && (
-            <Text style={[styles.messageTime, isOwnMessage && styles.messageTimeOwn]}>
-              Seen
-            </Text>
+
+          {isOwnMessage ? (
+            <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'flex-end', gap: 6, marginTop: 4 }}>
+              <Text style={[styles.messageTime, styles.messageTimeOwn]}>{formatTime(item.created_at)}</Text>
+              <Ionicons
+                name={item.is_read ? 'checkmark-done' : 'checkmark'}
+                size={14}
+                color={item.is_read ? Colors.primary : Colors.textLight}
+              />
+            </View>
+          ) : (
+            <Text style={styles.messageTime}>{formatTime(item.created_at)}</Text>
           )}
         </View>
       </View>

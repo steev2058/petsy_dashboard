@@ -1954,7 +1954,7 @@ async def get_chat_messages(conversation_id: str, current_user: dict = Depends(g
     })
     if not conversation:
         raise HTTPException(status_code=404, detail="Conversation not found")
-    
+
     # Mark messages as read
     read_result = await db.chat_messages.update_many(
         {"conversation_id": conversation_id, "sender_id": {"$ne": current_user["id"]}, "is_read": False},
@@ -1969,7 +1969,32 @@ async def get_chat_messages(conversation_id: str, current_user: dict = Depends(g
         )
 
     messages = await db.chat_messages.find({"conversation_id": conversation_id}).sort("created_at", 1).to_list(200)
-    return [ChatMessage(**m) for m in messages]
+
+    # Enrich conversation with the other user's display name/avatar
+    other_user_id = None
+    for pid in (conversation.get("participants") or []):
+        if pid != current_user.get("id"):
+            other_user_id = pid
+            break
+    other_user = None
+    if other_user_id:
+        row = await db.users.find_one({"id": other_user_id})
+        if row:
+            other_user = {
+                "id": row.get("id"),
+                "name": row.get("name") or row.get("username") or "User",
+                "avatar": row.get("avatar"),
+                "is_online": chat_ws_manager.is_online(other_user_id),
+            }
+
+    # Return object form; frontend supports both array and object.
+    return {
+        "conversation": {
+            "id": conversation.get("id"),
+            "other_user": other_user,
+        },
+        "messages": [ChatMessage(**m) for m in messages],
+    }
 
 @api_router.post("/conversations/{conversation_id}/read")
 async def mark_conversation_read(conversation_id: str, current_user: dict = Depends(get_current_user)):
