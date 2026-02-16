@@ -179,22 +179,6 @@ export default function HomeScreen() {
           </TouchableOpacity>
         )}
 
-        {(user?.role === 'vet') && (
-          <TouchableOpacity style={styles.roleBanner} onPress={() => router.push('/vet-profile')}>
-            <Ionicons name="medkit" size={20} color={Colors.primary} />
-            <Text style={styles.roleBannerText}>
-              {`Vet profile status: ${String((user as any)?.vet_status || 'check profile')} • Tap to manage`}
-            </Text>
-          </TouchableOpacity>
-        )}
-
-        {(user?.role === 'admin' || user?.is_admin) && (
-          <TouchableOpacity style={styles.roleBanner} onPress={() => router.push('/admin/vets')}>
-            <Ionicons name="shield-checkmark" size={20} color={Colors.primary} />
-            <Text style={styles.roleBannerText}>Admin: manage vet verifications</Text>
-          </TouchableOpacity>
-        )}
-
         {/* Hero Banner */}
         <View style={styles.heroBanner}>
           <Image
@@ -371,7 +355,7 @@ export default function HomeScreen() {
                   { icon: 'ribbon', label: 'Sponsorship', route: '/sponsorships' },
                   { icon: 'storefront', label: 'Marketplace', route: '/marketplace' },
                   ...((user?.role === 'vet') ? [{ icon: 'person-circle', label: 'My Vet Profile', route: '/vet-profile' }] : []),
-                  ...((user?.role === 'vet' || user?.is_admin) ? [{ icon: 'person-circle', label: 'Vet Profile', route: '/vet-profile' }, { icon: 'medkit', label: 'Vet Requests', route: '/vet-care-requests' }] : []),
+                  ...((user?.role === 'vet' || user?.is_admin) ? [{ icon: 'medkit', label: 'Vet Requests', route: '/vet-care-requests' }] : []),
                   ...((user?.role === 'care_clinic' || user?.is_admin) ? [{ icon: 'business', label: 'Clinic Care', route: '/clinic-care-management' }] : []),
                   ...((user?.role === 'market_owner' || user?.is_admin) ? [{ icon: 'stats-chart', label: 'Market Owner', route: '/market-owner-dashboard' }] : []),
                   ...((user && !user?.is_admin && !['vet','market_owner','care_clinic'].includes(user?.role || '')) ? [

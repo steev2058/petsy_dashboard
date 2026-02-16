@@ -27,7 +27,7 @@ export default function AdminVetProfilesScreen() {
   useEffect(() => { load(); }, [status]);
 
   const action = async (id: string, act: any, payload?: any) => {
-    await adminVetProfilesAPI.action(id, act, payload);
+    await adminVetProfilesAPI.action(id, { action: act, ...(payload || {}) });
     await load();
   };
 
