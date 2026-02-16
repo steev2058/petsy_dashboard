@@ -1455,8 +1455,8 @@ async def submit_my_vet_profile(current_user: dict = Depends(require_roles("vet"
 
     if profile.get("status") == "suspended":
         raise HTTPException(status_code=400, detail="Profile suspended. Contact admin.")
-    if profile.get("status") == "pending_verification":
-        raise HTTPException(status_code=400, detail="Profile already pending verification")
+
+    was_pending = profile.get("status") == "pending_verification"
 
     required_fields = ["name", "specialty", "experience_years", "phone", "city"]
     missing = [k for k in required_fields if not profile.get(k)]
@@ -1473,9 +1473,10 @@ async def submit_my_vet_profile(current_user: dict = Depends(require_roles("vet"
     }
     await db.vet_profiles.update_one({"id": profile["id"]}, {"$set": patch})
 
+    submit_verb = "resubmitted" if was_pending else "submitted"
     await create_notifications_for_admins(
         "Vet profile verification required",
-        f"{current_user.get('name') or 'Vet'} submitted profile for verification.",
+        f"{current_user.get('name') or 'Vet'} {submit_verb} profile for verification.",
         "vet_profile_verification",
         {
             "profile_id": profile["id"],
