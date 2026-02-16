@@ -143,6 +143,10 @@ export default function ProfileScreen() {
     { icon: 'heart', label: t('favorites'), onPress: () => router.push('/favorites') },
     { icon: 'chatbubbles', label: t('messages'), onPress: () => router.push('/messages') },
     { icon: 'people', label: 'Friends', onPress: () => router.push('/friends') },
+    ...((!isAdmin && !['vet', 'market_owner', 'care_clinic'].includes(user?.role || '')) ? [
+      { icon: 'git-pull-request', label: 'Request Role', onPress: () => router.push('/role-request') },
+      { icon: 'time', label: 'My Role Requests', onPress: () => router.push('/my-role-requests') },
+    ] : []),
     { icon: 'calendar', label: t('my_appointments'), onPress: () => router.push('/my-appointments') },
     { icon: 'document-text', label: t('health_records'), onPress: () => {
       if (myPets.length > 0) {
