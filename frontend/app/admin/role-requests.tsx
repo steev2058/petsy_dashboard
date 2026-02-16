@@ -38,8 +38,8 @@ export default function AdminRoleRequestsScreen() {
       <View style={styles.header}><TouchableOpacity style={styles.backBtn} onPress={() => router.back()}><Ionicons name='arrow-back' size={22} color={Colors.text} /></TouchableOpacity><Text style={styles.title}>Role Requests</Text><View style={{ width: 40 }} /></View>
       {lastApprovedVetRequest && (
         <View style={{ paddingHorizontal: Spacing.md, paddingTop: 8, flexDirection: 'row', gap: 8 }}>
-          <TouchableOpacity style={styles.btn} onPress={() => router.push('/admin/vet-profiles' as any)}><Text style={styles.btnText}>Open Vet Profile Queue</Text></TouchableOpacity>
-          <TouchableOpacity style={styles.btn} onPress={() => router.push('/admin/vet-profiles' as any)}><Text style={styles.btnText}>Open this Vet Profile</Text></TouchableOpacity>
+          <TouchableOpacity style={styles.btn} onPress={() => router.push('/admin/vet-profiles?status=pending_verification' as any)}><Text style={styles.btnText}>Open Vet Profile Queue</Text></TouchableOpacity>
+          <TouchableOpacity style={styles.btn} onPress={() => router.push(`/admin/vet-profiles?status=pending_verification&q=${encodeURIComponent(lastApprovedVetRequest?.user_email || '')}` as any)}><Text style={styles.btnText}>Open this Vet Profile</Text></TouchableOpacity>
         </View>
       )}
       <FlatList

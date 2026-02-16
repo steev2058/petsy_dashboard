@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, FlatList, TouchableOpacity, TextInput, Alert, ActivityIndicator } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useRouter } from 'expo-router';
+import { useRouter, useLocalSearchParams } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { adminVetProfilesAPI, adminAPI } from '../../src/services/api';
 import { Colors, FontSize, Spacing, BorderRadius } from '../../src/constants/theme';
@@ -10,10 +10,11 @@ const TABS = ['pending_verification','active','rejected','suspended'];
 
 export default function AdminVetProfilesScreen() {
   const router = useRouter();
+  const params = useLocalSearchParams<{ q?: string; status?: string }>();
   const [loading, setLoading] = useState(true);
   const [rows, setRows] = useState<any[]>([]);
-  const [status, setStatus] = useState('pending_verification');
-  const [q, setQ] = useState('');
+  const [status, setStatus] = useState((params.status as string) || 'pending_verification');
+  const [q, setQ] = useState((params.q as string) || '');
   const [city, setCity] = useState('');
 
   const load = async () => {
@@ -25,6 +26,11 @@ export default function AdminVetProfilesScreen() {
   };
 
   useEffect(() => { load(); }, [status]);
+  useEffect(() => {
+    if (params.q) setQ(String(params.q));
+    if (params.status) setStatus(String(params.status));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [params.q, params.status]);
 
   const action = async (id: string, act: any, payload?: any) => {
     await adminVetProfilesAPI.action(id, { action: act, ...(payload || {}) });
