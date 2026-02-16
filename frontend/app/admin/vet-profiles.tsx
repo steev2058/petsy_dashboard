@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { View, Text, StyleSheet, FlatList, TouchableOpacity, TextInput, Alert, ActivityIndicator } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter, useLocalSearchParams } from 'expo-router';
@@ -10,12 +10,13 @@ const TABS = ['pending_verification','active','rejected','suspended'];
 
 export default function AdminVetProfilesScreen() {
   const router = useRouter();
-  const params = useLocalSearchParams<{ q?: string; status?: string }>();
+  const params = useLocalSearchParams<{ q?: string; status?: string; profile_id?: string }>();
   const [loading, setLoading] = useState(true);
   const [rows, setRows] = useState<any[]>([]);
   const [status, setStatus] = useState((params.status as string) || 'pending_verification');
   const [q, setQ] = useState((params.q as string) || '');
   const [city, setCity] = useState('');
+  const [focusProfileId, setFocusProfileId] = useState((params.profile_id as string) || '');
 
   const load = async () => {
     try {
@@ -29,8 +30,9 @@ export default function AdminVetProfilesScreen() {
   useEffect(() => {
     if (params.q) setQ(String(params.q));
     if (params.status) setStatus(String(params.status));
+    if (params.profile_id) setFocusProfileId(String(params.profile_id));
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [params.q, params.status]);
+  }, [params.q, params.status, params.profile_id]);
 
   const action = async (id: string, act: any, payload?: any) => {
     await adminVetProfilesAPI.action(id, { action: act, ...(payload || {}) });
@@ -44,14 +46,21 @@ export default function AdminVetProfilesScreen() {
     await action(id, 'reject', { verification_notes: String(notes).trim() });
   };
 
+  const rowsOrdered = useMemo(() => {
+    if (!focusProfileId) return rows;
+    const target = rows.find((r) => r.id === focusProfileId);
+    if (!target) return rows;
+    return [target, ...rows.filter((r) => r.id !== focusProfileId)];
+  }, [rows, focusProfileId]);
+
   if (loading) return <SafeAreaView style={styles.container}><View style={styles.center}><ActivityIndicator color={Colors.primary} /></View></SafeAreaView>;
 
   return <SafeAreaView style={styles.container} edges={['top']}>
     <View style={styles.header}><TouchableOpacity style={styles.back} onPress={() => router.back()}><Ionicons name="arrow-back" size={22} color={Colors.text} /></TouchableOpacity><Text style={styles.title}>Vet Profiles Queue</Text><View style={{ width: 40 }} /></View>
     <View style={styles.search}><TextInput value={q} onChangeText={setQ} placeholder='q' style={styles.input}/><TextInput value={city} onChangeText={setCity} placeholder='city' style={styles.input}/><TouchableOpacity style={styles.go} onPress={load}><Text style={styles.goT}>Go</Text></TouchableOpacity></View>
     <View style={styles.tabs}>{TABS.map(t => <TouchableOpacity key={t} style={[styles.tab, status===t && styles.tabA]} onPress={() => setStatus(t)}><Text style={[styles.tabT, status===t && styles.tabTA]}>{t.replace('_',' ')}</Text></TouchableOpacity>)}</View>
-    <FlatList data={rows} keyExtractor={(i)=>i.id} contentContainerStyle={{ padding: Spacing.md, paddingBottom: 120 }} renderItem={({ item }) => (
-      <View style={styles.card}>
+    <FlatList data={rowsOrdered} keyExtractor={(i)=>i.id} contentContainerStyle={{ padding: Spacing.md, paddingBottom: 120 }} renderItem={({ item }) => (
+      <View style={[styles.card, focusProfileId === item.id && styles.focusCard]}>
         <Text style={styles.name}>{item.name}</Text>
         <Text style={styles.meta}>{item.user?.email} • {item.city} • {item.specialty}</Text>
         <Text style={styles.meta}>submitted/updated: {item.updated_at ? new Date(item.updated_at).toLocaleString() : '-'}</Text>
@@ -76,7 +85,9 @@ const styles = StyleSheet.create({
   back:{ width:40, height:40, borderRadius:12, backgroundColor:Colors.backgroundDark, justifyContent:'center', alignItems:'center' }, title:{ fontSize:FontSize.xl, fontWeight:'700' },
   search:{ flexDirection:'row', gap:8, padding:Spacing.md }, input:{ flex:1, backgroundColor:Colors.white, borderRadius:12, borderWidth:1, borderColor:Colors.border, paddingHorizontal:10, paddingVertical:8 }, go:{ backgroundColor:Colors.primary, borderRadius:12, paddingHorizontal:12, justifyContent:'center' }, goT:{ color:Colors.white, fontWeight:'700' },
   tabs:{ flexDirection:'row', gap:6, paddingHorizontal:Spacing.md, marginBottom:6, flexWrap:'wrap' }, tab:{ backgroundColor:Colors.backgroundDark, borderRadius:999, paddingHorizontal:10, paddingVertical:6 }, tabA:{ backgroundColor:Colors.primary }, tabT:{ color:Colors.textSecondary }, tabTA:{ color:Colors.white },
-  card:{ backgroundColor:Colors.white, borderRadius:12, padding:12, marginBottom:10 }, name:{ fontWeight:'700', color:Colors.text }, meta:{ color:Colors.textSecondary, marginTop:2, fontSize:12 }, row:{ flexDirection:'row', gap:8, marginTop:8, flexWrap:'wrap' },
+  card:{ backgroundColor:Colors.white, borderRadius:12, padding:12, marginBottom:10 },
+  focusCard:{ borderWidth:2, borderColor:Colors.primary },
+  name:{ fontWeight:'700', color:Colors.text }, meta:{ color:Colors.textSecondary, marginTop:2, fontSize:12 }, row:{ flexDirection:'row', gap:8, marginTop:8, flexWrap:'wrap' },
   btn:{ backgroundColor:Colors.success, borderRadius:8, paddingHorizontal:10, paddingVertical:6 }, btnT:{ color:Colors.white, fontWeight:'700' },
   btnD:{ backgroundColor:'#FEE2E2', borderRadius:8, paddingHorizontal:10, paddingVertical:6 }, btnDT:{ color:Colors.error, fontWeight:'700' },
   btnW:{ backgroundColor:'#E5E7EB', borderRadius:8, paddingHorizontal:10, paddingVertical:6 }, btnWT:{ color:Colors.text, fontWeight:'700' },

@@ -17,7 +17,7 @@ export default function AdminVetsScreen() {
       </View>
 
       <View style={styles.card}>
-        <Text style={styles.text}>Manual "Add Vet" is disabled.</Text>
+        <Text style={styles.text}>Manual vet creation is disabled.</Text>
         <Text style={styles.sub}>Admins must manage vet verification via Vet Profiles Queue.</Text>
         <TouchableOpacity style={styles.button} onPress={() => router.replace('/admin/vet-profiles' as any)}>
           <Text style={styles.buttonText}>Open Vet Profiles Queue</Text>

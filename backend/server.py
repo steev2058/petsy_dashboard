@@ -1367,19 +1367,38 @@ async def get_vets(
     for lv in legacy_rows:
         if lv.get("user_id") and lv.get("user_id") in seen_user_ids:
             continue
+
+        raw_exp = lv.get("experience_years") if lv.get("experience_years") is not None else lv.get("experience")
+        try:
+            experience_years = int(raw_exp) if raw_exp not in (None, "") else 0
+        except Exception:
+            experience_years = 0
+
+        raw_rating_avg = lv.get("rating_avg") if lv.get("rating_avg") is not None else lv.get("rating")
+        try:
+            rating_avg = float(raw_rating_avg) if raw_rating_avg not in (None, "") else 0.0
+        except Exception:
+            rating_avg = 0.0
+
+        raw_rating_count = lv.get("rating_count") if lv.get("rating_count") is not None else lv.get("reviews_count")
+        try:
+            rating_count = int(raw_rating_count) if raw_rating_count not in (None, "") else 0
+        except Exception:
+            rating_count = 0
+
         vets.append({
             "id": f"legacy-{lv.get('id')}",
             "user_id": lv.get("user_id") or lv.get("id"),
             "name": lv.get("name") or "",
             "specialty": lv.get("specialty") or "",
-            "experience_years": int(lv.get("experience_years") or lv.get("experience") or 0),
+            "experience_years": experience_years,
             "phone": lv.get("phone") or "",
             "city": lv.get("city") or "",
             "location_text": lv.get("address") or lv.get("location") or "",
             "image_url": lv.get("image") or "",
             "pet_types_supported": _normalize_pet_types(lv.get("pet_types_supported") or []),
-            "rating_avg": float(lv.get("rating_avg") if lv.get("rating_avg") is not None else lv.get("rating") or 0),
-            "rating_count": int(lv.get("rating_count") if lv.get("rating_count") is not None else lv.get("reviews_count") or 0),
+            "rating_avg": rating_avg,
+            "rating_count": rating_count,
             "is_public": True,
             "status": "active",
             "verified": True,
@@ -1458,7 +1477,12 @@ async def submit_my_vet_profile(current_user: dict = Depends(require_roles("vet"
         "Vet profile verification required",
         f"{current_user.get('name') or 'Vet'} submitted profile for verification.",
         "vet_profile_verification",
-        {"profile_id": profile["id"], "user_id": current_user["id"], "route": "/admin/vets"},
+        {
+            "profile_id": profile["id"],
+            "user_id": current_user["id"],
+            "status": "pending_verification",
+            "route": "/admin/vet-profiles",
+        },
     )
 
     updated = await db.vet_profiles.find_one({"id": profile["id"]})

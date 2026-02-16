@@ -140,8 +140,18 @@ export default function NotificationsScreen() {
 
     const route = item?.data?.route;
     const listingId = item?.data?.listing_id;
+    const profileId = item?.data?.profile_id;
+    const status = item?.data?.status;
 
     if (route) {
+      if (route === '/admin/vet-profiles') {
+        const parts: string[] = [];
+        if (status) parts.push(`status=${encodeURIComponent(String(status))}`);
+        if (profileId) parts.push(`profile_id=${encodeURIComponent(String(profileId))}`);
+        const nextRoute = parts.length ? `${route}?${parts.join('&')}` : route;
+        router.push(nextRoute as any);
+        return;
+      }
       router.push(route as any);
       return;
     }
