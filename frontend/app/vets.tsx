@@ -61,6 +61,7 @@ export default function VetsScreen() {
     sortRating: language === 'ar' ? 'الأعلى تقييماً' : 'Top rated',
     sortNearest: language === 'ar' ? 'الأقرب' : 'Nearest',
     call: language === 'ar' ? 'اتصال' : 'Call',
+    openMap: language === 'ar' ? 'الخريطة' : 'Map',
     locationOff: language === 'ar' ? 'فعّل الموقع لإظهار الأقرب' : 'Enable location for nearest sort',
   };
 
@@ -155,8 +156,8 @@ export default function VetsScreen() {
             <Text style={styles.ratingText}>{Number(item.rating || 0).toFixed(1)}</Text>
           </View>
         </View>
-        {!!item.phone && (
-          <View style={styles.actionsRow}>
+        <View style={styles.actionsRow}>
+          {!!item.phone && (
             <TouchableOpacity
               style={styles.callBtn}
               onPress={() => {
@@ -168,8 +169,22 @@ export default function VetsScreen() {
               <Ionicons name="call" size={15} color={Colors.white} />
               <Text style={styles.callBtnText}>{labels.call}</Text>
             </TouchableOpacity>
-          </View>
-        )}
+          )}
+
+          <TouchableOpacity
+            style={styles.mapBtn}
+            onPress={() => {
+              const hasCoords = item.latitude != null && item.longitude != null;
+              const url = hasCoords
+                ? `https://www.google.com/maps/search/?api=1&query=${item.latitude},${item.longitude}`
+                : `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${item.clinic_name || item.name || ''} ${item.city || ''}`.trim())}`;
+              Linking.openURL(url).catch(() => Alert.alert('Error', 'Cannot open maps'));
+            }}
+          >
+            <Ionicons name="map" size={15} color={Colors.primary} />
+            <Text style={styles.mapBtnText}>{labels.openMap}</Text>
+          </TouchableOpacity>
+        </View>
       </TouchableOpacity>
     );
   };
@@ -290,7 +305,9 @@ const styles = StyleSheet.create({
   meta: { fontSize: FontSize.sm, color: Colors.textSecondary },
   ratingWrap: { flexDirection: 'row', alignItems: 'center', gap: 4 },
   ratingText: { fontSize: FontSize.sm, fontWeight: '700', color: Colors.text },
-  actionsRow: { flexDirection: 'row', marginTop: Spacing.sm, justifyContent: 'flex-end' },
+  actionsRow: { flexDirection: 'row', marginTop: Spacing.sm, justifyContent: 'flex-end', gap: 8 },
   callBtn: { flexDirection: 'row', alignItems: 'center', gap: 6, backgroundColor: Colors.primary, paddingHorizontal: 12, paddingVertical: 8, borderRadius: 999 },
   callBtnText: { color: Colors.white, fontSize: FontSize.sm, fontWeight: '700' },
+  mapBtn: { flexDirection: 'row', alignItems: 'center', gap: 6, backgroundColor: Colors.primary + '15', paddingHorizontal: 12, paddingVertical: 8, borderRadius: 999 },
+  mapBtnText: { color: Colors.primary, fontSize: FontSize.sm, fontWeight: '700' },
 });
