@@ -20,6 +20,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { Colors, FontSize, Spacing, BorderRadius, Shadow } from '../../src/constants/theme';
 import api, { productsAPI } from '../../src/services/api';
 import { Input } from '../../src/components';
+import * as ImagePicker from 'expo-image-picker';
 
 export default function AdminProductsScreen() {
   const router = useRouter();
@@ -59,6 +60,38 @@ export default function AdminProductsScreen() {
     await loadProducts();
     setRefreshing(false);
   }, []);
+
+  const pickProductImage = async () => {
+    try {
+      const perm = await ImagePicker.requestMediaLibraryPermissionsAsync();
+      if (perm.status !== 'granted') return Alert.alert('Permission required', 'Allow gallery access first');
+      const res = await ImagePicker.launchImageLibraryAsync({ mediaTypes: ImagePicker.MediaTypeOptions.Images, allowsEditing: true, quality: 0.8, base64: true });
+      if (!res.canceled && res.assets?.[0]) {
+        const a: any = res.assets[0];
+        const mime = a.mimeType || 'image/jpeg';
+        const uri = a.base64 ? `data:${mime};base64,${a.base64}` : a.uri;
+        setFormData((p) => ({ ...p, image_url: uri || '' }));
+      }
+    } catch {
+      Alert.alert('Error', 'Could not pick image');
+    }
+  };
+
+  const takeProductPhoto = async () => {
+    try {
+      const perm = await ImagePicker.requestCameraPermissionsAsync();
+      if (perm.status !== 'granted') return Alert.alert('Permission required', 'Allow camera access first');
+      const res = await ImagePicker.launchCameraAsync({ allowsEditing: true, quality: 0.8, base64: true });
+      if (!res.canceled && res.assets?.[0]) {
+        const a: any = res.assets[0];
+        const mime = a.mimeType || 'image/jpeg';
+        const uri = a.base64 ? `data:${mime};base64,${a.base64}` : a.uri;
+        setFormData((p) => ({ ...p, image_url: uri || '' }));
+      }
+    } catch {
+      Alert.alert('Error', 'Could not take photo');
+    }
+  };
 
   const handleSaveProduct = async () => {
     if (!formData.name || !formData.price) {
@@ -243,7 +276,24 @@ export default function AdminProductsScreen() {
               <Input label="Price *" placeholder="0.00" value={formData.price} onChangeText={(t) => setFormData({ ...formData, price: t })} keyboardType="decimal-pad" />
               <Input label="Category" placeholder="e.g., Food, Toys" value={formData.category} onChangeText={(t) => setFormData({ ...formData, category: t })} />
               <Input label="Stock" placeholder="0" value={formData.stock} onChangeText={(t) => setFormData({ ...formData, stock: t })} keyboardType="numeric" />
-              <Input label="Image URL" placeholder="https://..." value={formData.image_url} onChangeText={(t) => setFormData({ ...formData, image_url: t })} />
+              <Text style={styles.switchLabel}>Product image</Text>
+              <View style={styles.imageUploadRow}>
+                <TouchableOpacity style={styles.imageBtn} onPress={takeProductPhoto}>
+                  <Ionicons name="camera" size={16} color={Colors.white} />
+                  <Text style={styles.imageBtnText}>Camera</Text>
+                </TouchableOpacity>
+                <TouchableOpacity style={styles.imageBtn} onPress={pickProductImage}>
+                  <Ionicons name="images" size={16} color={Colors.white} />
+                  <Text style={styles.imageBtnText}>Gallery</Text>
+                </TouchableOpacity>
+                {!!formData.image_url && (
+                  <TouchableOpacity style={[styles.imageBtn, styles.imageBtnDanger]} onPress={() => setFormData({ ...formData, image_url: '' })}>
+                    <Ionicons name="trash" size={16} color={Colors.error} />
+                    <Text style={[styles.imageBtnText, { color: Colors.error }]}>Remove</Text>
+                  </TouchableOpacity>
+                )}
+              </View>
+              {!!formData.image_url && <Image source={{ uri: formData.image_url }} style={styles.previewImage} />}
               <View style={styles.switchRow}>
                 <Text style={styles.switchLabel}>Active</Text>
                 <Switch value={formData.is_active} onValueChange={(v) => setFormData({ ...formData, is_active: v })} trackColor={{ false: Colors.border, true: Colors.primary + '80' }} thumbColor={formData.is_active ? Colors.primary : Colors.textLight} />
@@ -297,6 +347,11 @@ const styles = StyleSheet.create({
   modalForm: { gap: Spacing.sm },
   switchRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: Spacing.sm },
   switchLabel: { fontSize: FontSize.md, fontWeight: '600', color: Colors.text },
+  imageUploadRow: { flexDirection: 'row', gap: 8, flexWrap: 'wrap' },
+  imageBtn: { flexDirection: 'row', alignItems: 'center', gap: 6, backgroundColor: Colors.primary, borderRadius: 999, paddingHorizontal: 12, paddingVertical: 8 },
+  imageBtnDanger: { backgroundColor: Colors.error + '20' },
+  imageBtnText: { color: Colors.white, fontWeight: '700', fontSize: FontSize.sm },
+  previewImage: { marginTop: 8, width: 88, height: 88, borderRadius: 10 },
   saveButton: { marginTop: Spacing.lg, borderRadius: BorderRadius.lg, overflow: 'hidden' },
   saveButtonGradient: { paddingVertical: Spacing.md, alignItems: 'center' },
   saveButtonText: { fontSize: FontSize.lg, fontWeight: '600', color: Colors.white },

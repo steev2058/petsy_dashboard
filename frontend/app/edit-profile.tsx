@@ -240,7 +240,6 @@ export default function EditProfileScreen() {
           />
           <Input label="Phone" value={phone} onChangeText={setPhone} placeholder="+963 ..." keyboardType="phone-pad" />
           <Input label="City" value={city} onChangeText={setCity} placeholder="Your city" />
-          <Input label="Avatar URL" value={avatar} onChangeText={setAvatar} placeholder="https://..." autoCapitalize="none" />
           <Input
             label="Bio"
             value={bio}
