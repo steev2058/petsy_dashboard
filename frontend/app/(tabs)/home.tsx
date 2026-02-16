@@ -317,6 +317,7 @@ export default function HomeScreen() {
               <View style={styles.drawerMenu}>
                 {[
                   { icon: 'paw', label: t('my_pets'), route: '/my-pets' },
+                  { icon: 'medkit', label: 'Vets', route: '/vets' },
                   { icon: 'chatbubbles', label: t('messages'), route: '/(tabs)/profile' },
                   { icon: 'search', label: t('lost_found'), route: '/lost-found' },
                   { icon: 'people', label: t('community'), route: '/community' },
