@@ -327,7 +327,6 @@ export default function HomeScreen() {
                   ...((user?.role === 'care_clinic' || user?.is_admin) ? [{ icon: 'business', label: 'Clinic Care', route: '/clinic-care-management' }] : []),
                   ...((user?.role === 'market_owner' || user?.is_admin) ? [{ icon: 'stats-chart', label: 'Market Owner', route: '/market-owner-dashboard' }] : []),
                   ...((user && !user?.is_admin && !['vet','market_owner','care_clinic'].includes(user?.role || '')) ? [
-                    { icon: 'git-pull-request', label: 'Request Role', route: '/role-request' },
                     { icon: 'time', label: 'My Role Requests', route: '/my-role-requests' },
                   ] : []),
                   ...((user?.role === 'admin' || user?.is_admin) ? [{ icon: 'shield-checkmark', label: 'Admin Panel', route: '/admin' }] : []),
