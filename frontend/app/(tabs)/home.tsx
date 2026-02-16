@@ -17,7 +17,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { SearchBar, PetCard, VetCard, ProductCard, CategoryList, PET_CATEGORIES } from '../../src/components';
 import { Colors, FontSize, Spacing, BorderRadius, Shadow } from '../../src/constants/theme';
 import { PetImages } from '../../src/constants/images';
-import { petsAPI, vetsAPI, productsAPI, notificationsAPI } from '../../src/services/api';
+import { petsAPI, vetsAPI, productsAPI, notificationsAPI, vetProfileAPI } from '../../src/services/api';
 import { useStore } from '../../src/store/useStore';
 import { useTranslation } from '../../src/hooks/useTranslation';
 
@@ -36,12 +36,13 @@ export default function HomeScreen() {
   const [products, setProducts] = useState<any[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [unreadCount, setUnreadCount] = useState(0);
+  const [vetProfile, setVetProfile] = useState<any>(null);
 
   const loadData = async () => {
     try {
       const [petsRes, vetsRes, productsRes] = await Promise.all([
         petsAPI.getAll({ status: 'for_adoption' }),
-        vetsAPI.getAll(),
+        vetsAPI.getAll({ sort: 'top_rated' }),
         productsAPI.getAll(),
       ]);
       setPets(petsRes.data.slice(0, 6));
@@ -70,6 +71,11 @@ export default function HomeScreen() {
   useEffect(() => {
     loadData();
     loadUnreadCount();
+    if (user?.role === 'vet') {
+      vetProfileAPI.getMe().then((res) => setVetProfile(res.data)).catch(() => setVetProfile(null));
+    } else {
+      setVetProfile(null);
+    }
 
     const timer = setInterval(() => {
       loadUnreadCount();
@@ -147,6 +153,47 @@ export default function HomeScreen() {
           showFilter
           onFilter={() => {}}
         />
+
+        {user?.role === 'vet' && (
+          <TouchableOpacity
+            style={{ marginHorizontal: Spacing.md, marginTop: Spacing.sm, backgroundColor: Colors.white, borderRadius: BorderRadius.lg, padding: Spacing.md }}
+            onPress={() => router.push('/vet-profile' as any)}
+          >
+            <Text style={{ fontWeight: '700', color: Colors.text }}>
+              {(!vetProfile || vetProfile.status === 'draft') && 'Complete your Vet Profile'}
+              {vetProfile?.status === 'pending_verification' && 'Vet profile under review'}
+              {vetProfile?.status === 'rejected' && `Rejected: ${vetProfile?.verification_notes || 'fix and resubmit'}`}
+              {vetProfile?.status === 'suspended' && 'Vet profile suspended. Contact admin.'}
+              {vetProfile?.status === 'active' && 'Vet profile active'}
+            </Text>
+            <Text style={{ color: Colors.primary, marginTop: 4 }}>Open Vet Profile</Text>
+          </TouchableOpacity>
+        )}
+
+        {(user?.role === 'admin' || user?.is_admin) && (
+          <TouchableOpacity
+            style={{ marginHorizontal: Spacing.md, marginTop: Spacing.sm, backgroundColor: Colors.white, borderRadius: BorderRadius.lg, padding: Spacing.md }}
+            onPress={() => router.push('/admin/vet-profiles' as any)}
+          >
+            <Text style={{ fontWeight: '700', color: Colors.text }}>Admin CTA: Manage Vet Verification Queue</Text>
+          </TouchableOpacity>
+        )}
+
+        {(user?.role === 'vet') && (
+          <TouchableOpacity style={styles.roleBanner} onPress={() => router.push('/vet-profile')}>
+            <Ionicons name="medkit" size={20} color={Colors.primary} />
+            <Text style={styles.roleBannerText}>
+              {`Vet profile status: ${String((user as any)?.vet_status || 'check profile')} • Tap to manage`}
+            </Text>
+          </TouchableOpacity>
+        )}
+
+        {(user?.role === 'admin' || user?.is_admin) && (
+          <TouchableOpacity style={styles.roleBanner} onPress={() => router.push('/admin/vets')}>
+            <Ionicons name="shield-checkmark" size={20} color={Colors.primary} />
+            <Text style={styles.roleBannerText}>Admin: manage vet verifications</Text>
+          </TouchableOpacity>
+        )}
 
         {/* Hero Banner */}
         <View style={styles.heroBanner}>
@@ -323,7 +370,8 @@ export default function HomeScreen() {
                   { icon: 'people', label: t('community'), route: '/community' },
                   { icon: 'ribbon', label: 'Sponsorship', route: '/sponsorships' },
                   { icon: 'storefront', label: 'Marketplace', route: '/marketplace' },
-                  ...((user?.role === 'vet' || user?.is_admin) ? [{ icon: 'medkit', label: 'Vet Requests', route: '/vet-care-requests' }] : []),
+                  ...((user?.role === 'vet') ? [{ icon: 'person-circle', label: 'My Vet Profile', route: '/vet-profile' }] : []),
+                  ...((user?.role === 'vet' || user?.is_admin) ? [{ icon: 'person-circle', label: 'Vet Profile', route: '/vet-profile' }, { icon: 'medkit', label: 'Vet Requests', route: '/vet-care-requests' }] : []),
                   ...((user?.role === 'care_clinic' || user?.is_admin) ? [{ icon: 'business', label: 'Clinic Care', route: '/clinic-care-management' }] : []),
                   ...((user?.role === 'market_owner' || user?.is_admin) ? [{ icon: 'stats-chart', label: 'Market Owner', route: '/market-owner-dashboard' }] : []),
                   ...((user && !user?.is_admin && !['vet','market_owner','care_clinic'].includes(user?.role || '')) ? [
@@ -409,6 +457,22 @@ const styles = StyleSheet.create({
     color: Colors.white,
     fontSize: 9,
     fontWeight: '800',
+  },
+  roleBanner: {
+    marginHorizontal: Spacing.md,
+    marginTop: Spacing.sm,
+    backgroundColor: Colors.white,
+    borderRadius: BorderRadius.lg,
+    padding: Spacing.sm,
+    flexDirection: 'row',
+    gap: 8,
+    alignItems: 'center',
+  },
+  roleBannerText: {
+    flex: 1,
+    color: Colors.text,
+    fontSize: FontSize.sm,
+    fontWeight: '600',
   },
   heroBanner: {
     margin: Spacing.md,

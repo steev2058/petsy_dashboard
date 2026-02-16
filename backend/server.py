@@ -654,6 +654,8 @@ async def get_current_user_optional(credentials: Optional[HTTPAuthorizationCrede
         return None
 
 ALLOWED_ROLES = {"user", "admin", "vet", "market_owner", "care_clinic"}
+VET_PROFILE_STATUSES = {"draft", "pending_verification", "active", "suspended", "rejected"}
+VET_PET_TYPES = {"dogs", "cats", "birds", "all"}
 
 async def get_admin_user(current_user: dict = Depends(get_current_user)) -> dict:
     """Verify user has admin privileges"""
@@ -668,6 +670,93 @@ def require_roles(*roles: str):
             raise HTTPException(status_code=403, detail="Access denied for this role")
         return current_user
     return _guard
+
+
+def _vet_profile_defaults(user: Optional[dict] = None) -> dict:
+    user = user or {}
+    return {
+        "name": user.get("name") or "",
+        "specialty": "",
+        "experience_years": 0,
+        "phone": user.get("phone") or "",
+        "city": user.get("city") or "",
+        "location_text": "",
+        "image_url": user.get("avatar") or "",
+        "pet_types_supported": [],
+        "rating_avg": 0,
+        "rating_count": 0,
+        "is_public": False,
+        "status": "draft",
+        "verified": False,
+        "verification_notes": None,
+        "created_at": datetime.utcnow(),
+        "updated_at": datetime.utcnow(),
+    }
+
+
+def _normalize_pet_types(values: Any) -> List[str]:
+    if not isinstance(values, list):
+        return []
+    out: List[str] = []
+    for v in values:
+        item = str(v or "").strip().lower()
+        if item in VET_PET_TYPES and item not in out:
+            out.append(item)
+    return out
+
+
+def _serialize_doc(row: Optional[dict]) -> Optional[dict]:
+    if not row:
+        return None
+    return {k: v for k, v in row.items() if k != "_id"}
+
+
+async def ensure_vet_profile(user_id: str, *, user: Optional[dict] = None) -> dict:
+    if not user_id:
+        raise HTTPException(status_code=400, detail="user_id is required")
+
+    existing = await db.vet_profiles.find_one({"user_id": user_id})
+    if existing:
+        patch = {"updated_at": datetime.utcnow()}
+        if not existing.get("name") and user and user.get("name"):
+            patch["name"] = user.get("name")
+        if not existing.get("phone") and user and user.get("phone"):
+            patch["phone"] = user.get("phone")
+        if not existing.get("city") and user and user.get("city"):
+            patch["city"] = user.get("city")
+        if patch:
+            await db.vet_profiles.update_one({"id": existing["id"]}, {"$set": patch})
+            existing.update(patch)
+        return existing
+
+    user = user or await db.users.find_one({"id": user_id}) or {}
+    legacy = await db.vets.find_one({"$or": [{"user_id": user_id}, {"id": user_id}, {"email": user.get("email")}]})
+
+    row = {
+        "id": str(uuid.uuid4()),
+        "user_id": user_id,
+        **_vet_profile_defaults(user),
+    }
+
+    if legacy:
+        row.update({
+            "name": legacy.get("name") or row["name"],
+            "specialty": legacy.get("specialty") or row["specialty"],
+            "experience_years": int(legacy.get("experience_years") or legacy.get("experience") or 0),
+            "phone": legacy.get("phone") or row["phone"],
+            "city": legacy.get("city") or row["city"],
+            "location_text": legacy.get("address") or legacy.get("location") or row["location_text"],
+            "image_url": legacy.get("image") or row["image_url"],
+            "pet_types_supported": _normalize_pet_types(legacy.get("pet_types_supported") or ([legacy.get("specialty")] if legacy.get("specialty") else [])),
+            "rating_avg": float(legacy.get("rating_avg") if legacy.get("rating_avg") is not None else legacy.get("rating") or 0),
+            "rating_count": int(legacy.get("rating_count") if legacy.get("rating_count") is not None else legacy.get("reviews_count") or 0),
+            "is_public": bool(legacy.get("is_public", False)),
+            "status": legacy.get("status") if legacy.get("status") in VET_PROFILE_STATUSES else "draft",
+            "verified": bool(legacy.get("verified", False)),
+        })
+
+    await db.vet_profiles.insert_one(row)
+    return row
 
 # ========================= REALTIME ROUTES =========================
 
@@ -1234,23 +1323,146 @@ async def get_health_records(pet_id: str, current_user: dict = Depends(get_curre
 
 # ========================= VETS =========================
 
-@api_router.get("/vets", response_model=List[Vet])
-async def get_vets(city: Optional[str] = None, specialty: Optional[str] = None):
-    query = {}
+@api_router.get("/vets")
+async def get_vets(
+    q: Optional[str] = None,
+    city: Optional[str] = None,
+    pet_type: Optional[str] = None,
+    sort: Optional[str] = "top_rated",
+):
+    query: dict = {"status": "active", "verified": True, "is_public": True}
+    if q:
+        qv = str(q).strip()
+        if qv:
+            query["$or"] = [
+                {"name": {"$regex": qv, "$options": "i"}},
+                {"specialty": {"$regex": qv, "$options": "i"}},
+            ]
     if city:
-        query["city"] = {"$regex": city, "$options": "i"}
-    if specialty:
-        query["specialty"] = specialty
-    
-    vets = await db.vets.find(query).to_list(100)
-    return [Vet(**v) for v in vets]
+        query["city"] = {"$regex": str(city).strip(), "$options": "i"}
+    if pet_type and str(pet_type).strip().lower() in VET_PET_TYPES:
+        pt = str(pet_type).strip().lower()
+        query.setdefault("$and", []).append({"$or": [{"pet_types_supported": pt}, {"pet_types_supported": "all"}]})
 
-@api_router.get("/vets/{vet_id}", response_model=Vet)
+    sort_key = (sort or "top_rated").strip().lower()
+    sort_clause = [("rating_avg", -1), ("rating_count", -1), ("updated_at", -1)]
+    if sort_key == "nearest":
+        sort_clause = [("city", 1), ("rating_avg", -1), ("updated_at", -1)]
+
+    vets = await db.vet_profiles.find(query).sort(sort_clause).to_list(200)
+
+    legacy_q: dict = {"status": "active", "verified": True, "is_public": True}
+    if city:
+        legacy_q["city"] = {"$regex": str(city).strip(), "$options": "i"}
+    if q:
+        qv = str(q).strip()
+        if qv:
+            legacy_q["$or"] = [
+                {"name": {"$regex": qv, "$options": "i"}},
+                {"specialty": {"$regex": qv, "$options": "i"}},
+            ]
+    legacy_rows = await db.vets.find(legacy_q).to_list(200)
+
+    seen_user_ids = {v.get("user_id") for v in vets if v.get("user_id")}
+    for lv in legacy_rows:
+        if lv.get("user_id") and lv.get("user_id") in seen_user_ids:
+            continue
+        vets.append({
+            "id": f"legacy-{lv.get('id')}",
+            "user_id": lv.get("user_id") or lv.get("id"),
+            "name": lv.get("name") or "",
+            "specialty": lv.get("specialty") or "",
+            "experience_years": int(lv.get("experience_years") or lv.get("experience") or 0),
+            "phone": lv.get("phone") or "",
+            "city": lv.get("city") or "",
+            "location_text": lv.get("address") or lv.get("location") or "",
+            "image_url": lv.get("image") or "",
+            "pet_types_supported": _normalize_pet_types(lv.get("pet_types_supported") or []),
+            "rating_avg": float(lv.get("rating_avg") if lv.get("rating_avg") is not None else lv.get("rating") or 0),
+            "rating_count": int(lv.get("rating_count") if lv.get("rating_count") is not None else lv.get("reviews_count") or 0),
+            "is_public": True,
+            "status": "active",
+            "verified": True,
+        })
+
+    return [_serialize_doc(v) for v in vets]
+
+@api_router.get("/vets/{vet_id}")
 async def get_vet(vet_id: str):
-    vet = await db.vets.find_one({"id": vet_id})
-    if not vet:
+    vet = await db.vet_profiles.find_one({"id": vet_id, "status": "active", "verified": True, "is_public": True})
+    if vet:
+        return _serialize_doc(vet)
+
+    legacy = await db.vets.find_one({"id": vet_id, "status": "active", "verified": True, "is_public": True})
+    if not legacy:
         raise HTTPException(status_code=404, detail="Vet not found")
-    return Vet(**vet)
+    return _serialize_doc(legacy)
+
+
+@api_router.get("/vet-profile/me")
+async def get_my_vet_profile(current_user: dict = Depends(require_roles("vet"))):
+    profile = await ensure_vet_profile(current_user["id"], user=current_user)
+    return _serialize_doc(profile)
+
+
+@api_router.put("/vet-profile/me")
+async def update_my_vet_profile(data: dict, current_user: dict = Depends(require_roles("vet"))):
+    profile = await ensure_vet_profile(current_user["id"], user=current_user)
+
+    allowed = {"name", "specialty", "experience_years", "phone", "city", "location_text", "image_url", "pet_types_supported"}
+    patch = {k: v for k, v in (data or {}).items() if k in allowed}
+
+    if "experience_years" in patch:
+        try:
+            patch["experience_years"] = max(0, int(patch["experience_years"]))
+        except Exception:
+            raise HTTPException(status_code=400, detail="experience_years must be a number")
+
+    if "pet_types_supported" in patch:
+        patch["pet_types_supported"] = _normalize_pet_types(patch.get("pet_types_supported"))
+
+    if profile.get("status") in {"rejected", "draft"}:
+        patch["status"] = "draft"
+
+    patch["updated_at"] = datetime.utcnow()
+    await db.vet_profiles.update_one({"id": profile["id"]}, {"$set": patch})
+    updated = await db.vet_profiles.find_one({"id": profile["id"]})
+    return _serialize_doc(updated)
+
+
+@api_router.post("/vet-profile/me/submit")
+async def submit_my_vet_profile(current_user: dict = Depends(require_roles("vet"))):
+    profile = await ensure_vet_profile(current_user["id"], user=current_user)
+
+    if profile.get("status") == "suspended":
+        raise HTTPException(status_code=400, detail="Profile suspended. Contact admin.")
+    if profile.get("status") == "pending_verification":
+        raise HTTPException(status_code=400, detail="Profile already pending verification")
+
+    required_fields = ["name", "specialty", "experience_years", "phone", "city"]
+    missing = [k for k in required_fields if not profile.get(k)]
+    if not profile.get("pet_types_supported"):
+        missing.append("pet_types_supported")
+    if missing:
+        raise HTTPException(status_code=400, detail=f"Missing required fields: {', '.join(missing)}")
+
+    patch = {
+        "status": "pending_verification",
+        "verified": False,
+        "is_public": False,
+        "updated_at": datetime.utcnow(),
+    }
+    await db.vet_profiles.update_one({"id": profile["id"]}, {"$set": patch})
+
+    await create_notifications_for_admins(
+        "Vet profile verification required",
+        f"{current_user.get('name') or 'Vet'} submitted profile for verification.",
+        "vet_profile_verification",
+        {"profile_id": profile["id"], "user_id": current_user["id"], "route": "/admin/vets"},
+    )
+
+    updated = await db.vet_profiles.find_one({"id": profile["id"]})
+    return _serialize_doc(updated)
 
 # ========================= APPOINTMENTS =========================
 
@@ -3554,7 +3766,7 @@ async def get_admin_stats(admin_user: dict = Depends(get_admin_user)):
         orders_count = await db.orders.count_documents({})
         appointments_count = await db.appointments.count_documents({})
         products_count = await db.products.count_documents({})
-        vets_count = await db.vets.count_documents({})
+        vets_count = await db.vet_profiles.count_documents({})
         
         # Calculate revenue
         orders = await db.orders.find({}).to_list(1000)
@@ -3851,6 +4063,19 @@ async def handle_role_request_admin(request_id: str, data: dict, admin_user: dic
             raise HTTPException(status_code=400, detail="Invalid role in request")
         await db.users.update_one({"id": req.get("user_id")}, {"$set": {"role": role, "is_admin": role == "admin"}})
 
+        if role == "vet":
+            approved_user = await db.users.find_one({"id": req.get("user_id")})
+            profile = await ensure_vet_profile(req.get("user_id"), user=approved_user)
+            await db.vet_profiles.update_one(
+                {"id": profile["id"]},
+                {"$set": {
+                    "status": "pending_verification",
+                    "verified": False,
+                    "is_public": False,
+                    "updated_at": datetime.utcnow(),
+                }},
+            )
+
     new_status = "approved" if action == "approve" else "rejected"
     await db.role_requests.update_one(
         {"id": request_id},
@@ -3988,32 +4213,117 @@ async def get_all_appointments_admin(admin_user: dict = Depends(get_admin_user))
 
 @api_router.get("/admin/vets")
 async def get_all_vets_admin(admin_user: dict = Depends(get_admin_user)):
-    """Get all vets for admin"""
-    vets = await db.vets.find({}).to_list(100)
-    return vets
+    """Legacy admin vets endpoint: returns vet profiles joined with user"""
+    rows = await db.vet_profiles.find({}).sort("updated_at", -1).to_list(1000)
+    user_ids = [r.get("user_id") for r in rows if r.get("user_id")]
+    users = await db.users.find({"id": {"$in": user_ids}}).to_list(1000)
+    user_map = {u.get("id"): u for u in users}
+    out = []
+    for r in rows:
+        u = user_map.get(r.get("user_id"), {})
+        out.append({
+            **_serialize_doc(r),
+            "user_email": u.get("email"),
+            "user_name": u.get("name"),
+            "user_role": u.get("role"),
+            "user_is_verified": u.get("is_verified", False),
+        })
+    return out
 
-@api_router.post("/admin/vets")
-async def create_vet_admin(data: dict, admin_user: dict = Depends(get_admin_user)):
-    """Create new vet (admin)"""
-    vet = {
-        "id": str(uuid.uuid4()),
-        **data,
-        "created_at": datetime.utcnow(),
-    }
-    await db.vets.insert_one(vet)
-    return vet
 
-@api_router.put("/admin/vets/{vet_id}")
-async def update_vet_admin(vet_id: str, data: dict, admin_user: dict = Depends(get_admin_user)):
-    """Update vet (admin)"""
-    await db.vets.update_one({"id": vet_id}, {"$set": data})
-    return {"success": True}
+@api_router.get("/admin/vet-profiles")
+async def get_admin_vet_profiles(
+    status: Optional[str] = None,
+    q: Optional[str] = None,
+    city: Optional[str] = None,
+    admin_user: dict = Depends(get_admin_user),
+):
+    query: dict = {}
+    if status and status in VET_PROFILE_STATUSES:
+        query["status"] = status
+    if city:
+        query["city"] = {"$regex": str(city).strip(), "$options": "i"}
+    if q:
+        qv = str(q).strip()
+        if qv:
+            query["$or"] = [
+                {"name": {"$regex": qv, "$options": "i"}},
+                {"specialty": {"$regex": qv, "$options": "i"}},
+                {"city": {"$regex": qv, "$options": "i"}},
+            ]
 
-@api_router.delete("/admin/vets/{vet_id}")
-async def delete_vet_admin(vet_id: str, admin_user: dict = Depends(get_admin_user)):
-    """Delete vet (admin)"""
-    await db.vets.delete_one({"id": vet_id})
-    return {"success": True}
+    rows = await db.vet_profiles.find(query).sort("updated_at", -1).to_list(1000)
+    user_ids = [r.get("user_id") for r in rows if r.get("user_id")]
+    users = await db.users.find({"id": {"$in": user_ids}}).to_list(1000)
+    user_map = {u.get("id"): u for u in users}
+
+    blocked_rows = await db.blocked_users.find({"user_id": admin_user["id"], "blocked_user_id": {"$in": user_ids}}).to_list(2000)
+    blocked_set = {r.get("blocked_user_id") for r in blocked_rows}
+
+    out = []
+    for r in rows:
+        u = user_map.get(r.get("user_id"), {})
+        out.append({
+            **_serialize_doc(r),
+            "user": {
+                "id": u.get("id"),
+                "name": u.get("name"),
+                "email": u.get("email"),
+                "role": u.get("role"),
+                "is_verified": u.get("is_verified", False),
+                "is_blocked_by_admin": u.get("id") in blocked_set,
+            },
+        })
+    return out
+
+
+@api_router.put("/admin/vet-profiles/{profile_id}")
+async def update_admin_vet_profile(profile_id: str, data: dict, admin_user: dict = Depends(get_admin_user)):
+    profile = await db.vet_profiles.find_one({"id": profile_id})
+    if not profile:
+        raise HTTPException(status_code=404, detail="Vet profile not found")
+
+    action = str(data.get("action") or "").strip().lower()
+    notes = data.get("verification_notes")
+    update: dict = {"updated_at": datetime.utcnow()}
+
+    if action == "approve":
+        update.update({"status": "active", "verified": True})
+    elif action == "reject":
+        note = str(notes or "").strip()
+        if not note:
+            raise HTTPException(status_code=400, detail="verification_notes are required for reject")
+        update.update({"status": "rejected", "verified": False, "is_public": False, "verification_notes": note})
+    elif action == "suspend":
+        update.update({"status": "suspended", "is_public": False})
+    elif action == "activate":
+        if not profile.get("verified"):
+            raise HTTPException(status_code=400, detail="Cannot activate unverified profile")
+        update.update({"status": "active"})
+    elif action == "set_public":
+        is_public = bool(data.get("is_public", False))
+        if is_public and (profile.get("status") != "active" or not profile.get("verified")):
+            raise HTTPException(status_code=400, detail="Only verified active profiles can be public")
+        update.update({"is_public": is_public})
+    else:
+        raise HTTPException(status_code=400, detail="Invalid action")
+
+    if notes is not None and action != "reject":
+        update["verification_notes"] = str(notes).strip() or None
+
+    await db.vet_profiles.update_one({"id": profile_id}, {"$set": update})
+
+    await create_notification(
+        profile.get("user_id"),
+        "Vet profile update",
+        f"Your vet profile status is now {update.get('status', profile.get('status'))}.",
+        "vet_profile",
+        {"profile_id": profile_id, "action": action},
+    )
+    await audit_admin_action(admin_user, "review_vet_profile", "vet_profile", profile_id, {"action": action, **update})
+
+    updated = await db.vet_profiles.find_one({"id": profile_id})
+    return _serialize_doc(updated)
 
 @api_router.get("/admin/community")
 async def get_all_posts_admin(admin_user: dict = Depends(get_admin_user)):

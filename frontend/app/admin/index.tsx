@@ -47,7 +47,7 @@ const MENU_ITEMS = [
   { id: 'orders', label: 'Orders', icon: 'bag-handle', color: '#F59E0B', route: '/admin/orders' },
   { id: 'products', label: 'Products', icon: 'cube', color: '#10B981', route: '/admin/products' },
   { id: 'appointments', label: 'Appointments', icon: 'calendar', color: '#8B5CF6', route: '/admin/appointments' },
-  { id: 'vets', label: 'Veterinarians', icon: 'medical', color: '#EF4444', route: '/admin/vets' },
+  { id: 'vets', label: 'Vet Profiles Queue', icon: 'medical', color: '#EF4444', route: '/admin/vets' },
   { id: 'community', label: 'Community', icon: 'chatbubbles', color: '#06B6D4', route: '/admin/community' },
   { id: 'locations', label: 'Map Locations', icon: 'location', color: '#84CC16', route: '/admin/locations' },
   { id: 'sponsorships', label: 'Sponsorships', icon: 'heart', color: '#F43F5E', route: '/admin/sponsorships' },

@@ -160,12 +160,29 @@ export const roleRequestAPI = {
     api.put(`/admin/role-requests/${id}`, { action }),
 };
 
+export const adminAPI = {
+  blockUser: (userId: string) => api.post(`/admin/users/${userId}/block`),
+  unblockUser: (userId: string) => api.delete(`/admin/users/${userId}/block`),
+};
+
 // Vets API
 export const vetsAPI = {
-  getAll: (params?: { city?: string; specialty?: string }) =>
+  getAll: (params?: { q?: string; city?: string; pet_type?: string; sort?: 'top_rated' | 'nearest' }) =>
     api.get('/vets', { params }),
-  
+
   getById: (id: string) => api.get(`/vets/${id}`),
+};
+
+export const vetProfileAPI = {
+  getMe: () => api.get('/vet-profile/me'),
+  updateMe: (data: any) => api.put('/vet-profile/me', data),
+  submitForVerification: () => api.post('/vet-profile/me/submit'),
+};
+
+export const adminVetProfilesAPI = {
+  getAll: (params?: { status?: string; q?: string; city?: string }) => api.get('/admin/vet-profiles', { params }),
+  action: (profileId: string, data: { action: 'approve' | 'reject' | 'suspend' | 'activate' | 'set_public'; is_public?: boolean; verification_notes?: string }) =>
+    api.put(`/admin/vet-profiles/${profileId}`, data),
 };
 
 // Appointments API

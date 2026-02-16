@@ -95,7 +95,7 @@ export default function VetDetailScreen() {
           <Image
             source={{
               uri:
-                vet.image ||
+                vet.image_url || vet.image_url || vet.image ||
                 'https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?w=400',
             }}
             style={styles.coverImage}
@@ -115,21 +115,21 @@ export default function VetDetailScreen() {
             <Image
               source={{
                 uri:
-                  vet.image ||
+                  vet.image_url || vet.image_url || vet.image ||
                   'https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?w=200',
               }}
               style={styles.avatar}
             />
           </View>
           <Text style={styles.vetName}>{vet.name}</Text>
-          <Text style={styles.clinicName}>{vet.clinic_name}</Text>
+          <Text style={styles.clinicName}>{vet.clinic_name || vet.specialty || 'Veterinarian'}</Text>
           
           <View style={styles.ratingContainer}>
             <View style={styles.stars}>
-              {renderStars(Math.round(vet.rating))}
+              {renderStars(Math.round(vet.rating_avg ?? vet.rating ?? 0))}
             </View>
             <Text style={styles.ratingText}>
-              {vet.rating.toFixed(1)} ({vet.reviews_count} reviews)
+              {Number(vet.rating_avg ?? vet.rating ?? 0).toFixed(1)} ({Number(vet.rating_count ?? vet.reviews_count ?? 0)} reviews)
             </Text>
           </View>
 
@@ -175,7 +175,7 @@ export default function VetDetailScreen() {
             <Ionicons name="location" size={20} color={Colors.primary} />
             <View style={styles.detailContent}>
               <Text style={styles.detailLabel}>Address</Text>
-              <Text style={styles.detailValue}>{vet.address}</Text>
+              <Text style={styles.detailValue}>{vet.address || vet.location_text || '-'}</Text>
             </View>
           </View>
 
@@ -192,7 +192,7 @@ export default function VetDetailScreen() {
             <View style={styles.detailContent}>
               <Text style={styles.detailLabel}>Available Hours</Text>
               <Text style={styles.detailValue}>
-                {vet.available_hours || 'Contact for hours'}
+                {vet.available_hours || vet.location_text || 'Contact for hours'}
               </Text>
             </View>
           </View>

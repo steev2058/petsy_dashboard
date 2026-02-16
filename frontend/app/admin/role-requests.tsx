@@ -11,6 +11,7 @@ export default function AdminRoleRequestsScreen() {
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [rows, setRows] = useState<any[]>([]);
+  const [lastApprovedVetRequest, setLastApprovedVetRequest] = useState<any>(null);
 
   const load = useCallback(async () => {
     try {
@@ -24,8 +25,9 @@ export default function AdminRoleRequestsScreen() {
 
   useEffect(() => { load(); }, [load]);
 
-  const review = async (id: string, action: 'approve' | 'reject') => {
-    await roleRequestAPI.review(id, action);
+  const review = async (item: any, action: 'approve' | 'reject') => {
+    await roleRequestAPI.review(item.id, action);
+    if (action === 'approve' && item.target_role === 'vet') setLastApprovedVetRequest(item);
     await load();
   };
 
@@ -34,6 +36,12 @@ export default function AdminRoleRequestsScreen() {
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
       <View style={styles.header}><TouchableOpacity style={styles.backBtn} onPress={() => router.back()}><Ionicons name='arrow-back' size={22} color={Colors.text} /></TouchableOpacity><Text style={styles.title}>Role Requests</Text><View style={{ width: 40 }} /></View>
+      {lastApprovedVetRequest && (
+        <View style={{ paddingHorizontal: Spacing.md, paddingTop: 8, flexDirection: 'row', gap: 8 }}>
+          <TouchableOpacity style={styles.btn} onPress={() => router.push('/admin/vet-profiles' as any)}><Text style={styles.btnText}>Open Vet Profile Queue</Text></TouchableOpacity>
+          <TouchableOpacity style={styles.btn} onPress={() => router.push('/admin/vet-profiles' as any)}><Text style={styles.btnText}>Open this Vet Profile</Text></TouchableOpacity>
+        </View>
+      )}
       <FlatList
         data={rows}
         keyExtractor={(item) => item.id}
@@ -48,8 +56,8 @@ export default function AdminRoleRequestsScreen() {
             {item.reason ? <Text style={styles.reason}>Reason: {item.reason}</Text> : null}
             {item.status === 'pending' && (
               <View style={styles.row}>
-                <TouchableOpacity style={styles.btn} onPress={() => review(item.id, 'approve')}><Text style={styles.btnText}>Approve</Text></TouchableOpacity>
-                <TouchableOpacity style={styles.btnDanger} onPress={() => review(item.id, 'reject')}><Text style={styles.btnDangerText}>Reject</Text></TouchableOpacity>
+                <TouchableOpacity style={styles.btn} onPress={() => review(item, 'approve')}><Text style={styles.btnText}>Approve</Text></TouchableOpacity>
+                <TouchableOpacity style={styles.btnDanger} onPress={() => review(item, 'reject')}><Text style={styles.btnDangerText}>Reject</Text></TouchableOpacity>
               </View>
             )}
           </View>

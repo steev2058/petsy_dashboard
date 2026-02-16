@@ -69,7 +69,9 @@ export default function VetsScreen() {
     try {
       const params: any = {};
       if (city.trim()) params.city = city.trim();
-      if (specialty !== 'all') params.specialty = specialty;
+      if (search.trim()) params.q = search.trim();
+      if (specialty !== 'all') params.pet_type = specialty;
+      params.sort = sortBy === 'nearest' ? 'nearest' : 'top_rated';
       const res = await vetsAPI.getAll(params);
       setVets(res.data || []);
     } catch (e) {
@@ -82,7 +84,7 @@ export default function VetsScreen() {
 
   useEffect(() => {
     loadVets();
-  }, [city, specialty]);
+  }, [city, specialty, sortBy, search]);
 
   useEffect(() => {
     if (sortBy !== 'nearest') return;
