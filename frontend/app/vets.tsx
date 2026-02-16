@@ -8,6 +8,8 @@ import {
   FlatList,
   ActivityIndicator,
   RefreshControl,
+  Linking,
+  Alert,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
@@ -15,6 +17,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { Colors, FontSize, Spacing, BorderRadius, Shadow } from '../src/constants/theme';
 import { vetsAPI } from '../src/services/api';
 import { useTranslation } from '../src/hooks/useTranslation';
+import * as Location from 'expo-location';
 
 type Vet = {
   id: string;
@@ -25,9 +28,13 @@ type Vet = {
   phone?: string;
   rating?: number;
   reviews_count?: number;
+  latitude?: number;
+  longitude?: number;
 };
 
 const SPECIALTIES = ['all', 'dogs', 'cats', 'birds'];
+
+type SortMode = 'rating' | 'nearest';
 
 export default function VetsScreen() {
   const router = useRouter();
@@ -39,6 +46,8 @@ export default function VetsScreen() {
   const [search, setSearch] = useState('');
   const [city, setCity] = useState('');
   const [specialty, setSpecialty] = useState('all');
+  const [sortBy, setSortBy] = useState<SortMode>('rating');
+  const [myLocation, setMyLocation] = useState<{ latitude: number; longitude: number } | null>(null);
 
   const labels = {
     title: language === 'ar' ? 'الأطباء البيطريون' : 'Vets',
@@ -49,6 +58,10 @@ export default function VetsScreen() {
     dogs: language === 'ar' ? 'كلاب' : 'Dogs',
     cats: language === 'ar' ? 'قطط' : 'Cats',
     birds: language === 'ar' ? 'طيور' : 'Birds',
+    sortRating: language === 'ar' ? 'الأعلى تقييماً' : 'Top rated',
+    sortNearest: language === 'ar' ? 'الأقرب' : 'Nearest',
+    call: language === 'ar' ? 'اتصال' : 'Call',
+    locationOff: language === 'ar' ? 'فعّل الموقع لإظهار الأقرب' : 'Enable location for nearest sort',
   };
 
   const loadVets = async () => {
@@ -70,35 +83,96 @@ export default function VetsScreen() {
     loadVets();
   }, [city, specialty]);
 
+  useEffect(() => {
+    if (sortBy !== 'nearest') return;
+    (async () => {
+      try {
+        const { status } = await Location.requestForegroundPermissionsAsync();
+        if (status !== 'granted') return;
+        const loc = await Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.Balanced });
+        setMyLocation({ latitude: loc.coords.latitude, longitude: loc.coords.longitude });
+      } catch {
+        // ignore
+      }
+    })();
+  }, [sortBy]);
+
+  const distanceKm = (aLat: number, aLng: number, bLat: number, bLng: number) => {
+    const toRad = (d: number) => (d * Math.PI) / 180;
+    const R = 6371;
+    const dLat = toRad(bLat - aLat);
+    const dLng = toRad(bLng - aLng);
+    const x = Math.sin(dLat / 2) ** 2 + Math.cos(toRad(aLat)) * Math.cos(toRad(bLat)) * Math.sin(dLng / 2) ** 2;
+    return 2 * R * Math.asin(Math.sqrt(x));
+  };
+
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
-    if (!q) return vets;
-    return vets.filter(v =>
-      `${v.name || ''} ${v.clinic_name || ''} ${v.city || ''}`.toLowerCase().includes(q),
-    );
-  }, [vets, search]);
+    let rows = !q
+      ? [...vets]
+      : vets.filter(v => `${v.name || ''} ${v.clinic_name || ''} ${v.city || ''}`.toLowerCase().includes(q));
+
+    if (sortBy === 'nearest' && myLocation) {
+      rows.sort((a, b) => {
+        const ad = (a.latitude != null && a.longitude != null)
+          ? distanceKm(myLocation.latitude, myLocation.longitude, a.latitude, a.longitude)
+          : Number.POSITIVE_INFINITY;
+        const bd = (b.latitude != null && b.longitude != null)
+          ? distanceKm(myLocation.latitude, myLocation.longitude, b.latitude, b.longitude)
+          : Number.POSITIVE_INFINITY;
+        return ad - bd;
+      });
+    } else {
+      rows.sort((a, b) => (Number(b.rating || 0) - Number(a.rating || 0)));
+    }
+
+    return rows;
+  }, [vets, search, sortBy, myLocation]);
 
   const onRefresh = () => {
     setRefreshing(true);
     loadVets();
   };
 
-  const renderVet = ({ item }: { item: Vet }) => (
-    <TouchableOpacity style={[styles.card, Shadow.small]} onPress={() => router.push(`/vet/${item.id}` as any)}>
-      <View style={styles.cardHeader}>
-        <View style={styles.avatar}><Text style={styles.avatarText}>{(item.name || 'V')[0].toUpperCase()}</Text></View>
-        <View style={{ flex: 1 }}>
-          <Text style={styles.name}>{item.name}</Text>
-          <Text style={styles.meta}>{item.clinic_name || '-'}</Text>
-          <Text style={styles.meta}>{item.city || '-'}</Text>
+  const renderVet = ({ item }: { item: Vet }) => {
+    const canShowDistance = !!myLocation && item.latitude != null && item.longitude != null;
+    const distance = canShowDistance
+      ? distanceKm(myLocation!.latitude, myLocation!.longitude, item.latitude!, item.longitude!)
+      : null;
+
+    return (
+      <TouchableOpacity style={[styles.card, Shadow.small]} onPress={() => router.push(`/vet/${item.id}` as any)}>
+        <View style={styles.cardHeader}>
+          <View style={styles.avatar}><Text style={styles.avatarText}>{(item.name || 'V')[0].toUpperCase()}</Text></View>
+          <View style={{ flex: 1 }}>
+            <Text style={styles.name}>{item.name}</Text>
+            <Text style={styles.meta}>{item.clinic_name || '-'}</Text>
+            <Text style={styles.meta}>{item.city || '-'}</Text>
+            {distance != null && <Text style={styles.meta}>{distance.toFixed(1)} km</Text>}
+          </View>
+          <View style={styles.ratingWrap}>
+            <Ionicons name="star" size={14} color="#F59E0B" />
+            <Text style={styles.ratingText}>{Number(item.rating || 0).toFixed(1)}</Text>
+          </View>
         </View>
-        <View style={styles.ratingWrap}>
-          <Ionicons name="star" size={14} color="#F59E0B" />
-          <Text style={styles.ratingText}>{Number(item.rating || 0).toFixed(1)}</Text>
-        </View>
-      </View>
-    </TouchableOpacity>
-  );
+        {!!item.phone && (
+          <View style={styles.actionsRow}>
+            <TouchableOpacity
+              style={styles.callBtn}
+              onPress={() => {
+                const phone = String(item.phone || '').trim();
+                if (!phone) return;
+                Linking.openURL(`tel:${phone}`).catch(() => Alert.alert('Error', 'Cannot open dialer'));
+              }}
+            >
+              <Ionicons name="call" size={15} color={Colors.white} />
+              <Text style={styles.callBtnText}>{labels.call}</Text>
+            </TouchableOpacity>
+          </View>
+        )}
+      </TouchableOpacity>
+    );
+  };
 
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
@@ -146,6 +220,19 @@ export default function VetsScreen() {
         ))}
       </View>
 
+      <View style={[styles.filtersRow, { marginTop: 6 }]}> 
+        <TouchableOpacity style={[styles.filterChip, sortBy === 'rating' && styles.filterChipActive]} onPress={() => setSortBy('rating')}>
+          <Text style={[styles.filterText, sortBy === 'rating' && styles.filterTextActive]}>{labels.sortRating}</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={[styles.filterChip, sortBy === 'nearest' && styles.filterChipActive]} onPress={() => setSortBy('nearest')}>
+          <Text style={[styles.filterText, sortBy === 'nearest' && styles.filterTextActive]}>{labels.sortNearest}</Text>
+        </TouchableOpacity>
+      </View>
+
+      {sortBy === 'nearest' && !myLocation && (
+        <Text style={styles.locationHint}>{labels.locationOff}</Text>
+      )}
+
       {loading ? (
         <View style={styles.loader}><ActivityIndicator color={Colors.primary} /></View>
       ) : (
@@ -192,6 +279,7 @@ const styles = StyleSheet.create({
   filterChipActive: { backgroundColor: Colors.primary },
   filterText: { color: Colors.textSecondary, fontSize: FontSize.sm, fontWeight: '600' },
   filterTextActive: { color: Colors.white },
+  locationHint: { color: Colors.textSecondary, fontSize: FontSize.xs, paddingHorizontal: Spacing.md, marginTop: 6 },
   loader: { flex: 1, justifyContent: 'center', alignItems: 'center' },
   empty: { textAlign: 'center', color: Colors.textSecondary, marginTop: Spacing.xl },
   card: { backgroundColor: Colors.white, borderRadius: BorderRadius.lg, padding: Spacing.md, marginBottom: Spacing.sm },
@@ -202,4 +290,7 @@ const styles = StyleSheet.create({
   meta: { fontSize: FontSize.sm, color: Colors.textSecondary },
   ratingWrap: { flexDirection: 'row', alignItems: 'center', gap: 4 },
   ratingText: { fontSize: FontSize.sm, fontWeight: '700', color: Colors.text },
+  actionsRow: { flexDirection: 'row', marginTop: Spacing.sm, justifyContent: 'flex-end' },
+  callBtn: { flexDirection: 'row', alignItems: 'center', gap: 6, backgroundColor: Colors.primary, paddingHorizontal: 12, paddingVertical: 8, borderRadius: 999 },
+  callBtnText: { color: Colors.white, fontSize: FontSize.sm, fontWeight: '700' },
 });
