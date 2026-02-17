@@ -156,20 +156,28 @@ export const useStore = create<AppState>((set, get) => ({
 
       try {
         const backendUrl = resolveBackendUrl();
-        const res = await fetch(`${backendUrl}/api/auth/me`, {
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${token}`,
-          },
-        });
+        const controller = new AbortController();
+        const timeout = setTimeout(() => controller.abort(), 8000);
 
-        if (res.ok) {
-          const contentType = res.headers.get('content-type') || '';
-          if (contentType.includes('application/json')) {
-            const user = await res.json();
-            set({ user, isAuthenticated: true, isLoading: false, token, language, cart, cartTotal });
-            return;
+        try {
+          const res = await fetch(`${backendUrl}/api/auth/me`, {
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `Bearer ${token}`,
+            },
+            signal: controller.signal,
+          });
+
+          if (res.ok) {
+            const contentType = res.headers.get('content-type') || '';
+            if (contentType.includes('application/json')) {
+              const user = await res.json();
+              set({ user, isAuthenticated: true, isLoading: false, token, language, cart, cartTotal });
+              return;
+            }
           }
+        } finally {
+          clearTimeout(timeout);
         }
       } catch (authError) {
         console.error('Stored auth validation failed:', authError);
