@@ -28,9 +28,9 @@ export default function WelcomeLanding() {
   const setLanguage = useStore((s) => s.setLanguage);
   const language = useStore((s) => s.language);
 
-  const heroOpacity = useSharedValue(0);
-  const heroY = useSharedValue(24);
-  const ctaOpacity = useSharedValue(0);
+  const heroOpacity = useSharedValue(1);
+  const heroY = useSharedValue(16);
+  const ctaOpacity = useSharedValue(1);
 
   useEffect(() => {
     if (language !== 'ar') setLanguage('ar');
@@ -60,7 +60,7 @@ export default function WelcomeLanding() {
       <ScrollView contentContainerStyle={[styles.scroll, isWide && styles.scrollWide]} showsVerticalScrollIndicator={false}>
         <View style={styles.topBar}>
           <View style={styles.brandRow}>
-            <PetsyMark size={42} animated />
+            <PetsyMark size={42} />
             <Text style={styles.brand}>Petsy</Text>
           </View>
           <TouchableOpacity onPress={() => router.push('/(auth)/login')} style={styles.topLogin}>
@@ -69,6 +69,7 @@ export default function WelcomeLanding() {
         </View>
 
         <Animated.View style={[styles.hero, heroStyle, isWide && styles.heroWide]}>
+          <PetsyMark size={96} animated />
           <Text style={styles.kicker}>منصة سورية لرعاية الحيوان</Text>
           <Text style={styles.headline}>بيت واحد للتبنّي والرعاية والسوق البيطري</Text>
           <Text style={styles.sub}>
@@ -182,9 +183,9 @@ const styles = StyleSheet.create({
   topLoginText: { color: Colors.text, fontWeight: '700', fontSize: FontSize.md },
   hero: { marginBottom: Spacing.xl },
   heroWide: { maxWidth: 640 },
-  kicker: { color: Colors.secondary, fontWeight: '700', fontSize: FontSize.sm, marginBottom: Spacing.sm },
+  kicker: { color: Colors.primary, fontWeight: '700', fontSize: FontSize.sm, marginBottom: Spacing.sm, marginTop: Spacing.md },
   headline: {
-    color: Colors.text,
+    color: Colors.primary,
     fontSize: FontSize.display,
     fontWeight: '800',
     lineHeight: 58,

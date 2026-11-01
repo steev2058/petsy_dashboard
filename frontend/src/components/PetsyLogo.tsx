@@ -25,8 +25,8 @@ type MarkProps = {
 /** Courtyard-arch mark — cedar tile with a slow gold breath when animated */
 export function PetsyMark({ size = 'md', style, animated = false }: MarkProps) {
   const s = typeof size === 'number' ? size : SIZE_MAP[size];
-  const scale = useSharedValue(animated ? 0.82 : 1);
-  const opacity = useSharedValue(animated ? 0 : 1);
+  const scale = useSharedValue(animated ? 0.92 : 1);
+  const opacity = useSharedValue(1);
   const ring = useSharedValue(0.92);
 
   useEffect(() => {
