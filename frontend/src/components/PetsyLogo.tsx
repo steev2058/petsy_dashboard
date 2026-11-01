@@ -25,14 +25,15 @@ type MarkProps = {
 /** Courtyard-arch mark — cedar tile with a slow gold breath when animated */
 export function PetsyMark({ size = 'md', style, animated = false }: MarkProps) {
   const s = typeof size === 'number' ? size : SIZE_MAP[size];
-  const scale = useSharedValue(animated ? 0.92 : 1);
-  const opacity = useSharedValue(1);
-  const ring = useSharedValue(0.92);
+  const scale = useSharedValue(1);
+  const ring = useSharedValue(1);
 
   useEffect(() => {
     if (!animated) return;
-    opacity.value = withTiming(1, { duration: 420 });
-    scale.value = withSpring(1, { damping: 12, stiffness: 130 });
+    scale.value = withSequence(
+      withTiming(0.94, { duration: 1 }),
+      withSpring(1, { damping: 12, stiffness: 130 })
+    );
     ring.value = withDelay(
       200,
       withRepeat(
@@ -47,7 +48,6 @@ export function PetsyMark({ size = 'md', style, animated = false }: MarkProps) {
   }, [animated]);
 
   const markStyle = useAnimatedStyle(() => ({
-    opacity: opacity.value,
     transform: [{ scale: scale.value }],
   }));
   const ringStyle = useAnimatedStyle(() => ({
