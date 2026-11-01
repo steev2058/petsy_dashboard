@@ -36,6 +36,7 @@ export default function Root({ children }: PropsWithChildren) {
                 -webkit-box-shadow: none !important;
               }
 
+              img { opacity: 1 !important; }
               input::-webkit-contacts-auto-fill-button,
               input::-webkit-credentials-auto-fill-button {
                 visibility: hidden;
