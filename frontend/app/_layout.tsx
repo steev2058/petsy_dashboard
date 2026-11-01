@@ -1,7 +1,8 @@
 import React, { useEffect } from 'react';
 import { Stack, useRouter, useSegments } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
-import { I18nManager, Platform } from 'react-native';
+import { I18nManager, Platform, View, ActivityIndicator } from 'react-native';
+import { useFonts, Tajawal_400Regular, Tajawal_500Medium, Tajawal_700Bold, Tajawal_800ExtraBold } from '@expo-google-fonts/tajawal';
 import { useStore } from '../src/store/useStore';
 import { Colors } from '../src/constants/theme';
 
@@ -13,6 +14,12 @@ export default function RootLayout() {
   const user = useStore((state) => state.user);
   const router = useRouter();
   const segments = useSegments();
+  const [fontsLoaded] = useFonts({
+    Tajawal_400Regular,
+    Tajawal_500Medium,
+    Tajawal_700Bold,
+    Tajawal_800ExtraBold,
+  });
 
   useEffect(() => {
     loadStoredAuth();
@@ -137,6 +144,14 @@ export default function RootLayout() {
       router.replace('/(tabs)/home');
     }
   }, [segments, isAuthenticated, isLoading, user, router]);
+
+  if (!fontsLoaded) {
+    return (
+      <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', backgroundColor: Colors.background }}>
+        <ActivityIndicator color={Colors.primary} />
+      </View>
+    );
+  }
 
   return (
     <>

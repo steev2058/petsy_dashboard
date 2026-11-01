@@ -36,7 +36,7 @@ export default function CheckoutScreen() {
   const { cart, cartTotal, clearCart, user, isAuthenticated } = useStore();
   
   const [loading, setLoading] = useState(false);
-  const [paymentMethod, setPaymentMethod] = useState('stripe');
+  const [paymentMethod, setPaymentMethod] = useState('cash_on_delivery');
   const [cardDetails, setCardDetails] = useState({ number: '', expiry: '', cvc: '' });
   const [loyaltyPoints, setLoyaltyPoints] = useState({ total_points: 0, tier: 'bronze', points_value: 0 });
   const [pointsToUse, setPointsToUse] = useState(0);
@@ -235,6 +235,10 @@ export default function CheckoutScreen() {
         </View>
 
         <ScrollView showsVerticalScrollIndicator={false}>
+        <View style={{padding:16,backgroundColor:'#FFF1EB',borderRadius:12,marginBottom:12,borderWidth:1,borderColor:'#E2D8CC'}}>
+          <Text style={{textAlign:'right',color:'#1F2A24',fontWeight:'700'}}>الدفع عند الاستلام أو ShamCash — بدون ربا</Text>
+          <Text style={{textAlign:'right',color:'#5C6B63',marginTop:4}}>عمولة المنصة أجرة خدمة معلنة مسبقاً على الطلبات المكتملة.</Text>
+        </View>
           {/* Step 1: Order Review */}
           {step === 1 && (
             <>

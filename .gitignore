@@ -98,3 +98,10 @@ android-sdk/ -e
 !*.env.example
 !**/*.env.example
 backend/.env
+
+# Petsy local / secrets
+frontend/.metro-cache/
+backend/.admin_bootstrap
+backend/*.bak*
+*.bak
+scripts/.env

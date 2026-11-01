@@ -7,3 +7,5 @@ export { SearchBar } from './SearchBar';
 export { CategoryList, PET_CATEGORIES, SHOP_CATEGORIES } from './CategoryList';
 export { PaymentMethodSelector } from './PaymentMethodSelector';
 export { LoyaltyPointsCard } from './LoyaltyPointsCard';
+export { PetsyLogo, PetsyMark } from './PetsyLogo';
+export { PetsySplash } from './PetsySplash';

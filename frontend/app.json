@@ -6,7 +6,7 @@
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "scheme": "petsy",
-    "userInterfaceStyle": "automatic",
+    "userInterfaceStyle": "light",
     "newArchEnabled": true,
     "ios": {
       "supportsTablet": true,
@@ -19,7 +19,7 @@
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
-        "backgroundColor": "#FF6B35"
+        "backgroundColor": "#F7F3EE"
       },
       "edgeToEdgeEnabled": true,
       "permissions": [
@@ -27,7 +27,8 @@
         "READ_EXTERNAL_STORAGE",
         "ACCESS_FINE_LOCATION",
         "ACCESS_COARSE_LOCATION"
-      ]
+      ],
+      "package": "company.petsy.app"
     },
     "web": {
       "bundler": "metro",
@@ -42,12 +43,18 @@
           "image": "./assets/images/splash-icon.png",
           "imageWidth": 200,
           "resizeMode": "contain",
-          "backgroundColor": "#000"
+          "backgroundColor": "#F7F3EE"
         }
       ]
     ],
     "experiments": {
       "typedRoutes": true
+    },
+    "primaryColor": "#F08C35",
+    "splash": {
+      "image": "./assets/images/splash-icon.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#F7F3EE"
     }
   }
 }

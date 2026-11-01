@@ -57,6 +57,9 @@ const MENU_ITEMS = [
   { id: 'audit-logs', label: 'Audit Logs', icon: 'document-text', color: '#334155', route: '/admin/audit-logs' },
   { id: 'payments', label: 'Payments', icon: 'card', color: '#0EA5E9', route: '/admin/payments' },
   { id: 'settings', label: 'Settings', icon: 'settings', color: '#64748B', route: '/admin/settings' },
+  { id: 'queues', label: 'Work Queues', icon: 'list', color: '#E85D2C', route: '/admin/queues' },
+  { id: 'sharia', label: 'Sharia Policy', icon: 'shield-checkmark', color: '#5B7A5A', route: '/admin/sharia-policy' },
+  { id: 'analytics', label: 'Analytics', icon: 'stats-chart', color: '#0EA5E9', route: '/admin/analytics' },
 ];
 
 export default function AdminDashboard() {

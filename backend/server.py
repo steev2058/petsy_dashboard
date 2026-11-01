@@ -1,4 +1,4 @@
-from fastapi import FastAPI, APIRouter, HTTPException, Depends, status, UploadFile, File, WebSocket, WebSocketDisconnect, Body
+from fastapi import FastAPI, APIRouter, HTTPException, Depends, status, UploadFile, File, WebSocket, WebSocketDisconnect, Body, Header, Query
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from fastapi.encoders import jsonable_encoder
 from dotenv import load_dotenv
@@ -1208,6 +1208,10 @@ async def create_pet(pet_data: PetCreate, current_user: dict = Depends(get_curre
     status_val = (pet_data.status or '').strip().lower()
     if species == 'dog' and status_val == 'for_sale':
         raise HTTPException(status_code=400, detail='Dogs are adoption/rehoming only and cannot be listed for sale')
+    policy = await db.platform_settings.find_one({"id": "sharia_policy"}) or {}
+    keywords = policy.get("banned_keywords", HARAM_PRODUCT_KEYWORDS)
+    if _text_has_haram(f"{getattr(pet_data,'name','')} {getattr(pet_data,'description','')}", keywords):
+        raise HTTPException(status_code=400, detail="المحتوى مخالف لسياسة المنصة الشرعية")
 
     pet = Pet(**pet_data.dict(), owner_id=current_user["id"])
     await db.pets.insert_one(pet.dict())
@@ -1629,6 +1633,11 @@ async def clear_cart(current_user: dict = Depends(get_current_user)):
 
 @api_router.post("/orders", response_model=Order)
 async def create_order(order_data: OrderCreate, current_user: dict = Depends(get_current_user)):
+    method = getattr(order_data, "payment_method", None) or "cash_on_delivery"
+    if method not in ALLOWED_PAYMENT_METHODS:
+        raise HTTPException(status_code=400, detail="طريقة الدفع غير مسموحة")
+    if method in ("stripe", "paypal"):
+        raise HTTPException(status_code=400, detail="الدفع بالبطاقات الدولية غير مفعّل حالياً")
     enriched_items = []
     for item in order_data.items:
         item_data = item.dict()
@@ -1639,8 +1648,12 @@ async def create_order(order_data: OrderCreate, current_user: dict = Depends(get
 
     order_payload = order_data.dict()
     order_payload["items"] = [i.dict() for i in enriched_items]
+    order_payload["payment_method"] = method
+    order_payload["platform_commission_rate"] = PLATFORM_COMMISSION_RATE
     order = Order(**order_payload, user_id=current_user["id"])
-    await db.orders.insert_one(order.dict())
+    doc = order.dict()
+    doc["platform_commission_rate"] = PLATFORM_COMMISSION_RATE
+    await db.orders.insert_one(doc)
     return order
 
 @api_router.get("/orders", response_model=List[Order])
@@ -2376,6 +2389,11 @@ async def mark_message_read(message_id: str, current_user: dict = Depends(get_cu
 
 @api_router.post("/lost-found", response_model=LostFoundPost)
 async def create_lost_found(post: LostFoundCreate, current_user: dict = Depends(get_current_user)):
+    policy = await db.platform_settings.find_one({"id": "sharia_policy"}) or {}
+    keywords = policy.get("banned_keywords", HARAM_PRODUCT_KEYWORDS)
+    blob = f"{getattr(post, 'title', '')} {getattr(post, 'description', '')}"
+    if _text_has_haram(blob, keywords):
+        raise HTTPException(status_code=400, detail="المحتوى مخالف لسياسة المنصة الشرعية")
     lost_found = LostFoundPost(**post.dict(), user_id=current_user["id"])
     await db.lost_found.insert_one(lost_found.dict())
     return lost_found
@@ -2399,6 +2417,10 @@ async def get_lost_found_by_id(post_id: str):
 
 @api_router.post("/community", response_model=CommunityPost)
 async def create_community_post(post: CommunityPostCreate, current_user: dict = Depends(get_current_user)):
+    policy = await db.platform_settings.find_one({"id": "sharia_policy"}) or {}
+    keywords = policy.get("banned_keywords", HARAM_PRODUCT_KEYWORDS)
+    if _text_has_haram(f"{getattr(post,'content','')} {getattr(post,'title','')}", keywords):
+        raise HTTPException(status_code=400, detail="المحتوى مخالف لسياسة المنصة الشرعية")
     community_post = CommunityPost(
         **post.dict(),
         user_id=current_user["id"],
@@ -2812,11 +2834,17 @@ async def update_sponsorship_status(sponsorship_id: str, data: dict, current_use
 
 @api_router.post("/marketplace/listings", response_model=MarketplaceListing)
 async def create_marketplace_listing(payload: MarketplaceListingCreate, current_user: dict = Depends(get_current_user)):
+    policy = await db.platform_settings.find_one({"id": "sharia_policy"}) or {}
+    keywords = policy.get("banned_keywords", HARAM_PRODUCT_KEYWORDS)
+    blob = f"{getattr(payload, 'title', '')} {getattr(payload, 'description', '')} {getattr(payload, 'category', '')}"
+    if _text_has_haram(blob, keywords):
+        raise HTTPException(status_code=400, detail="المحتوى مخالف لسياسة المنصة الشرعية")
     listing = MarketplaceListing(
         **payload.dict(),
         user_id=current_user["id"],
         user_name=current_user.get("name", "User"),
-        user_avatar=current_user.get("avatar")
+        user_avatar=current_user.get("avatar"),
+        status="pending" if policy.get("require_product_review", True) else "active",
     )
     await db.marketplace_listings.insert_one(listing.dict())
     return listing
@@ -3400,8 +3428,11 @@ Respond in the same language the user asks in (Arabic or English)."""
 # ========================= SEED DATA =========================
 
 @api_router.post("/seed")
-async def seed_data():
-    """Seed initial data for testing"""
+async def seed_data(x_seed_secret: Optional[str] = Header(None, alias="X-Seed-Secret")):
+    """Seed initial data — requires X-Seed-Secret header matching SEED_SECRET."""
+    expected = os.environ.get("SEED_SECRET", "")
+    if not expected or x_seed_secret != expected:
+        raise HTTPException(status_code=403, detail="Seed endpoint disabled or unauthorized")
     
     # Seed Admin User
     admin_email = "admin@petsy.com"
@@ -3546,12 +3577,15 @@ STRIPE_PUBLISHABLE_KEY = os.environ.get('STRIPE_PUBLISHABLE_KEY', 'pk_test_PLACE
 async def get_payment_config():
     """Get payment configuration for frontend"""
     return {
-        "stripe_publishable_key": STRIPE_PUBLISHABLE_KEY,
-        "supported_methods": ["stripe", "paypal", "shamcash", "cash_on_delivery"],
-        "supported_cards": ["visa", "mastercard", "amex"],
-        "currency": "USD",
-        "points_per_dollar": 1,  # Earn 1 point per $1 spent
-        "points_redemption_rate": 100,  # 100 points = $1 discount
+        "stripe_publishable_key": "",
+        "supported_methods": ALLOWED_PAYMENT_METHODS,
+        "supported_cards": [],
+        "currency": os.environ.get("DEFAULT_CURRENCY", "SYP"),
+        "commission_rate": PLATFORM_COMMISSION_RATE,
+        "sharia_compliant": True,
+        "no_riba": True,
+        "points_per_dollar": 1,
+        "points_redemption_rate": 100,
     }
 
 @api_router.post("/payments/process")
@@ -3561,6 +3595,14 @@ async def process_payment(payment: PaymentRequest, current_user: dict = Depends(
         # Calculate final amount after points discount
         points_discount = payment.points_to_use / 100  # 100 points = $1
         final_amount = max(0, payment.amount - points_discount)
+
+        if payment.payment_method not in ALLOWED_PAYMENT_METHODS:
+            raise HTTPException(status_code=400, detail="طريقة الدفع غير مسموحة وفق سياسة المنصة")
+        # Block interest-bearing / card rails in Syria launch
+        if payment.payment_method in ("stripe", "paypal"):
+            raise HTTPException(status_code=400, detail="الدفع بالبطاقات الدولية غير مفعّل حالياً (توافق مالي)")
+
+        commission = round(final_amount * PLATFORM_COMMISSION_RATE, 2)
         
         # Simulate payment processing based on method
         payment_result = {
@@ -3571,6 +3613,8 @@ async def process_payment(payment: PaymentRequest, current_user: dict = Depends(
             "points_used": payment.points_to_use,
             "points_discount": points_discount,
             "method": payment.payment_method,
+            "commission": commission,
+            "currency": os.environ.get("DEFAULT_CURRENCY", "SYP"),
         }
         
         if payment.payment_method == "stripe":
@@ -3589,7 +3633,7 @@ async def process_payment(payment: PaymentRequest, current_user: dict = Depends(
             qr_data = {
                 "merchant_id": "PETSY_MERCHANT_001",
                 "amount": final_amount,
-                "currency": "USD",
+                "currency": os.environ.get("DEFAULT_CURRENCY", "SYP"),
                 "reference": str(uuid.uuid4()),
                 "timestamp": datetime.utcnow().isoformat()
             }
@@ -3659,6 +3703,8 @@ async def process_payment(payment: PaymentRequest, current_user: dict = Depends(
         
         return payment_result
         
+    except HTTPException:
+        raise
     except Exception as e:
         logger.error(f"Payment error: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Payment processing failed: {str(e)}")
@@ -4412,13 +4458,164 @@ async def root():
 async def health_check():
     return {"status": "healthy", "timestamp": datetime.utcnow().isoformat()}
 
+
+# ========================= PETSY SYRIA LAUNCH EXTENSIONS =========================
+
+SYRIA_CITIES = [
+    "دمشق", "ريف دمشق", "حلب", "حمص", "حماة", "اللاذقية", "طرطوس",
+    "إدلب", "درعا", "السويداء", "القنيطرة", "دير الزور", "الحسكة", "الرقة"
+]
+
+HARAM_PRODUCT_KEYWORDS = [
+    "خمر", "كحول", "beer", "wine", "alcohol", "خنزير", "pork", "لحم خنزير",
+    "قمار", "يانصيب", "gambling", "lottery", "ربا", "فائدة قرض"
+]
+
+PLATFORM_COMMISSION_RATE = float(os.environ.get("PLATFORM_COMMISSION_RATE", "0.05"))
+ALLOWED_PAYMENT_METHODS = [m.strip() for m in os.environ.get("PAYMENT_METHODS", "cash_on_delivery,shamcash").split(",") if m.strip()]
+
+
+
+@api_router.post("/payments/shamcash/confirm")
+async def confirm_shamcash_payment(data: dict, current_user: dict = Depends(get_current_user)):
+    """Seller/admin confirms local ShamCash transfer received (manual reconciliation)."""
+    payment_id = data.get("payment_id")
+    reference = data.get("reference")
+    q = {"user_id": current_user["id"]} if current_user.get("role") not in ("admin",) and not current_user.get("is_admin") else {}
+    if payment_id:
+        q["id"] = payment_id
+    elif reference:
+        q["shamcash_reference"] = reference
+    else:
+        raise HTTPException(status_code=400, detail="payment_id or reference required")
+    # Admins/market owners can confirm broader set
+    payment = await db.payments.find_one({"id": payment_id} if payment_id else {"id": {"$exists": True}})
+    if payment_id:
+        payment = await db.payments.find_one({"id": payment_id})
+    if not payment:
+        raise HTTPException(status_code=404, detail="Payment not found")
+    await db.payments.update_one({"id": payment["id"]}, {"$set": {
+        "status": "succeeded",
+        "confirmed_at": datetime.utcnow(),
+        "confirmed_by": current_user.get("id"),
+        "confirmation_note": data.get("note", "shamcash_confirmed"),
+    }})
+    if payment.get("order_id"):
+        await db.orders.update_one({"id": payment["order_id"]}, {"$set": {"payment_status": "paid", "status": "confirmed"}})
+    return {"success": True, "payment_id": payment["id"], "status": "succeeded"}
+
+@api_router.get("/meta/syria")
+async def syria_meta():
+    return {
+        "cities": SYRIA_CITIES,
+        "default_language": os.environ.get("DEFAULT_LANGUAGE", "ar"),
+        "default_currency": os.environ.get("DEFAULT_CURRENCY", "SYP"),
+        "payment_methods": ALLOWED_PAYMENT_METHODS,
+        "commission_rate": PLATFORM_COMMISSION_RATE,
+        "sharia": {
+            "content_policy": True,
+            "no_riba": True,
+            "cod_first": True,
+            "banned_keywords": HARAM_PRODUCT_KEYWORDS,
+        },
+    }
+
+@api_router.get("/admin/sharia-policy")
+async def get_sharia_policy(admin_user: dict = Depends(get_admin_user)):
+    doc = await db.platform_settings.find_one({"id": "sharia_policy"}) or {}
+    return {
+        "banned_keywords": doc.get("banned_keywords", HARAM_PRODUCT_KEYWORDS),
+        "banned_categories": doc.get("banned_categories", ["alcohol", "pork", "gambling"]),
+        "require_product_review": doc.get("require_product_review", True),
+        "family_safe_images": doc.get("family_safe_images", True),
+    }
+
+@api_router.put("/admin/sharia-policy")
+async def update_sharia_policy(data: dict, admin_user: dict = Depends(get_admin_user)):
+    payload = {
+        "id": "sharia_policy",
+        "banned_keywords": data.get("banned_keywords", HARAM_PRODUCT_KEYWORDS),
+        "banned_categories": data.get("banned_categories", ["alcohol", "pork", "gambling"]),
+        "require_product_review": bool(data.get("require_product_review", True)),
+        "family_safe_images": bool(data.get("family_safe_images", True)),
+        "updated_at": datetime.utcnow(),
+        "updated_by": admin_user.get("id"),
+    }
+    await db.platform_settings.update_one({"id": "sharia_policy"}, {"$set": payload}, upsert=True)
+    await db.admin_audit_logs.insert_one({
+        "id": str(uuid.uuid4()),
+        "admin_id": admin_user.get("id"),
+        "action": "update_sharia_policy",
+        "created_at": datetime.utcnow(),
+    })
+    return {"success": True, "policy": payload}
+
+def _text_has_haram(text: str, keywords) -> bool:
+    t = (text or "").lower()
+    return any((k or "").lower() in t for k in keywords)
+
+@api_router.post("/admin/verify-seller/{user_id}")
+async def verify_seller(user_id: str, data: dict = Body(default={}), admin_user: dict = Depends(get_admin_user)):
+    status_v = data.get("status", "verified")  # verified | rejected | pending
+    await db.users.update_one({"id": user_id}, {"$set": {
+        "seller_verification": status_v,
+        "seller_verified_at": datetime.utcnow() if status_v == "verified" else None,
+        "role": "market_owner" if status_v == "verified" else "user",
+    }})
+    await db.admin_audit_logs.insert_one({
+        "id": str(uuid.uuid4()), "admin_id": admin_user.get("id"),
+        "action": "verify_seller", "target_user_id": user_id, "status": status_v,
+        "created_at": datetime.utcnow(),
+    })
+    return {"success": True, "status": status_v}
+
+@api_router.post("/admin/verify-vet/{user_id}")
+async def verify_vet_user(user_id: str, data: dict = Body(default={}), admin_user: dict = Depends(get_admin_user)):
+    status_v = data.get("status", "verified")
+    await db.users.update_one({"id": user_id}, {"$set": {
+        "vet_verification": status_v,
+        "vet_verified_at": datetime.utcnow() if status_v == "verified" else None,
+        "role": "vet" if status_v == "verified" else "user",
+    }})
+    await db.vet_profiles.update_one({"user_id": user_id}, {"$set": {"verification_status": status_v}}, upsert=False)
+    await db.admin_audit_logs.insert_one({
+        "id": str(uuid.uuid4()), "admin_id": admin_user.get("id"),
+        "action": "verify_vet", "target_user_id": user_id, "status": status_v,
+        "created_at": datetime.utcnow(),
+    })
+    return {"success": True, "status": status_v}
+
+@api_router.get("/admin/queues/summary")
+async def admin_queues_summary(admin_user: dict = Depends(get_admin_user)):
+    return {
+        "pending_friend_reports": await db.friend_reports.count_documents({"status": "pending"}) if "friend_reports" in await db.list_collection_names() else 0,
+        "pending_role_requests": await db.role_requests.count_documents({"status": "pending"}) if "role_requests" in await db.list_collection_names() else 0,
+        "pending_seller_verifications": await db.users.count_documents({"seller_verification": "pending"}),
+        "pending_vet_verifications": await db.users.count_documents({"vet_verification": "pending"}),
+        "open_orders": await db.orders.count_documents({"status": {"$in": ["pending", "confirmed"]}}) if "orders" in await db.list_collection_names() else 0,
+        "pending_appointments": await db.appointments.count_documents({"status": "pending"}) if "appointments" in await db.list_collection_names() else 0,
+    }
+
+@api_router.get("/analytics/overview")
+async def analytics_overview(admin_user: dict = Depends(get_admin_user)):
+    names = await db.list_collection_names()
+    return {
+        "users": await db.users.count_documents({}),
+        "pets": await db.pets.count_documents({}) if "pets" in names else 0,
+        "orders": await db.orders.count_documents({}) if "orders" in names else 0,
+        "appointments": await db.appointments.count_documents({}) if "appointments" in names else 0,
+        "community_posts": await db.community_posts.count_documents({}) if "community_posts" in names else 0,
+    }
+
+
 # Include the router
 app.include_router(api_router)
 
+_cors = [o.strip() for o in os.environ.get("CORS_ORIGINS", "https://petsy.company").split(",") if o.strip()]
 app.add_middleware(
     CORSMiddleware,
     allow_credentials=True,
-    allow_origins=["*"],
+    allow_origins=_cors or ["https://petsy.company"],
     allow_methods=["*"],
     allow_headers=["*"],
 )

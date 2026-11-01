@@ -7,10 +7,16 @@ import { useTranslation } from '../../src/hooks/useTranslation';
 import { useRouter } from 'expo-router';
 
 export default function TabLayout() {
-  const { t } = useTranslation();
+  const { t, language } = useTranslation();
   const router = useRouter();
+  const isAr = language === 'ar';
 
-  const renderTabIcon = (icon: keyof typeof Ionicons.glyphMap, color: string, size: number, focused: boolean) => (
+  const renderTabIcon = (
+    icon: keyof typeof Ionicons.glyphMap,
+    color: string,
+    size: number,
+    focused: boolean
+  ) => (
     <View style={[styles.iconWrap, focused && styles.iconWrapActive]}>
       <Ionicons name={icon} size={focused ? size + 1 : size} color={focused ? Colors.primary : color} />
     </View>
@@ -32,39 +38,44 @@ export default function TabLayout() {
         <Tabs.Screen
           name="home"
           options={{
-            title: t('home'),
+            title: isAr ? 'الرئيسية' : t('home'),
             tabBarIcon: ({ color, size, focused }) => renderTabIcon('home', color, size, focused),
           }}
         />
         <Tabs.Screen
           name="adoption"
           options={{
-            title: t('adoption'),
+            title: isAr ? 'تبنّي' : t('adoption'),
             tabBarIcon: ({ color, size, focused }) => renderTabIcon('heart', color, size, focused),
           }}
         />
         <Tabs.Screen
           name="shop"
           options={{
-            title: t('shop'),
+            title: isAr ? 'السوق' : t('shop'),
             tabBarIcon: ({ color, size, focused }) => renderTabIcon('storefront', color, size, focused),
+          }}
+        />
+        <Tabs.Screen
+          name="messages"
+          options={{
+            title: isAr ? 'رسائل' : 'Messages',
+            href: '/messages',
+            tabBarIcon: ({ color, size, focused }) =>
+              renderTabIcon('chatbubbles', color, size, focused),
           }}
         />
         <Tabs.Screen
           name="profile"
           options={{
-            title: t('profile'),
+            title: isAr ? 'حسابي' : t('profile'),
             tabBarIcon: ({ color, size, focused }) => renderTabIcon('person', color, size, focused),
           }}
         />
       </Tabs>
 
-      {/* Floating SOS Button */}
-      <TouchableOpacity
-        style={styles.sosButton}
-        onPress={() => router.push('/emergency')}
-      >
-        <Text style={styles.sosText}>SOS</Text>
+      <TouchableOpacity style={styles.sosButton} onPress={() => router.push('/lost-found')}>
+        <Text style={styles.sosText}>{isAr ? 'ضائع' : 'SOS'}</Text>
       </TouchableOpacity>
     </>
   );
@@ -76,21 +87,21 @@ const styles = StyleSheet.create({
     left: Spacing.md,
     right: Spacing.md,
     bottom: Spacing.sm,
-    backgroundColor: Colors.white,
+    backgroundColor: Colors.surface,
     borderTopWidth: 0,
     borderRadius: BorderRadius.xl,
+    borderWidth: 1,
+    borderColor: Colors.border,
     elevation: 12,
     shadowColor: Colors.black,
     shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.12,
+    shadowOpacity: 0.1,
     shadowRadius: 14,
     height: 68,
     paddingBottom: 8,
     paddingTop: 8,
   },
-  tabItem: {
-    paddingTop: 2,
-  },
+  tabItem: { paddingTop: 2 },
   iconWrap: {
     width: 30,
     height: 30,
@@ -98,34 +109,25 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  iconWrapActive: {
-    backgroundColor: Colors.primary + '14',
-  },
-  tabLabel: {
-    fontSize: 11,
-    fontWeight: '700',
-    marginBottom: 2,
-  },
+  iconWrapActive: { backgroundColor: Colors.primarySoft },
+  tabLabel: { fontSize: 11, fontWeight: '700', marginBottom: 2 },
   sosButton: {
     position: 'absolute',
     bottom: 100,
     right: Spacing.md,
-    width: 56,
+    minWidth: 56,
     height: 56,
+    paddingHorizontal: 10,
     borderRadius: BorderRadius.full,
     backgroundColor: Colors.error,
     justifyContent: 'center',
     alignItems: 'center',
     shadowColor: Colors.error,
     shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.4,
+    shadowOpacity: 0.35,
     shadowRadius: 8,
     elevation: 8,
     zIndex: 100,
   },
-  sosText: {
-    color: Colors.white,
-    fontSize: FontSize.md,
-    fontWeight: '800',
-  },
+  sosText: { color: Colors.white, fontSize: FontSize.sm, fontWeight: '800' },
 });

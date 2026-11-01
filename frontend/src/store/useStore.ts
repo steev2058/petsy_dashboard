@@ -103,7 +103,7 @@ export const useStore = create<AppState>((set, get) => ({
   token: null,
   isAuthenticated: false,
   isLoading: true,
-  language: 'en',
+  language: 'ar',
   isDrawerOpen: false,
   myPets: [],
   selectedPet: null,
@@ -141,7 +141,7 @@ export const useStore = create<AppState>((set, get) => ({
   loadStoredAuth: async () => {
     try {
       const token = await AsyncStorage.getItem('auth_token');
-      const language = (await AsyncStorage.getItem('language')) as Language || 'en';
+      const language = (await AsyncStorage.getItem('language')) as Language || 'ar';
       const cartData = await AsyncStorage.getItem('cart');
       const cart = cartData ? JSON.parse(cartData) : [];
       const cartTotal = cart.reduce((sum: number, item: CartItem) => sum + item.price * item.quantity, 0);
