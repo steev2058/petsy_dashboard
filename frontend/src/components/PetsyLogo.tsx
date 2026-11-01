@@ -95,7 +95,7 @@ export function PetsyMark({
     >
       {/* small upper print — lifted so toes stay clear of the lower paw */}
       <Animated.View style={[{ position: 'absolute', left: s * 0.20, top: s * 0.08 }, aStyle]}>
-        <Paw size={s * 0.36} />
+        <Paw size={s * 0.324} />
       </Animated.View>
       {/* larger lower print */}
       <Animated.View style={[{ position: 'absolute', left: s * 0.34, top: s * 0.42 }, bStyle]}>
