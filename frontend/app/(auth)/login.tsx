@@ -22,7 +22,7 @@ import Animated, {
 } from 'react-native-reanimated';
 import { Button, Input } from '../../src/components';
 import { Colors, FontSize, Spacing, BorderRadius, Shadow } from '../../src/constants/theme';
-import { PetsyMark } from '../../src/components/PetsyLogo';
+import { PetsyMark, PetsyName } from '../../src/components/PetsyLogo';
 import { Brand } from '../../src/brand/tokens';
 import { authAPI } from '../../src/services/api';
 import { useStore } from '../../src/store/useStore';
@@ -121,7 +121,7 @@ export default function LoginScreen() {
   return (
     <SafeAreaView style={styles.container}>
       <LinearGradient
-        colors={[Brand.colors.stone, Brand.colors.stoneDark, '#F3E7DC']}
+        colors={['#FFFFFF', '#FFF8F5', '#FFFFFF']}
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 1 }}
         style={StyleSheet.absoluteFill}
@@ -162,14 +162,10 @@ export default function LoginScreen() {
 
           <View style={[styles.layout, isWide && styles.layoutWide]}>
             <Animated.View style={[styles.heroCol, heroStyle, isWide && styles.heroWide]}>
-              <View style={styles.logoStage}>
-                <View style={styles.logoHalo} />
-                <PetsyMark size={128} animated />
-              </View>
-              <Text style={styles.title}>Petsy</Text>
-              <View style={styles.rule} />
+              <PetsyMark size={112} animated />
+              <PetsyName fontSize={44} />
               <Text style={styles.subtitle}>
-                {isAr ? 'أهلاً بك — رعاية الحيوان في سوريا' : 'Welcome back to Petsy'}
+                {isAr ? 'أهلاً بك في Petsy' : 'Welcome to Petsy'}
               </Text>
               <Text style={styles.heroHint}>
                 {isAr
@@ -270,7 +266,7 @@ const styles = StyleSheet.create({
     width: 280,
     height: 280,
     borderRadius: 140,
-    backgroundColor: 'rgba(232,163,23,0.22)',
+    backgroundColor: 'rgba(255,107,56,0.14)',
   },
   glowOlive: {
     position: 'absolute',
@@ -279,7 +275,7 @@ const styles = StyleSheet.create({
     width: 220,
     height: 220,
     borderRadius: 110,
-    backgroundColor: 'rgba(20,62,60,0.10)',
+    backgroundColor: 'rgba(255,107,56,0.06)',
   },
   topRow: {
     flexDirection: 'row',

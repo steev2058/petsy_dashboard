@@ -1,12 +1,10 @@
 import React, { useEffect } from 'react';
-import { View, Text, StyleSheet, ViewStyle, TextStyle, Image } from 'react-native';
+import { View, Text, StyleSheet, ViewStyle, TextStyle } from 'react-native';
 import Animated, {
   Easing,
   useAnimatedStyle,
   useSharedValue,
   withDelay,
-  withRepeat,
-  withSequence,
   withSpring,
   withTiming,
 } from 'react-native-reanimated';
@@ -15,84 +13,150 @@ import { Brand } from '../brand/tokens';
 type Size = 'sm' | 'md' | 'lg' | 'xl' | number;
 const SIZE_MAP = { sm: 36, md: 56, lg: 88, xl: 128 };
 
-type MarkProps = {
+function Paw({ size, color = Brand.colors.white }: { size: number; color?: string }) {
+  const toe = size * 0.22;
+  return (
+    <View style={{ width: size, height: size * 1.15, alignItems: 'center' }}>
+      <View style={{ flexDirection: 'row', alignItems: 'flex-end', gap: size * 0.05 }}>
+        {[0.82, 1, 1, 0.82].map((scale, i) => (
+          <View
+            key={i}
+            style={{
+              width: toe * scale,
+              height: toe * scale * 1.25,
+              borderRadius: toe,
+              backgroundColor: color,
+              marginBottom: i === 0 || i === 3 ? 0 : toe * 0.28,
+            }}
+          />
+        ))}
+      </View>
+      <View
+        style={{
+          width: size * 0.62,
+          height: size * 0.48,
+          borderRadius: size,
+          backgroundColor: color,
+          marginTop: size * 0.02,
+        }}
+      />
+    </View>
+  );
+}
+
+/** Orange disc with two white footprints — pet + sy */
+export function PetsyMark({
+  size = 'md',
+  style,
+  animated = false,
+}: {
   size?: Size;
   style?: ViewStyle;
   animated?: boolean;
   creative?: boolean;
-};
-
-/** Courtyard-arch mark — cedar tile with a slow gold breath when animated */
-export function PetsyMark({ size = 'md', style, animated = false }: MarkProps) {
+}) {
   const s = typeof size === 'number' ? size : SIZE_MAP[size];
-  const scale = useSharedValue(1);
-  const ring = useSharedValue(1);
+  const disc = useSharedValue(animated ? 0.72 : 1);
+  const pawA = useSharedValue(animated ? 0 : 1);
+  const pawB = useSharedValue(animated ? 0 : 1);
 
   useEffect(() => {
     if (!animated) return;
-    scale.value = withSequence(
-      withTiming(0.94, { duration: 1 }),
-      withSpring(1, { damping: 12, stiffness: 130 })
-    );
-    ring.value = withDelay(
-      200,
-      withRepeat(
-        withSequence(
-          withTiming(1.06, { duration: 1400, easing: Easing.inOut(Easing.sin) }),
-          withTiming(0.96, { duration: 1400, easing: Easing.inOut(Easing.sin) })
-        ),
-        -1,
-        false
-      )
-    );
+    disc.value = withSpring(1, { damping: 11, stiffness: 140 });
+    pawA.value = withDelay(180, withTiming(1, { duration: 280, easing: Easing.out(Easing.cubic) }));
+    pawB.value = withDelay(340, withTiming(1, { duration: 320, easing: Easing.out(Easing.cubic) }));
   }, [animated]);
 
-  const markStyle = useAnimatedStyle(() => ({
-    transform: [{ scale: scale.value }],
+  const discStyle = useAnimatedStyle(() => ({ transform: [{ scale: disc.value }] }));
+  const aStyle = useAnimatedStyle(() => ({
+    opacity: pawA.value,
+    transform: [{ translateY: (1 - pawA.value) * 8 }, { rotate: '-24deg' }],
   }));
-  const ringStyle = useAnimatedStyle(() => ({
-    opacity: 0.55,
-    transform: [{ scale: ring.value }],
+  const bStyle = useAnimatedStyle(() => ({
+    opacity: pawB.value,
+    transform: [{ translateY: (1 - pawB.value) * 8 }, { rotate: '16deg' }],
   }));
 
   return (
-    <Animated.View style={[{ width: s, height: s, alignItems: 'center', justifyContent: 'center' }, style, markStyle]}>
-      {animated && (
-        <Animated.View
-          style={[
-            {
-              position: 'absolute',
-              width: s * 1.08,
-              height: s * 1.08,
-              borderRadius: s * 0.28,
-              borderWidth: 1.5,
-              borderColor: Brand.colors.gold,
-            },
-            ringStyle,
-          ]}
-        />
-      )}
-      <Image
-        source={require('../../assets/images/icon.png')}
-        style={{ width: s, height: s, borderRadius: s * 0.22, opacity: 1 }}
-        resizeMode="cover"
-      />
+    <Animated.View
+      style={[
+        {
+          width: s,
+          height: s,
+          borderRadius: s / 2,
+          backgroundColor: Brand.colors.orange,
+          alignItems: 'center',
+          justifyContent: 'center',
+          overflow: 'hidden',
+        },
+        style,
+        discStyle,
+      ]}
+    >
+      <Animated.View style={[{ position: 'absolute', left: s * 0.16, top: s * 0.16 }, aStyle]}>
+        <Paw size={s * 0.30} />
+      </Animated.View>
+      <Animated.View style={[{ position: 'absolute', right: s * 0.14, bottom: s * 0.12 }, bStyle]}>
+        <Paw size={s * 0.36} />
+      </Animated.View>
     </Animated.View>
   );
 }
 
-export function PetsyMarkImage({ size = 'lg', style }: { size?: Size; style?: ViewStyle }) {
-  return <PetsyMark size={size} style={style} animated />;
+export function PetsyMarkImage(props: { size?: Size; style?: ViewStyle }) {
+  return <PetsyMark {...props} animated />;
+}
+
+const LETTERS = ['P', 'e', 't', 's', 'y'] as const;
+
+function NameLetter({ ch, index, fontSize }: { ch: string; index: number; fontSize: number }) {
+  const y = useSharedValue(14);
+  const opacity = useSharedValue(0);
+  useEffect(() => {
+    const delay = 420 + index * Brand.motion.letter;
+    opacity.value = withDelay(delay, withTiming(1, { duration: 280 }));
+    y.value = withDelay(delay, withTiming(0, { duration: 380, easing: Easing.out(Easing.cubic) }));
+  }, [index]);
+  const style = useAnimatedStyle(() => ({
+    opacity: opacity.value,
+    transform: [{ translateY: y.value }],
+  }));
+  return (
+    <Animated.Text style={[styles.letter, { fontSize }, style]}>{ch}</Animated.Text>
+  );
+}
+
+/** Staggered Petsy word — pet then sy */
+export function PetsyName({ fontSize = 44 }: { fontSize?: number }) {
+  const caption = useSharedValue(0);
+  useEffect(() => {
+    caption.value = withDelay(420 + LETTERS.length * Brand.motion.letter + 80, withTiming(1, { duration: 420 }));
+  }, []);
+  const captionStyle = useAnimatedStyle(() => ({
+    opacity: caption.value,
+    transform: [{ translateY: (1 - caption.value) * 8 }],
+  }));
+
+  return (
+    <View style={styles.nameWrap}>
+      <View style={styles.row}>
+        {LETTERS.map((ch, i) => (
+          <NameLetter key={ch + i} ch={ch} index={i} fontSize={fontSize} />
+        ))}
+      </View>
+      <Animated.View style={captionStyle}>
+        <Text style={styles.meaning}>pet  ·  sy</Text>
+        <Text style={styles.meaningAr}>{Brand.taglineAr}</Text>
+      </Animated.View>
+    </View>
+  );
 }
 
 export function PetsyLogo({
   size = 'md',
   showWordmark = false,
-  wordmarkColor = Brand.colors.ink,
-  tagline = null,
-  style,
-  wordmarkStyle,
   animated = false,
+  style,
 }: {
   size?: Size;
   showWordmark?: boolean;
@@ -107,35 +171,34 @@ export function PetsyLogo({
   return (
     <View style={[styles.wrap, style]}>
       <PetsyMark size={s} animated={animated} />
-      {showWordmark && (
-        <View style={styles.wordCol}>
-          <Text style={[styles.word, { color: wordmarkColor, fontSize: Math.max(18, s * 0.38) }, wordmarkStyle]}>
-            {Brand.name}
-          </Text>
-          <View style={styles.goldRule} />
-          {tagline ? <Text style={styles.tag}>{tagline}</Text> : null}
-        </View>
-      )}
+      {showWordmark ? <PetsyName fontSize={Math.max(28, s * 0.42)} /> : null}
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  wrap: { alignItems: 'center', justifyContent: 'center' },
-  wordCol: { alignItems: 'center', marginTop: 12 },
-  word: { fontWeight: '800', letterSpacing: 1.4, fontFamily: 'Tajawal_800ExtraBold' },
-  goldRule: {
-    marginTop: 8,
-    width: 36,
-    height: 3,
-    borderRadius: 2,
-    backgroundColor: Brand.colors.gold,
+  wrap: { alignItems: 'center' },
+  nameWrap: { alignItems: 'center', marginTop: 14 },
+  row: { flexDirection: 'row', alignItems: 'flex-end' },
+  letter: {
+    color: Brand.colors.orange,
+    fontWeight: '800',
+    letterSpacing: 0.4,
+    fontFamily: 'Tajawal_800ExtraBold',
   },
-  tag: {
-    marginTop: 8,
+  meaning: {
+    marginTop: 6,
+    textAlign: 'center',
+    color: Brand.colors.inkMuted,
+    fontSize: 13,
+    fontWeight: '700',
+    letterSpacing: 1.2,
+  },
+  meaningAr: {
+    marginTop: 2,
+    textAlign: 'center',
     color: Brand.colors.inkMuted,
     fontSize: 14,
     fontWeight: '600',
-    fontFamily: 'Tajawal_500Medium',
   },
 });

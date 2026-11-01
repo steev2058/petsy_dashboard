@@ -1,39 +1,37 @@
 /**
- * Petsy Brand — Lantern Courtyard
- * Cedar arch · gold light · mist ground
+ * Petsy — pet + sy (Syria)
+ * Coral paw mark on a clean ground
  */
 export const Brand = {
   name: 'Petsy',
-  taglineAr: 'رعاية الحيوان في سوريا',
-  taglineEn: 'Pet care for Syria',
+  meaning: 'pet + sy',
+  taglineAr: 'حيوان أليف من سوريا',
+  taglineEn: 'Welcome to Petsy',
   colors: {
-    cedar: '#143E3C',
-    cedarDeep: '#0E2C2A',
-    gold: '#E8A317',
-    goldDeep: '#C4840C',
-    goldSoft: '#FFF6E0',
-    mist: '#F3F6F5',
-    mistDark: '#E4ECEA',
-    ink: '#12211F',
-    inkMuted: '#4E625F',
+    orange: '#FF6B38',
+    orangeDeep: '#E25522',
+    orangeSoft: '#FFF1EB',
+    ink: '#2C2C2C',
+    inkMuted: '#8A8A8A',
     white: '#FFFFFF',
-    /** aliases so older screens follow the new system */
-    orange: '#143E3C',
-    orangeDeep: '#0E2C2A',
-    orangeSoft: '#E7F1F0',
-    olive: '#1F6A5A',
-    oliveDeep: '#143E3C',
-    oliveRing: '#E8A317',
-    stone: '#F3F6F5',
-    stoneDark: '#E4ECEA',
+    mist: '#FFFFFF',
+    mistDark: '#FFF6F2',
+    /** legacy aliases follow the orange system */
+    cedar: '#FF6B38',
+    cedarDeep: '#E25522',
+    gold: '#FF6B38',
+    goldDeep: '#E25522',
+    goldSoft: '#FFF1EB',
+    olive: '#FF8A5B',
+    oliveDeep: '#E25522',
+    oliveRing: '#FF6B38',
+    stone: '#FFFFFF',
+    stoneDark: '#FFF6F2',
   },
   motion: {
-    splashMarkMs: 720,
-    splashWordMs: 480,
-    splashRingMs: 900,
+    splashMarkMs: 640,
+    splashWordMs: 520,
     splashHoldMs: 1500,
-    enter: 460,
+    letter: 70,
   },
 } as const;
-
-export type BrandColors = typeof Brand.colors;

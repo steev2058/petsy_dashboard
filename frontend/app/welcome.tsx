@@ -50,7 +50,7 @@ export default function WelcomeLanding() {
   return (
     <View style={styles.root}>
       <LinearGradient
-        colors={['#F3F6F5', '#E7F1F0', '#E4ECEA']}
+        colors={['#FFFFFF', '#FFF6F2', '#FFFFFF']}
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 1 }}
         style={StyleSheet.absoluteFill}
@@ -96,7 +96,7 @@ export default function WelcomeLanding() {
         </Animated.View>
 
         <View style={[styles.visualPlane, isWide && styles.visualWide]}>
-          <LinearGradient colors={['#143E3C', '#1F6A5A']} style={styles.visualCard}>
+          <LinearGradient colors={['#FF6B38', '#FF8A5B']} style={styles.visualCard}>
             <Text style={styles.visualTitle}>تبنّي · بيطرة · سوق</Text>
             <Text style={styles.visualBody}>ثلاث خدمات في منصة واحدة، بواجهة عربية أولاً ومتوافقة مع قيم المجتمع.</Text>
           </LinearGradient>
