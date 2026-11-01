@@ -167,11 +167,6 @@ export default function LoginScreen() {
               <Text style={styles.subtitle}>
                 {isAr ? 'أهلاً بك في Petsy' : 'Welcome to Petsy'}
               </Text>
-              <Text style={styles.heroHint}>
-                {isAr
-                  ? 'ادخل لمتابعة التبنّي، السوق، والحجوزات البيطرية بواجهة عربية واضحة.'
-                  : 'Sign in to continue adoption, marketplace, and vet bookings.'}
-              </Text>
             </Animated.View>
 
             <Animated.View style={[styles.formCard, Shadow.medium, cardStyle, isWide && styles.formWide]}>
