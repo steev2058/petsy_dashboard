@@ -70,11 +70,11 @@ export function PetsyMark({
   const discStyle = useAnimatedStyle(() => ({ transform: [{ scale: disc.value }] }));
   const aStyle = useAnimatedStyle(() => ({
     opacity: pawA.value,
-    transform: [{ translateY: (1 - pawA.value) * 8 }, { rotate: '-24deg' }],
+    transform: [{ translateY: (1 - pawA.value) * 6 }, { rotate: '-18deg' }],
   }));
   const bStyle = useAnimatedStyle(() => ({
     opacity: pawB.value,
-    transform: [{ translateY: (1 - pawB.value) * 8 }, { rotate: '16deg' }],
+    transform: [{ translateY: (1 - pawB.value) * 6 }, { rotate: '12deg' }],
   }));
 
   return (
@@ -93,11 +93,13 @@ export function PetsyMark({
         discStyle,
       ]}
     >
-      <Animated.View style={[{ position: 'absolute', left: s * 0.16, top: s * 0.16 }, aStyle]}>
-        <Paw size={s * 0.30} />
+      {/* small lead print */}
+      <Animated.View style={[{ position: 'absolute', left: s * 0.22, top: s * 0.18 }, aStyle]}>
+        <Paw size={s * 0.38} />
       </Animated.View>
-      <Animated.View style={[{ position: 'absolute', right: s * 0.14, bottom: s * 0.12 }, bStyle]}>
-        <Paw size={s * 0.36} />
+      {/* larger trail print, closer */}
+      <Animated.View style={[{ position: 'absolute', left: s * 0.34, top: s * 0.36 }, bStyle]}>
+        <Paw size={s * 0.48} />
       </Animated.View>
     </Animated.View>
   );
