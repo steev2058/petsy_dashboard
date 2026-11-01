@@ -126,17 +126,8 @@ function NameLetter({ ch, index, fontSize }: { ch: string; index: number; fontSi
   );
 }
 
-/** Staggered Petsy word — pet then sy */
+/** Staggered Petsy wordmark */
 export function PetsyName({ fontSize = 44 }: { fontSize?: number }) {
-  const caption = useSharedValue(0);
-  useEffect(() => {
-    caption.value = withDelay(420 + LETTERS.length * Brand.motion.letter + 80, withTiming(1, { duration: 420 }));
-  }, []);
-  const captionStyle = useAnimatedStyle(() => ({
-    opacity: caption.value,
-    transform: [{ translateY: (1 - caption.value) * 8 }],
-  }));
-
   return (
     <View style={styles.nameWrap}>
       <View style={styles.row}>
@@ -144,10 +135,6 @@ export function PetsyName({ fontSize = 44 }: { fontSize?: number }) {
           <NameLetter key={ch + i} ch={ch} index={i} fontSize={fontSize} />
         ))}
       </View>
-      <Animated.View style={captionStyle}>
-        <Text style={styles.meaning}>pet  ·  sy</Text>
-        <Text style={styles.meaningAr}>{Brand.taglineAr}</Text>
-      </Animated.View>
     </View>
   );
 }
@@ -185,20 +172,5 @@ const styles = StyleSheet.create({
     fontWeight: '800',
     letterSpacing: 0.4,
     fontFamily: 'Tajawal_800ExtraBold',
-  },
-  meaning: {
-    marginTop: 6,
-    textAlign: 'center',
-    color: Brand.colors.inkMuted,
-    fontSize: 13,
-    fontWeight: '700',
-    letterSpacing: 1.2,
-  },
-  meaningAr: {
-    marginTop: 2,
-    textAlign: 'center',
-    color: Brand.colors.inkMuted,
-    fontSize: 14,
-    fontWeight: '600',
   },
 });
