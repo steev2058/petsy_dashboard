@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { createElement, useEffect } from 'react';
 import { View, Text, StyleSheet, ViewStyle, TextStyle, Image, Platform } from 'react-native';
 import Animated, {
   Easing,
@@ -14,6 +14,27 @@ import { Brand } from '../brand/tokens';
 
 type Size = 'sm' | 'md' | 'lg' | 'xl' | number;
 const SIZE_MAP = { sm: 36, md: 56, lg: 88, xl: 128 };
+const MARK = require('../../assets/images/icon.png');
+
+function BrandMarkArt({ size }: { size: number }) {
+  const radius = size * 0.22;
+  if (Platform.OS === 'web') {
+    const uri = Image.resolveAssetSource(MARK).uri;
+    return createElement('img', {
+      src: uri,
+      alt: 'Petsy',
+      style: {
+        width: size,
+        height: size,
+        borderRadius: radius,
+        objectFit: 'cover',
+        display: 'block',
+        opacity: 1,
+      },
+    });
+  }
+  return <Image source={MARK} style={{ width: size, height: size, borderRadius: radius }} resizeMode="cover" />;
+}
 
 type MarkProps = {
   size?: Size;
@@ -72,25 +93,7 @@ export function PetsyMark({ size = 'md', style, animated = false }: MarkProps) {
           ]}
         />
       )}
-      {Platform.OS === 'web' ? (
-        <View
-          style={{
-            width: s,
-            height: s,
-            borderRadius: s * 0.22,
-            overflow: 'hidden',
-            backgroundImage: `url(${Image.resolveAssetSource(require('../../assets/images/icon.png')).uri})`,
-            backgroundSize: 'cover',
-            backgroundPosition: 'center',
-          } as ViewStyle}
-        />
-      ) : (
-        <Image
-          source={require('../../assets/images/icon.png')}
-          style={{ width: s, height: s, borderRadius: s * 0.22 }}
-          resizeMode="cover"
-        />
-      )}
+      <BrandMarkArt size={s} />
     </Animated.View>
   );
 }
