@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { View, Text, StyleSheet, ViewStyle, TextStyle, Image } from 'react-native';
+import { View, Text, StyleSheet, ViewStyle, TextStyle, Image, Platform } from 'react-native';
 import Animated, {
   Easing,
   useAnimatedStyle,
@@ -72,11 +72,25 @@ export function PetsyMark({ size = 'md', style, animated = false }: MarkProps) {
           ]}
         />
       )}
-      <Image
-        source={require('../../assets/images/icon.png')}
-        style={{ width: s, height: s, borderRadius: s * 0.22 }}
-        resizeMode="cover"
-      />
+      {Platform.OS === 'web' ? (
+        <View
+          style={{
+            width: s,
+            height: s,
+            borderRadius: s * 0.22,
+            overflow: 'hidden',
+            backgroundImage: `url(${Image.resolveAssetSource(require('../../assets/images/icon.png')).uri})`,
+            backgroundSize: 'cover',
+            backgroundPosition: 'center',
+          } as ViewStyle}
+        />
+      ) : (
+        <Image
+          source={require('../../assets/images/icon.png')}
+          style={{ width: s, height: s, borderRadius: s * 0.22 }}
+          resizeMode="cover"
+        />
+      )}
     </Animated.View>
   );
 }
