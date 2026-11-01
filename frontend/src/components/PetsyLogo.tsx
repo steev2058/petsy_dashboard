@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { View, Text, StyleSheet, ViewStyle, TextStyle, Image } from 'react-native';
+import { View, Text, StyleSheet, ViewStyle, TextStyle } from 'react-native';
 import Animated, {
   Easing,
   useAnimatedStyle,
@@ -12,9 +12,39 @@ import { Brand } from '../brand/tokens';
 
 type Size = 'sm' | 'md' | 'lg' | 'xl' | number;
 const SIZE_MAP = { sm: 36, md: 56, lg: 88, xl: 128 };
-const MARK = require('../../assets/images/icon.png');
 
-/** Orange disc with two white 3-toe footprints (from brand icon asset) */
+function Paw({ size, color = Brand.colors.white }: { size: number; color?: string }) {
+  const toe = size * 0.20;
+  return (
+    <View style={{ width: size, height: size * 1.2, alignItems: 'center' }}>
+      <View style={{ flexDirection: 'row', alignItems: 'flex-end', gap: size * 0.09 }}>
+        {[0.9, 1, 0.9].map((scale, i) => (
+          <View
+            key={i}
+            style={{
+              width: toe * scale,
+              height: toe * scale * 1.35,
+              borderRadius: toe,
+              backgroundColor: color,
+              marginBottom: i === 1 ? toe * 0.42 : toe * 0.06,
+            }}
+          />
+        ))}
+      </View>
+      <View
+        style={{
+          width: size * 0.58,
+          height: size * 0.42,
+          borderRadius: size,
+          backgroundColor: color,
+          marginTop: size * 0.06,
+        }}
+      />
+    </View>
+  );
+}
+
+/** Orange disc with two white footprints — pet + sy */
 export function PetsyMark({
   size = 'md',
   style,
@@ -26,26 +56,51 @@ export function PetsyMark({
   creative?: boolean;
 }) {
   const s = typeof size === 'number' ? size : SIZE_MAP[size];
-  const scale = useSharedValue(animated ? 0.82 : 1);
-  const opacity = useSharedValue(1);
+  const disc = useSharedValue(animated ? 0.72 : 1);
+  const pawA = useSharedValue(animated ? 0 : 1);
+  const pawB = useSharedValue(animated ? 0 : 1);
 
   useEffect(() => {
     if (!animated) return;
-    scale.value = withSpring(1, { damping: 11, stiffness: 140 });
+    disc.value = withSpring(1, { damping: 11, stiffness: 140 });
+    pawA.value = withDelay(180, withTiming(1, { duration: 280, easing: Easing.out(Easing.cubic) }));
+    pawB.value = withDelay(340, withTiming(1, { duration: 320, easing: Easing.out(Easing.cubic) }));
   }, [animated]);
 
-  const discStyle = useAnimatedStyle(() => ({
-    opacity: opacity.value,
-    transform: [{ scale: scale.value }],
+  const discStyle = useAnimatedStyle(() => ({ transform: [{ scale: disc.value }] }));
+  const aStyle = useAnimatedStyle(() => ({
+    opacity: pawA.value,
+    transform: [{ translateY: (1 - pawA.value) * 6 }, { rotate: '-18deg' }],
+  }));
+  const bStyle = useAnimatedStyle(() => ({
+    opacity: pawB.value,
+    transform: [{ translateY: (1 - pawB.value) * 6 }, { rotate: '12deg' }],
   }));
 
   return (
-    <Animated.View style={[{ width: s, height: s }, style, discStyle]}>
-      <Image
-        source={MARK}
-        style={{ width: s, height: s, borderRadius: s / 2 }}
-        resizeMode="cover"
-      />
+    <Animated.View
+      style={[
+        {
+          width: s,
+          height: s,
+          borderRadius: s / 2,
+          backgroundColor: Brand.colors.orange,
+          alignItems: 'center',
+          justifyContent: 'center',
+          overflow: 'hidden',
+        },
+        style,
+        discStyle,
+      ]}
+    >
+      {/* small upper print — lifted so toes stay clear of the lower paw */}
+      <Animated.View style={[{ position: 'absolute', left: s * 0.20, top: s * 0.08 }, aStyle]}>
+        <Paw size={s * 0.36} />
+      </Animated.View>
+      {/* larger lower print */}
+      <Animated.View style={[{ position: 'absolute', left: s * 0.34, top: s * 0.42 }, bStyle]}>
+        <Paw size={s * 0.46} />
+      </Animated.View>
     </Animated.View>
   );
 }
@@ -73,6 +128,7 @@ function NameLetter({ ch, index, fontSize }: { ch: string; index: number; fontSi
   );
 }
 
+/** Staggered Petsy wordmark */
 export function PetsyName({ fontSize = 44 }: { fontSize?: number }) {
   return (
     <View style={styles.nameWrap}>
