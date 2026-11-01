@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import {
   View,
   Text,
@@ -7,14 +7,23 @@ import {
   KeyboardAvoidingView,
   Platform,
   ScrollView,
+  useWindowDimensions,
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
+import Animated, {
+  Easing,
+  useAnimatedStyle,
+  useSharedValue,
+  withDelay,
+  withTiming,
+} from 'react-native-reanimated';
 import { Button, Input } from '../../src/components';
 import { Colors, FontSize, Spacing, BorderRadius, Shadow } from '../../src/constants/theme';
-import { PetsyMark } from '../../src/components/PetsyLogo';
+import { PetsyMark, PetsyMarkImage } from '../../src/components/PetsyLogo';
+import { Brand } from '../../src/brand/tokens';
 import { authAPI } from '../../src/services/api';
 import { useStore } from '../../src/store/useStore';
 import { useTranslation } from '../../src/hooks/useTranslation';
@@ -22,6 +31,7 @@ import { getApiErrorMessage } from '../../src/utils/apiError';
 
 export default function LoginScreen() {
   const router = useRouter();
+  const { width } = useWindowDimensions();
   const { t, language } = useTranslation();
   const { setUser, setToken, setLanguage } = useStore();
 
@@ -38,19 +48,36 @@ export default function LoginScreen() {
   });
   const toastTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const isAr = language === 'ar';
+  const isWide = width > 880;
+
+  const heroY = useSharedValue(16);
+  const heroOpacity = useSharedValue(0);
+  const cardY = useSharedValue(22);
+  const cardOpacity = useSharedValue(0);
+
+  useEffect(() => {
+    if (language !== 'ar') setLanguage('ar');
+    heroOpacity.value = withTiming(1, { duration: 450 });
+    heroY.value = withTiming(0, { duration: 480, easing: Easing.out(Easing.cubic) });
+    cardOpacity.value = withDelay(160, withTiming(1, { duration: 420 }));
+    cardY.value = withDelay(160, withTiming(0, { duration: 460, easing: Easing.out(Easing.cubic) }));
+  }, []);
+
+  const heroStyle = useAnimatedStyle(() => ({
+    opacity: heroOpacity.value,
+    transform: [{ translateY: heroY.value }],
+  }));
+  const cardStyle = useAnimatedStyle(() => ({
+    opacity: cardOpacity.value,
+    transform: [{ translateY: cardY.value }],
+  }));
 
   const validate = () => {
     const newErrors: { email?: string; password?: string } = {};
-    if (!email) {
-      newErrors.email = isAr ? 'البريد مطلوب' : 'Email is required';
-    } else if (!/\S+@\S+\.\S+/.test(email)) {
-      newErrors.email = isAr ? 'صيغة البريد غير صحيحة' : 'Invalid email format';
-    }
-    if (!password) {
-      newErrors.password = isAr ? 'كلمة المرور مطلوبة' : 'Password is required';
-    } else if (password.length < 6) {
-      newErrors.password = isAr ? 'كلمة المرور قصيرة جداً' : 'Password must be at least 6 characters';
-    }
+    if (!email) newErrors.email = isAr ? 'البريد مطلوب' : 'Email is required';
+    else if (!/\S+@\S+\.\S+/.test(email)) newErrors.email = isAr ? 'صيغة البريد غير صحيحة' : 'Invalid email format';
+    if (!password) newErrors.password = isAr ? 'كلمة المرور مطلوبة' : 'Password is required';
+    else if (password.length < 6) newErrors.password = isAr ? 'كلمة المرور قصيرة جداً' : 'Password must be at least 6 characters';
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -58,9 +85,7 @@ export default function LoginScreen() {
   const showToast = (message: string, type: 'success' | 'error' = 'error') => {
     if (toastTimerRef.current) clearTimeout(toastTimerRef.current);
     setToast({ visible: true, message, type });
-    toastTimerRef.current = setTimeout(() => {
-      setToast((prev) => ({ ...prev, visible: false }));
-    }, 2200);
+    toastTimerRef.current = setTimeout(() => setToast((p) => ({ ...p, visible: false })), 2200);
   };
 
   const handleLogin = async () => {
@@ -95,12 +120,24 @@ export default function LoginScreen() {
 
   return (
     <SafeAreaView style={styles.container}>
-      <LinearGradient colors={['#F7F3EE', '#EDE6DC']} style={StyleSheet.absoluteFill} />
+      <LinearGradient
+        colors={[Brand.colors.stone, Brand.colors.stoneDark, '#F3E7DC']}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 1 }}
+        style={StyleSheet.absoluteFill}
+      />
+      <View style={styles.glowOrange} pointerEvents="none" />
+      <View style={styles.glowOlive} pointerEvents="none" />
+
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         style={styles.keyboardView}
       >
-        <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
+        <ScrollView
+          contentContainerStyle={[styles.scrollContent, isWide && styles.scrollWide]}
+          showsVerticalScrollIndicator={false}
+          keyboardShouldPersistTaps="handled"
+        >
           {toast.visible && (
             <View style={[styles.toast, toast.type === 'error' ? styles.toastError : styles.toastSuccess]}>
               <Ionicons
@@ -112,94 +149,109 @@ export default function LoginScreen() {
             </View>
           )}
 
-          <TouchableOpacity style={styles.langToggle} onPress={toggleLanguage}>
-            <Ionicons name="globe-outline" size={20} color={Colors.primary} />
-            <Text style={styles.langText}>{language === 'en' ? 'العربية' : 'English'}</Text>
-          </TouchableOpacity>
-
-          <View style={styles.logoContainer}>
-            <PetsyMark size={88} />
-            <Text style={styles.title}>Petsy</Text>
-            <Text style={styles.subtitle}>
-              {isAr ? 'أهلاً بك في منصة رعاية الحيوان' : t('welcome')}
-            </Text>
+          <View style={styles.topRow}>
+            <TouchableOpacity onPress={() => router.push('/welcome')} style={styles.brandChip}>
+              <PetsyMark size={28} creative />
+              <Text style={styles.brandChipText}>Petsy</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.langToggle} onPress={toggleLanguage}>
+              <Ionicons name="globe-outline" size={18} color={Colors.primary} />
+              <Text style={styles.langText}>{language === 'en' ? 'العربية' : 'English'}</Text>
+            </TouchableOpacity>
           </View>
 
-          <View style={[styles.formCard, Shadow.medium]}>
-            <Input
-              label={isAr ? 'البريد الإلكتروني' : t('email')}
-              placeholder="you@email.com"
-              value={email}
-              onChangeText={(text) => {
-                setEmail(text);
-                if (loginError) setLoginError('');
-              }}
-              keyboardType="email-address"
-              autoCapitalize="none"
-              error={errors.email}
-              leftIcon={<Ionicons name="mail-outline" size={20} color={Colors.textSecondary} />}
-            />
-
-            <Input
-              label={isAr ? 'كلمة المرور' : t('password')}
-              placeholder="••••••••"
-              value={password}
-              onChangeText={(text) => {
-                setPassword(text);
-                if (loginError) setLoginError('');
-              }}
-              secureTextEntry={!showPassword}
-              error={errors.password}
-              leftIcon={<Ionicons name="lock-closed-outline" size={20} color={Colors.textSecondary} />}
-              rightIcon={
-                <TouchableOpacity onPress={() => setShowPassword(!showPassword)}>
-                  <Ionicons
-                    name={showPassword ? 'eye-off-outline' : 'eye-outline'}
-                    size={20}
-                    color={Colors.textSecondary}
-                  />
-                </TouchableOpacity>
-              }
-            />
-
-            <TouchableOpacity
-              style={styles.forgotPassword}
-              onPress={() => router.push('/(auth)/forgot-password')}
-            >
-              <Text style={styles.forgotPasswordText}>
-                {isAr ? 'نسيت كلمة المرور؟' : t('forgot_password')}
+          <View style={[styles.layout, isWide && styles.layoutWide]}>
+            <Animated.View style={[styles.heroCol, heroStyle, isWide && styles.heroWide]}>
+              <View style={styles.logoStage}>
+                <View style={styles.logoHalo} />
+                <PetsyMarkImage size={128} />
+              </View>
+              <Text style={styles.title}>Petsy</Text>
+              <View style={styles.rule} />
+              <Text style={styles.subtitle}>
+                {isAr ? 'أهلاً بك — رعاية الحيوان في سوريا' : 'Welcome back to Petsy'}
               </Text>
-            </TouchableOpacity>
+              <Text style={styles.heroHint}>
+                {isAr
+                  ? 'ادخل لمتابعة التبنّي، السوق، والحجوزات البيطرية بواجهة عربية واضحة.'
+                  : 'Sign in to continue adoption, marketplace, and vet bookings.'}
+              </Text>
+            </Animated.View>
 
-            <Button
-              title={isAr ? 'تسجيل الدخول' : t('login')}
-              onPress={handleLogin}
-              loading={loading}
-              style={styles.loginButton}
-            />
+            <Animated.View style={[styles.formCard, Shadow.medium, cardStyle, isWide && styles.formWide]}>
+              <Text style={styles.formHeading}>{isAr ? 'تسجيل الدخول' : t('login')}</Text>
 
-            {!!loginError && <Text style={styles.loginErrorText}>{loginError}</Text>}
+              <Input
+                label={isAr ? 'البريد الإلكتروني' : t('email')}
+                placeholder="you@email.com"
+                value={email}
+                onChangeText={(text) => {
+                  setEmail(text);
+                  if (loginError) setLoginError('');
+                }}
+                keyboardType="email-address"
+                autoCapitalize="none"
+                error={errors.email}
+                leftIcon={<Ionicons name="mail-outline" size={20} color={Colors.textSecondary} />}
+              />
 
-            <Button
-              title={isAr ? 'متابعة كضيف' : 'Continue as Guest'}
-              onPress={continueAsGuest}
-              variant="outline"
-              style={styles.guestButton}
-            />
+              <Input
+                label={isAr ? 'كلمة المرور' : t('password')}
+                placeholder="••••••••"
+                value={password}
+                onChangeText={(text) => {
+                  setPassword(text);
+                  if (loginError) setLoginError('');
+                }}
+                secureTextEntry={!showPassword}
+                error={errors.password}
+                leftIcon={<Ionicons name="lock-closed-outline" size={20} color={Colors.textSecondary} />}
+                rightIcon={
+                  <TouchableOpacity onPress={() => setShowPassword(!showPassword)}>
+                    <Ionicons
+                      name={showPassword ? 'eye-off-outline' : 'eye-outline'}
+                      size={20}
+                      color={Colors.textSecondary}
+                    />
+                  </TouchableOpacity>
+                }
+              />
+
+              <TouchableOpacity
+                style={styles.forgotPassword}
+                onPress={() => router.push('/(auth)/forgot-password')}
+              >
+                <Text style={styles.forgotPasswordText}>
+                  {isAr ? 'نسيت كلمة المرور؟' : t('forgot_password')}
+                </Text>
+              </TouchableOpacity>
+
+              <Button
+                title={isAr ? 'تسجيل الدخول' : t('login')}
+                onPress={handleLogin}
+                loading={loading}
+                style={styles.loginButton}
+              />
+
+              {!!loginError && <Text style={styles.loginErrorText}>{loginError}</Text>}
+
+              <Button
+                title={isAr ? 'متابعة كضيف' : 'Continue as Guest'}
+                onPress={continueAsGuest}
+                variant="outline"
+                style={styles.guestButton}
+              />
+
+              <View style={styles.signupContainer}>
+                <Text style={styles.signupText}>
+                  {isAr ? 'ليس لديك حساب؟ ' : `${t('no_account')} `}
+                </Text>
+                <TouchableOpacity onPress={() => router.push('/(auth)/signup')}>
+                  <Text style={styles.signupLink}>{isAr ? 'إنشاء حساب' : t('signup')}</Text>
+                </TouchableOpacity>
+              </View>
+            </Animated.View>
           </View>
-
-          <View style={styles.signupContainer}>
-            <Text style={styles.signupText}>
-              {isAr ? 'ليس لديك حساب؟ ' : `${t('no_account')} `}
-            </Text>
-            <TouchableOpacity onPress={() => router.push('/(auth)/signup')}>
-              <Text style={styles.signupLink}>{isAr ? 'إنشاء حساب' : t('signup')}</Text>
-            </TouchableOpacity>
-          </View>
-
-          <TouchableOpacity onPress={() => router.push('/welcome')} style={styles.backHome}>
-            <Text style={styles.backHomeText}>{isAr ? 'العودة للصفحة الرئيسية' : 'Back to landing'}</Text>
-          </TouchableOpacity>
         </ScrollView>
       </KeyboardAvoidingView>
     </SafeAreaView>
@@ -207,50 +259,118 @@ export default function LoginScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: Colors.background },
+  container: { flex: 1, backgroundColor: Brand.colors.stone },
   keyboardView: { flex: 1 },
-  scrollContent: { flexGrow: 1, padding: Spacing.lg },
+  scrollContent: { flexGrow: 1, padding: Spacing.lg, paddingBottom: 48 },
+  scrollWide: { maxWidth: 1040, width: '100%', alignSelf: 'center' },
+  glowOrange: {
+    position: 'absolute',
+    top: -90,
+    right: -70,
+    width: 280,
+    height: 280,
+    borderRadius: 140,
+    backgroundColor: 'rgba(240,140,53,0.16)',
+  },
+  glowOlive: {
+    position: 'absolute',
+    bottom: -60,
+    left: -40,
+    width: 220,
+    height: 220,
+    borderRadius: 110,
+    backgroundColor: 'rgba(110,127,74,0.12)',
+  },
+  topRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: Spacing.lg,
+  },
+  brandChip: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    backgroundColor: Colors.surface,
+    borderWidth: 1,
+    borderColor: Colors.border,
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    borderRadius: BorderRadius.full,
+  },
+  brandChipText: { fontWeight: '800', color: Brand.colors.ink, fontSize: FontSize.md },
   langToggle: {
     flexDirection: 'row',
     alignItems: 'center',
-    alignSelf: 'flex-end',
     gap: Spacing.xs,
     padding: Spacing.sm,
   },
-  langText: { color: Colors.primary, fontSize: FontSize.md, fontWeight: '600' },
-  logoContainer: { alignItems: 'center', marginVertical: Spacing.lg },
-  logoCircle: {
-    width: 88,
-    height: 88,
-    borderRadius: 44,
-    backgroundColor: Colors.primary,
-    justifyContent: 'center',
+  langText: { color: Colors.primary, fontSize: FontSize.md, fontWeight: '700' },
+  layout: { gap: Spacing.xl },
+  layoutWide: { flexDirection: 'row', alignItems: 'center', gap: 40 },
+  heroCol: { alignItems: 'center' },
+  heroWide: { flex: 1, paddingHorizontal: 12 },
+  logoStage: {
+    width: 150,
+    height: 150,
     alignItems: 'center',
+    justifyContent: 'center',
     marginBottom: Spacing.md,
   },
-  logoEmoji: { fontSize: 40 },
+  logoHalo: {
+    position: 'absolute',
+    width: 148,
+    height: 148,
+    borderRadius: 74,
+    borderWidth: 1.5,
+    borderColor: 'rgba(139,144,80,0.45)',
+  },
   title: {
-    fontSize: 36,
+    fontSize: 40,
     fontWeight: '800',
-    color: Colors.primary,
-    letterSpacing: 0.5,
+    color: Brand.colors.ink,
+    letterSpacing: 1,
+    fontFamily: 'Tajawal_800ExtraBold',
+  },
+  rule: {
+    width: 40,
+    height: 3,
+    borderRadius: 2,
+    backgroundColor: Brand.colors.olive,
+    marginTop: 10,
+    marginBottom: 10,
   },
   subtitle: {
-    fontSize: FontSize.md,
-    color: Colors.textSecondary,
-    marginTop: Spacing.xs,
+    fontSize: FontSize.lg,
+    color: Brand.colors.inkMuted,
     textAlign: 'center',
+    fontWeight: '700',
+  },
+  heroHint: {
+    marginTop: 8,
+    maxWidth: 340,
+    textAlign: 'center',
+    color: Colors.textSecondary,
+    lineHeight: 22,
+    fontSize: FontSize.md,
   },
   formCard: {
     backgroundColor: Colors.surface,
-    borderRadius: BorderRadius.lg,
+    borderRadius: BorderRadius.xl,
     padding: Spacing.lg,
     borderWidth: 1,
     borderColor: Colors.border,
-    marginTop: Spacing.md,
+  },
+  formWide: { flex: 1, maxWidth: 440 },
+  formHeading: {
+    fontSize: FontSize.xl,
+    fontWeight: '800',
+    color: Brand.colors.ink,
+    textAlign: 'right',
+    marginBottom: Spacing.md,
   },
   forgotPassword: { alignSelf: 'flex-end', marginBottom: Spacing.lg },
-  forgotPasswordText: { color: Colors.primary, fontSize: FontSize.md },
+  forgotPasswordText: { color: Colors.primary, fontSize: FontSize.md, fontWeight: '600' },
   loginButton: { marginTop: Spacing.sm },
   loginErrorText: {
     marginTop: Spacing.sm,
@@ -263,13 +383,11 @@ const styles = StyleSheet.create({
   signupContainer: {
     flexDirection: 'row',
     justifyContent: 'center',
-    marginTop: Spacing.xl,
+    marginTop: Spacing.lg,
     flexWrap: 'wrap',
   },
   signupText: { color: Colors.textSecondary, fontSize: FontSize.md },
-  signupLink: { color: Colors.primary, fontSize: FontSize.md, fontWeight: '700' },
-  backHome: { alignItems: 'center', marginTop: Spacing.lg, marginBottom: Spacing.xl },
-  backHomeText: { color: Colors.secondary, fontSize: FontSize.sm, fontWeight: '600' },
+  signupLink: { color: Colors.primary, fontSize: FontSize.md, fontWeight: '800' },
   toast: {
     borderRadius: BorderRadius.md,
     paddingVertical: 10,
