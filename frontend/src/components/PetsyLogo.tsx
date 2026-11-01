@@ -17,16 +17,16 @@ function Paw({ size, color = Brand.colors.white }: { size: number; color?: strin
   const toe = size * 0.22;
   return (
     <View style={{ width: size, height: size * 1.15, alignItems: 'center' }}>
-      <View style={{ flexDirection: 'row', alignItems: 'flex-end', gap: size * 0.05 }}>
-        {[0.82, 1, 1, 0.82].map((scale, i) => (
+      <View style={{ flexDirection: 'row', alignItems: 'flex-end', gap: size * 0.07 }}>
+        {[0.88, 1, 0.88].map((scale, i) => (
           <View
             key={i}
             style={{
               width: toe * scale,
-              height: toe * scale * 1.25,
+              height: toe * scale * 1.28,
               borderRadius: toe,
               backgroundColor: color,
-              marginBottom: i === 0 || i === 3 ? 0 : toe * 0.28,
+              marginBottom: i === 1 ? toe * 0.28 : 0,
             }}
           />
         ))}
