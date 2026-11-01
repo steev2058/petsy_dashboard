@@ -50,7 +50,7 @@ export default function WelcomeLanding() {
   return (
     <View style={styles.root}>
       <LinearGradient
-        colors={['#F7F3EE', '#EDE6DC', '#F3E7DC']}
+        colors={['#F3F6F5', '#E7F1F0', '#E4ECEA']}
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 1 }}
         style={StyleSheet.absoluteFill}
@@ -60,7 +60,7 @@ export default function WelcomeLanding() {
       <ScrollView contentContainerStyle={[styles.scroll, isWide && styles.scrollWide]} showsVerticalScrollIndicator={false}>
         <View style={styles.topBar}>
           <View style={styles.brandRow}>
-            <PetsyMark size={42} />
+            <PetsyMark size={42} animated />
             <Text style={styles.brand}>Petsy</Text>
           </View>
           <TouchableOpacity onPress={() => router.push('/(auth)/login')} style={styles.topLogin}>
@@ -95,7 +95,7 @@ export default function WelcomeLanding() {
         </Animated.View>
 
         <View style={[styles.visualPlane, isWide && styles.visualWide]}>
-          <LinearGradient colors={['#E85D2C', '#C4481F']} style={styles.visualCard}>
+          <LinearGradient colors={['#143E3C', '#1F6A5A']} style={styles.visualCard}>
             <Text style={styles.visualTitle}>تبنّي · بيطرة · سوق</Text>
             <Text style={styles.visualBody}>ثلاث خدمات في منصة واحدة، بواجهة عربية أولاً ومتوافقة مع قيم المجتمع.</Text>
           </LinearGradient>
@@ -252,7 +252,7 @@ const styles = StyleSheet.create({
   featureTitle: { fontWeight: '800', color: Colors.text, fontSize: FontSize.lg, marginBottom: 4 },
   featureDesc: { color: Colors.textSecondary, fontSize: FontSize.md, lineHeight: 22 },
   valuesBox: {
-    backgroundColor: Colors.secondaryDark,
+    backgroundColor: Colors.primary,
     borderRadius: BorderRadius.xl,
     padding: Spacing.lg,
     marginBottom: Spacing.xl,

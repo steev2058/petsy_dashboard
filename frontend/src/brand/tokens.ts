@@ -1,29 +1,38 @@
 /**
- * Petsy Brand System — source of truth
- * Mark: warm orange paw-heart · Accent: Damascus olive · Ground: soft stone
+ * Petsy Brand — Lantern Courtyard
+ * Cedar arch · gold light · mist ground
  */
 export const Brand = {
   name: 'Petsy',
   taglineAr: 'رعاية الحيوان في سوريا',
   taglineEn: 'Pet care for Syria',
   colors: {
-    orange: '#F08C35',
-    orangeDeep: '#D96F1F',
-    orangeSoft: '#FFF3E8',
-    olive: '#6E7F4A',
-    oliveDeep: '#4F5C35',
-    oliveRing: '#8B9050',
-    stone: '#F7F3EE',
-    stoneDark: '#E8E0D4',
-    ink: '#1F2A24',
-    inkMuted: '#5C6B63',
+    cedar: '#143E3C',
+    cedarDeep: '#0E2C2A',
+    gold: '#E8A317',
+    goldDeep: '#C4840C',
+    goldSoft: '#FFF6E0',
+    mist: '#F3F6F5',
+    mistDark: '#E4ECEA',
+    ink: '#12211F',
+    inkMuted: '#4E625F',
     white: '#FFFFFF',
+    /** aliases so older screens follow the new system */
+    orange: '#143E3C',
+    orangeDeep: '#0E2C2A',
+    orangeSoft: '#E7F1F0',
+    olive: '#1F6A5A',
+    oliveDeep: '#143E3C',
+    oliveRing: '#E8A317',
+    stone: '#F3F6F5',
+    stoneDark: '#E4ECEA',
   },
   motion: {
-    splashMarkMs: 700,
-    splashWordMs: 450,
+    splashMarkMs: 720,
+    splashWordMs: 480,
     splashRingMs: 900,
-    splashHoldMs: 1400,
+    splashHoldMs: 1500,
+    enter: 460,
   },
 } as const;
 

@@ -1,26 +1,15 @@
-# Petsy Brand
+# Petsy Brand — Lantern Courtyard
 
 ## Mark
-Circular warm-orange field with white paw (heart-shaped heel), framed by a broken olive ring.
+Deep cedar tile with a gold courtyard arch and a white paw-heart. The arch reads as shelter; the paw reads as care.
 
 ## Colors
 | Token | Hex | Use |
 |-------|-----|-----|
-| Orange | `#F08C35` | Primary CTAs, mark |
-| Orange deep | `#D96F1F` | Pressed / emphasis |
-| Olive | `#6E7F4A` | Trust, secondary |
-| Olive ring | `#8B9050` | Logo accent |
-| Stone | `#F7F3EE` | App ground |
-| Ink | `#1F2A24` | Text / wordmark |
+| Cedar | `#143E3C` | Primary actions, wordmark |
+| Gold | `#E8A317` | Accent, rules, highlights |
+| Mist | `#F3F6F5` | App ground |
+| Ink | `#12211F` | Body text |
 
-## Type
-Tajawal — Arabic-first UI. Display weight for Petsy wordmark.
-
-## Motion (splash)
-1. Soft stone wash + orange glow
-2. Olive halo breathe
-3. Mark spring scale
-4. Wordmark + Arabic tagline fade up
-
-## Assets
-`frontend/assets/images/icon.png`, `adaptive-icon.png`, `splash-icon.png`, `splash-logo.png`, `wordmark.png`, `favicon.png`
+## Motion
+Splash and auth share one sequence: mist wash, gold breath around the mark, spring-in of the arch, then the wordmark and Arabic line.

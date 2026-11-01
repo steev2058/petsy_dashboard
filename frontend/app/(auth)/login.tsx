@@ -22,7 +22,7 @@ import Animated, {
 } from 'react-native-reanimated';
 import { Button, Input } from '../../src/components';
 import { Colors, FontSize, Spacing, BorderRadius, Shadow } from '../../src/constants/theme';
-import { PetsyMark, PetsyMarkImage } from '../../src/components/PetsyLogo';
+import { PetsyMark } from '../../src/components/PetsyLogo';
 import { Brand } from '../../src/brand/tokens';
 import { authAPI } from '../../src/services/api';
 import { useStore } from '../../src/store/useStore';
@@ -151,7 +151,7 @@ export default function LoginScreen() {
 
           <View style={styles.topRow}>
             <TouchableOpacity onPress={() => router.push('/welcome')} style={styles.brandChip}>
-              <PetsyMark size={28} creative />
+              <PetsyMark size={28} />
               <Text style={styles.brandChipText}>Petsy</Text>
             </TouchableOpacity>
             <TouchableOpacity style={styles.langToggle} onPress={toggleLanguage}>
@@ -164,7 +164,7 @@ export default function LoginScreen() {
             <Animated.View style={[styles.heroCol, heroStyle, isWide && styles.heroWide]}>
               <View style={styles.logoStage}>
                 <View style={styles.logoHalo} />
-                <PetsyMarkImage size={128} />
+                <PetsyMark size={128} animated />
               </View>
               <Text style={styles.title}>Petsy</Text>
               <View style={styles.rule} />
@@ -270,7 +270,7 @@ const styles = StyleSheet.create({
     width: 280,
     height: 280,
     borderRadius: 140,
-    backgroundColor: 'rgba(240,140,53,0.16)',
+    backgroundColor: 'rgba(232,163,23,0.22)',
   },
   glowOlive: {
     position: 'absolute',
@@ -279,7 +279,7 @@ const styles = StyleSheet.create({
     width: 220,
     height: 220,
     borderRadius: 110,
-    backgroundColor: 'rgba(110,127,74,0.12)',
+    backgroundColor: 'rgba(20,62,60,0.10)',
   },
   topRow: {
     flexDirection: 'row',
@@ -328,7 +328,7 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 40,
     fontWeight: '800',
-    color: Brand.colors.ink,
+    color: Brand.colors.cedar,
     letterSpacing: 1,
     fontFamily: 'Tajawal_800ExtraBold',
   },
@@ -336,7 +336,7 @@ const styles = StyleSheet.create({
     width: 40,
     height: 3,
     borderRadius: 2,
-    backgroundColor: Brand.colors.olive,
+    backgroundColor: Brand.colors.gold,
     marginTop: 10,
     marginBottom: 10,
   },
