@@ -14,30 +14,30 @@ type Size = 'sm' | 'md' | 'lg' | 'xl' | number;
 const SIZE_MAP = { sm: 36, md: 56, lg: 88, xl: 128 };
 
 function Paw({ size, color = Brand.colors.white }: { size: number; color?: string }) {
-  const toe = size * 0.22;
+  const toe = size * 0.2;
   return (
-    <View style={{ width: size, height: size * 1.15, alignItems: 'center' }}>
-      <View style={{ flexDirection: 'row', alignItems: 'flex-end', gap: size * 0.07 }}>
-        {[0.88, 1, 0.88].map((scale, i) => (
+    <View style={{ width: size, height: size * 1.12, alignItems: 'center', justifyContent: 'center' }}>
+      <View style={{ flexDirection: 'row', alignItems: 'flex-end', justifyContent: 'center', gap: size * 0.05 }}>
+        {[0.9, 1, 0.9].map((scale, i) => (
           <View
             key={i}
             style={{
               width: toe * scale,
-              height: toe * scale * 1.28,
+              height: toe * scale * 1.22,
               borderRadius: toe,
               backgroundColor: color,
-              marginBottom: i === 1 ? toe * 0.28 : 0,
+              marginBottom: i === 1 ? toe * 0.22 : 0,
             }}
           />
         ))}
       </View>
       <View
         style={{
-          width: size * 0.62,
-          height: size * 0.48,
+          width: size * 0.58,
+          height: size * 0.44,
           borderRadius: size,
           backgroundColor: color,
-          marginTop: size * 0.02,
+          marginTop: size * 0.03,
         }}
       />
     </View>
@@ -70,11 +70,11 @@ export function PetsyMark({
   const discStyle = useAnimatedStyle(() => ({ transform: [{ scale: disc.value }] }));
   const aStyle = useAnimatedStyle(() => ({
     opacity: pawA.value,
-    transform: [{ translateY: (1 - pawA.value) * 6 }, { rotate: '-18deg' }],
+    transform: [{ translateY: (1 - pawA.value) * 6 }, { rotate: '-12deg' }],
   }));
   const bStyle = useAnimatedStyle(() => ({
     opacity: pawB.value,
-    transform: [{ translateY: (1 - pawB.value) * 6 }, { rotate: '12deg' }],
+    transform: [{ translateY: (1 - pawB.value) * 6 }, { rotate: '10deg' }],
   }));
 
   return (
@@ -93,13 +93,13 @@ export function PetsyMark({
         discStyle,
       ]}
     >
-      {/* small lead print */}
-      <Animated.View style={[{ position: 'absolute', left: s * 0.22, top: s * 0.18 }, aStyle]}>
-        <Paw size={s * 0.38} />
+      {/* small lead print — kept inside the disc so all 3 toes stay visible */}
+      <Animated.View style={[{ position: 'absolute', left: s * 0.26, top: s * 0.2 }, aStyle]}>
+        <Paw size={s * 0.34} />
       </Animated.View>
-      {/* larger trail print, closer */}
-      <Animated.View style={[{ position: 'absolute', left: s * 0.34, top: s * 0.36 }, bStyle]}>
-        <Paw size={s * 0.48} />
+      {/* larger trail print */}
+      <Animated.View style={[{ position: 'absolute', left: s * 0.36, top: s * 0.38 }, bStyle]}>
+        <Paw size={s * 0.44} />
       </Animated.View>
     </Animated.View>
   );
