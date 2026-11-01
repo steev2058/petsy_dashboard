@@ -29,14 +29,19 @@ import { useStore } from '../../src/store/useStore';
 import { useTranslation } from '../../src/hooks/useTranslation';
 import { getApiErrorMessage } from '../../src/utils/apiError';
 
+// Explicit opt-in for development deployments; normal builds have empty fields.
+const developmentLoginEnabled = process.env.EXPO_PUBLIC_DEV_LOGIN_ENABLED === 'true';
+const developmentEmail = developmentLoginEnabled ? process.env.EXPO_PUBLIC_DEV_LOGIN_EMAIL || '' : '';
+const developmentPassword = developmentLoginEnabled ? process.env.EXPO_PUBLIC_DEV_LOGIN_PASSWORD || '' : '';
+
 export default function LoginScreen() {
   const router = useRouter();
   const { width } = useWindowDimensions();
   const { t, language } = useTranslation();
   const { setUser, setToken, setLanguage } = useStore();
 
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [email, setEmail] = useState(developmentEmail);
+  const [password, setPassword] = useState(developmentPassword);
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState<{ email?: string; password?: string }>({});
@@ -171,6 +176,11 @@ export default function LoginScreen() {
 
             <Animated.View style={[styles.formCard, Shadow.medium, cardStyle, isWide && styles.formWide]}>
               <Text style={styles.formHeading}>{isAr ? 'تسجيل الدخول' : t('login')}</Text>
+              {developmentLoginEnabled && (
+                <Text style={styles.heroHint}>
+                  {isAr ? 'حساب تجريبي للتطوير — لا تستخدم بيانات شخصية' : 'Development demo account — do not use personal data'}
+                </Text>
+              )}
 
               <Input
                 label={isAr ? 'البريد الإلكتروني' : t('email')}
